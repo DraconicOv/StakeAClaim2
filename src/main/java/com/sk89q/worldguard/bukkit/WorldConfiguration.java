@@ -37,13 +37,13 @@ import org.bukkit.potion.PotionEffectType;
 
 import com.sk89q.util.yaml.YAMLFormat;
 import com.sk89q.util.yaml.YAMLProcessor;
-import com.sk89q.worldguard.blacklist.Blacklist;
-import com.sk89q.worldguard.blacklist.BlacklistLogger;
-import com.sk89q.worldguard.blacklist.loggers.ConsoleLoggerHandler;
-import com.sk89q.worldguard.blacklist.loggers.DatabaseLoggerHandler;
-import com.sk89q.worldguard.blacklist.loggers.FileLoggerHandler;
-import com.sk89q.worldguard.chest.ChestProtection;
-import com.sk89q.worldguard.chest.SignChestProtection;
+//import com.sk89q.worldguard.blacklist.Blacklist;
+//import com.sk89q.worldguard.blacklist.BlacklistLogger;
+//import com.sk89q.worldguard.blacklist.loggers.ConsoleLoggerHandler;
+//import com.sk89q.worldguard.blacklist.loggers.DatabaseLoggerHandler;
+//import com.sk89q.worldguard.blacklist.loggers.FileLoggerHandler;
+//import com.sk89q.worldguard.chest.ChestProtection;
+//import com.sk89q.worldguard.chest.SignChestProtection;
 
 /**
  * Holds the configuration for individual worlds.
@@ -71,8 +71,8 @@ public class WorldConfiguration {
     private YAMLProcessor config;
     private File blacklistFile;
 
-    private Blacklist blacklist;
-    private ChestProtection chestProtection = new SignChestProtection();
+//    private Blacklist blacklist;
+//    private ChestProtection chestProtection = new SignChestProtection();
 
     /* Configuration data start */
     public boolean summaryOnStart;
@@ -453,49 +453,49 @@ public class WorldConfiguration {
         String logFilePattern = getString("blacklist.logging.file.path", "worldguard/logs/%Y-%m-%d.log");
         int logFileCacheSize = Math.max(1, getInt("blacklist.logging.file.open-files", 10));
 
-        // Load the blacklist
-        try {
-            // If there was an existing blacklist, close loggers
-            if (blacklist != null) {
-                blacklist.getLogger().close();
-            }
-
-            // First load the blacklist data from worldguard-blacklist.txt
-            Blacklist blist = new BukkitBlacklist(useBlacklistAsWhitelist, plugin);
-            blist.load(blacklistFile);
-
-            // If the blacklist is empty, then set the field to null
-            // and save some resources
-            if (blist.isEmpty()) {
-                this.blacklist = null;
-            } else {
-                this.blacklist = blist;
-                if (summaryOnStart) {
-                    plugin.getLogger().log(Level.INFO, "Blacklist loaded.");
-                }
-
-                BlacklistLogger blacklistLogger = blist.getLogger();
-
-                if (logDatabase) {
-                    blacklistLogger.addHandler(new DatabaseLoggerHandler(dsn, user, pass, table, worldName, plugin.getLogger()));
-                }
-
-                if (logConsole) {
-                    blacklistLogger.addHandler(new ConsoleLoggerHandler(worldName, plugin.getLogger()));
-                }
-
-                if (logFile) {
-                    FileLoggerHandler handler =
-                            new FileLoggerHandler(logFilePattern, logFileCacheSize, worldName, plugin.getLogger());
-                    blacklistLogger.addHandler(handler);
-                }
-            }
-        } catch (FileNotFoundException e) {
-            plugin.getLogger().log(Level.WARNING, "WorldGuard blacklist does not exist.");
-        } catch (IOException e) {
-            plugin.getLogger().log(Level.WARNING, "Could not load WorldGuard blacklist: "
-                    + e.getMessage());
-        }
+//        // Load the blacklist
+//        try {
+//            // If there was an existing blacklist, close loggers
+//            if (blacklist != null) {
+//                blacklist.getLogger().close();
+//            }
+//
+//            // First load the blacklist data from worldguard-blacklist.txt
+//            Blacklist blist = new BukkitBlacklist(useBlacklistAsWhitelist, plugin);
+//            blist.load(blacklistFile);
+//
+//            // If the blacklist is empty, then set the field to null
+//            // and save some resources
+//            if (blist.isEmpty()) {
+//                this.blacklist = null;
+//            } else {
+//                this.blacklist = blist;
+//                if (summaryOnStart) {
+//                    plugin.getLogger().log(Level.INFO, "Blacklist loaded.");
+//                }
+//
+//                BlacklistLogger blacklistLogger = blist.getLogger();
+//
+//                if (logDatabase) {
+//                    blacklistLogger.addHandler(new DatabaseLoggerHandler(dsn, user, pass, table, worldName, plugin.getLogger()));
+//                }
+//
+//                if (logConsole) {
+//                    blacklistLogger.addHandler(new ConsoleLoggerHandler(worldName, plugin.getLogger()));
+//                }
+//
+//                if (logFile) {
+//                    FileLoggerHandler handler =
+//                            new FileLoggerHandler(logFilePattern, logFileCacheSize, worldName, plugin.getLogger());
+//                    blacklistLogger.addHandler(handler);
+//                }
+//            }
+//        } catch (FileNotFoundException e) {
+//            plugin.getLogger().log(Level.WARNING, "WorldGuard blacklist does not exist.");
+//        } catch (IOException e) {
+//            plugin.getLogger().log(Level.WARNING, "Could not load WorldGuard blacklist: "
+//                    + e.getMessage());
+//        }
 
         // Print an overview of settings
         if (summaryOnStart) {
@@ -528,55 +528,55 @@ public class WorldConfiguration {
         config.save();
     }
 
-    public Blacklist getBlacklist() {
-        return this.blacklist;
-    }
+//    public Blacklist getBlacklist() {
+//        return this.blacklist;
+//    }
 
     public String getWorldName() {
         return this.worldName;
     }
 
-    public boolean isChestProtected(Block block, Player player) {
-        if (!signChestProtection) {
-            return false;
-        }
-        if (plugin.hasPermission(player, "worldguard.chest-protection.override")
-                || plugin.hasPermission(player, "worldguard.override.chest-protection")) {
-            return false;
-        }
-        return chestProtection.isProtected(block, player);
-    }
+//    public boolean isChestProtected(Block block, Player player) {
+//        if (!signChestProtection) {
+//            return false;
+//        }
+//        if (plugin.hasPermission(player, "worldguard.chest-protection.override")
+//                || plugin.hasPermission(player, "worldguard.override.chest-protection")) {
+//            return false;
+//        }
+//        return chestProtection.isProtected(block, player);
+//    }
 
-    public boolean isChestProtected(Block block) {
+//    public boolean isChestProtected(Block block) {
+//
+//        return signChestProtection && chestProtection.isProtected(block, null);
+//    }
 
-        return signChestProtection && chestProtection.isProtected(block, null);
-    }
+//    public boolean isChestProtectedPlacement(Block block, Player player) {
+//        if (!signChestProtection) {
+//            return false;
+//        }
+//        if (plugin.hasPermission(player, "worldguard.chest-protection.override")
+//                || plugin.hasPermission(player, "worldguard.override.chest-protection")) {
+//            return false;
+//        }
+//        return chestProtection.isProtectedPlacement(block, player);
+//    }
 
-    public boolean isChestProtectedPlacement(Block block, Player player) {
-        if (!signChestProtection) {
-            return false;
-        }
-        if (plugin.hasPermission(player, "worldguard.chest-protection.override")
-                || plugin.hasPermission(player, "worldguard.override.chest-protection")) {
-            return false;
-        }
-        return chestProtection.isProtectedPlacement(block, player);
-    }
+//    public boolean isAdjacentChestProtected(Block block, Player player) {
+//        if (!signChestProtection) {
+//            return false;
+//        }
+//        if (plugin.hasPermission(player, "worldguard.chest-protection.override")
+//                || plugin.hasPermission(player, "worldguard.override.chest-protection")) {
+//            return false;
+//        }
+//        return chestProtection.isAdjacentChestProtected(block, player);
+//    }
 
-    public boolean isAdjacentChestProtected(Block block, Player player) {
-        if (!signChestProtection) {
-            return false;
-        }
-        if (plugin.hasPermission(player, "worldguard.chest-protection.override")
-                || plugin.hasPermission(player, "worldguard.override.chest-protection")) {
-            return false;
-        }
-        return chestProtection.isAdjacentChestProtected(block, player);
-    }
-
-    public ChestProtection getChestProtection() {
-        return chestProtection;
-    }
+//    public ChestProtection getChestProtection() {
+//        return chestProtection;
+//    }
 
     public int getMaxRegionCount(Player player) {
         int max = -1;

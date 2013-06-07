@@ -278,15 +278,15 @@ public class ReportWriter {
                 }
             }
             
-            if (config.getBlacklist() == null) {
-                blacklistLog.put("State", "DISABLED");
-            } else {
-                blacklistLog.put("State", "Enabled");
-                blacklistLog.put("Number of items",
-                        config.getBlacklist().getItemCount());
-                blacklistLog.put("Is whitelist",
-                        config.getBlacklist().isWhitelist());
-            }
+//            if (config.getBlacklist() == null) {
+//                blacklistLog.put("State", "DISABLED");
+//            } else {
+//                blacklistLog.put("State", "Enabled");
+//                blacklistLog.put("Number of items",
+//                        config.getBlacklist().getItemCount());
+//                blacklistLog.put("Is whitelist",
+//                        config.getBlacklist().isWhitelist());
+//            }
 
             RegionManager worldRegions = regionMgr.get(world);
 

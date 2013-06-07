@@ -23,7 +23,7 @@ import com.sk89q.commandbook.GodComponent;
 import com.sk89q.util.yaml.YAMLFormat;
 import com.sk89q.util.yaml.YAMLProcessor;
 import com.sk89q.worldguard.LocalPlayer;
-import com.sk89q.worldguard.blacklist.Blacklist;
+//import com.sk89q.worldguard.blacklist.Blacklist;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
@@ -214,15 +214,15 @@ public class ConfigurationManager {
      * @param player The player to forget about
      */
     public void forgetPlayer(LocalPlayer player) {
-        for (Map.Entry<String, WorldConfiguration> entry
-                : worlds.entrySet()) {
-
-            // The blacklist needs to forget players
-            Blacklist bl = entry.getValue().getBlacklist();
-            if (bl != null) {
-                bl.forgetPlayer(player);
-            }
-        }
+//        for (Map.Entry<String, WorldConfiguration> entry
+//                : worlds.entrySet()) {
+//
+//            // The blacklist needs to forget players
+//            Blacklist bl = entry.getValue().getBlacklist();
+//            if (bl != null) {
+//                bl.forgetPlayer(player);
+//            }
+//        }
 
         hasGodMode.remove(player.getName());
         hasAmphibious.remove(player.getName());

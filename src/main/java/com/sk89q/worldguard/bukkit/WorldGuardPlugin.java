@@ -58,9 +58,9 @@ import com.sk89q.minecraft.util.commands.WrappedCommandException;
 import com.sk89q.wepif.PermissionsResolverManager;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.LocalPlayer;
-import com.sk89q.worldguard.bukkit.commands.GeneralCommands;
+//import com.sk89q.worldguard.bukkit.commands.GeneralCommands;
 import com.sk89q.worldguard.bukkit.commands.ProtectionCommands;
-import com.sk89q.worldguard.bukkit.commands.ToggleCommands;
+//import com.sk89q.worldguard.bukkit.commands.ToggleCommands;
 import com.sk89q.worldguard.protection.GlobalRegionManager;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.util.FatalConfigurationLoadingException;
@@ -123,17 +123,17 @@ public class WorldGuardPlugin extends JavaPlugin {
 
         // Register command classes
         final CommandsManagerRegistration reg = new CommandsManagerRegistration(this, commands);
-        reg.register(ToggleCommands.class);
+//        reg.register(ToggleCommands.class);
         reg.register(ProtectionCommands.class);
 
-        getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-            @Override
-            public void run() {
-                if (!getGlobalStateManager().hasCommandBookGodMode()) {
-                    reg.register(GeneralCommands.class);
-                }
-            }
-        }, 0L);
+//        getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+//            @Override
+//            public void run() {
+//                if (!getGlobalStateManager().hasCommandBookGodMode()) {
+//                    reg.register(GeneralCommands.class);
+//                }
+//            }
+//        }, 0L);
 
         // Need to create the plugins/WorldGuard folder
         getDataFolder().mkdirs();
@@ -141,7 +141,7 @@ public class WorldGuardPlugin extends JavaPlugin {
         PermissionsResolverManager.initialize(this);
 
         // This must be done before configuration is loaded
-        LegacyWorldGuardMigration.migrateBlacklist(this);
+//        LegacyWorldGuardMigration.migrateBlacklist(this);
 
         try {
             // Load the configuration
@@ -154,7 +154,7 @@ public class WorldGuardPlugin extends JavaPlugin {
 
         // Migrate regions after the regions were loaded because
         // the migration code reuses the loaded region managers
-        LegacyWorldGuardMigration.migrateRegions(this);
+//        LegacyWorldGuardMigration.migrateRegions(this);
 
         flagStateManager = new FlagStateManager(this);
 
@@ -165,21 +165,21 @@ public class WorldGuardPlugin extends JavaPlugin {
 
         // Register events
         (new WorldGuardPlayerListener(this)).registerEvents();
-        (new WorldGuardBlockListener(this)).registerEvents();
-        (new WorldGuardEntityListener(this)).registerEvents();
-        (new WorldGuardWeatherListener(this)).registerEvents();
-        (new WorldGuardVehicleListener(this)).registerEvents();
-        (new WorldGuardServerListener(this)).registerEvents();
-        if (hasHangingEvent()) {
-            (new WorldGuardHangingListener(this)).registerEvents();
-        } else {
-            (new WorldGuardPaintingListener(this)).registerEvents();
-        }
+//        (new WorldGuardBlockListener(this)).registerEvents();
+//        (new WorldGuardEntityListener(this)).registerEvents();
+//        (new WorldGuardWeatherListener(this)).registerEvents();
+//        (new WorldGuardVehicleListener(this)).registerEvents();
+//        (new WorldGuardServerListener(this)).registerEvents();
+//        if (hasHangingEvent()) {
+//            (new WorldGuardHangingListener(this)).registerEvents();
+//        } else {
+//            (new WorldGuardPaintingListener(this)).registerEvents();
+//        }
         configuration.updateCommandBookGodMode();
 
-        if (getServer().getPluginManager().isPluginEnabled("CommandBook")) {
-            getServer().getPluginManager().registerEvents(new WorldGuardCommandBookListener(this), this);
-        }
+//        if (getServer().getPluginManager().isPluginEnabled("CommandBook")) {
+//            getServer().getPluginManager().registerEvents(new WorldGuardCommandBookListener(this), this);
+//        }
 
         // handle worlds separately to initialize already loaded worlds
         WorldGuardWorldListener worldListener = (new WorldGuardWorldListener(this));

@@ -68,12 +68,12 @@ import com.sk89q.worldedit.blocks.BlockID;
 import com.sk89q.worldedit.blocks.BlockType;
 import com.sk89q.worldedit.blocks.ItemID;
 import com.sk89q.worldguard.LocalPlayer;
-import com.sk89q.worldguard.blacklist.events.BlockBreakBlacklistEvent;
-import com.sk89q.worldguard.blacklist.events.BlockInteractBlacklistEvent;
-import com.sk89q.worldguard.blacklist.events.BlockPlaceBlacklistEvent;
-import com.sk89q.worldguard.blacklist.events.ItemAcquireBlacklistEvent;
-import com.sk89q.worldguard.blacklist.events.ItemDropBlacklistEvent;
-import com.sk89q.worldguard.blacklist.events.ItemUseBlacklistEvent;
+//import com.sk89q.worldguard.blacklist.events.BlockBreakBlacklistEvent;
+//import com.sk89q.worldguard.blacklist.events.BlockInteractBlacklistEvent;
+//import com.sk89q.worldguard.blacklist.events.BlockPlaceBlacklistEvent;
+//import com.sk89q.worldguard.blacklist.events.ItemAcquireBlacklistEvent;
+//import com.sk89q.worldguard.blacklist.events.ItemDropBlacklistEvent;
+//import com.sk89q.worldguard.blacklist.events.ItemUseBlacklistEvent;
 import com.sk89q.worldguard.bukkit.FlagStateManager.PlayerFlagState;
 import com.sk89q.worldguard.domains.DefaultDomain; /* MCA add */
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
@@ -626,19 +626,19 @@ public class WorldGuardPlayerListener implements Listener {
 
         }
 
-        if (type == BlockID.TNT && player.getItemInHand().getTypeId() == ItemID.FLINT_AND_TINDER) {
-            if (wcfg.getBlacklist() != null) {
-                if (!wcfg.getBlacklist().check(
-                        new BlockBreakBlacklistEvent(plugin.wrapPlayer(player),
-                        toVector(event.getClickedBlock()),
-                        event.getClickedBlock().getTypeId()), false, false)) {
-                    event.setUseInteractedBlock(Result.DENY);
-                    event.setUseItemInHand(Result.DENY);
-                    event.setCancelled(true);
-                    return;
-                }
-            }
-        }
+//        if (type == BlockID.TNT && player.getItemInHand().getTypeId() == ItemID.FLINT_AND_TINDER) {
+//            if (wcfg.getBlacklist() != null) {
+//                if (!wcfg.getBlacklist().check(
+//                        new BlockBreakBlacklistEvent(plugin.wrapPlayer(player),
+//                        toVector(event.getClickedBlock()),
+//                        event.getClickedBlock().getTypeId()), false, false)) {
+//                    event.setUseInteractedBlock(Result.DENY);
+//                    event.setUseItemInHand(Result.DENY);
+//                    event.setCancelled(true);
+//                    return;
+//                }
+//            }
+//        }
     }
 
     /**
@@ -654,16 +654,16 @@ public class WorldGuardPlayerListener implements Listener {
         ConfigurationManager cfg = plugin.getGlobalStateManager();
         WorldConfiguration wcfg = cfg.get(world);
 
-        if (wcfg.getBlacklist() != null) {
-            if (!wcfg.getBlacklist().check(
-                    new ItemUseBlacklistEvent(plugin.wrapPlayer(player),
-                            toVector(player.getLocation()),
-                    item.getTypeId()), false, false)) {
-                event.setCancelled(true);
-                event.setUseItemInHand(Result.DENY);
-                return;
-            }
-        }
+//        if (wcfg.getBlacklist() != null) {
+//            if (!wcfg.getBlacklist().check(
+//                    new ItemUseBlacklistEvent(plugin.wrapPlayer(player),
+//                            toVector(player.getLocation()),
+//                    item.getTypeId()), false, false)) {
+//                event.setCancelled(true);
+//                event.setUseItemInHand(Result.DENY);
+//                return;
+//            }
+//        }
     }
 
     /**
@@ -1013,66 +1013,66 @@ public class WorldGuardPlayerListener implements Listener {
             }
         }
 
-        if (wcfg.getBlacklist() != null) {
-            if (player.isSneaking() // sneak + right clicking no longer opens guis as of some recent version
-                    || (type != BlockID.CHEST
-                    && type != BlockID.DISPENSER
-                    && type != BlockID.FURNACE
-                    && type != BlockID.BURNING_FURNACE
-                    && type != BlockID.BREWING_STAND
-                    && type != BlockID.ENCHANTMENT_TABLE
-                    && type != BlockID.ANVIL
-                    && type != BlockID.ENDER_CHEST
-                    && type != BlockID.TRAPPED_CHEST
-                    && type != BlockID.HOPPER
-                    && type != BlockID.DROPPER)) {
-                if (!wcfg.getBlacklist().check(
-                        new ItemUseBlacklistEvent(plugin.wrapPlayer(player), toVector(block),
-                                item.getTypeId()), false, false)) {
-                    event.setUseItemInHand(Result.DENY);
-                    event.setCancelled(true);
-                    return;
-                }
-            }
+//        if (wcfg.getBlacklist() != null) {
+//            if (player.isSneaking() // sneak + right clicking no longer opens guis as of some recent version
+//                    || (type != BlockID.CHEST
+//                    && type != BlockID.DISPENSER
+//                    && type != BlockID.FURNACE
+//                    && type != BlockID.BURNING_FURNACE
+//                    && type != BlockID.BREWING_STAND
+//                    && type != BlockID.ENCHANTMENT_TABLE
+//                    && type != BlockID.ANVIL
+//                    && type != BlockID.ENDER_CHEST
+//                    && type != BlockID.TRAPPED_CHEST
+//                    && type != BlockID.HOPPER
+//                    && type != BlockID.DROPPER)) {
+//                if (!wcfg.getBlacklist().check(
+//                        new ItemUseBlacklistEvent(plugin.wrapPlayer(player), toVector(block),
+//                                item.getTypeId()), false, false)) {
+//                    event.setUseItemInHand(Result.DENY);
+//                    event.setCancelled(true);
+//                    return;
+//                }
+//            }
+//
+//            if (!wcfg.getBlacklist().check(
+//                    new BlockInteractBlacklistEvent(plugin.wrapPlayer(player), toVector(block),
+//                            block.getTypeId()), false, false)) {
+//                event.setUseInteractedBlock(Result.DENY);
+//                event.setCancelled(true);
+//                return;
+//            }
+//
+//            // Workaround for http://leaky.bukkit.org/issues/1034
+//            if (item.getTypeId() == BlockID.TNT) {
+//                Block placedOn = block.getRelative(event.getBlockFace());
+//                if (!wcfg.getBlacklist().check(
+//                        new BlockPlaceBlacklistEvent(plugin.wrapPlayer(player), toVector(placedOn),
+//                              item.getTypeId()), false, false)) {
+//                    event.setUseItemInHand(Result.DENY);
+//                    event.setCancelled(true);
+//                    return;
+//                }
+//            }
+//        }
 
-            if (!wcfg.getBlacklist().check(
-                    new BlockInteractBlacklistEvent(plugin.wrapPlayer(player), toVector(block),
-                            block.getTypeId()), false, false)) {
-                event.setUseInteractedBlock(Result.DENY);
-                event.setCancelled(true);
-                return;
-            }
-
-            // Workaround for http://leaky.bukkit.org/issues/1034
-            if (item.getTypeId() == BlockID.TNT) {
-                Block placedOn = block.getRelative(event.getBlockFace());
-                if (!wcfg.getBlacklist().check(
-                        new BlockPlaceBlacklistEvent(plugin.wrapPlayer(player), toVector(placedOn),
-                              item.getTypeId()), false, false)) {
-                    event.setUseItemInHand(Result.DENY);
-                    event.setCancelled(true);
-                    return;
-                }
-            }
-        }
-
-        if ((type == BlockID.CHEST
-                || type == BlockID.DISPENSER
-                || type == BlockID.FURNACE
-                || type == BlockID.BURNING_FURNACE
-                || type == BlockID.ENCHANTMENT_TABLE
-                || type == BlockID.BREWING_STAND
-                || type == BlockID.TRAPPED_CHEST
-                || type == BlockID.HOPPER
-                || type == BlockID.DROPPER)) {
-
-            if (wcfg.isChestProtected(block, player)) {
-                player.sendMessage(ChatColor.DARK_RED + "The chest is protected.");
-                event.setUseInteractedBlock(Result.DENY);
-                event.setCancelled(true);
-                return;
-            }
-        }
+//        if ((type == BlockID.CHEST
+//                || type == BlockID.DISPENSER
+//                || type == BlockID.FURNACE
+//                || type == BlockID.BURNING_FURNACE
+//                || type == BlockID.ENCHANTMENT_TABLE
+//                || type == BlockID.BREWING_STAND
+//                || type == BlockID.TRAPPED_CHEST
+//                || type == BlockID.HOPPER
+//                || type == BlockID.DROPPER)) {
+//
+//            if (wcfg.isChestProtected(block, player)) {
+//                player.sendMessage(ChatColor.DARK_RED + "The chest is protected.");
+//                event.setUseInteractedBlock(Result.DENY);
+//                event.setCancelled(true);
+//                return;
+//            }
+//        }
 
         /*if (wcfg.useRegions && wcfg.useiConomy && cfg.getiConomy() != null
                     && (type == BlockID.SIGN_POST || type == ItemID.SIGN || type == BlockID.WALL_SIGN)) {
@@ -1245,16 +1245,16 @@ public class WorldGuardPlayerListener implements Listener {
             }
         }
 
-        if (wcfg.getBlacklist() != null) {
-            Item ci = event.getItemDrop();
-
-            if (!wcfg.getBlacklist().check(
-                    new ItemDropBlacklistEvent(plugin.wrapPlayer(event.getPlayer()),
-                            toVector(ci.getLocation()), ci.getItemStack().getTypeId()), false, false)) {
-                event.setCancelled(true);
-                return;
-            }
-        }
+//        if (wcfg.getBlacklist() != null) {
+//            Item ci = event.getItemDrop();
+//
+//            if (!wcfg.getBlacklist().check(
+//                    new ItemDropBlacklistEvent(plugin.wrapPlayer(event.getPlayer()),
+//                            toVector(ci.getLocation()), ci.getItemStack().getTypeId()), false, false)) {
+//                event.setCancelled(true);
+//                return;
+//            }
+//        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -1262,16 +1262,16 @@ public class WorldGuardPlayerListener implements Listener {
         ConfigurationManager cfg = plugin.getGlobalStateManager();
         WorldConfiguration wcfg = cfg.get(event.getPlayer().getWorld());
 
-        if (wcfg.getBlacklist() != null) {
-            Item ci = event.getItem();
-
-            if (!wcfg.getBlacklist().check(
-                    new ItemAcquireBlacklistEvent(plugin.wrapPlayer(event.getPlayer()),
-                            toVector(ci.getLocation()), ci.getItemStack().getTypeId()), false, true)) {
-                event.setCancelled(true);
-                return;
-            }
-        }
+//        if (wcfg.getBlacklist() != null) {
+//            Item ci = event.getItem();
+//
+//            if (!wcfg.getBlacklist().check(
+//                    new ItemAcquireBlacklistEvent(plugin.wrapPlayer(event.getPlayer()),
+//                            toVector(ci.getLocation()), ci.getItemStack().getTypeId()), false, true)) {
+//                event.setCancelled(true);
+//                return;
+//            }
+//        }
     }
 
 
@@ -1291,14 +1291,14 @@ public class WorldGuardPlayerListener implements Listener {
             return;
         }
 
-        if (wcfg.getBlacklist() != null) {
-            if (!wcfg.getBlacklist().check(
-                    new ItemUseBlacklistEvent(plugin.wrapPlayer(player),
-                            toVector(player.getLocation()), event.getBucket().getId()), false, false)) {
-                event.setCancelled(true);
-                return;
-            }
-        }
+//        if (wcfg.getBlacklist() != null) {
+//            if (!wcfg.getBlacklist().check(
+//                    new ItemUseBlacklistEvent(plugin.wrapPlayer(player),
+//                            toVector(player.getLocation()), event.getBucket().getId()), false, false)) {
+//                event.setCancelled(true);
+//                return;
+//            }
+//        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -1326,14 +1326,14 @@ public class WorldGuardPlayerListener implements Listener {
             return;
         }
 
-        if (wcfg.getBlacklist() != null) {
-            if (!wcfg.getBlacklist().check(
-                    new ItemUseBlacklistEvent(plugin.wrapPlayer(player),
-                            toVector(player.getLocation()), event.getBucket().getId()), false, false)) {
-                event.setCancelled(true);
-                return;
-            }
-        }
+//        if (wcfg.getBlacklist() != null) {
+//            if (!wcfg.getBlacklist().check(
+//                    new ItemUseBlacklistEvent(plugin.wrapPlayer(player),
+//                            toVector(player.getLocation()), event.getBucket().getId()), false, false)) {
+//                event.setCancelled(true);
+//                return;
+//            }
+//        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

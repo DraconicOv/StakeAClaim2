@@ -38,9 +38,9 @@ public class ProtectionCommands {
     @NestedCommand({RegionCommands.class, RegionMemberCommands.class})
     public void region(CommandContext args, CommandSender sender) {}
 
-    @Command(aliases = {"worldguard", "wg"}, desc = "WorldGuard commands")
-    @NestedCommand({WorldGuardCommands.class})
-    public void worldGuard(CommandContext args, CommandSender sender) {}
+//    @Command(aliases = {"worldguard", "wg"}, desc = "WorldGuard commands")
+//    @NestedCommand({WorldGuardCommands.class})
+//    public void worldGuard(CommandContext args, CommandSender sender) {}
     
     /* MCA add start */
     @Command(aliases = {"plot", "p"}, desc = "Plot commands")
