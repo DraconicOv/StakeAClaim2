@@ -18,8 +18,8 @@
  */
 package org.stakeaclaim.bukkit;
 
-import com.sk89q.commandbook.CommandBook;
-import com.sk89q.commandbook.GodComponent;
+//import com.sk89q.commandbook.CommandBook;
+//import com.sk89q.commandbook.GodComponent;
 import com.sk89q.util.yaml.YAMLFormat;
 import com.sk89q.util.yaml.YAMLProcessor;
 import org.stakeaclaim.LocalPlayer;
@@ -81,27 +81,27 @@ public class ConfigurationManager {
      */
     private YAMLProcessor config;
 
-    /**
-     * List of people with god mode.
-     */
-    @Deprecated
-    private Set<String> hasGodMode = new HashSet<String>();
+//    /**
+//     * List of people with god mode.
+//     */
+//    @Deprecated
+//    private Set<String> hasGodMode = new HashSet<String>();
 
-    /**
-     * List of people who can breathe underwater.
-     */
-    private Set<String> hasAmphibious = new HashSet<String>();
-
-    private boolean hasCommandBookGodMode = false;
-
+//    /**
+//     * List of people who can breathe underwater.
+//     */
+//    private Set<String> hasAmphibious = new HashSet<String>();
+//
+//    private boolean hasCommandBookGodMode = false;
+//
     public boolean useRequestsScheduler;
-    public boolean useRequestsCreatureSpawnEvent;
-    public boolean activityHaltToggle = false;
-    public boolean autoGodMode;
+//    public boolean useRequestsCreatureSpawnEvent;
+//    public boolean activityHaltToggle = false;
+//    public boolean autoGodMode;
     public boolean usePlayerMove;
-    public boolean deopOnJoin;
-    public boolean blockInGameOp;
-    public Map<String, String> hostKeys = new HashMap<String, String>();
+//    public boolean deopOnJoin;
+//    public boolean blockInGameOp;
+//    public Map<String, String> hostKeys = new HashMap<String, String>();
 
     /**
      * Request Storage Configuration method, and config values
@@ -138,34 +138,34 @@ public class ConfigurationManager {
             e.printStackTrace();
         }
 
-        config.removeProperty("suppress-tick-sync-warnings");
+//        config.removeProperty("suppress-tick-sync-warnings");
         useRequestsScheduler = config.getBoolean("requests.use-scheduler", true);
-        useRequestsCreatureSpawnEvent = config.getBoolean("requests.use-creature-spawn-event", true);
-        autoGodMode = config.getBoolean("auto-invincible", config.getBoolean("auto-invincible-permission", false));
-        config.removeProperty("auto-invincible-permission");
+//        useRequestsCreatureSpawnEvent = config.getBoolean("requests.use-creature-spawn-event", true);
+//        autoGodMode = config.getBoolean("auto-invincible", config.getBoolean("auto-invincible-permission", false));
+//        config.removeProperty("auto-invincible-permission");
         usePlayerMove = config.getBoolean("use-player-move-event", true);
 
-        deopOnJoin = config.getBoolean("security.deop-everyone-on-join", false);
-        blockInGameOp = config.getBoolean("security.block-in-game-op-command", false);
-
-        hostKeys = new HashMap<String, String>();
-        Object hostKeysRaw = config.getProperty("host-keys");
-        if (hostKeysRaw == null || !(hostKeysRaw instanceof Map)) {
-            config.setProperty("host-keys", new HashMap<String, String>());
-        } else {
-            for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) hostKeysRaw).entrySet()) {
-                String key = String.valueOf(entry.getKey());
-                String value = String.valueOf(entry.getValue());
-                hostKeys.put(key.toLowerCase(), value);
-            }
-        }
+//        deopOnJoin = config.getBoolean("security.deop-everyone-on-join", false);
+//        blockInGameOp = config.getBoolean("security.block-in-game-op-command", false);
+//
+//        hostKeys = new HashMap<String, String>();
+//        Object hostKeysRaw = config.getProperty("host-keys");
+//        if (hostKeysRaw == null || !(hostKeysRaw instanceof Map)) {
+//            config.setProperty("host-keys", new HashMap<String, String>());
+//        } else {
+//            for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) hostKeysRaw).entrySet()) {
+//                String key = String.valueOf(entry.getKey());
+//                String value = String.valueOf(entry.getValue());
+//                hostKeys.put(key.toLowerCase(), value);
+//            }
+//        }
 
         useSqlDatabase = config.getBoolean(
                 "requests.sql.use", false);
 
-        sqlDsn = config.getString("requests.sql.dsn", "jdbc:mysql://localhost/worldguard");
-        sqlUsername = config.getString("requests.sql.username", "worldguard");
-        sqlPassword = config.getString("requests.sql.password", "worldguard");
+        sqlDsn = config.getString("requests.sql.dsn", "jdbc:mysql://localhost/stakeaclaim");
+        sqlUsername = config.getString("requests.sql.username", "stakeaclaim");
+        sqlPassword = config.getString("requests.sql.password", "stakeaclaim");
 
         // Load configurations for each world
         for (World world : plugin.getServer().getWorlds()) {
@@ -223,88 +223,88 @@ public class ConfigurationManager {
 //                bl.forgetPlayer(player);
 //            }
 //        }
-
-        hasGodMode.remove(player.getName());
-        hasAmphibious.remove(player.getName());
+//
+//        hasGodMode.remove(player.getName());
+//        hasAmphibious.remove(player.getName());
     }
 
-    /**
-     * Enable god mode for a player.
-     *
-     * @param player The player to enable god mode for.
-     */
-    @Deprecated
-    public void enableGodMode(Player player) {
+//    /**
+//     * Enable god mode for a player.
+//     *
+//     * @param player The player to enable god mode for.
+//     */
+//    @Deprecated
+//    public void enableGodMode(Player player) {
+//
+//        hasGodMode.add(player.getName());
+//    }
 
-        hasGodMode.add(player.getName());
-    }
+//    /**
+//     * Disable god mode for a player.
+//     *
+//     * @param player The player to disable godmode for
+//     */
+//    @Deprecated
+//    public void disableGodMode(Player player) {
+//        hasGodMode.remove(player.getName());
+//    }
 
-    /**
-     * Disable god mode for a player.
-     *
-     * @param player The player to disable godmode for
-     */
-    @Deprecated
-    public void disableGodMode(Player player) {
-        hasGodMode.remove(player.getName());
-    }
+//    /**
+//     * Check to see if god mode is enabled for a player.
+//     *
+//     * @param player The player to check
+//     * @return Whether the player has godmode through StakeAClaim or CommandBook
+//     */
+//    public boolean hasGodMode(Player player) {
+//        if (hasCommandBookGodMode) {
+//            GodComponent god = CommandBook.inst().getComponentManager().getComponent(GodComponent.class);
+//            if (god != null) {
+//                return god.hasGodMode(player);
+//            }
+//        }
+//        return hasGodMode.contains(player.getName());
+//    }
 
-    /**
-     * Check to see if god mode is enabled for a player.
-     *
-     * @param player The player to check
-     * @return Whether the player has godmode through StakeAClaim or CommandBook
-     */
-    public boolean hasGodMode(Player player) {
-        if (hasCommandBookGodMode) {
-            GodComponent god = CommandBook.inst().getComponentManager().getComponent(GodComponent.class);
-            if (god != null) {
-                return god.hasGodMode(player);
-            }
-        }
-        return hasGodMode.contains(player.getName());
-    }
+//    /**
+//     * Enable amphibious mode for a player.
+//     *
+//     * @param player The player to enable amphibious mode for
+//     */
+//    public void enableAmphibiousMode(Player player) {
+//        hasAmphibious.add(player.getName());
+//    }
 
-    /**
-     * Enable amphibious mode for a player.
-     *
-     * @param player The player to enable amphibious mode for
-     */
-    public void enableAmphibiousMode(Player player) {
-        hasAmphibious.add(player.getName());
-    }
+//    /**
+//     * Disable amphibious mode  for a player.
+//     *
+//     * @param player The player to disable amphibious mode for
+//     */
+//    public void disableAmphibiousMode(Player player) {
+//        hasAmphibious.remove(player.getName());
+//    }
 
-    /**
-     * Disable amphibious mode  for a player.
-     *
-     * @param player The player to disable amphibious mode for
-     */
-    public void disableAmphibiousMode(Player player) {
-        hasAmphibious.remove(player.getName());
-    }
+//    /**
+//     * Check to see if amphibious mode is enabled for a player.
+//     *
+//     * @param player The player to check
+//     * @return Whether {@code player} has amphibious mode
+//     */
+//    public boolean hasAmphibiousMode(Player player) {
+//        return hasAmphibious.contains(player.getName());
+//    }
 
-    /**
-     * Check to see if amphibious mode is enabled for a player.
-     *
-     * @param player The player to check
-     * @return Whether {@code player} has amphibious mode
-     */
-    public boolean hasAmphibiousMode(Player player) {
-        return hasAmphibious.contains(player.getName());
-    }
+//    public void updateCommandBookGodMode() {
+//        try {
+//            if (plugin.getServer().getPluginManager().isPluginEnabled("CommandBook")) {
+//                Class.forName("com.sk89q.commandbook.GodComponent");
+//                hasCommandBookGodMode = true;
+//                return;
+//            }
+//        } catch (ClassNotFoundException ignore) {}
+//        hasCommandBookGodMode = false;
+//    }
 
-    public void updateCommandBookGodMode() {
-        try {
-            if (plugin.getServer().getPluginManager().isPluginEnabled("CommandBook")) {
-                Class.forName("com.sk89q.commandbook.GodComponent");
-                hasCommandBookGodMode = true;
-                return;
-            }
-        } catch (ClassNotFoundException ignore) {}
-        hasCommandBookGodMode = false;
-    }
-
-    public boolean hasCommandBookGodMode() {
-        return hasCommandBookGodMode;
-    }
+//    public boolean hasCommandBookGodMode() {
+//        return hasCommandBookGodMode;
+//    }
 }

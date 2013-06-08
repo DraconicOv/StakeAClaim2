@@ -69,101 +69,101 @@ public class WorldConfiguration {
     private String worldName;
     private YAMLProcessor parentConfig;
     private YAMLProcessor config;
-    private File blacklistFile;
+//    private File blacklistFile;
 
 //    private Blacklist blacklist;
 //    private ChestProtection chestProtection = new SignChestProtection();
 
     /* Configuration data start */
-    public boolean summaryOnStart;
+//    public boolean summaryOnStart;
     public boolean opPermissions;
-    public boolean fireSpreadDisableToggle;
-    public boolean itemDurability;
-    public boolean simulateSponge;
-    public int spongeRadius;
-    public boolean disableExpDrops;
-    public Set<PotionEffectType> blockPotions;
-    public boolean blockPotionsAlways;
-    public boolean pumpkinScuba;
-    public boolean redstoneSponges;
-    public boolean noPhysicsGravel;
-    public boolean noPhysicsSand;
-    public boolean ropeLadders;
-    public boolean allowPortalAnywhere;
-    public Set<Integer> preventWaterDamage;
-    public boolean blockLighter;
-    public boolean disableFireSpread;
-    public Set<Integer> disableFireSpreadBlocks;
-    public boolean preventLavaFire;
-    public Set<Integer> allowedLavaSpreadOver;
-    public boolean blockTNTExplosions;
-    public boolean blockTNTBlockDamage;
-    public boolean blockCreeperExplosions;
-    public boolean blockCreeperBlockDamage;
-    public boolean blockWitherExplosions;
-    public boolean blockWitherBlockDamage;
-    public boolean blockWitherSkullExplosions;
-    public boolean blockWitherSkullBlockDamage;
-    public boolean blockEnderDragonBlockDamage;
-    public boolean blockEnderDragonPortalCreation;
-    public boolean blockFireballExplosions;
-    public boolean blockFireballBlockDamage;
-    public boolean blockOtherExplosions;
-    public boolean blockEntityPaintingDestroy;
-    public boolean blockEntityItemFrameDestroy;
-    public boolean blockPluginSpawning;
-    public boolean blockGroundSlimes;
-    public boolean blockZombieDoorDestruction;
-    public boolean disableContactDamage;
-    public boolean disableFallDamage;
-    public boolean disableLavaDamage;
-    public boolean disableFireDamage;
-    public boolean disableLightningDamage;
-    public boolean disableDrowningDamage;
-    public boolean disableSuffocationDamage;
-    public boolean teleportOnSuffocation;
-    public boolean disableVoidDamage;
-    public boolean teleportOnVoid;
-    public boolean disableExplosionDamage;
-    public boolean disableMobDamage;
+//    public boolean fireSpreadDisableToggle;
+//    public boolean itemDurability;
+//    public boolean simulateSponge;
+//    public int spongeRadius;
+//    public boolean disableExpDrops;
+//    public Set<PotionEffectType> blockPotions;
+//    public boolean blockPotionsAlways;
+//    public boolean pumpkinScuba;
+//    public boolean redstoneSponges;
+//    public boolean noPhysicsGravel;
+//    public boolean noPhysicsSand;
+//    public boolean ropeLadders;
+//    public boolean allowPortalAnywhere;
+//    public Set<Integer> preventWaterDamage;
+//    public boolean blockLighter;
+//    public boolean disableFireSpread;
+//    public Set<Integer> disableFireSpreadBlocks;
+//    public boolean preventLavaFire;
+//    public Set<Integer> allowedLavaSpreadOver;
+//    public boolean blockTNTExplosions;
+//    public boolean blockTNTBlockDamage;
+//    public boolean blockCreeperExplosions;
+//    public boolean blockCreeperBlockDamage;
+//    public boolean blockWitherExplosions;
+//    public boolean blockWitherBlockDamage;
+//    public boolean blockWitherSkullExplosions;
+//    public boolean blockWitherSkullBlockDamage;
+//    public boolean blockEnderDragonBlockDamage;
+//    public boolean blockEnderDragonPortalCreation;
+//    public boolean blockFireballExplosions;
+//    public boolean blockFireballBlockDamage;
+//    public boolean blockOtherExplosions;
+//    public boolean blockEntityPaintingDestroy;
+//    public boolean blockEntityItemFrameDestroy;
+//    public boolean blockPluginSpawning;
+//    public boolean blockGroundSlimes;
+//    public boolean blockZombieDoorDestruction;
+//    public boolean disableContactDamage;
+//    public boolean disableFallDamage;
+//    public boolean disableLavaDamage;
+//    public boolean disableFireDamage;
+//    public boolean disableLightningDamage;
+//    public boolean disableDrowningDamage;
+//    public boolean disableSuffocationDamage;
+//    public boolean teleportOnSuffocation;
+//    public boolean disableVoidDamage;
+//    public boolean teleportOnVoid;
+//    public boolean disableExplosionDamage;
+//    public boolean disableMobDamage;
     public boolean useRequests;
-    public boolean highFreqFlags;
+//    public boolean highFreqFlags;
     public int requestWand;
-    public Set<EntityType> blockCreatureSpawn;
+//    public Set<EntityType> blockCreatureSpawn;
     // public boolean useiConomy;
     // public boolean buyOnClaim;
     // public double buyOnClaimPrice;
-    public int maxClaimVolume;
-    public boolean claimOnlyInsideExistingRequests;
+//    public int maxClaimVolume;
+//    public boolean claimOnlyInsideExistingRequests;
     public int maxRequestCountPerPlayer;
-    public boolean antiWolfDumbness;
-    public boolean signChestProtection;
-    public boolean disableSignChestProtectionCheck;
-    public boolean removeInfiniteStacks;
-    public boolean disableCreatureCropTrampling;
-    public boolean disablePlayerCropTrampling;
-    public boolean preventLightningFire;
-    public Set<Integer> disallowedLightningBlocks;
-    public boolean disableThunder;
-    public boolean disableWeather;
-    public boolean alwaysRaining;
-    public boolean alwaysThundering;
-    public boolean disablePigZap;
-    public boolean disableCreeperPower;
-    public boolean disableHealthRegain;
-    public boolean disableMushroomSpread;
-    public boolean disableIceMelting;
-    public boolean disableSnowMelting;
-    public boolean disableSnowFormation;
-    public boolean disableIceFormation;
-    public boolean disableLeafDecay;
-    public boolean disableGrassGrowth;
-    public boolean disableMyceliumSpread;
-    public boolean disableVineGrowth;
-    public boolean disableEndermanGriefing;
-    public boolean requestInvinciblityRemovesMobs;
-    public boolean disableDeathMessages;
-    public boolean disableObsidianGenerators;
+//    public boolean antiWolfDumbness;
+//    public boolean signChestProtection;
+//    public boolean disableSignChestProtectionCheck;
+//    public boolean removeInfiniteStacks;
+//    public boolean disableCreatureCropTrampling;
+//    public boolean disablePlayerCropTrampling;
+//    public boolean preventLightningFire;
+//    public Set<Integer> disallowedLightningBlocks;
+//    public boolean disableThunder;
+//    public boolean disableWeather;
+//    public boolean alwaysRaining;
+//    public boolean alwaysThundering;
+//    public boolean disablePigZap;
+//    public boolean disableCreeperPower;
+//    public boolean disableHealthRegain;
+//    public boolean disableMushroomSpread;
+//    public boolean disableIceMelting;
+//    public boolean disableSnowMelting;
+//    public boolean disableSnowFormation;
+//    public boolean disableIceFormation;
+//    public boolean disableLeafDecay;
+//    public boolean disableGrassGrowth;
+//    public boolean disableMyceliumSpread;
+//    public boolean disableVineGrowth;
+//    public boolean disableEndermanGriefing;
+//    public boolean requestInvinciblityRemovesMobs;
+//    public boolean disableDeathMessages;
+//    public boolean disableObsidianGenerators;
 
     private Map<String, Integer> maxRequestCounts;
 
@@ -179,21 +179,21 @@ public class WorldConfiguration {
     public WorldConfiguration(StakeAClaimPlugin plugin, String worldName, YAMLProcessor parentConfig) {
         File baseFolder = new File(plugin.getDataFolder(), "worlds/" + worldName);
         File configFile = new File(baseFolder, "config.yml");
-        blacklistFile = new File(baseFolder, "blacklist.txt");
+//        blacklistFile = new File(baseFolder, "blacklist.txt");
 
         this.plugin = plugin;
         this.worldName = worldName;
         this.parentConfig = parentConfig;
 
         plugin.createDefaultConfiguration(configFile, "config_world.yml");
-        plugin.createDefaultConfiguration(blacklistFile, "blacklist.txt");
+//        plugin.createDefaultConfiguration(blacklistFile, "blacklist.txt");
 
         config = new YAMLProcessor(configFile, true, YAMLFormat.EXTENDED);
         loadConfiguration();
 
-        if (summaryOnStart) {
-            plugin.getLogger().info("Loaded configuration for world '" + worldName + "'");
-        }
+//        if (summaryOnStart) {
+//            plugin.getLogger().info("Loaded configuration for world '" + worldName + "'");
+//        }
     }
 
     private boolean getBoolean(String node, boolean def) {
@@ -299,112 +299,112 @@ public class WorldConfiguration {
             e.printStackTrace();
         }
 
-        summaryOnStart = getBoolean("summary-on-start", true);
+//        summaryOnStart = getBoolean("summary-on-start", true);
         opPermissions = getBoolean("op-permissions", true);
 
-        itemDurability = getBoolean("protection.item-durability", true);
-        removeInfiniteStacks = getBoolean("protection.remove-infinite-stacks", false);
-        disableExpDrops = getBoolean("protection.disable-xp-orb-drops", false);
-        disableObsidianGenerators = getBoolean("protection.disable-obsidian-generators", false);
-
-        blockPotions = new HashSet<PotionEffectType>();
-        for (String potionName : getStringList("gameplay.block-potions", null)) {
-            PotionEffectType effect = PotionEffectType.getByName(potionName);
-
-            if (effect == null) {
-                plugin.getLogger().warning("Unknown potion effect type '" + potionName + "'");
-            } else {
-                blockPotions.add(effect);
-            }
-        }
-        blockPotionsAlways = getBoolean("gameplay.block-potions-overly-reliably", false);
-
-        simulateSponge = getBoolean("simulation.sponge.enable", true);
-        spongeRadius = Math.max(1, getInt("simulation.sponge.radius", 3)) - 1;
-        redstoneSponges = getBoolean("simulation.sponge.redstone", false);
-
-        pumpkinScuba = getBoolean("default.pumpkin-scuba", false);
-        disableHealthRegain = getBoolean("default.disable-health-regain", false);
-
-        noPhysicsGravel = getBoolean("physics.no-physics-gravel", false);
-        noPhysicsSand = getBoolean("physics.no-physics-sand", false);
-        ropeLadders = getBoolean("physics.vine-like-rope-ladders", false);
-        allowPortalAnywhere = getBoolean("physics.allow-portal-anywhere", false);
-        preventWaterDamage = new HashSet<Integer>(getIntList("physics.disable-water-damage-blocks", null));
-
-        blockTNTExplosions = getBoolean("ignition.block-tnt", false);
-        blockTNTBlockDamage = getBoolean("ignition.block-tnt-block-damage", false);
-        blockLighter = getBoolean("ignition.block-lighter", false);
-
-        preventLavaFire = getBoolean("fire.disable-lava-fire-spread", true);
-        disableFireSpread = getBoolean("fire.disable-all-fire-spread", false);
-        disableFireSpreadBlocks = new HashSet<Integer>(getIntList("fire.disable-fire-spread-blocks", null));
-        allowedLavaSpreadOver = new HashSet<Integer>(getIntList("fire.lava-spread-blocks", null));
-
-        blockCreeperExplosions = getBoolean("mobs.block-creeper-explosions", false);
-        blockCreeperBlockDamage = getBoolean("mobs.block-creeper-block-damage", false);
-        blockWitherExplosions = getBoolean("mobs.block-wither-explosions", false);
-        blockWitherBlockDamage = getBoolean("mobs.block-wither-block-damage", false);
-        blockWitherSkullExplosions = getBoolean("mobs.block-wither-skull-explosions", false);
-        blockWitherSkullBlockDamage = getBoolean("mobs.block-wither-skull-block-damage", false);
-        blockEnderDragonBlockDamage = getBoolean("mobs.block-enderdragon-block-damage", false);
-        blockEnderDragonPortalCreation = getBoolean("mobs.block-enderdragon-portal-creation", false);
-        blockFireballExplosions = getBoolean("mobs.block-fireball-explosions", false);
-        blockFireballBlockDamage = getBoolean("mobs.block-fireball-block-damage", false);
-        antiWolfDumbness = getBoolean("mobs.anti-wolf-dumbness", false);
-        disableEndermanGriefing = getBoolean("mobs.disable-enderman-griefing", false);
-        blockEntityPaintingDestroy = getBoolean("mobs.block-painting-destroy", false);
-        blockEntityItemFrameDestroy = getBoolean("mobs.block-item-frame-destroy", false);
-        blockPluginSpawning = getBoolean("mobs.block-plugin-spawning", true);
-        blockGroundSlimes = getBoolean("mobs.block-above-ground-slimes", false);
-        blockOtherExplosions = getBoolean("mobs.block-other-explosions", false);
-        blockZombieDoorDestruction = getBoolean("mobs.block-zombie-door-destruction", false);
-
-        disableFallDamage = getBoolean("player-damage.disable-fall-damage", false);
-        disableLavaDamage = getBoolean("player-damage.disable-lava-damage", false);
-        disableFireDamage = getBoolean("player-damage.disable-fire-damage", false);
-        disableLightningDamage = getBoolean("player-damage.disable-lightning-damage", false);
-        disableDrowningDamage = getBoolean("player-damage.disable-drowning-damage", false);
-        disableSuffocationDamage = getBoolean("player-damage.disable-suffocation-damage", false);
-        disableContactDamage = getBoolean("player-damage.disable-contact-damage", false);
-        teleportOnSuffocation = getBoolean("player-damage.teleport-on-suffocation", false);
-        disableVoidDamage = getBoolean("player-damage.disable-void-damage", false);
-        teleportOnVoid = getBoolean("player-damage.teleport-on-void-falling", false);
-        disableExplosionDamage = getBoolean("player-damage.disable-explosion-damage", false);
-        disableMobDamage = getBoolean("player-damage.disable-mob-damage", false);
-        disableDeathMessages = getBoolean("player-damage.disable-death-messages", false);
-
-        signChestProtection = getBoolean("chest-protection.enable", false);
-        disableSignChestProtectionCheck = getBoolean("chest-protection.disable-off-check", false);
-
-        disableCreatureCropTrampling = getBoolean("crops.disable-creature-trampling", false);
-        disablePlayerCropTrampling = getBoolean("crops.disable-player-trampling", false);
-
-        disallowedLightningBlocks = new HashSet<Integer>(getIntList("weather.prevent-lightning-strike-blocks", null));
-        preventLightningFire = getBoolean("weather.disable-lightning-strike-fire", false);
-        disableThunder = getBoolean("weather.disable-thunderstorm", false);
-        disableWeather = getBoolean("weather.disable-weather", false);
-        disablePigZap = getBoolean("weather.disable-pig-zombification", false);
-        disableCreeperPower = getBoolean("weather.disable-powered-creepers", false);
-        alwaysRaining = getBoolean("weather.always-raining", false);
-        alwaysThundering = getBoolean("weather.always-thundering", false);
-
-        disableMushroomSpread = getBoolean("dynamics.disable-mushroom-spread", false);
-        disableIceMelting = getBoolean("dynamics.disable-ice-melting", false);
-        disableSnowMelting = getBoolean("dynamics.disable-snow-melting", false);
-        disableSnowFormation = getBoolean("dynamics.disable-snow-formation", false);
-        disableIceFormation = getBoolean("dynamics.disable-ice-formation", false);
-        disableLeafDecay = getBoolean("dynamics.disable-leaf-decay", false);
-        disableGrassGrowth = getBoolean("dynamics.disable-grass-growth", false);
-        disableMyceliumSpread = getBoolean("dynamics.disable-mycelium-spread", false);
-        disableVineGrowth = getBoolean("dynamics.disable-vine-growth", false);
+//        itemDurability = getBoolean("protection.item-durability", true);
+//        removeInfiniteStacks = getBoolean("protection.remove-infinite-stacks", false);
+//        disableExpDrops = getBoolean("protection.disable-xp-orb-drops", false);
+//        disableObsidianGenerators = getBoolean("protection.disable-obsidian-generators", false);
+//
+//        blockPotions = new HashSet<PotionEffectType>();
+//        for (String potionName : getStringList("gameplay.block-potions", null)) {
+//            PotionEffectType effect = PotionEffectType.getByName(potionName);
+//
+//            if (effect == null) {
+//                plugin.getLogger().warning("Unknown potion effect type '" + potionName + "'");
+//            } else {
+//                blockPotions.add(effect);
+//            }
+//        }
+//        blockPotionsAlways = getBoolean("gameplay.block-potions-overly-reliably", false);
+//
+//        simulateSponge = getBoolean("simulation.sponge.enable", true);
+//        spongeRadius = Math.max(1, getInt("simulation.sponge.radius", 3)) - 1;
+//        redstoneSponges = getBoolean("simulation.sponge.redstone", false);
+//
+//        pumpkinScuba = getBoolean("default.pumpkin-scuba", false);
+//        disableHealthRegain = getBoolean("default.disable-health-regain", false);
+//
+//        noPhysicsGravel = getBoolean("physics.no-physics-gravel", false);
+//        noPhysicsSand = getBoolean("physics.no-physics-sand", false);
+//        ropeLadders = getBoolean("physics.vine-like-rope-ladders", false);
+//        allowPortalAnywhere = getBoolean("physics.allow-portal-anywhere", false);
+//        preventWaterDamage = new HashSet<Integer>(getIntList("physics.disable-water-damage-blocks", null));
+//
+//        blockTNTExplosions = getBoolean("ignition.block-tnt", false);
+//        blockTNTBlockDamage = getBoolean("ignition.block-tnt-block-damage", false);
+//        blockLighter = getBoolean("ignition.block-lighter", false);
+//
+//        preventLavaFire = getBoolean("fire.disable-lava-fire-spread", true);
+//        disableFireSpread = getBoolean("fire.disable-all-fire-spread", false);
+//        disableFireSpreadBlocks = new HashSet<Integer>(getIntList("fire.disable-fire-spread-blocks", null));
+//        allowedLavaSpreadOver = new HashSet<Integer>(getIntList("fire.lava-spread-blocks", null));
+//
+//        blockCreeperExplosions = getBoolean("mobs.block-creeper-explosions", false);
+//        blockCreeperBlockDamage = getBoolean("mobs.block-creeper-block-damage", false);
+//        blockWitherExplosions = getBoolean("mobs.block-wither-explosions", false);
+//        blockWitherBlockDamage = getBoolean("mobs.block-wither-block-damage", false);
+//        blockWitherSkullExplosions = getBoolean("mobs.block-wither-skull-explosions", false);
+//        blockWitherSkullBlockDamage = getBoolean("mobs.block-wither-skull-block-damage", false);
+//        blockEnderDragonBlockDamage = getBoolean("mobs.block-enderdragon-block-damage", false);
+//        blockEnderDragonPortalCreation = getBoolean("mobs.block-enderdragon-portal-creation", false);
+//        blockFireballExplosions = getBoolean("mobs.block-fireball-explosions", false);
+//        blockFireballBlockDamage = getBoolean("mobs.block-fireball-block-damage", false);
+//        antiWolfDumbness = getBoolean("mobs.anti-wolf-dumbness", false);
+//        disableEndermanGriefing = getBoolean("mobs.disable-enderman-griefing", false);
+//        blockEntityPaintingDestroy = getBoolean("mobs.block-painting-destroy", false);
+//        blockEntityItemFrameDestroy = getBoolean("mobs.block-item-frame-destroy", false);
+//        blockPluginSpawning = getBoolean("mobs.block-plugin-spawning", true);
+//        blockGroundSlimes = getBoolean("mobs.block-above-ground-slimes", false);
+//        blockOtherExplosions = getBoolean("mobs.block-other-explosions", false);
+//        blockZombieDoorDestruction = getBoolean("mobs.block-zombie-door-destruction", false);
+//
+//        disableFallDamage = getBoolean("player-damage.disable-fall-damage", false);
+//        disableLavaDamage = getBoolean("player-damage.disable-lava-damage", false);
+//        disableFireDamage = getBoolean("player-damage.disable-fire-damage", false);
+//        disableLightningDamage = getBoolean("player-damage.disable-lightning-damage", false);
+//        disableDrowningDamage = getBoolean("player-damage.disable-drowning-damage", false);
+//        disableSuffocationDamage = getBoolean("player-damage.disable-suffocation-damage", false);
+//        disableContactDamage = getBoolean("player-damage.disable-contact-damage", false);
+//        teleportOnSuffocation = getBoolean("player-damage.teleport-on-suffocation", false);
+//        disableVoidDamage = getBoolean("player-damage.disable-void-damage", false);
+//        teleportOnVoid = getBoolean("player-damage.teleport-on-void-falling", false);
+//        disableExplosionDamage = getBoolean("player-damage.disable-explosion-damage", false);
+//        disableMobDamage = getBoolean("player-damage.disable-mob-damage", false);
+//        disableDeathMessages = getBoolean("player-damage.disable-death-messages", false);
+//
+//        signChestProtection = getBoolean("chest-protection.enable", false);
+//        disableSignChestProtectionCheck = getBoolean("chest-protection.disable-off-check", false);
+//
+//        disableCreatureCropTrampling = getBoolean("crops.disable-creature-trampling", false);
+//        disablePlayerCropTrampling = getBoolean("crops.disable-player-trampling", false);
+//
+//        disallowedLightningBlocks = new HashSet<Integer>(getIntList("weather.prevent-lightning-strike-blocks", null));
+//        preventLightningFire = getBoolean("weather.disable-lightning-strike-fire", false);
+//        disableThunder = getBoolean("weather.disable-thunderstorm", false);
+//        disableWeather = getBoolean("weather.disable-weather", false);
+//        disablePigZap = getBoolean("weather.disable-pig-zombification", false);
+//        disableCreeperPower = getBoolean("weather.disable-powered-creepers", false);
+//        alwaysRaining = getBoolean("weather.always-raining", false);
+//        alwaysThundering = getBoolean("weather.always-thundering", false);
+//
+//        disableMushroomSpread = getBoolean("dynamics.disable-mushroom-spread", false);
+//        disableIceMelting = getBoolean("dynamics.disable-ice-melting", false);
+//        disableSnowMelting = getBoolean("dynamics.disable-snow-melting", false);
+//        disableSnowFormation = getBoolean("dynamics.disable-snow-formation", false);
+//        disableIceFormation = getBoolean("dynamics.disable-ice-formation", false);
+//        disableLeafDecay = getBoolean("dynamics.disable-leaf-decay", false);
+//        disableGrassGrowth = getBoolean("dynamics.disable-grass-growth", false);
+//        disableMyceliumSpread = getBoolean("dynamics.disable-mycelium-spread", false);
+//        disableVineGrowth = getBoolean("dynamics.disable-vine-growth", false);
 
         useRequests = getBoolean("requests.enable", true);
-        requestInvinciblityRemovesMobs = getBoolean("requests.invincibility-removes-mobs", false);
-        highFreqFlags = getBoolean("requests.high-frequency-flags", false);
+//        requestInvinciblityRemovesMobs = getBoolean("requests.invincibility-removes-mobs", false);
+//        highFreqFlags = getBoolean("requests.high-frequency-flags", false);
         requestWand = getInt("requests.wand", 334);
-        maxClaimVolume = getInt("requests.max-claim-volume", 30000);
-        claimOnlyInsideExistingRequests = getBoolean("requests.claim-only-inside-existing-requests", false);
+//        maxClaimVolume = getInt("requests.max-claim-volume", 30000);
+//        claimOnlyInsideExistingRequests = getBoolean("requests.claim-only-inside-existing-requests", false);
 
         maxRequestCountPerPlayer = getInt("requests.max-request-count-per-player.default", 7);
         maxRequestCounts = new HashMap<String, Integer>();
@@ -423,36 +423,36 @@ public class WorldConfiguration {
         // buyOnClaim = getBoolean("iconomy.buy-on-claim", false);
         // buyOnClaimPrice = getDouble("iconomy.buy-on-claim-price", 1.0);
 
-        blockCreatureSpawn = new HashSet<EntityType>();
-        for (String creatureName : getStringList("mobs.block-creature-spawn", null)) {
-            EntityType creature = EntityType.fromName(creatureName);
-
-            if (creature == null) {
-                plugin.getLogger().warning("Unknown mob type '" + creatureName + "'");
-            } else if (!creature.isAlive()) {
-                plugin.getLogger().warning("Entity type '" + creatureName + "' is not a creature");
-            } else {
-                blockCreatureSpawn.add(creature);
-            }
-        }
-
-        boolean useBlacklistAsWhitelist = getBoolean("blacklist.use-as-whitelist", false);
-
-        // Console log configuration
-        boolean logConsole = getBoolean("blacklist.logging.console.enable", true);
-
-        // Database log configuration
-        boolean logDatabase = getBoolean("blacklist.logging.database.enable", false);
-        String dsn = getString("blacklist.logging.database.dsn", "jdbc:mysql://localhost:3306/minecraft");
-        String user = getString("blacklist.logging.database.user", "root");
-        String pass = getString("blacklist.logging.database.pass", "");
-        String table = getString("blacklist.logging.database.table", "blacklist_events");
-
-        // File log configuration
-        boolean logFile = getBoolean("blacklist.logging.file.enable", false);
-        String logFilePattern = getString("blacklist.logging.file.path", "worldguard/logs/%Y-%m-%d.log");
-        int logFileCacheSize = Math.max(1, getInt("blacklist.logging.file.open-files", 10));
-
+//        blockCreatureSpawn = new HashSet<EntityType>();
+//        for (String creatureName : getStringList("mobs.block-creature-spawn", null)) {
+//            EntityType creature = EntityType.fromName(creatureName);
+//
+//            if (creature == null) {
+//                plugin.getLogger().warning("Unknown mob type '" + creatureName + "'");
+//            } else if (!creature.isAlive()) {
+//                plugin.getLogger().warning("Entity type '" + creatureName + "' is not a creature");
+//            } else {
+//                blockCreatureSpawn.add(creature);
+//            }
+//        }
+//
+//        boolean useBlacklistAsWhitelist = getBoolean("blacklist.use-as-whitelist", false);
+//
+//        // Console log configuration
+//        boolean logConsole = getBoolean("blacklist.logging.console.enable", true);
+//
+//        // Database log configuration
+//        boolean logDatabase = getBoolean("blacklist.logging.database.enable", false);
+//        String dsn = getString("blacklist.logging.database.dsn", "jdbc:mysql://localhost:3306/minecraft");
+//        String user = getString("blacklist.logging.database.user", "root");
+//        String pass = getString("blacklist.logging.database.pass", "");
+//        String table = getString("blacklist.logging.database.table", "blacklist_events");
+//
+//        // File log configuration
+//        boolean logFile = getBoolean("blacklist.logging.file.enable", false);
+//        String logFilePattern = getString("blacklist.logging.file.path", "worldguard/logs/%Y-%m-%d.log");
+//        int logFileCacheSize = Math.max(1, getInt("blacklist.logging.file.open-files", 10));
+//
 //        // Load the blacklist
 //        try {
 //            // If there was an existing blacklist, close loggers
@@ -496,32 +496,32 @@ public class WorldConfiguration {
 //            plugin.getLogger().log(Level.WARNING, "Could not load StakeAClaim blacklist: "
 //                    + e.getMessage());
 //        }
-
-        // Print an overview of settings
-        if (summaryOnStart) {
-            plugin.getLogger().log(Level.INFO, blockTNTExplosions
-                    ? "(" + worldName + ") TNT ignition is blocked."
-                    : "(" + worldName + ") TNT ignition is PERMITTED.");
-            plugin.getLogger().log(Level.INFO, blockLighter
-                    ? "(" + worldName + ") Lighters are blocked."
-                    : "(" + worldName + ") Lighters are PERMITTED.");
-            plugin.getLogger().log(Level.INFO, preventLavaFire
-                    ? "(" + worldName + ") Lava fire is blocked."
-                    : "(" + worldName + ") Lava fire is PERMITTED.");
-
-            if (disableFireSpread) {
-                plugin.getLogger().log(Level.INFO, "(" + worldName + ") All fire spread is disabled.");
-            } else {
-                if (disableFireSpreadBlocks.size() > 0) {
-                    plugin.getLogger().log(Level.INFO, "(" + worldName
-                            + ") Fire spread is limited to "
-                            + disableFireSpreadBlocks.size() + " block types.");
-                } else {
-                    plugin.getLogger().log(Level.INFO, "(" + worldName
-                            + ") Fire spread is UNRESTRICTED.");
-                }
-            }
-        }
+//
+//        // Print an overview of settings
+//        if (summaryOnStart) {
+//            plugin.getLogger().log(Level.INFO, blockTNTExplosions
+//                    ? "(" + worldName + ") TNT ignition is blocked."
+//                    : "(" + worldName + ") TNT ignition is PERMITTED.");
+//            plugin.getLogger().log(Level.INFO, blockLighter
+//                    ? "(" + worldName + ") Lighters are blocked."
+//                    : "(" + worldName + ") Lighters are PERMITTED.");
+//            plugin.getLogger().log(Level.INFO, preventLavaFire
+//                    ? "(" + worldName + ") Lava fire is blocked."
+//                    : "(" + worldName + ") Lava fire is PERMITTED.");
+//
+//            if (disableFireSpread) {
+//                plugin.getLogger().log(Level.INFO, "(" + worldName + ") All fire spread is disabled.");
+//            } else {
+//                if (disableFireSpreadBlocks.size() > 0) {
+//                    plugin.getLogger().log(Level.INFO, "(" + worldName
+//                            + ") Fire spread is limited to "
+//                            + disableFireSpreadBlocks.size() + " block types.");
+//                } else {
+//                    plugin.getLogger().log(Level.INFO, "(" + worldName
+//                            + ") Fire spread is UNRESTRICTED.");
+//                }
+//            }
+//        }
 
         config.setHeader(CONFIG_HEADER);
 

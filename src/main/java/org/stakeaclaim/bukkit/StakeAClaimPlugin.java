@@ -89,7 +89,6 @@ public class StakeAClaimPlugin extends JavaPlugin {
      */
     private final ConfigurationManager configuration;
 
-    // --------- to remove? --------
     /**
      * Used for scheduling flags.
      */
@@ -157,7 +156,6 @@ public class StakeAClaimPlugin extends JavaPlugin {
 //        // the migration code reuses the loaded request managers
 //        LegacyStakeAClaimMigration.migrateRequests(this);
 
-        // --------- to remove? --------
         flagStateManager = new FlagStateManager(this);
 
         if (configuration.useRequestsScheduler) {
@@ -177,8 +175,8 @@ public class StakeAClaimPlugin extends JavaPlugin {
 //        } else {
 //            (new StakeAClaimPaintingListener(this)).registerEvents();
 //        }
-        configuration.updateCommandBookGodMode();
-
+//        configuration.updateCommandBookGodMode();
+//
 //        if (getServer().getPluginManager().isPluginEnabled("CommandBook")) {
 //            getServer().getPluginManager().registerEvents(new StakeAClaimCommandBookListener(this), this);
 //        }
@@ -190,15 +188,15 @@ public class StakeAClaimPlugin extends JavaPlugin {
         }
         worldListener.registerEvents();
 
-        if (!configuration.hasCommandBookGodMode()) {
-            // Check god mode for existing players, if any
-            for (Player player : getServer().getOnlinePlayers()) {
-                if (inGroup(player, "wg-invincible") ||
-                        (configuration.autoGodMode && hasPermission(player, "stakeaclaim.auto-invincible"))) {
-                    configuration.enableGodMode(player);
-                }
-            }
-        }
+//        if (!configuration.hasCommandBookGodMode()) {
+//            // Check god mode for existing players, if any
+//            for (Player player : getServer().getOnlinePlayers()) {
+//                if (inGroup(player, "wg-invincible") ||
+//                        (configuration.autoGodMode && hasPermission(player, "stakeaclaim.auto-invincible"))) {
+//                    configuration.enableGodMode(player);
+//                }
+//            }
+//        }
     }
 
     /**
@@ -260,7 +258,6 @@ public class StakeAClaimPlugin extends JavaPlugin {
         return getGlobalStateManager();
     }
 
-    // --------- to remove? --------
     /**
      * Gets the flag state manager.
      *
