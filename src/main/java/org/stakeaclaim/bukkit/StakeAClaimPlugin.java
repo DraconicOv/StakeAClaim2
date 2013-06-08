@@ -194,7 +194,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
             // Check god mode for existing players, if any
             for (Player player : getServer().getOnlinePlayers()) {
                 if (inGroup(player, "wg-invincible") ||
-                        (configuration.autoGodMode && hasPermission(player, "worldguard.auto-invincible"))) {
+                        (configuration.autoGodMode && hasPermission(player, "stakeaclaim.auto-invincible"))) {
                     configuration.enableGodMode(player);
                 }
             }
@@ -768,18 +768,18 @@ public class StakeAClaimPlugin extends JavaPlugin {
     }
 
     /**
-     * Notifies all with the worldguard.notify permission.
+     * Notifies all with the stakeaclaim.notify permission.
      * This will check both superperms and WEPIF,
      * but makes sure WEPIF checks don't result in duplicate notifications
      *
      * @param msg The notification to broadcast
      */
     public void broadcastNotification(String msg) {
-        getServer().broadcast(msg, "worldguard.notify");
-        Set<Permissible> subs = getServer().getPluginManager().getPermissionSubscriptions("worldguard.notify");
+        getServer().broadcast(msg, "stakeaclaim.notify");
+        Set<Permissible> subs = getServer().getPluginManager().getPermissionSubscriptions("stakeaclaim.notify");
         for (Player player : getServer().getOnlinePlayers()) {
-            if (!(subs.contains(player) && player.hasPermission("worldguard.notify")) &&
-                    hasPermission(player, "worldguard.notify")) { // Make sure the player wasn't already broadcasted to.
+            if (!(subs.contains(player) && player.hasPermission("stakeaclaim.notify")) &&
+                    hasPermission(player, "stakeaclaim.notify")) { // Make sure the player wasn't already broadcasted to.
                 player.sendMessage(msg);
             }
         }

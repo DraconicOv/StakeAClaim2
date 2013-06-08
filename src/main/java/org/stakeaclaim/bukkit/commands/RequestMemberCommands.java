@@ -75,11 +75,11 @@ public class RequestMemberCommands {
 
         if (localPlayer != null) {
             if (request.isOwner(localPlayer)) {
-                plugin.checkPermission(sender, "worldguard.request.addmember.own." + id.toLowerCase());
+                plugin.checkPermission(sender, "stakeaclaim.request.addmember.own." + id.toLowerCase());
             } else if (request.isMember(localPlayer)) {
-                plugin.checkPermission(sender, "worldguard.request.addmember.member." + id.toLowerCase());
+                plugin.checkPermission(sender, "stakeaclaim.request.addmember.member." + id.toLowerCase());
             } else {
-                plugin.checkPermission(sender, "worldguard.request.addmember." + id.toLowerCase());
+                plugin.checkPermission(sender, "stakeaclaim.request.addmember." + id.toLowerCase());
             }
         }
 
@@ -128,21 +128,21 @@ public class RequestMemberCommands {
         DefaultDomain owners = request.getOwners();
         if (localPlayer != null) {
             if (flag != null && flag && owners != null && owners.size() == 0) {
-                if (!plugin.hasPermission(player, "worldguard.request.unlimited")) {
+                if (!plugin.hasPermission(player, "stakeaclaim.request.unlimited")) {
                     int maxRequestCount = plugin.getGlobalStateManager().get(world).getMaxRequestCount(player);
                     if (maxRequestCount >= 0 && mgr.getRequestCountOfPlayer(localPlayer)
                             >= maxRequestCount) {
                         throw new CommandException("You already own the maximum allowed amount of requests.");
                     }
                 }
-                plugin.checkPermission(sender, "worldguard.request.addowner.unclaimed." + id.toLowerCase());
+                plugin.checkPermission(sender, "stakeaclaim.request.addowner.unclaimed." + id.toLowerCase());
             } else {
                 if (request.isOwner(localPlayer)) {
-                    plugin.checkPermission(sender, "worldguard.request.addowner.own." + id.toLowerCase());
+                    plugin.checkPermission(sender, "stakeaclaim.request.addowner.own." + id.toLowerCase());
                 } else if (request.isMember(localPlayer)) {
-                    plugin.checkPermission(sender, "worldguard.request.addowner.member." + id.toLowerCase());
+                    plugin.checkPermission(sender, "stakeaclaim.request.addowner.member." + id.toLowerCase());
                 } else {
-                    plugin.checkPermission(sender, "worldguard.request.addowner." + id.toLowerCase());
+                    plugin.checkPermission(sender, "stakeaclaim.request.addowner." + id.toLowerCase());
                 }
             }
         }
@@ -190,11 +190,11 @@ public class RequestMemberCommands {
 
         if (localPlayer != null) {
             if (request.isOwner(localPlayer)) {
-                plugin.checkPermission(sender, "worldguard.request.removemember.own." + id.toLowerCase());
+                plugin.checkPermission(sender, "stakeaclaim.request.removemember.own." + id.toLowerCase());
             } else if (request.isMember(localPlayer)) {
-                plugin.checkPermission(sender, "worldguard.request.removemember.member." + id.toLowerCase());
+                plugin.checkPermission(sender, "stakeaclaim.request.removemember.member." + id.toLowerCase());
             } else {
-                plugin.checkPermission(sender, "worldguard.request.removemember." + id.toLowerCase());
+                plugin.checkPermission(sender, "stakeaclaim.request.removemember." + id.toLowerCase());
             }
         }
 
@@ -242,11 +242,11 @@ public class RequestMemberCommands {
 
         if (localPlayer != null) {
             if (request.isOwner(localPlayer)) {
-                plugin.checkPermission(sender, "worldguard.request.removeowner.own." + id.toLowerCase());
+                plugin.checkPermission(sender, "stakeaclaim.request.removeowner.own." + id.toLowerCase());
             } else if (request.isMember(localPlayer)) {
-                plugin.checkPermission(sender, "worldguard.request.removeowner.member." + id.toLowerCase());
+                plugin.checkPermission(sender, "stakeaclaim.request.removeowner.member." + id.toLowerCase());
             } else {
-                plugin.checkPermission(sender, "worldguard.request.removeowner." + id.toLowerCase());
+                plugin.checkPermission(sender, "stakeaclaim.request.removeowner." + id.toLowerCase());
             }
         }
 

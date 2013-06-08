@@ -78,7 +78,7 @@ public class RequestCommands {
 
     @Command(aliases = {"define", "def", "d"}, usage = "<id> [<owner1> [<owner2> [<owners...>]]]",
             desc = "Defines a request", min = 1)
-    @CommandPermissions({"worldguard.request.define"})
+    @CommandPermissions({"stakeaclaim.request.define"})
     public void define(CommandContext args, CommandSender sender) throws CommandException {
 
         Player player = plugin.checkPlayer(sender);
@@ -160,11 +160,11 @@ public class RequestCommands {
         }
 
         if (existing.isOwner(localPlayer)) {
-            plugin.checkPermission(sender, "worldguard.request.redefine.own");
+            plugin.checkPermission(sender, "stakeaclaim.request.redefine.own");
         } else if (existing.isMember(localPlayer)) {
-            plugin.checkPermission(sender, "worldguard.request.redefine.member");
+            plugin.checkPermission(sender, "stakeaclaim.request.redefine.member");
         } else {
-            plugin.checkPermission(sender, "worldguard.request.redefine");
+            plugin.checkPermission(sender, "stakeaclaim.request.redefine");
         } 
 
         // Attempt to get the player's selection from WorldEdit
@@ -214,7 +214,7 @@ public class RequestCommands {
 
     @Command(aliases = {"claim"}, usage = "<id> [<owner1> [<owner2> [<owners...>]]]",
             desc = "Claim a request", min = 1)
-    @CommandPermissions({"worldguard.request.claim"})
+    @CommandPermissions({"stakeaclaim.request.claim"})
     public void claim(CommandContext args, CommandSender sender) throws CommandException {
 
         Player player = plugin.checkPlayer(sender);
@@ -267,7 +267,7 @@ public class RequestCommands {
 
         WorldConfiguration wcfg = plugin.getGlobalStateManager().get(player.getWorld());
 
-        if (!plugin.hasPermission(sender, "worldguard.request.unlimited")) {
+        if (!plugin.hasPermission(sender, "stakeaclaim.request.unlimited")) {
             // Check whether the player has created too many requests 
             int maxRequestCount = wcfg.getMaxRequestCount(player);
             if (maxRequestCount >= 0
@@ -322,7 +322,7 @@ public class RequestCommands {
             }
         }*/
 
-        if (!plugin.hasPermission(sender, "worldguard.request.unlimited")) {
+        if (!plugin.hasPermission(sender, "stakeaclaim.request.unlimited")) {
             if (request.volume() > wcfg.maxClaimVolume) {
                 player.sendMessage(ChatColor.RED + "This request is too large to claim.");
                 player.sendMessage(ChatColor.RED +
@@ -381,11 +381,11 @@ public class RequestCommands {
         final String id = request.getId();
 
         if (request.isOwner(localPlayer)) {
-            plugin.checkPermission(player, "worldguard.request.select.own." + id.toLowerCase());
+            plugin.checkPermission(player, "stakeaclaim.request.select.own." + id.toLowerCase());
         } else if (request.isMember(localPlayer)) {
-            plugin.checkPermission(player, "worldguard.request.select.member." + id.toLowerCase());
+            plugin.checkPermission(player, "stakeaclaim.request.select.member." + id.toLowerCase());
         } else {
-            plugin.checkPermission(player, "worldguard.request.select." + id.toLowerCase());
+            plugin.checkPermission(player, "stakeaclaim.request.select." + id.toLowerCase());
         }
 
         final World world = player.getWorld();
@@ -475,13 +475,13 @@ public class RequestCommands {
 
     public void displayRequestInfo(CommandSender sender, final LocalPlayer localPlayer, ProtectedRequest request) throws CommandPermissionsException {
         if (localPlayer == null) {
-            plugin.checkPermission(sender, "worldguard.request.info");
+            plugin.checkPermission(sender, "stakeaclaim.request.info");
         } else if (request.isOwner(localPlayer)) {
-            plugin.checkPermission(sender, "worldguard.request.info.own");
+            plugin.checkPermission(sender, "stakeaclaim.request.info.own");
         } else if (request.isMember(localPlayer)) {
-            plugin.checkPermission(sender, "worldguard.request.info.member");
+            plugin.checkPermission(sender, "stakeaclaim.request.info.member");
         } else {
-            plugin.checkPermission(sender, "worldguard.request.info");
+            plugin.checkPermission(sender, "stakeaclaim.request.info");
         }
 
         final String id = request.getId();
@@ -576,7 +576,7 @@ public class RequestCommands {
 
     @Command(aliases = {"list"}, usage = "[.player] [page] [world]",
             desc = "Get a list of requests", max = 3)
-    //@CommandPermissions({"worldguard.request.list"})
+    //@CommandPermissions({"stakeaclaim.request.list"})
     public void list(CommandContext args, CommandSender sender) throws CommandException {
 
         World world;
@@ -596,13 +596,13 @@ public class RequestCommands {
             }
         }
 
-        // Make /rg list default to "own" mode if the "worldguard.request.list" permission is not given
-        if (!own && !plugin.hasPermission(sender, "worldguard.request.list")) {
+        // Make /rg list default to "own" mode if the "stakeaclaim.request.list" permission is not given
+        if (!own && !plugin.hasPermission(sender, "stakeaclaim.request.list")) {
             own = true;
         }
 
         if (own) {
-            plugin.checkPermission(sender, "worldguard.request.list.own");
+            plugin.checkPermission(sender, "stakeaclaim.request.list.own");
             name = senderName;
             localPlayer = plugin.wrapPlayer(plugin.checkPlayer(sender));
         }
@@ -704,14 +704,14 @@ public class RequestCommands {
             hasPerm = true;
         } else {
             if (request.isOwner(localPlayer)) {
-                if (plugin.hasPermission(sender, "worldguard.request.flag.own." + id.toLowerCase())) hasPerm = true;
-                else if (plugin.hasPermission(sender, "worldguard.request.flag.requests.own." + id.toLowerCase())) hasPerm = true;
+                if (plugin.hasPermission(sender, "stakeaclaim.request.flag.own." + id.toLowerCase())) hasPerm = true;
+                else if (plugin.hasPermission(sender, "stakeaclaim.request.flag.requests.own." + id.toLowerCase())) hasPerm = true;
             } else if (request.isMember(localPlayer)) {
-                if (plugin.hasPermission(sender, "worldguard.request.flag.member." + id.toLowerCase())) hasPerm = true;
-                else if (plugin.hasPermission(sender, "worldguard.request.flag.requests.member." + id.toLowerCase())) hasPerm = true;
+                if (plugin.hasPermission(sender, "stakeaclaim.request.flag.member." + id.toLowerCase())) hasPerm = true;
+                else if (plugin.hasPermission(sender, "stakeaclaim.request.flag.requests.member." + id.toLowerCase())) hasPerm = true;
             } else {
-                if (plugin.hasPermission(sender, "worldguard.request.flag." + id.toLowerCase())) hasPerm = true;
-                else if (plugin.hasPermission(sender, "worldguard.request.flag.requests." + id.toLowerCase())) hasPerm = true;
+                if (plugin.hasPermission(sender, "stakeaclaim.request.flag." + id.toLowerCase())) hasPerm = true;
+                else if (plugin.hasPermission(sender, "stakeaclaim.request.flag.requests." + id.toLowerCase())) hasPerm = true;
             }
         }
         if (!hasPerm) throw new CommandPermissionsException();
@@ -736,19 +736,19 @@ public class RequestCommands {
                 // @TODO deprecate inconsistant "owner" permission
                 if (localPlayer != null) {
                     if (request.isOwner(localPlayer)) {
-                        if (!plugin.hasPermission(sender, "worldguard.request.flag.flags."
+                        if (!plugin.hasPermission(sender, "stakeaclaim.request.flag.flags."
                                 + flag.getName() + ".owner." + id.toLowerCase())
-                                && !plugin.hasPermission(sender, "worldguard.request.flag.flags."
+                                && !plugin.hasPermission(sender, "stakeaclaim.request.flag.flags."
                                         + flag.getName() + ".own." + id.toLowerCase())) {
                             continue;
                         }
                     } else if (request.isMember(localPlayer)) {
-                        if (!plugin.hasPermission(sender, "worldguard.request.flag.flags."
+                        if (!plugin.hasPermission(sender, "stakeaclaim.request.flag.flags."
                                 + flag.getName() + ".member." + id.toLowerCase())) {
                             continue;
                         }
                     } else {
-                        if (!plugin.hasPermission(sender, "worldguard.request.flag.flags."
+                        if (!plugin.hasPermission(sender, "stakeaclaim.request.flag.flags."
                                 + flag.getName() + "." + id.toLowerCase())) {
                             continue;
                         }
@@ -768,13 +768,13 @@ public class RequestCommands {
 
         if (localPlayer != null) {
             if (request.isOwner(localPlayer)) {
-                plugin.checkPermission(sender, "worldguard.request.flag.flags."
+                plugin.checkPermission(sender, "stakeaclaim.request.flag.flags."
                         + foundFlag.getName() + ".owner." + id.toLowerCase());
             } else if (request.isMember(localPlayer)) {
-                plugin.checkPermission(sender, "worldguard.request.flag.flags."
+                plugin.checkPermission(sender, "stakeaclaim.request.flag.flags."
                         + foundFlag.getName() + ".member." + id.toLowerCase());
             } else {
-                plugin.checkPermission(sender, "worldguard.request.flag.flags."
+                plugin.checkPermission(sender, "stakeaclaim.request.flag.flags."
                         + foundFlag.getName() + "." + id.toLowerCase());
             }
         }
@@ -886,11 +886,11 @@ public class RequestCommands {
 
         if (localPlayer != null) {
             if (request.isOwner(localPlayer)) {
-                plugin.checkPermission(sender, "worldguard.request.setpriority.own." + id.toLowerCase());
+                plugin.checkPermission(sender, "stakeaclaim.request.setpriority.own." + id.toLowerCase());
             } else if (request.isMember(localPlayer)) {
-                plugin.checkPermission(sender, "worldguard.request.setpriority.member." + id.toLowerCase());
+                plugin.checkPermission(sender, "stakeaclaim.request.setpriority.member." + id.toLowerCase());
             } else {
-                plugin.checkPermission(sender, "worldguard.request.setpriority." + id.toLowerCase());
+                plugin.checkPermission(sender, "stakeaclaim.request.setpriority." + id.toLowerCase());
             }
         }
 
@@ -957,19 +957,19 @@ public class RequestCommands {
 
             if (localPlayer != null) {
                 if (request.isOwner(localPlayer)) {
-                    plugin.checkPermission(sender, "worldguard.request.setparent.own." + id.toLowerCase());
+                    plugin.checkPermission(sender, "stakeaclaim.request.setparent.own." + id.toLowerCase());
                 } else if (request.isMember(localPlayer)) {
-                    plugin.checkPermission(sender, "worldguard.request.setparent.member." + id.toLowerCase());
+                    plugin.checkPermission(sender, "stakeaclaim.request.setparent.member." + id.toLowerCase());
                 } else {
-                    plugin.checkPermission(sender, "worldguard.request.setparent." + id.toLowerCase());
+                    plugin.checkPermission(sender, "stakeaclaim.request.setparent." + id.toLowerCase());
                 } 
 
                 if (parent.isOwner(localPlayer)) {
-                    plugin.checkPermission(sender, "worldguard.request.setparent.own." + parentId.toLowerCase());
+                    plugin.checkPermission(sender, "stakeaclaim.request.setparent.own." + parentId.toLowerCase());
                 } else if (parent.isMember(localPlayer)) {
-                    plugin.checkPermission(sender, "worldguard.request.setparent.member." + parentId.toLowerCase());
+                    plugin.checkPermission(sender, "stakeaclaim.request.setparent.member." + parentId.toLowerCase());
                 } else {
-                    plugin.checkPermission(sender, "worldguard.request.setparent." + parentId.toLowerCase());
+                    plugin.checkPermission(sender, "stakeaclaim.request.setparent." + parentId.toLowerCase());
                 }
             }
             try {
@@ -1019,11 +1019,11 @@ public class RequestCommands {
 
         if (localPlayer != null) {
             if (request.isOwner(localPlayer)) {
-                plugin.checkPermission(sender, "worldguard.request.remove.own." + id.toLowerCase());
+                plugin.checkPermission(sender, "stakeaclaim.request.remove.own." + id.toLowerCase());
             } else if (request.isMember(localPlayer)) {
-                plugin.checkPermission(sender, "worldguard.request.remove.member." + id.toLowerCase());
+                plugin.checkPermission(sender, "stakeaclaim.request.remove.member." + id.toLowerCase());
             } else {
-                plugin.checkPermission(sender, "worldguard.request.remove." + id.toLowerCase());
+                plugin.checkPermission(sender, "stakeaclaim.request.remove." + id.toLowerCase());
             }
         }
 
@@ -1042,7 +1042,7 @@ public class RequestCommands {
 
     @Command(aliases = {"load", "reload"}, usage = "[world]",
             desc = "Reload requests from file", max = 1)
-    @CommandPermissions({"worldguard.request.load"})
+    @CommandPermissions({"stakeaclaim.request.load"})
     public void load(CommandContext args, CommandSender sender) throws CommandException {
 
         World world = null;
@@ -1081,7 +1081,7 @@ public class RequestCommands {
 
     @Command(aliases = {"save", "write"}, usage = "[world]",
             desc = "Re-save requests to file", max = 1)
-    @CommandPermissions({"worldguard.request.save"})
+    @CommandPermissions({"stakeaclaim.request.save"})
     public void save(CommandContext args, CommandSender sender) throws CommandException {
 
         World world = null;
@@ -1120,7 +1120,7 @@ public class RequestCommands {
 
     @Command(aliases = {"migratedb"}, usage = "<from> <to>",
             desc = "Migrate from one Protection Database to another.", min = 1)
-    @CommandPermissions({"worldguard.request.migratedb"})
+    @CommandPermissions({"stakeaclaim.request.migratedb"})
     public void migratedb(CommandContext args, CommandSender sender) throws CommandException {
         String from = args.getString(0).toLowerCase().trim();
         String to = args.getString(1).toLowerCase().trim();
@@ -1188,11 +1188,11 @@ public class RequestCommands {
 
         LocalPlayer localPlayer = plugin.wrapPlayer(player);
         if (request.isOwner(localPlayer)) {
-            plugin.checkPermission(sender, "worldguard.request.teleport.own." + id.toLowerCase());
+            plugin.checkPermission(sender, "stakeaclaim.request.teleport.own." + id.toLowerCase());
         } else if (request.isMember(localPlayer)) {
-            plugin.checkPermission(sender, "worldguard.request.teleport.member." + id.toLowerCase());
+            plugin.checkPermission(sender, "stakeaclaim.request.teleport.member." + id.toLowerCase());
         } else {
-            plugin.checkPermission(sender, "worldguard.request.teleport." + id.toLowerCase());
+            plugin.checkPermission(sender, "stakeaclaim.request.teleport." + id.toLowerCase());
         }
 
         final Location teleportLocation;

@@ -192,11 +192,11 @@ public class PlotCommands {
         final String id = claim.getId();
 
         if (claim.isOwner(localPlayer)) {
-            plugin.checkPermission(player, "worldguard.plot." + command + ".own." + id.toLowerCase());
+            plugin.checkPermission(player, "stakeaclaim.plot." + command + ".own." + id.toLowerCase());
         } else if (claim.isMember(localPlayer)) {
-            plugin.checkPermission(player, "worldguard.plot." + command + ".member." + id.toLowerCase());
+            plugin.checkPermission(player, "stakeaclaim.plot." + command + ".member." + id.toLowerCase());
         } else {
-            plugin.checkPermission(player, "worldguard.plot." + command + "." + id.toLowerCase());
+            plugin.checkPermission(player, "stakeaclaim.plot." + command + "." + id.toLowerCase());
         }
     }
 

@@ -1,5 +1,5 @@
 #
-# WorldGuard's configuration file.
+# StakeAClaim's configuration file.
 #
 # This is the a per-world configuration file. It only affects one
 # corresponding world.
@@ -13,7 +13,7 @@
 #   in categories (like "enforce-single-session" is in the "protection"
 #   category.
 # - If you want to check the format of this file before putting it
-#   into WorldGuard, paste it into http://yaml-online-parser.appspot.com/
+#   into StakeAClaim, paste it into http://yaml-online-parser.appspot.com/
 #   and see if it gives "ERROR:".
 # - Lines starting with # are comments and so they are ignored.
 #

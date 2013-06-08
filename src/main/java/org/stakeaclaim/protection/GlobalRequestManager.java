@@ -253,7 +253,7 @@ public class GlobalRequestManager {
      * @return Whether {@code player} has bypass permission for {@code world}
      */
     public boolean hasBypass(LocalPlayer player, World world) {
-        return player.hasPermission("worldguard.request.bypass."
+        return player.hasPermission("stakeaclaim.request.bypass."
                         + world.getName());
     }
 
@@ -265,7 +265,7 @@ public class GlobalRequestManager {
      * @return Whether {@code player} has bypass permission for {@code world}
      */
     public boolean hasBypass(Player player, World world) {
-        return plugin.hasPermission(player, "worldguard.request.bypass."
+        return plugin.hasPermission(player, "stakeaclaim.request.bypass."
                 + world.getName());
     }
 

@@ -242,7 +242,7 @@ public class StakeAClaimPlayerListener implements Listener {
                     final ItemStack item = player.getItemInHand();
                     String support = null;
 
-                    if (item.getTypeId() == wcfg.requestWand && plugin.hasPermission(player, "worldguard.request.wand")) {
+                    if (item.getTypeId() == wcfg.requestWand && plugin.hasPermission(player, "stakeaclaim.request.wand")) {
 
                         final ProtectedRequest claim = set.getClaim();
                         if (claim != null) {
@@ -366,7 +366,7 @@ public class StakeAClaimPlayerListener implements Listener {
         }
 
         if (!cfg.hasCommandBookGodMode() && cfg.autoGodMode && (plugin.inGroup(player, "wg-invincible")
-                || plugin.hasPermission(player, "worldguard.auto-invincible"))) {
+                || plugin.hasPermission(player, "stakeaclaim.auto-invincible"))) {
             cfg.enableGodMode(player);
         }
 
@@ -442,7 +442,7 @@ public class StakeAClaimPlayerListener implements Listener {
         /* MCA add start */
         // auto removes keep-out flag(s), if player has perms to do so
         
-        if (plugin.hasPermission(player, "worldguard.plot.public")) {
+        if (plugin.hasPermission(player, "stakeaclaim.plot.public")) {
             final LocalPlayer localPlayer2 = plugin.wrapPlayer(player);
             final RequestManager mgr2 = plugin.getGlobalRequestManager().get(world);
             final Map<String, ProtectedRequest> requests = mgr2.getRequests();
@@ -513,7 +513,7 @@ public class StakeAClaimPlayerListener implements Listener {
         WorldConfiguration wcfg = cfg.get(world);
 
         if (wcfg.removeInfiniteStacks
-                && !plugin.hasPermission(player, "worldguard.override.infinite-stack")) {
+                && !plugin.hasPermission(player, "stakeaclaim.override.infinite-stack")) {
             int slot = player.getInventory().getHeldItemSlot();
             ItemStack heldItem = player.getInventory().getItem(slot);
             if (heldItem != null && heldItem.getAmount() < 0) {
@@ -536,7 +536,7 @@ public class StakeAClaimPlayerListener implements Listener {
                 }
 
                 if (blockedEffect != null) {
-                    if (plugin.hasPermission(player, "worldguard.override.potions")) {
+                    if (plugin.hasPermission(player, "stakeaclaim.override.potions")) {
                         if (potion.isSplash() && wcfg.blockPotionsAlways) {
                             player.sendMessage(ChatColor.RED + "Sorry, potions with " +
                                     blockedEffect.getType().getName() + " can't be thrown, " +
@@ -694,7 +694,7 @@ public class StakeAClaimPlayerListener implements Listener {
                 || type == BlockID.BREWING_STAND
                 || type == BlockID.ENCHANTMENT_TABLE)
                 && wcfg.removeInfiniteStacks
-                && !plugin.hasPermission(player, "worldguard.override.infinite-stack")) {
+                && !plugin.hasPermission(player, "stakeaclaim.override.infinite-stack")) {
             for (int slot = 0; slot < 40; slot++) {
                 ItemStack heldItem = player.getInventory().getItem(slot);
                 if (heldItem != null && heldItem.getAmount() < 0) {
@@ -712,7 +712,7 @@ public class StakeAClaimPlayerListener implements Listener {
             ApplicableRequestSet placedInSet = mgr.getApplicableRequests(placedIn.getLocation());
             LocalPlayer localPlayer = plugin.wrapPlayer(player);
 
-            if (item.getTypeId() == wcfg.requestWand && plugin.hasPermission(player, "worldguard.request.wand")) {
+            if (item.getTypeId() == wcfg.requestWand && plugin.hasPermission(player, "stakeaclaim.request.wand")) {
                 if (set.size() > 0) {
                     player.sendMessage(ChatColor.YELLOW + "Can you build? "
                             + (set.canBuild(localPlayer) ? "Yes" : "No"));
@@ -1366,7 +1366,7 @@ public class StakeAClaimPlayerListener implements Listener {
         WorldConfiguration wcfg = cfg.get(player.getWorld());
 
         if (wcfg.removeInfiniteStacks
-                && !plugin.hasPermission(player, "worldguard.override.infinite-stack")) {
+                && !plugin.hasPermission(player, "stakeaclaim.override.infinite-stack")) {
             int newSlot = event.getNewSlot();
             ItemStack heldItem = player.getInventory().getItem(newSlot);
             if (heldItem != null && heldItem.getAmount() < 0) {
