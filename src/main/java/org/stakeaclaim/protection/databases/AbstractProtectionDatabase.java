@@ -19,27 +19,27 @@
 
 package org.stakeaclaim.protection.databases;
 
-import org.stakeaclaim.protection.managers.RegionManager;
+import org.stakeaclaim.protection.managers.RequestManager;
 
 public abstract class AbstractProtectionDatabase implements ProtectionDatabase {
 
     /**
-     * Load the list of regions into a region manager.
+     * Load the list of requests into a request manager.
      * 
      * @throws ProtectionDatabaseException
      */
-    public void load(RegionManager manager) throws ProtectionDatabaseException {
+    public void load(RequestManager manager) throws ProtectionDatabaseException {
         load();
-        manager.setRegions(getRegions());
+        manager.setRequests(getRequests());
     }
     
     /**
-     * Save the list of regions from a region manager.
+     * Save the list of requests from a request manager.
      * 
      * @throws ProtectionDatabaseException
      */
-    public void save(RegionManager manager) throws ProtectionDatabaseException {
-        setRegions(manager.getRegions());
+    public void save(RequestManager manager) throws ProtectionDatabaseException {
+        setRequests(manager.getRequests());
         save();
     }
     

@@ -28,7 +28,7 @@ import org.stakeaclaim.bukkit.StakeAClaimPlugin;
  */
 public class StringFlag extends Flag<String> {
 
-    public StringFlag(String name, RegionGroup defaultGroup) {
+    public StringFlag(String name, RequestGroup defaultGroup) {
         super(name, defaultGroup);
     }
 

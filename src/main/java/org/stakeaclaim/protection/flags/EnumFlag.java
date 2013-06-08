@@ -30,7 +30,7 @@ public class EnumFlag<T extends Enum<T>> extends Flag<T> {
 
     private Class<T> enumClass;
 
-    public EnumFlag(String name, Class<T> enumClass, RegionGroup defaultGroup) {
+    public EnumFlag(String name, Class<T> enumClass, RequestGroup defaultGroup) {
         super(name, defaultGroup);
         this.enumClass = enumClass;
     }

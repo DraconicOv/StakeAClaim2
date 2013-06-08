@@ -126,16 +126,16 @@ public class WorldConfiguration {
     public boolean teleportOnVoid;
     public boolean disableExplosionDamage;
     public boolean disableMobDamage;
-    public boolean useRegions;
+    public boolean useRequests;
     public boolean highFreqFlags;
-    public int regionWand;
+    public int requestWand;
     public Set<EntityType> blockCreatureSpawn;
     // public boolean useiConomy;
     // public boolean buyOnClaim;
     // public double buyOnClaimPrice;
     public int maxClaimVolume;
-    public boolean claimOnlyInsideExistingRegions;
-    public int maxRegionCountPerPlayer;
+    public boolean claimOnlyInsideExistingRequests;
+    public int maxRequestCountPerPlayer;
     public boolean antiWolfDumbness;
     public boolean signChestProtection;
     public boolean disableSignChestProtectionCheck;
@@ -161,11 +161,11 @@ public class WorldConfiguration {
     public boolean disableMyceliumSpread;
     public boolean disableVineGrowth;
     public boolean disableEndermanGriefing;
-    public boolean regionInvinciblityRemovesMobs;
+    public boolean requestInvinciblityRemovesMobs;
     public boolean disableDeathMessages;
     public boolean disableObsidianGenerators;
 
-    private Map<String, Integer> maxRegionCounts;
+    private Map<String, Integer> maxRequestCounts;
 
     /* Configuration data end */
 
@@ -399,22 +399,22 @@ public class WorldConfiguration {
         disableMyceliumSpread = getBoolean("dynamics.disable-mycelium-spread", false);
         disableVineGrowth = getBoolean("dynamics.disable-vine-growth", false);
 
-        useRegions = getBoolean("regions.enable", true);
-        regionInvinciblityRemovesMobs = getBoolean("regions.invincibility-removes-mobs", false);
-        highFreqFlags = getBoolean("regions.high-frequency-flags", false);
-        regionWand = getInt("regions.wand", 334);
-        maxClaimVolume = getInt("regions.max-claim-volume", 30000);
-        claimOnlyInsideExistingRegions = getBoolean("regions.claim-only-inside-existing-regions", false);
+        useRequests = getBoolean("requests.enable", true);
+        requestInvinciblityRemovesMobs = getBoolean("requests.invincibility-removes-mobs", false);
+        highFreqFlags = getBoolean("requests.high-frequency-flags", false);
+        requestWand = getInt("requests.wand", 334);
+        maxClaimVolume = getInt("requests.max-claim-volume", 30000);
+        claimOnlyInsideExistingRequests = getBoolean("requests.claim-only-inside-existing-requests", false);
 
-        maxRegionCountPerPlayer = getInt("regions.max-region-count-per-player.default", 7);
-        maxRegionCounts = new HashMap<String, Integer>();
-        maxRegionCounts.put(null, maxRegionCountPerPlayer);
+        maxRequestCountPerPlayer = getInt("requests.max-request-count-per-player.default", 7);
+        maxRequestCounts = new HashMap<String, Integer>();
+        maxRequestCounts.put(null, maxRequestCountPerPlayer);
 
-        for (String key : getKeys("regions.max-region-count-per-player")) {
+        for (String key : getKeys("requests.max-request-count-per-player")) {
             if (!key.equalsIgnoreCase("default")) {
-                Object val = getProperty("regions.max-region-count-per-player." + key);
+                Object val = getProperty("requests.max-request-count-per-player." + key);
                 if (val != null && val instanceof Number) {
-                    maxRegionCounts.put(key, ((Number) val).intValue());
+                    maxRequestCounts.put(key, ((Number) val).intValue());
                 }
             }
         }
@@ -578,16 +578,16 @@ public class WorldConfiguration {
 //        return chestProtection;
 //    }
 
-    public int getMaxRegionCount(Player player) {
+    public int getMaxRequestCount(Player player) {
         int max = -1;
         for (String group : plugin.getGroups(player)) {
-            if (maxRegionCounts.containsKey(group)) {
-                int groupMax = maxRegionCounts.get(group);
+            if (maxRequestCounts.containsKey(group)) {
+                int groupMax = maxRequestCounts.get(group);
                 if (max < groupMax) max = groupMax;
             }
         }
         if (max <= -1) {
-            max = maxRegionCountPerPlayer;
+            max = maxRequestCountPerPlayer;
         }
         return max;
     }

@@ -76,10 +76,10 @@ import org.stakeaclaim.LocalPlayer;
 //import org.stakeaclaim.blacklist.events.ItemUseBlacklistEvent;
 import org.stakeaclaim.bukkit.FlagStateManager.PlayerFlagState;
 import org.stakeaclaim.domains.DefaultDomain; /* MCA add */
-import org.stakeaclaim.protection.ApplicableRegionSet;
+import org.stakeaclaim.protection.ApplicableRequestSet;
 import org.stakeaclaim.protection.flags.DefaultFlag;
-import org.stakeaclaim.protection.managers.RegionManager;
-import org.stakeaclaim.protection.regions.ProtectedRegion;
+import org.stakeaclaim.protection.managers.RequestManager;
+import org.stakeaclaim.protection.requests.ProtectedRequest;
 
 /**
  * Handles all events thrown in relation to a player.
@@ -122,7 +122,7 @@ public class StakeAClaimPlayerListener implements Listener {
             if (player.getVehicle() != null) {
                 return; // handled in vehicle listener
             }
-            if (wcfg.useRegions) {
+            if (wcfg.useRequests) {
                 // Did we move a block?
                 if (event.getFrom().getBlockX() != event.getTo().getBlockX()
                         || event.getFrom().getBlockY() != event.getTo().getBlockY()
@@ -136,39 +136,39 @@ public class StakeAClaimPlayerListener implements Listener {
                     }
 
                     LocalPlayer localPlayer = plugin.wrapPlayer(player);
-                    boolean hasBypass = plugin.getGlobalRegionManager().hasBypass(player, world);
+                    boolean hasBypass = plugin.getGlobalRequestManager().hasBypass(player, world);
 
-                    RegionManager mgr = plugin.getGlobalRegionManager().get(world);
+                    RequestManager mgr = plugin.getGlobalRequestManager().get(world);
                     Vector pt = new Vector(event.getTo().getBlockX(), event.getTo().getBlockY(), event.getTo().getBlockZ());
-                    ApplicableRegionSet set = mgr.getApplicableRegions(pt);
+                    ApplicableRequestSet set = mgr.getApplicableRequests(pt);
 
                     /*
-                    // check if region is full
-                    // get the lowest number of allowed members in any region
-                    boolean regionFull = false;
+                    // check if request is full
+                    // get the lowest number of allowed members in any request
+                    boolean requestFull = false;
                     String maxPlayerMessage = null;
                     if (!hasBypass) {
-                        for (ProtectedRegion region : set) {
-                            if (region instanceof GlobalProtectedRegion) {
-                                continue; // global region can't have a max
+                        for (ProtectedRequest request : set) {
+                            if (request instanceof GlobalProtectedRequest) {
+                                continue; // global request can't have a max
                             }
-                            // get the max for just this region
-                            Integer maxPlayers = region.getFlag(DefaultFlag.MAX_PLAYERS);
+                            // get the max for just this request
+                            Integer maxPlayers = request.getFlag(DefaultFlag.MAX_PLAYERS);
                             if (maxPlayers == null) {
                                 continue;
                             }
                             int occupantCount = 0;
                             for(Player occupant : world.getPlayers()) {
-                                // each player in this region counts as one toward the max of just this region
-                                // A person with bypass doesn't count as an occupant of the region
-                                if (!occupant.equals(player) && !plugin.getGlobalRegionManager().hasBypass(occupant, world)) {
-                                    if (region.contains(BukkitUtil.toVector(occupant.getLocation()))) {
+                                // each player in this request counts as one toward the max of just this request
+                                // A person with bypass doesn't count as an occupant of the request
+                                if (!occupant.equals(player) && !plugin.getGlobalRequestManager().hasBypass(occupant, world)) {
+                                    if (request.contains(BukkitUtil.toVector(occupant.getLocation()))) {
                                         if (++occupantCount >= maxPlayers) {
-                                            regionFull = true;
-                                            maxPlayerMessage = region.getFlag(DefaultFlag.MAX_PLAYERS_MESSAGE);
-                                            // At least one region in the set is full, we are going to use this message because it
+                                            requestFull = true;
+                                            maxPlayerMessage = request.getFlag(DefaultFlag.MAX_PLAYERS_MESSAGE);
+                                            // At least one request in the set is full, we are going to use this message because it
                                             // was the first one we detected as full. In reality we should check them all and then
-                                            // resolve the message from full regions, but that is probably a lot laggier (and this
+                                            // resolve the message from full requests, but that is probably a lot laggier (and this
                                             // is already pretty laggy. In practice, we can't really control which one we get first
                                             // right here.
                                             break;
@@ -181,7 +181,7 @@ public class StakeAClaimPlayerListener implements Listener {
                     */
 
                     boolean entryAllowed = set.allows(DefaultFlag.ENTRY, localPlayer);
-                    if (!hasBypass && (!entryAllowed /*|| regionFull*/)) {
+                    if (!hasBypass && (!entryAllowed /*|| requestFull*/)) {
                         String message = /*maxPlayerMessage != null ? maxPlayerMessage :*/ "You are not permitted to enter this area.";
 
                         player.sendMessage(ChatColor.DARK_RED + message);
@@ -196,7 +196,7 @@ public class StakeAClaimPlayerListener implements Listener {
 
                     // Have to set this state
                     if (state.lastExitAllowed == null) {
-                        state.lastExitAllowed = mgr.getApplicableRegions(toVector(event.getFrom()))
+                        state.lastExitAllowed = mgr.getApplicableRequests(toVector(event.getFrom()))
                                 .allows(DefaultFlag.EXIT, localPlayer);
                     }
 
@@ -242,9 +242,9 @@ public class StakeAClaimPlayerListener implements Listener {
                     final ItemStack item = player.getItemInHand();
                     String support = null;
 
-                    if (item.getTypeId() == wcfg.regionWand && plugin.hasPermission(player, "worldguard.region.wand")) {
+                    if (item.getTypeId() == wcfg.requestWand && plugin.hasPermission(player, "worldguard.request.wand")) {
 
-                        final ProtectedRegion claim = set.getClaim();
+                        final ProtectedRequest claim = set.getClaim();
                         if (claim != null) {
                             StringBuilder message = new StringBuilder(ChatColor.YELLOW + "Location: " + ChatColor.WHITE + claim.getId());
                             final DefaultDomain owners = claim.getOwners();
@@ -269,25 +269,25 @@ public class StakeAClaimPlayerListener implements Listener {
                             && state.notifiedForLeave != null && state.notifiedForLeave) {
                         plugin.broadcastNotification(ChatColor.GRAY + "WG: "
                                 + ChatColor.LIGHT_PURPLE + player.getName()
-                                + ChatColor.GOLD + " left NOTIFY region");
+                                + ChatColor.GOLD + " left NOTIFY request");
                     }
 
                     if (notifyEnter != null && notifyEnter && (state.notifiedForEnter == null
                             || !state.notifiedForEnter)) {
-                        StringBuilder regionList = new StringBuilder();
+                        StringBuilder requestList = new StringBuilder();
 
-                        for (ProtectedRegion region : set) {
-                            if (regionList.length() != 0) {
-                                regionList.append(", ");
+                        for (ProtectedRequest request : set) {
+                            if (requestList.length() != 0) {
+                                requestList.append(", ");
                             }
-                            regionList.append(region.getId());
+                            requestList.append(request.getId());
                         }
 
                         plugin.broadcastNotification(ChatColor.GRAY + "WG: "
                                 + ChatColor.LIGHT_PURPLE + player.getName()
-                                + ChatColor.GOLD + " entered NOTIFY region: "
+                                + ChatColor.GOLD + " entered NOTIFY request: "
                                 + ChatColor.WHITE
-                                + regionList);
+                                + requestList);
                     }
 
                     if (!hasBypass && gameMode != null) {
@@ -323,9 +323,9 @@ public class StakeAClaimPlayerListener implements Listener {
     public void onPlayerGameModeChange(PlayerGameModeChangeEvent event) {
         Player player = event.getPlayer();
         WorldConfiguration wcfg = plugin.getGlobalStateManager().get(player.getWorld());
-        if (wcfg.useRegions && !plugin.getGlobalRegionManager().hasBypass(player, player.getWorld())) {
-            GameMode gameMode = plugin.getGlobalRegionManager().get(player.getWorld())
-                    .getApplicableRegions(player.getLocation()).getFlag(DefaultFlag.GAME_MODE);
+        if (wcfg.useRequests && !plugin.getGlobalRequestManager().hasBypass(player, player.getWorld())) {
+            GameMode gameMode = plugin.getGlobalRequestManager().get(player.getWorld())
+                    .getApplicableRequests(player.getLocation()).getFlag(DefaultFlag.GAME_MODE);
             if (plugin.getFlagStateManager().getState(player).lastGameMode != null
                     && gameMode != null && event.getNewGameMode() != gameMode) {
                 event.setCancelled(true);
@@ -374,7 +374,7 @@ public class StakeAClaimPlayerListener implements Listener {
             cfg.enableAmphibiousMode(player);
         }
 
-        if (wcfg.useRegions) {
+        if (wcfg.useRequests) {
             PlayerFlagState state = plugin.getFlagStateManager().getState(player);
             Location loc = player.getLocation();
             state.lastWorld = loc.getWorld();
@@ -388,15 +388,15 @@ public class StakeAClaimPlayerListener implements Listener {
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
         WorldConfiguration wcfg = plugin.getGlobalStateManager().get(player.getWorld());
-        if (wcfg.useRegions) {
-            if (!plugin.getGlobalRegionManager().allows(DefaultFlag.SEND_CHAT, player.getLocation())) {
-                player.sendMessage(ChatColor.RED + "You don't have permission to chat in this region!");
+        if (wcfg.useRequests) {
+            if (!plugin.getGlobalRequestManager().allows(DefaultFlag.SEND_CHAT, player.getLocation())) {
+                player.sendMessage(ChatColor.RED + "You don't have permission to chat in this request!");
                 event.setCancelled(true);
                 return;
             }
 
             for (Iterator<Player> i = event.getRecipients().iterator(); i.hasNext();) {
-                if (!plugin.getGlobalRegionManager().allows(DefaultFlag.RECEIVE_CHAT, i.next().getLocation())) {
+                if (!plugin.getGlobalRequestManager().allows(DefaultFlag.RECEIVE_CHAT, i.next().getLocation())) {
                     i.remove();
                 }
             }
@@ -444,10 +444,10 @@ public class StakeAClaimPlayerListener implements Listener {
         
         if (plugin.hasPermission(player, "worldguard.plot.public")) {
             final LocalPlayer localPlayer2 = plugin.wrapPlayer(player);
-            final RegionManager mgr2 = plugin.getGlobalRegionManager().get(world);
-            final Map<String, ProtectedRegion> regions = mgr2.getRegions();
+            final RequestManager mgr2 = plugin.getGlobalRequestManager().get(world);
+            final Map<String, ProtectedRequest> requests = mgr2.getRequests();
 
-            for (ProtectedRegion claim : regions.values()) {
+            for (ProtectedRequest claim : requests.values()) {
                 if (claim.isOwner(localPlayer2)) {
                     claim.setFlag(DefaultFlag.ENTRY, null);
                 }
@@ -462,16 +462,16 @@ public class StakeAClaimPlayerListener implements Listener {
         // sent constantly, so it is possible to move just a little enough to
         // not trigger the event and then rejoin so that you are then considered
         // outside the border. This should work around that.
-        if (wcfg.useRegions) {
-            boolean hasBypass = plugin.getGlobalRegionManager().hasBypass(player, world);
+        if (wcfg.useRequests) {
+            boolean hasBypass = plugin.getGlobalRequestManager().hasBypass(player, world);
             PlayerFlagState state = plugin.getFlagStateManager().getState(player);
 
             if (state.lastWorld != null && !hasBypass) {
                 LocalPlayer localPlayer = plugin.wrapPlayer(player);
-                RegionManager mgr = plugin.getGlobalRegionManager().get(world);
+                RequestManager mgr = plugin.getGlobalRequestManager().get(world);
                 Location loc = player.getLocation();
                 Vector pt = new Vector(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-                ApplicableRegionSet set = mgr.getApplicableRegions(pt);
+                ApplicableRequestSet set = mgr.getApplicableRequests(pt);
 
                 if (state.lastExitAllowed == null) {
                     state.lastExitAllowed = set.allows(DefaultFlag.EXIT, localPlayer);
@@ -583,10 +583,10 @@ public class StakeAClaimPlayerListener implements Listener {
         ConfigurationManager cfg = plugin.getGlobalStateManager();
         WorldConfiguration wcfg = cfg.get(world);
 
-        if (wcfg.useRegions) {
+        if (wcfg.useRequests) {
             Vector pt = toVector(block);
-            RegionManager mgr = plugin.getGlobalRegionManager().get(world);
-            ApplicableRegionSet set = mgr.getApplicableRegions(pt);
+            RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
             LocalPlayer localPlayer = plugin.wrapPlayer(player);
 
             /*if (type == BlockID.STONE_BUTTON
@@ -594,7 +594,7 @@ public class StakeAClaimPlayerListener implements Listener {
                   || type == BlockID.WOODEN_DOOR
                   || type == BlockID.TRAP_DOOR
                   || type == BlockID.NOTE_BLOCK) {
-                if (!plugin.getGlobalRegionManager().hasBypass(player, world)
+                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
                         && !set.allows(DefaultFlag.USE, localPlayer)
                         && !set.canBuild(localPlayer)) {
                     player.sendMessage(ChatColor.DARK_RED + "You don't have permission to use that in this area.");
@@ -605,7 +605,7 @@ public class StakeAClaimPlayerListener implements Listener {
             }*/
 
             if (type == BlockID.DRAGON_EGG) {
-                if (!plugin.getGlobalRegionManager().hasBypass(player, world)
+                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
                         && !set.canBuild(localPlayer)) {
                     player.sendMessage(ChatColor.DARK_RED + "You're not allowed to move dragon eggs here!");
                     event.setUseInteractedBlock(Result.DENY);
@@ -615,8 +615,8 @@ public class StakeAClaimPlayerListener implements Listener {
             }
 
             if (block.getRelative(event.getBlockFace()).getTypeId() == BlockID.FIRE) {
-                if (!plugin.getGlobalRegionManager().hasBypass(player, world)
-                        && !mgr.getApplicableRegions(block.getRelative(event.getBlockFace())
+                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
+                        && !mgr.getApplicableRequests(block.getRelative(event.getBlockFace())
                                 .getLocation()).canBuild(localPlayer)) {
                     event.setUseInteractedBlock(Result.DENY);
                     event.setCancelled(true);
@@ -704,30 +704,30 @@ public class StakeAClaimPlayerListener implements Listener {
             }
         }
 
-        if (wcfg.useRegions) {
+        if (wcfg.useRequests) {
             Vector pt = toVector(block);
-            RegionManager mgr = plugin.getGlobalRegionManager().get(world);
+            RequestManager mgr = plugin.getGlobalRequestManager().get(world);
             Block placedIn = block.getRelative(event.getBlockFace());
-            ApplicableRegionSet set = mgr.getApplicableRegions(pt);
-            ApplicableRegionSet placedInSet = mgr.getApplicableRegions(placedIn.getLocation());
+            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
+            ApplicableRequestSet placedInSet = mgr.getApplicableRequests(placedIn.getLocation());
             LocalPlayer localPlayer = plugin.wrapPlayer(player);
 
-            if (item.getTypeId() == wcfg.regionWand && plugin.hasPermission(player, "worldguard.region.wand")) {
+            if (item.getTypeId() == wcfg.requestWand && plugin.hasPermission(player, "worldguard.request.wand")) {
                 if (set.size() > 0) {
                     player.sendMessage(ChatColor.YELLOW + "Can you build? "
                             + (set.canBuild(localPlayer) ? "Yes" : "No"));
 
                     StringBuilder str = new StringBuilder();
-                    for (Iterator<ProtectedRegion> it = set.iterator(); it.hasNext();) {
+                    for (Iterator<ProtectedRequest> it = set.iterator(); it.hasNext();) {
                         str.append(it.next().getId());
                         if (it.hasNext()) {
                             str.append(", ");
                         }
                     }
 
-                    player.sendMessage(ChatColor.YELLOW + "Applicable regions: " + str.toString());
+                    player.sendMessage(ChatColor.YELLOW + "Applicable requests: " + str.toString());
                 } else {
-                    player.sendMessage(ChatColor.YELLOW + "StakeAClaim: No defined regions here!");
+                    player.sendMessage(ChatColor.YELLOW + "StakeAClaim: No defined requests here!");
                 }
 
                 event.setCancelled(true);
@@ -738,7 +738,7 @@ public class StakeAClaimPlayerListener implements Listener {
                 // workaround for a bug that allowed tnt to trigger instantly if placed
                 // next to redstone, without plugins getting the block place event
                 // (not sure if this actually still happens)
-                if (!plugin.getGlobalRegionManager().hasBypass(player, world)
+                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
                         && !placedInSet.allows(DefaultFlag.TNT, localPlayer)) {
                     event.setUseItemInHand(Result.DENY);
                     event.setCancelled(true);
@@ -749,7 +749,7 @@ public class StakeAClaimPlayerListener implements Listener {
             // has since been fixed, but leaving for legacy
             if (item.getTypeId() == BlockID.STEP
                     || item.getTypeId() == BlockID.WOODEN_STEP) {
-                if (!plugin.getGlobalRegionManager().hasBypass(localPlayer, world)) {
+                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world)) {
                     boolean cancel = false;
                     if ((block.getTypeId() == item.getTypeId()) 
                         && !set.canBuild(localPlayer)) {
@@ -788,8 +788,8 @@ public class StakeAClaimPlayerListener implements Listener {
                 }
                 // end mojang-level code
                 Location headLoc = placedIn.getRelative(b0, 0, b1).getLocation();
-                if (!plugin.getGlobalRegionManager().hasBypass(localPlayer, world) 
-                        && !mgr.getApplicableRegions(headLoc).canBuild(localPlayer)) {
+                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world) 
+                        && !mgr.getApplicableRequests(headLoc).canBuild(localPlayer)) {
                     // note that normal block placement is handled later, this is just a workaround
                     // for the location of the head block of the bed
                     player.sendMessage(ChatColor.DARK_RED + "You don't have permission for this area.");
@@ -799,14 +799,14 @@ public class StakeAClaimPlayerListener implements Listener {
             }
 
             if (block.getTypeId() == BlockID.PISTON_MOVING_PIECE) {
-                if (!plugin.getGlobalRegionManager().hasBypass(player, world)
+                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
                         && !set.canBuild(localPlayer)) {
                     event.setUseInteractedBlock(Result.DENY);
                 }
             }
 
             if (item.getTypeId() == ItemID.WOODEN_DOOR_ITEM || item.getTypeId() == ItemID.IRON_DOOR_ITEM) {
-                if (!plugin.getGlobalRegionManager().hasBypass(localPlayer, world)
+                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world)
                         && !placedInSet.canBuild(localPlayer)) {
                     // note that normal block placement is handled later, this is just a workaround
                     // for the location of the top block of the door
@@ -817,7 +817,7 @@ public class StakeAClaimPlayerListener implements Listener {
             }
 
             if (item.getTypeId() == ItemID.FIRE_CHARGE || item.getTypeId() == ItemID.FLINT_AND_TINDER) {
-                if (!plugin.getGlobalRegionManager().hasBypass(localPlayer, world)
+                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world)
                         && !placedInSet.allows(DefaultFlag.LIGHTER, localPlayer)) {
                     event.setCancelled(true);
                     event.setUseItemInHand(Result.DENY);
@@ -827,7 +827,7 @@ public class StakeAClaimPlayerListener implements Listener {
             }
 
             if (item.getTypeId() == ItemID.EYE_OF_ENDER && block.getTypeId() == BlockID.END_PORTAL_FRAME) {
-                if (!plugin.getGlobalRegionManager().hasBypass(player, world)
+                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
                         && !set.canBuild(localPlayer)) {
                     event.setCancelled(true);
                     event.setUseItemInHand(Result.DENY);
@@ -849,7 +849,7 @@ public class StakeAClaimPlayerListener implements Listener {
                         || type == BlockID.POTATOES
                         || type == BlockID.CARROTS
                         || type == BlockID.COCOA_PLANT)) {
-                    if (!plugin.getGlobalRegionManager().hasBypass(player, world)
+                    if (!plugin.getGlobalRequestManager().hasBypass(player, world)
                             && !set.canBuild(localPlayer)) {
                         event.setCancelled(true);
                         event.setUseItemInHand(Result.DENY);
@@ -858,7 +858,7 @@ public class StakeAClaimPlayerListener implements Listener {
                     }
                 } else if (item.getData().getData() == 3) { // cocoa beans
                     // craftbukkit doesn't throw a block place for this, so workaround
-                    if (!plugin.getGlobalRegionManager().hasBypass(player, world)
+                    if (!plugin.getGlobalRequestManager().hasBypass(player, world)
                             && !set.canBuild(localPlayer)) {
                         if (!(event.getBlockFace() == BlockFace.DOWN || event.getBlockFace() == BlockFace.UP)) {
                             event.setCancelled(true);
@@ -879,7 +879,7 @@ public class StakeAClaimPlayerListener implements Listener {
                         || item.getTypeId() == BlockID.CACTUS
                         || item.getTypeId() == BlockID.LONG_GRASS
                         || item.getTypeId() == BlockID.DEAD_BUSH) {
-                    if (!plugin.getGlobalRegionManager().hasBypass(player, world)
+                    if (!plugin.getGlobalRequestManager().hasBypass(player, world)
                             && !set.canBuild(localPlayer)) {
                         event.setUseItemInHand(Result.DENY);
                         event.setCancelled(true);
@@ -890,7 +890,7 @@ public class StakeAClaimPlayerListener implements Listener {
             }
 
             if (type == BlockID.BED) {
-                if (!plugin.getGlobalRegionManager().hasBypass(player, world)
+                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
                         && !set.allows(DefaultFlag.SLEEP, localPlayer)) {
                     player.sendMessage(ChatColor.DARK_RED + "You're not allowed to use that bed.");
                     event.setUseInteractedBlock(Result.DENY);
@@ -908,7 +908,7 @@ public class StakeAClaimPlayerListener implements Listener {
                     || type == BlockID.TRAPPED_CHEST
                     || type == BlockID.HOPPER
                     || type == BlockID.DROPPER) {
-                if (!plugin.getGlobalRegionManager().hasBypass(player, world)
+                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
                         && !set.canBuild(localPlayer)
                         && !set.allows(DefaultFlag.CHEST_ACCESS, localPlayer)) {
                     player.sendMessage(ChatColor.DARK_RED + "You don't have permission to open that in this area.");
@@ -919,7 +919,7 @@ public class StakeAClaimPlayerListener implements Listener {
             }
 
             if (type == BlockID.DRAGON_EGG) {
-                if (!plugin.getGlobalRegionManager().hasBypass(player, world)
+                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
                         && !set.canBuild(localPlayer)) {
                     player.sendMessage(ChatColor.DARK_RED + "You're not allowed to move dragon eggs here!");
                     event.setUseInteractedBlock(Result.DENY);
@@ -950,7 +950,7 @@ public class StakeAClaimPlayerListener implements Listener {
                     || type == BlockID.ANVIL
                     || type == BlockID.HOPPER
                     || type == BlockID.DROPPER) {
-                if (!plugin.getGlobalRegionManager().hasBypass(player, world)
+                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
                         && !set.canBuild(localPlayer)
                         && !set.allows(DefaultFlag.USE, localPlayer)) {
                     player.sendMessage(ChatColor.DARK_RED + "You don't have permission to use that in this area.");
@@ -964,7 +964,7 @@ public class StakeAClaimPlayerListener implements Listener {
                     || type == BlockID.REDSTONE_REPEATER_ON
                     || type == BlockID.COMPARATOR_OFF
                     || type == BlockID.COMPARATOR_ON) {
-                if (!plugin.getGlobalRegionManager().hasBypass(player, world)
+                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
                         && !set.canBuild(localPlayer)) {
                     // using build and not use because it can potentially damage a circuit and use is more general-purposed
                     player.sendMessage(ChatColor.DARK_RED + "You don't have permission to use that in this area.");
@@ -975,7 +975,7 @@ public class StakeAClaimPlayerListener implements Listener {
             }
 
             if (type == BlockID.CAKE_BLOCK) {
-                if (!plugin.getGlobalRegionManager().hasBypass(player, world)
+                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
                         && !set.canBuild(localPlayer)
                         && !set.allows(DefaultFlag.USE, localPlayer)) {
                     player.sendMessage(ChatColor.DARK_RED + "You're not invited to this tea party!");
@@ -991,7 +991,7 @@ public class StakeAClaimPlayerListener implements Listener {
                     || item.getTypeId() == ItemID.STORAGE_MINECART
                     || item.getTypeId() == ItemID.TNT_MINECART
                     || item.getTypeId() == ItemID.HOPPER_MINECART)) {
-                if (!plugin.getGlobalRegionManager().hasBypass(player, world)
+                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
                         && !placedInSet.canBuild(localPlayer)
                         && !placedInSet.allows(DefaultFlag.PLACE_VEHICLE, localPlayer)) {
                     player.sendMessage(ChatColor.DARK_RED + "You don't have permission to place vehicles here.");
@@ -1002,7 +1002,7 @@ public class StakeAClaimPlayerListener implements Listener {
             }
 
             if (item.getTypeId() == ItemID.WOOD_BOAT) {
-                if (!plugin.getGlobalRegionManager().hasBypass(player, world)
+                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
                         && !placedInSet.canBuild(localPlayer)
                         && !placedInSet.allows(DefaultFlag.PLACE_VEHICLE, localPlayer)) {
                     player.sendMessage(ChatColor.DARK_RED + "You don't have permission to place vehicles here.");
@@ -1074,35 +1074,35 @@ public class StakeAClaimPlayerListener implements Listener {
 //            }
 //        }
 
-        /*if (wcfg.useRegions && wcfg.useiConomy && cfg.getiConomy() != null
+        /*if (wcfg.useRequests && wcfg.useiConomy && cfg.getiConomy() != null
                     && (type == BlockID.SIGN_POST || type == ItemID.SIGN || type == BlockID.WALL_SIGN)) {
             BlockState block = blockClicked.getState();
 
             if (((Sign)block).getLine(0).equalsIgnoreCase("[StakeAClaim]")
                     && ((Sign)block).getLine(1).equalsIgnoreCase("For sale")) {
-                String regionId = ((Sign)block).getLine(2);
-                //String regionComment = ((Sign)block).getLine(3);
+                String requestId = ((Sign)block).getLine(2);
+                //String requestComment = ((Sign)block).getLine(3);
 
-                if (regionId != null && regionId != "") {
-                    RegionManager mgr = cfg.getStakeAClaimPlugin().getGlobalRegionManager().get(player.getWorld().getName());
-                    ProtectedRegion region = mgr.getRegion(regionId);
+                if (requestId != null && requestId != "") {
+                    RequestManager mgr = cfg.getStakeAClaimPlugin().getGlobalRequestManager().get(player.getWorld().getName());
+                    ProtectedRequest request = mgr.getRequest(requestId);
 
-                    if (region != null) {
-                        RegionFlags flags = region.getFlags();
+                    if (request != null) {
+                        RequestFlags flags = request.getFlags();
 
                         if (flags.getBooleanFlag(DefaultFlag.BUYABLE).getValue(false)) {
                             if (iConomy.getBank().hasAccount(player.getName())) {
                                 Account account = iConomy.getBank().getAccount(player.getName());
                                 double balance = account.getBalance();
-                                double regionPrice = flags.getDoubleFlag(DefaultFlag.PRICE).getValue();
+                                double requestPrice = flags.getDoubleFlag(DefaultFlag.PRICE).getValue();
 
-                                if (balance >= regionPrice) {
-                                    account.subtract(regionPrice);
-                                    player.sendMessage(ChatColor.YELLOW + "You have bought the region " + regionId + " for " +
-                                            iConomy.getBank().format(regionPrice));
-                                    DefaultDomain owners = region.getOwners();
+                                if (balance >= requestPrice) {
+                                    account.subtract(requestPrice);
+                                    player.sendMessage(ChatColor.YELLOW + "You have bought the request " + requestId + " for " +
+                                            iConomy.getBank().format(requestPrice));
+                                    DefaultDomain owners = request.getOwners();
                                     owners.addPlayer(player.getName());
-                                    region.setOwners(owners);
+                                    request.setOwners(owners);
                                     flags.getBooleanFlag(DefaultFlag.BUYABLE).setValue(false);
                                     account.save();
                                 } else {
@@ -1112,13 +1112,13 @@ public class StakeAClaimPlayerListener implements Listener {
                                 player.sendMessage(ChatColor.YELLOW + "You have not enough money.");
                             }
                         } else {
-                            player.sendMessage(ChatColor.RED + "Region: " + regionId + " is not buyable");
+                            player.sendMessage(ChatColor.RED + "Request: " + requestId + " is not buyable");
                         }
                     } else {
-                        player.sendMessage(ChatColor.DARK_RED + "The region " + regionId + " does not exist.");
+                        player.sendMessage(ChatColor.DARK_RED + "The request " + requestId + " does not exist.");
                     }
                 } else {
-                    player.sendMessage(ChatColor.DARK_RED + "No region specified.");
+                    player.sendMessage(ChatColor.DARK_RED + "No request specified.");
                 }
             }
         }*/
@@ -1145,16 +1145,16 @@ public class StakeAClaimPlayerListener implements Listener {
             return;
         }
 
-        if (wcfg.useRegions) {
+        if (wcfg.useRequests) {
             Vector pt = toVector(block);
-            RegionManager mgr = plugin.getGlobalRegionManager().get(world);
-            ApplicableRegionSet set = mgr.getApplicableRegions(pt);
+            RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
             LocalPlayer localPlayer = plugin.wrapPlayer(player);
 
             if (type == BlockID.STONE_PRESSURE_PLATE || type == BlockID.WOODEN_PRESSURE_PLATE
                     || type == BlockID.TRIPWIRE || type == BlockID.PRESSURE_PLATE_LIGHT
                     || type == BlockID.PRESSURE_PLATE_HEAVY) {
-               if (!plugin.getGlobalRegionManager().hasBypass(player, world)
+               if (!plugin.getGlobalRequestManager().hasBypass(player, world)
                        && !set.canBuild(localPlayer)
                        && !set.allows(DefaultFlag.USE, localPlayer)) {
                    event.setUseInteractedBlock(Result.DENY);
@@ -1183,7 +1183,7 @@ public class StakeAClaimPlayerListener implements Listener {
         GlobalConfiguration cfg = plugin.getGlobalConfiguration();
         WorldConfiguration wcfg = cfg.getWorldConfig(player.getWorld().getName());
 
-        if (wcfg.useRegions
+        if (wcfg.useRequests
                 && (itemId == 322 || itemId == 320 || itemId == 319 || itemId == 297 || itemId == 260
                         || itemId == 350 || itemId == 349 || itemId == 354) ) {
             return;
@@ -1197,7 +1197,7 @@ public class StakeAClaimPlayerListener implements Listener {
             }
         }
 
-        if (wcfg.useRegions && !event.isBlock() && block != null) {
+        if (wcfg.useRequests && !event.isBlock() && block != null) {
             Vector pt = toVector(block.getRelative(event.getBlockFace()));
             if (block.getTypeId() == BlockID.WALL_SIGN) {
                 pt = pt.subtract(0, 1, 0);
@@ -1221,11 +1221,11 @@ public class StakeAClaimPlayerListener implements Listener {
             }
         }
 
-        if (wcfg.useRegions && item != null && block != null && item.getTypeId() == 259) {
+        if (wcfg.useRequests && item != null && block != null && item.getTypeId() == 259) {
             Vector pt = toVector(block.getRelative(event.getBlockFace()));
-            RegionManager mgr = plugin.getGlobalRegionManager().get(player.getWorld().getName());
+            RequestManager mgr = plugin.getGlobalRequestManager().get(player.getWorld().getName());
 
-            if (!mgr.getApplicableRegions(pt).isStateFlagAllowed(DefaultFlag.LIGHTER)) {
+            if (!mgr.getApplicableRequests(pt).isStateFlagAllowed(DefaultFlag.LIGHTER)) {
                 event.setCancelled(true);
                 return;
             }
@@ -1238,8 +1238,8 @@ public class StakeAClaimPlayerListener implements Listener {
         WorldConfiguration wcfg = cfg.get(event.getPlayer().getWorld());
         Player player = event.getPlayer();
 
-        if (wcfg.useRegions) {
-            if (!plugin.getGlobalRegionManager().allows(DefaultFlag.ITEM_DROP, player.getLocation())) {
+        if (wcfg.useRequests) {
+            if (!plugin.getGlobalRequestManager().allows(DefaultFlag.ITEM_DROP, player.getLocation())) {
                 event.setCancelled(true);
                 player.sendMessage(ChatColor.RED + "You don't have permission to do that in this area.");
             }
@@ -1283,7 +1283,7 @@ public class StakeAClaimPlayerListener implements Listener {
         ConfigurationManager cfg = plugin.getGlobalStateManager();
         WorldConfiguration wcfg = cfg.get(world);
 
-        if (!plugin.getGlobalRegionManager().canBuild(
+        if (!plugin.getGlobalRequestManager().canBuild(
                 player, event.getBlockClicked().getRelative(event.getBlockFace()))
                 && !(event.getBucket().getId() == ItemID.MILK_BUCKET)) {
             player.sendMessage(ChatColor.DARK_RED + "You don't have permission for this area.");
@@ -1305,7 +1305,7 @@ public class StakeAClaimPlayerListener implements Listener {
     public void onPlayerFish(PlayerFishEvent event) {
         WorldConfiguration wcfg = plugin.getGlobalStateManager().get(event.getPlayer().getWorld());
 
-        if (wcfg.disableExpDrops || !plugin.getGlobalRegionManager().allows(DefaultFlag.EXP_DROPS,
+        if (wcfg.disableExpDrops || !plugin.getGlobalRequestManager().allows(DefaultFlag.EXP_DROPS,
                 event.getPlayer().getLocation())) {
             event.setExpToDrop(0);
         }
@@ -1319,7 +1319,7 @@ public class StakeAClaimPlayerListener implements Listener {
         ConfigurationManager cfg = plugin.getGlobalStateManager();
         WorldConfiguration wcfg = cfg.get(world);
 
-        if (!plugin.getGlobalRegionManager().canBuild(
+        if (!plugin.getGlobalRequestManager().canBuild(
                 player, event.getBlockClicked().getRelative(event.getBlockFace()))) {
             player.sendMessage(ChatColor.DARK_RED + "You don't have permission for this area.");
             event.setCancelled(true);
@@ -1344,10 +1344,10 @@ public class StakeAClaimPlayerListener implements Listener {
         ConfigurationManager cfg = plugin.getGlobalStateManager();
         WorldConfiguration wcfg = cfg.get(player.getWorld());
 
-        if (wcfg.useRegions) {
+        if (wcfg.useRequests) {
             Vector pt = toVector(location);
-            RegionManager mgr = plugin.getGlobalRegionManager().get(player.getWorld());
-            ApplicableRegionSet set = mgr.getApplicableRegions(pt);
+            RequestManager mgr = plugin.getGlobalRequestManager().get(player.getWorld());
+            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
 
             LocalPlayer localPlayer = plugin.wrapPlayer(player);
             com.sk89q.worldedit.Location spawn = set.getFlag(DefaultFlag.SPAWN_LOC, localPlayer);
@@ -1384,12 +1384,12 @@ public class StakeAClaimPlayerListener implements Listener {
         ConfigurationManager cfg = plugin.getGlobalStateManager();
         WorldConfiguration wcfg = cfg.get(player.getWorld());
 
-        if (wcfg.useRegions) {
+        if (wcfg.useRequests) {
             Vector pt = toVector(location);
-            RegionManager mgr = plugin.getGlobalRegionManager().get(player.getWorld());
-            ApplicableRegionSet set = mgr.getApplicableRegions(pt);
+            RequestManager mgr = plugin.getGlobalRequestManager().get(player.getWorld());
+            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
 
-            if (!plugin.getGlobalRegionManager().hasBypass(player, player.getWorld())
+            if (!plugin.getGlobalRequestManager().hasBypass(player, player.getWorld())
                 && !set.allows(DefaultFlag.SLEEP, plugin.wrapPlayer(player))) {
                     event.setCancelled(true);
                     player.sendMessage("This bed doesn't belong to you!");
@@ -1404,23 +1404,23 @@ public class StakeAClaimPlayerListener implements Listener {
         ConfigurationManager cfg = plugin.getGlobalStateManager();
         WorldConfiguration wcfg = cfg.get(world);
 
-        if (wcfg.useRegions) {
+        if (wcfg.useRequests) {
             if (event.getCause() == TeleportCause.ENDER_PEARL) {
-                RegionManager mgr = plugin.getGlobalRegionManager().get(event.getFrom().getWorld());
+                RequestManager mgr = plugin.getGlobalRequestManager().get(event.getFrom().getWorld());
                 Vector pt = new Vector(event.getTo().getBlockX(), event.getTo().getBlockY(), event.getTo().getBlockZ());
                 Vector ptFrom = new Vector(event.getFrom().getBlockX(), event.getFrom().getBlockY(), event.getFrom().getBlockZ());
-                ApplicableRegionSet set = mgr.getApplicableRegions(pt);
-                ApplicableRegionSet setFrom = mgr.getApplicableRegions(ptFrom);
+                ApplicableRequestSet set = mgr.getApplicableRequests(pt);
+                ApplicableRequestSet setFrom = mgr.getApplicableRequests(ptFrom);
                 LocalPlayer localPlayer = plugin.wrapPlayer(event.getPlayer());
 
-                if (!plugin.getGlobalRegionManager().hasBypass(localPlayer, world)
+                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world)
                         && !(set.allows(DefaultFlag.ENTRY, localPlayer)
                                 && setFrom.allows(DefaultFlag.EXIT, localPlayer))) {
                     event.getPlayer().sendMessage(ChatColor.DARK_RED + "You're not allowed to go there.");
                     event.setCancelled(true);
                     return;
                 }
-                if (!plugin.getGlobalRegionManager().hasBypass(localPlayer, world)
+                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world)
                         && !(set.allows(DefaultFlag.ENDERPEARL, localPlayer)
                                 && setFrom.allows(DefaultFlag.ENDERPEARL, localPlayer))) {
                     event.getPlayer().sendMessage(ChatColor.DARK_RED + "You're not allowed to go there.");
@@ -1439,10 +1439,10 @@ public class StakeAClaimPlayerListener implements Listener {
         ConfigurationManager cfg = plugin.getGlobalStateManager();
         WorldConfiguration wcfg = cfg.get(world);
 
-        if (wcfg.useRegions && !plugin.getGlobalRegionManager().hasBypass(player, world)) {
+        if (wcfg.useRequests && !plugin.getGlobalRequestManager().hasBypass(player, world)) {
             Vector pt = toVector(player.getLocation());
-            RegionManager mgr = plugin.getGlobalRegionManager().get(world);
-            ApplicableRegionSet set = mgr.getApplicableRegions(pt);
+            RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
 
             String lowerCommand = event.getMessage().toLowerCase();
 

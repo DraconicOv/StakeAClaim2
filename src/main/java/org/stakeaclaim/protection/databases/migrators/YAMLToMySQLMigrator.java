@@ -1,6 +1,6 @@
 // $Id$
 /*
- * MySQL WordGuard Region Database
+ * MySQL WordGuard Request Database
  * Copyright (C) 2011 Nicholas Steicke <http://narthollis.net>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@ import org.stakeaclaim.protection.databases.MySQLDatabase;
 import org.stakeaclaim.protection.databases.ProtectionDatabase;
 import org.stakeaclaim.protection.databases.ProtectionDatabaseException;
 import org.stakeaclaim.protection.databases.YAMLDatabase;
-import org.stakeaclaim.protection.regions.ProtectedRegion;
+import org.stakeaclaim.protection.requests.ProtectedRequest;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,19 +35,19 @@ import java.util.Set;
 public class YAMLToMySQLMigrator extends AbstractDatabaseMigrator {
 
     private StakeAClaimPlugin plugin;
-    private HashMap<String,File> regionYamlFiles;
+    private HashMap<String,File> requestYamlFiles;
 
     public YAMLToMySQLMigrator(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
 
-        this.regionYamlFiles = new HashMap<String,File>();
+        this.requestYamlFiles = new HashMap<String,File>();
 
         File files[] = new File(plugin.getDataFolder(), "worlds" + File.separator).listFiles();
         for (File item : files) {
             if (item.isDirectory()) {
                 for (File subItem : item.listFiles()) { 
-                    if (subItem.getName().equals("regions.yml")) {
-                        this.regionYamlFiles.put(item.getName(), subItem);
+                    if (subItem.getName().equals("requests.yml")) {
+                        this.requestYamlFiles.put(item.getName(), subItem);
                     }
                 }
             }
@@ -56,14 +56,14 @@ public class YAMLToMySQLMigrator extends AbstractDatabaseMigrator {
 
     @Override
     protected Set<String> getWorldsFromOld() {
-        return this.regionYamlFiles.keySet();
+        return this.requestYamlFiles.keySet();
     }
 
     @Override
-    protected Map<String, ProtectedRegion> getRegionsForWorldFromOld(String world) throws MigrationException {
+    protected Map<String, ProtectedRequest> getRequestsForWorldFromOld(String world) throws MigrationException {
         ProtectionDatabase oldDatabase;
         try {
-            oldDatabase = new YAMLDatabase(this.regionYamlFiles.get(world), plugin.getLogger());
+            oldDatabase = new YAMLDatabase(this.requestYamlFiles.get(world), plugin.getLogger());
             oldDatabase.load();
         } catch (FileNotFoundException e) {
             throw new MigrationException(e);
@@ -71,7 +71,7 @@ public class YAMLToMySQLMigrator extends AbstractDatabaseMigrator {
             throw new MigrationException(e);
         }
 
-        return oldDatabase.getRegions();
+        return oldDatabase.getRequests();
     }
 
     @Override

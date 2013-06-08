@@ -94,8 +94,8 @@ public class ConfigurationManager {
 
     private boolean hasCommandBookGodMode = false;
 
-    public boolean useRegionsScheduler;
-    public boolean useRegionsCreatureSpawnEvent;
+    public boolean useRequestsScheduler;
+    public boolean useRequestsCreatureSpawnEvent;
     public boolean activityHaltToggle = false;
     public boolean autoGodMode;
     public boolean usePlayerMove;
@@ -104,7 +104,7 @@ public class ConfigurationManager {
     public Map<String, String> hostKeys = new HashMap<String, String>();
 
     /**
-     * Region Storage Configuration method, and config values
+     * Request Storage Configuration method, and config values
      */
     public boolean useSqlDatabase = false;
     public String sqlDsn;
@@ -139,8 +139,8 @@ public class ConfigurationManager {
         }
 
         config.removeProperty("suppress-tick-sync-warnings");
-        useRegionsScheduler = config.getBoolean("regions.use-scheduler", true);
-        useRegionsCreatureSpawnEvent = config.getBoolean("regions.use-creature-spawn-event", true);
+        useRequestsScheduler = config.getBoolean("requests.use-scheduler", true);
+        useRequestsCreatureSpawnEvent = config.getBoolean("requests.use-creature-spawn-event", true);
         autoGodMode = config.getBoolean("auto-invincible", config.getBoolean("auto-invincible-permission", false));
         config.removeProperty("auto-invincible-permission");
         usePlayerMove = config.getBoolean("use-player-move-event", true);
@@ -161,11 +161,11 @@ public class ConfigurationManager {
         }
 
         useSqlDatabase = config.getBoolean(
-                "regions.sql.use", false);
+                "requests.sql.use", false);
 
-        sqlDsn = config.getString("regions.sql.dsn", "jdbc:mysql://localhost/worldguard");
-        sqlUsername = config.getString("regions.sql.username", "worldguard");
-        sqlPassword = config.getString("regions.sql.password", "worldguard");
+        sqlDsn = config.getString("requests.sql.dsn", "jdbc:mysql://localhost/worldguard");
+        sqlUsername = config.getString("requests.sql.username", "worldguard");
+        sqlPassword = config.getString("requests.sql.password", "worldguard");
 
         // Load configurations for each world
         for (World world : plugin.getServer().getWorlds()) {

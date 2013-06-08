@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.stakeaclaim.protection.regions;
+package org.stakeaclaim.protection.requests;
 
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.BlockVector2D;
@@ -34,11 +34,11 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * Represents a region of any shape and size that can be protected.
+ * Represents a request of any shape and size that can be protected.
  *
  * @author sk89q
  */
-public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
+public abstract class ProtectedRequest implements Comparable<ProtectedRequest> {
 
     protected BlockVector min;
     protected BlockVector max;
@@ -46,7 +46,7 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
     private static final Pattern idPattern = Pattern.compile("^[A-Za-z0-9_,'\\-\\+/]{1,}$");
 
     /**
-     * Holds the region's ID.
+     * Holds the request's ID.
      */
     private String id;
 
@@ -58,7 +58,7 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
     /**
      * Holds the curParent.
      */
-    private ProtectedRegion parent;
+    private ProtectedRequest parent;
 
     /**
      * List of owners.
@@ -76,16 +76,16 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
     private Map<Flag<?>, Object> flags = new HashMap<Flag<?>, Object>();
 
     /**
-     * Construct a new instance of this region.
+     * Construct a new instance of this request.
      *
-     * @param id The id (name) of this region.
+     * @param id The id (name) of this request.
      */
-    public ProtectedRegion(String id) {
+    public ProtectedRequest(String id) {
         this.id = id;
     }
 
     /**
-     * Sets the minimum and maximum points of the bounding box for a region
+     * Sets the minimum and maximum points of the bounding box for a request
      *
      * @param points The points to set. Must have at least one element.
      */
@@ -116,7 +116,7 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
     }
 
     /**
-     * Gets the id of this region
+     * Gets the id of this request
      *
      * @return the id
      */
@@ -159,7 +159,7 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
     /**
      * @return the curParent
      */
-    public ProtectedRegion getParent() {
+    public ProtectedRequest getParent() {
         return parent;
     }
 
@@ -170,7 +170,7 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
      * @param parent the curParent to setFlag
      * @throws CircularInheritanceException when circular inheritance is detected
      */
-    public void setParent(ProtectedRegion parent) throws CircularInheritanceException {
+    public void setParent(ProtectedRequest parent) throws CircularInheritanceException {
         if (parent == null) {
             this.parent = null;
             return;
@@ -180,7 +180,7 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
             throw new CircularInheritanceException();
         }
 
-        ProtectedRegion p = parent.getParent();
+        ProtectedRequest p = parent.getParent();
         while (p != null) {
             if (p == this) {
                 throw new CircularInheritanceException();
@@ -222,7 +222,7 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
     }
 
     /**
-     * Checks whether a region has members or owners.
+     * Checks whether a request has members or owners.
      *
      * @return whether there are members or owners
      */
@@ -231,7 +231,7 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
     }
 
     /**
-     * Checks whether a player is an owner of region or any of its parents.
+     * Checks whether a player is an owner of request or any of its parents.
      *
      * @param player player to check
      * @return whether an owner
@@ -241,7 +241,7 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
             return true;
         }
 
-        ProtectedRegion curParent = getParent();
+        ProtectedRequest curParent = getParent();
         while (curParent != null) {
             if (curParent.getOwners().contains(player)) {
                 return true;
@@ -254,7 +254,7 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
     }
 
     /**
-     * Checks whether a player is an owner of region or any of its parents.
+     * Checks whether a player is an owner of request or any of its parents.
      *
      * @param playerName player name to check
      * @return whether an owner
@@ -264,7 +264,7 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
             return true;
         }
 
-        ProtectedRegion curParent = getParent();
+        ProtectedRequest curParent = getParent();
         while (curParent != null) {
             if (curParent.getOwners().contains(playerName)) {
                 return true;
@@ -277,7 +277,7 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
     }
 
     /**
-     * Checks whether a player is a member OR OWNER of the region
+     * Checks whether a player is a member OR OWNER of the request
      * or any of its parents.
      *
      * @param player player to check
@@ -292,7 +292,7 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
             return true;
         }
 
-        ProtectedRegion curParent = getParent();
+        ProtectedRequest curParent = getParent();
         while (curParent != null) {
             if (curParent.getMembers().contains(player)) {
                 return true;
@@ -305,7 +305,7 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
     }
 
     /**
-     * Checks whether a player is a member OR OWNER of the region
+     * Checks whether a player is a member OR OWNER of the request
      * or any of its parents.
      *
      * @param playerName player name to check
@@ -320,7 +320,7 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
             return true;
         }
 
-        ProtectedRegion curParent = getParent();
+        ProtectedRequest curParent = getParent();
         while (curParent != null) {
             if (curParent.getMembers().contains(playerName)) {
                 return true;
@@ -333,7 +333,7 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
     }
 
     /**
-     * Checks whether a player is a member of the region
+     * Checks whether a player is a member of the request
      * or any of its parents.
      *
      * @param player player to check
@@ -344,7 +344,7 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
             return true;
         }
 
-        ProtectedRegion curParent = getParent();
+        ProtectedRequest curParent = getParent();
         while (curParent != null) {
             if (curParent.getMembers().contains(player)) {
                 return true;
@@ -395,7 +395,7 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
     /**
      * Get the map of flags.
      *
-     * @return The map of flags currently used for this region
+     * @return The map of flags currently used for this request
      */
     public Map<Flag<?>, Object> getFlags() {
         return flags;
@@ -411,51 +411,51 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
     }
 
     /**
-     * Gets the 2D points for this region
+     * Gets the 2D points for this request
      *
-     * @return The points for this region as (x, z) coordinates
+     * @return The points for this request as (x, z) coordinates
      */
     public abstract List<BlockVector2D> getPoints();
 
     /**
-     * Get the number of blocks in this region
+     * Get the number of blocks in this request
      *
-     * @return the volume of this region in blocks
+     * @return the volume of this request in blocks
      */
     public abstract int volume();
 
     /**
-     * Check to see if a point is inside this region.
+     * Check to see if a point is inside this request.
      *
      * @param pt The point to check
-     * @return Whether {@code pt} is in this region
+     * @return Whether {@code pt} is in this request
      */
     public abstract boolean contains(Vector pt);
 
     /**
-     * Check to see if a point is inside this region.
+     * Check to see if a point is inside this request.
      *
      * @param pt The point to check
-     * @return Whether {@code pt} is in this region
+     * @return Whether {@code pt} is in this request
      */
     public boolean contains(BlockVector2D pt) {
         return contains(new Vector(pt.getBlockX(), min.getBlockY(), pt.getBlockZ()));
     }
 
     /**
-     * Check to see if a point is inside this region.
+     * Check to see if a point is inside this request.
      *
      * @param x The x coordinate to check
      * @param y The y coordinate to check
      * @param z The z coordinate to check
-     * @return Whether this region contains the points at the given coordinate
+     * @return Whether this request contains the points at the given coordinate
      */
     public boolean contains(int x, int y, int z) {
         return contains(new Vector(x, y, z));
     }
 
     /**
-     * Check to see if any of the 2D points are inside this region.
+     * Check to see if any of the 2D points are inside this request.
      *
      * @param pts
      * @return
@@ -470,14 +470,14 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
     }
 
     /**
-     * Compares to another region.<br>
+     * Compares to another request.<br>
      *<br>
      * Orders primarily by the priority, descending<br>
      * Orders secondarily by the id, ascending
      *
-     * @param other The region to compare to
+     * @param other The request to compare to
      */
-    public int compareTo(ProtectedRegion other) {
+    public int compareTo(ProtectedRequest other) {
         if (priority > other.priority) {
             return -1;
         } else if (priority < other.priority) {
@@ -488,39 +488,39 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
     }
 
     /**
-     * Return the type of region as a user-friendly, lowercase name.
+     * Return the type of request as a user-friendly, lowercase name.
      *
-     * @return type of region
+     * @return type of request
      */
     public abstract String getTypeName();
 
     /**
-     * Get a list of intersecting regions.
+     * Get a list of intersecting requests.
      *
-     * @param regions The list of regions to source from
-     * @return The elements of {@code regions} that intersect with this region
+     * @param requests The list of requests to source from
+     * @return The elements of {@code requests} that intersect with this request
      * @throws UnsupportedIntersectionException if an invalid intersection is detected
      */
-    public abstract List<ProtectedRegion> getIntersectingRegions(
-            List<ProtectedRegion> regions)
+    public abstract List<ProtectedRequest> getIntersectingRequests(
+            List<ProtectedRequest> requests)
             throws UnsupportedIntersectionException;
 
     /**
-     * Checks if the bounding box of a region intersects with with the bounding
-     * box of this region
+     * Checks if the bounding box of a request intersects with with the bounding
+     * box of this request
      *
-     * @param region The region to check
-     * @return whether the given region intersects
+     * @param request The request to check
+     * @return whether the given request intersects
      */
-    protected boolean intersectsBoundingBox(ProtectedRegion region) {
-        BlockVector rMaxPoint = region.getMaximumPoint();
+    protected boolean intersectsBoundingBox(ProtectedRequest request) {
+        BlockVector rMaxPoint = request.getMaximumPoint();
         BlockVector min = getMinimumPoint();
 
         if (rMaxPoint.getBlockX() < min.getBlockX()) return false;
         if (rMaxPoint.getBlockY() < min.getBlockY()) return false;
         if (rMaxPoint.getBlockZ() < min.getBlockZ()) return false;
 
-        BlockVector rMinPoint = region.getMinimumPoint();
+        BlockVector rMinPoint = request.getMinimumPoint();
         BlockVector max = getMaximumPoint();
 
         if (rMinPoint.getBlockX() > max.getBlockX()) return false;
@@ -531,14 +531,14 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
     }
 
     /**
-     * Compares all edges of two regions to see if any of them intersect
+     * Compares all edges of two requests to see if any of them intersect
      *
-     * @param region The region to check
-     * @return whether any edges of a region intersect
+     * @param request The request to check
+     * @return whether any edges of a request intersect
      */
-    protected boolean intersectsEdges(ProtectedRegion region) {
+    protected boolean intersectsEdges(ProtectedRequest request) {
         List<BlockVector2D> pts1 = getPoints();
-        List<BlockVector2D> pts2 = region.getPoints();
+        List<BlockVector2D> pts2 = request.getPoints();
         BlockVector2D lastPt1 = pts1.get(pts1.size() - 1);
         BlockVector2D lastPt2 = pts2.get(pts2.size() - 1);
         for (BlockVector2D aPts1 : pts1) {
@@ -569,7 +569,7 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
      *
      * @param id The id to check
      * @see #idPattern
-     * @return Whether the region id given is valid
+     * @return Whether the request id given is valid
      */
     public static boolean isValidId(String id) {
         return idPattern.matcher(id).matches();
@@ -581,15 +581,15 @@ public abstract class ProtectedRegion implements Comparable<ProtectedRegion> {
     }
 
     /**
-     * Returns whether this region has the same ID as another region.
+     * Returns whether this request has the same ID as another request.
      */
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof ProtectedRegion)) {
+        if (!(obj instanceof ProtectedRequest)) {
             return false;
         }
 
-        ProtectedRegion other = (ProtectedRegion) obj;
+        ProtectedRequest other = (ProtectedRequest) obj;
         return other.getId().equals(getId());
     }
 

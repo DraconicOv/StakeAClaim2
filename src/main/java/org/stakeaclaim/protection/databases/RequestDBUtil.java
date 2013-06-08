@@ -27,14 +27,14 @@ import java.util.regex.Pattern;
 import org.stakeaclaim.domains.DefaultDomain;
 
 /**
- * Various utility functions for parsing region databases.
+ * Various utility functions for parsing request databases.
  * 
  * @author sk89q
  */
-public class RegionDBUtil {
+public class RequestDBUtil {
     private static Pattern groupPattern = Pattern.compile("(?i)^[G]:(.+)$");
     
-    private RegionDBUtil() {
+    private RequestDBUtil() {
         
     }
 

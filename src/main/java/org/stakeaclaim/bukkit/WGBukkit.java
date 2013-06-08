@@ -21,7 +21,7 @@ package org.stakeaclaim.bukkit;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
-import org.stakeaclaim.protection.managers.RegionManager;
+import org.stakeaclaim.protection.managers.RequestManager;
 
 /**
  * Helper class to get a reference to StakeAClaim and its components.
@@ -57,17 +57,17 @@ public class WGBukkit {
     }
 
     /**
-     * Returns the region manager for a given world. May return null if StakeAClaim
-     * is not loaded or region protection is not enabled for the given world.
+     * Returns the request manager for a given world. May return null if StakeAClaim
+     * is not loaded or request protection is not enabled for the given world.
      *
      * @param world world
-     * @return a region manager or null
+     * @return a request manager or null
      */
-    public static RegionManager getRegionManager(World world) {
+    public static RequestManager getRequestManager(World world) {
         if (getPlugin() == null) {
             return null;
         }
-        return cachedPlugin.getRegionManager(world);
+        return cachedPlugin.getRequestManager(world);
     }
 
 }

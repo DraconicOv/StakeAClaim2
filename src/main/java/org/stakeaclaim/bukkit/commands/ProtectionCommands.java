@@ -34,9 +34,9 @@ public class ProtectionCommands {
         this.plugin = plugin;
     }
 
-    @Command(aliases = {"region", "regions", "rg"}, desc = "Region management commands")
-    @NestedCommand({RegionCommands.class, RegionMemberCommands.class})
-    public void region(CommandContext args, CommandSender sender) {}
+    @Command(aliases = {"request", "requests", "rg"}, desc = "Request management commands")
+    @NestedCommand({RequestCommands.class, RequestMemberCommands.class})
+    public void request(CommandContext args, CommandSender sender) {}
 
 //    @Command(aliases = {"worldguard", "wg"}, desc = "StakeAClaim commands")
 //    @NestedCommand({StakeAClaimCommands.class})

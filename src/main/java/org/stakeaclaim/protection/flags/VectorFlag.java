@@ -34,7 +34,7 @@ import org.stakeaclaim.bukkit.StakeAClaimPlugin;
  */
 public class VectorFlag extends Flag<Vector> {
     
-    public VectorFlag(String name, RegionGroup defaultGroup) {
+    public VectorFlag(String name, RequestGroup defaultGroup) {
         super(name, defaultGroup);
     }
 

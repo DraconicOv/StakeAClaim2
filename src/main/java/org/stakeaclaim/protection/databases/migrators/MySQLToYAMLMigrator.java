@@ -1,6 +1,6 @@
 // $Id$
 /*
- * MySQL WordGuard Region Database
+ * MySQL WordGuard Request Database
  * Copyright (C) 2011 Nicholas Steicke <http://narthollis.net>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@ import org.stakeaclaim.protection.databases.MySQLDatabase;
 import org.stakeaclaim.protection.databases.ProtectionDatabase;
 import org.stakeaclaim.protection.databases.ProtectionDatabaseException;
 import org.stakeaclaim.protection.databases.YAMLDatabase;
-import org.stakeaclaim.protection.regions.ProtectedRegion;
+import org.stakeaclaim.protection.requests.ProtectedRequest;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -69,7 +69,7 @@ public class MySQLToYAMLMigrator extends AbstractDatabaseMigrator {
     }
 
     @Override
-    protected Map<String, ProtectedRegion> getRegionsForWorldFromOld(String world) throws MigrationException {
+    protected Map<String, ProtectedRequest> getRequestsForWorldFromOld(String world) throws MigrationException {
         ProtectionDatabase oldDatabase;
         try {
             oldDatabase = new MySQLDatabase(plugin.getGlobalStateManager(), world, plugin.getLogger());
@@ -78,14 +78,14 @@ public class MySQLToYAMLMigrator extends AbstractDatabaseMigrator {
             throw new MigrationException(e);
         }
 
-        return oldDatabase.getRegions();
+        return oldDatabase.getRequests();
     }
 
     @Override
     protected ProtectionDatabase getNewWorldStorage(String world) throws MigrationException {
         try {
             File file = new File(plugin.getDataFolder(),
-                    "worlds" + File.separator + world + File.separator + "regions.yml");
+                    "worlds" + File.separator + world + File.separator + "requests.yml");
 
             return new YAMLDatabase(file, plugin.getLogger());
         } catch (FileNotFoundException e) {

@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.stakeaclaim.protection.regions;
+package org.stakeaclaim.protection.requests;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +27,9 @@ import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.Vector;
 import org.stakeaclaim.protection.UnsupportedIntersectionException;
 
-public class GlobalProtectedRegion extends ProtectedRegion {
+public class GlobalProtectedRequest extends ProtectedRequest {
 
-    public GlobalProtectedRegion(String id) {
+    public GlobalProtectedRequest(String id) {
         super(id);
         min = new BlockVector(0, 0, 0);
         max = new BlockVector(0, 0, 0);
@@ -57,10 +57,10 @@ public class GlobalProtectedRegion extends ProtectedRegion {
     }
 
     @Override
-    public List<ProtectedRegion> getIntersectingRegions(
-            List<ProtectedRegion> regions)
+    public List<ProtectedRequest> getIntersectingRequests(
+            List<ProtectedRequest> requests)
             throws UnsupportedIntersectionException {
-        return new ArrayList<ProtectedRegion>();
+        return new ArrayList<ProtectedRequest>();
     }
 
 }

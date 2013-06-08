@@ -27,7 +27,7 @@ import org.bukkit.entity.EntityType;
  */
 public class EntityTypeFlag extends EnumFlag<EntityType> {
 
-    public EntityTypeFlag(String name, RegionGroup defaultGroup) {
+    public EntityTypeFlag(String name, RequestGroup defaultGroup) {
         super(name, EntityType.class, defaultGroup);
     }
 

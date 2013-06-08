@@ -31,16 +31,16 @@ import com.sk89q.minecraft.util.commands.CommandPermissionsException;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.Vector;
 import org.stakeaclaim.LocalPlayer;
-//import org.stakeaclaim.bukkit.commands.RegionCommands;
+//import org.stakeaclaim.bukkit.commands.RequestCommands;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 import org.stakeaclaim.domains.DefaultDomain;
-import org.stakeaclaim.protection.ApplicableRegionSet;
+import org.stakeaclaim.protection.ApplicableRequestSet;
 import org.stakeaclaim.protection.databases.ProtectionDatabaseException;
-import org.stakeaclaim.protection.databases.RegionDBUtil;
+import org.stakeaclaim.protection.databases.RequestDBUtil;
 import org.stakeaclaim.protection.flags.DefaultFlag;
 import org.stakeaclaim.protection.flags.StateFlag;
-import org.stakeaclaim.protection.managers.RegionManager;
-import org.stakeaclaim.protection.regions.ProtectedRegion;
+import org.stakeaclaim.protection.managers.RequestManager;
+import org.stakeaclaim.protection.requests.ProtectedRequest;
 
 public class PlotCommands {
     private final StakeAClaimPlugin plugin;
@@ -56,7 +56,7 @@ public class PlotCommands {
     public void info(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
-        final ProtectedRegion claim = claimPlayerIsIn(player);
+        final ProtectedRequest claim = claimPlayerIsIn(player);
         final String id = claim.getId();
 
         checkPerm(player, "info", claim);
@@ -68,7 +68,7 @@ public class PlotCommands {
         }
 
         if (claim.getParent() != null) {
-            sender.sendMessage(ChatColor.BLUE + "Region: " + ChatColor.WHITE + claim.getParent().getId());
+            sender.sendMessage(ChatColor.BLUE + "Request: " + ChatColor.WHITE + claim.getParent().getId());
         }
 
         final DefaultDomain owners = claim.getOwners();
@@ -97,17 +97,17 @@ public class PlotCommands {
     public void add(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
-        final ProtectedRegion claim = claimPlayerIsIn(player);
+        final ProtectedRequest claim = claimPlayerIsIn(player);
         final String id = claim.getId();
         final World world = player.getWorld();
 
         checkPerm(player, "add", claim);
 
-        RegionDBUtil.addToDomain(claim.getMembers(), args.getPaddedSlice(1, 0), 0);
+        RequestDBUtil.addToDomain(claim.getMembers(), args.getPaddedSlice(1, 0), 0);
 
         sender.sendMessage(ChatColor.YELLOW + "Added " + ChatColor.GREEN + args.getJoinedStrings(0) + ChatColor.YELLOW + " to claim: " + ChatColor.WHITE + id);
 
-        saveRegions(world);
+        saveRequests(world);
     }
 
     @Command(aliases = {"remove", "removemember", "removemembers", "r"},
@@ -117,17 +117,17 @@ public class PlotCommands {
     public void remove(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
-        final ProtectedRegion claim = claimPlayerIsIn(player);
+        final ProtectedRequest claim = claimPlayerIsIn(player);
         final String id = claim.getId();
         final World world = player.getWorld();
 
         checkPerm(player, "remove", claim);
 
-        RegionDBUtil.removeFromDomain(claim.getMembers(), args.getPaddedSlice(1, 0), 0);
+        RequestDBUtil.removeFromDomain(claim.getMembers(), args.getPaddedSlice(1, 0), 0);
 
         sender.sendMessage(ChatColor.YELLOW + "Removed " + ChatColor.GREEN + args.getJoinedStrings(0) + ChatColor.YELLOW + " from claim: " + ChatColor.WHITE + id);
 
-        saveRegions(world);
+        saveRequests(world);
     }
 
     @Command(aliases = {"keepout", "out"},
@@ -137,7 +137,7 @@ public class PlotCommands {
     public void keepout(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
-        final ProtectedRegion claim = claimPlayerIsIn(player);
+        final ProtectedRequest claim = claimPlayerIsIn(player);
         final String id = claim.getId();
         final World world = player.getWorld();
 
@@ -147,7 +147,7 @@ public class PlotCommands {
 
         sender.sendMessage(ChatColor.WHITE + id + ChatColor.YELLOW + " set as private plot");
 
-        saveRegions(world);
+        saveRequests(world);
     }
 
     @Command(aliases = {"letin", "in"},
@@ -157,7 +157,7 @@ public class PlotCommands {
     public void letin(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
-        final ProtectedRegion claim = claimPlayerIsIn(player);
+        final ProtectedRequest claim = claimPlayerIsIn(player);
         final String id = claim.getId();
         final World world = player.getWorld();
 
@@ -167,17 +167,17 @@ public class PlotCommands {
 
         sender.sendMessage(ChatColor.WHITE + id + ChatColor.YELLOW + " set as open access");
 
-        saveRegions(world);
+        saveRequests(world);
     }
 
-    public ProtectedRegion claimPlayerIsIn(Player player) throws CommandException {
+    public ProtectedRequest claimPlayerIsIn(Player player) throws CommandException {
 
         final LocalPlayer localPlayer = plugin.wrapPlayer(player);
         final World world = player.getWorld();
-        final RegionManager mgr = plugin.getGlobalRegionManager().get(world);
+        final RequestManager mgr = plugin.getGlobalRequestManager().get(world);
         final Vector pt = localPlayer.getPosition();
-        final ApplicableRegionSet set = mgr.getApplicableRegions(pt);
-        final ProtectedRegion claim = set.getClaim();
+        final ApplicableRequestSet set = mgr.getApplicableRequests(pt);
+        final ProtectedRequest claim = set.getClaim();
 
         if (claim == null) {
             throw new CommandException("You are not in a valid claim!");
@@ -186,7 +186,7 @@ public class PlotCommands {
         return claim;
     }
 
-    public void checkPerm(Player player, String command, ProtectedRegion claim) throws CommandPermissionsException {
+    public void checkPerm(Player player, String command, ProtectedRequest claim) throws CommandPermissionsException {
 
         final LocalPlayer localPlayer = plugin.wrapPlayer(player);
         final String id = claim.getId();
@@ -200,14 +200,14 @@ public class PlotCommands {
         }
     }
 
-    public void saveRegions(World world) throws CommandException {
+    public void saveRequests(World world) throws CommandException {
 
-        final RegionManager mgr = plugin.getGlobalRegionManager().get(world);
+        final RequestManager mgr = plugin.getGlobalRequestManager().get(world);
 
         try {
             mgr.save();
         } catch (ProtectionDatabaseException e) {
-            throw new CommandException("Failed to write regions: "
+            throw new CommandException("Failed to write requests: "
                     + e.getMessage());
         }
     }

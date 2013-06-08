@@ -39,7 +39,7 @@ import org.stakeaclaim.bukkit.StakeAClaimPlugin;
  */
 public class LocationFlag extends Flag<Location> {
 
-    public LocationFlag(String name, RegionGroup defaultGroup) {
+    public LocationFlag(String name, RequestGroup defaultGroup) {
         super(name, defaultGroup);
     }
 

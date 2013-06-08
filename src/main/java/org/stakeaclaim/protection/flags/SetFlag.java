@@ -37,7 +37,7 @@ public class SetFlag<T> extends Flag<Set<T>> {
 
     private Flag<T> subFlag;
 
-    public SetFlag(String name, RegionGroup defaultGroup, Flag<T> subFlag) {
+    public SetFlag(String name, RequestGroup defaultGroup, Flag<T> subFlag) {
         super(name, defaultGroup);
         this.subFlag = subFlag;
     }

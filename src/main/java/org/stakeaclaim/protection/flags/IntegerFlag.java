@@ -28,7 +28,7 @@ import org.stakeaclaim.bukkit.StakeAClaimPlugin;
  */
 public class IntegerFlag extends Flag<Integer> {
 
-    public IntegerFlag(String name, RegionGroup defaultGroup) {
+    public IntegerFlag(String name, RequestGroup defaultGroup) {
         super(name, defaultGroup);
     }
 

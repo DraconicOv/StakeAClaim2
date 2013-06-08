@@ -37,9 +37,9 @@ import org.stakeaclaim.domains.DefaultDomain;
 import org.stakeaclaim.protection.flags.DefaultFlag;
 import org.stakeaclaim.protection.flags.StateFlag;
 import org.stakeaclaim.protection.flags.StateFlag.State;
-import org.stakeaclaim.protection.regions.ProtectedCuboidRegion;
-import org.stakeaclaim.protection.regions.ProtectedRegion;
-import org.stakeaclaim.protection.regions.ProtectedRegion.CircularInheritanceException;
+import org.stakeaclaim.protection.requests.ProtectedCuboidRequest;
+import org.stakeaclaim.protection.requests.ProtectedRequest;
+import org.stakeaclaim.protection.requests.ProtectedRequest.CircularInheritanceException;
 import org.stakeaclaim.util.ArrayReader;
 
 /**
@@ -70,15 +70,15 @@ public class CSVDatabase extends AbstractProtectionDatabase {
      */
     private final File file;
     /**
-     * Holds the list of regions.
+     * Holds the list of requests.
      */
-    private Map<String,ProtectedRegion> regions;
+    private Map<String,ProtectedRequest> requests;
 
     /**
      * Construct the database with a path to a file. No file is read or
      * written at this time.
      *
-     * @param file The file in CSV format containing the region database
+     * @param file The file in CSV format containing the request database
      * @param logger The logger to log errors to
      */
     public CSVDatabase(File file, Logger logger) {
@@ -94,10 +94,10 @@ public class CSVDatabase extends AbstractProtectionDatabase {
     }
 
     public void load() throws ProtectionDatabaseException {
-        Map<String,ProtectedRegion> regions =
-                new HashMap<String,ProtectedRegion>();
-        Map<ProtectedRegion,String> parentSets =
-                new LinkedHashMap<ProtectedRegion, String>();
+        Map<String,ProtectedRequest> requests =
+                new HashMap<String,ProtectedRequest>();
+        Map<ProtectedRequest,String> parentSets =
+                new LinkedHashMap<ProtectedRequest, String>();
 
         CSVReader reader = null;
         try {
@@ -107,7 +107,7 @@ public class CSVDatabase extends AbstractProtectionDatabase {
 
             while ((line = reader.readNext()) != null) {
                 if (line.length < 2) {
-                    logger.warning("Invalid region definition: " + line);
+                    logger.warning("Invalid request definition: " + line);
                     continue;
                 }
 
@@ -117,7 +117,7 @@ public class CSVDatabase extends AbstractProtectionDatabase {
 
                 if (type.equalsIgnoreCase("cuboid")) {
                     if (line.length < 8) {
-                        logger.warning("Invalid region definition: " + line);
+                        logger.warning("Invalid request definition: " + line);
                         continue;
                     }
 
@@ -138,11 +138,11 @@ public class CSVDatabase extends AbstractProtectionDatabase {
                     String flagsData = entries.get(10);
                     //String enterMessage = nullEmptyString(entries.get(11));
 
-                    ProtectedRegion region = new ProtectedCuboidRegion(id, min, max);
-                    region.setPriority(priority);
-                    parseFlags(region, flagsData);
-                    region.setOwners(this.parseDomains(ownersData));
-                    regions.put(id, region);
+                    ProtectedRequest request = new ProtectedCuboidRequest(id, min, max);
+                    request.setPriority(priority);
+                    parseFlags(request, flagsData);
+                    request.setOwners(this.parseDomains(ownersData));
+                    requests.put(id, request);
                 } else if (type.equalsIgnoreCase("cuboid.2")) {
                     Vector pt1 = new Vector(
                             Integer.parseInt(line[2]),
@@ -164,16 +164,16 @@ public class CSVDatabase extends AbstractProtectionDatabase {
                     //String enterMessage = nullEmptyString(entries.get(13));
                     //String leaveMessage = nullEmptyString(entries.get(14));
 
-                    ProtectedRegion region = new ProtectedCuboidRegion(id, min, max);
-                    region.setPriority(priority);
-                    parseFlags(region, flagsData);
-                    region.setOwners(this.parseDomains(ownersData));
-                    region.setMembers(this.parseDomains(membersData));
-                    regions.put(id, region);
+                    ProtectedRequest request = new ProtectedCuboidRequest(id, min, max);
+                    request.setPriority(priority);
+                    parseFlags(request, flagsData);
+                    request.setOwners(this.parseDomains(ownersData));
+                    request.setMembers(this.parseDomains(membersData));
+                    requests.put(id, request);
 
                     // Link children to parents later
                     if (parentId.length() > 0) {
-                        parentSets.put(region, parentId);
+                        parentSets.put(request, parentId);
                     }
                 }
             }
@@ -186,8 +186,8 @@ public class CSVDatabase extends AbstractProtectionDatabase {
             }
         }
 
-        for (Map.Entry<ProtectedRegion, String> entry : parentSets.entrySet()) {
-            ProtectedRegion parent = regions.get(entry.getValue());
+        for (Map.Entry<ProtectedRequest, String> entry : parentSets.entrySet()) {
+            ProtectedRequest parent = requests.get(entry.getValue());
             if (parent != null) {
                 try {
                     entry.getKey().setParent(parent);
@@ -196,11 +196,11 @@ public class CSVDatabase extends AbstractProtectionDatabase {
                             + entry.getValue() + "' detected as a parent");
                 }
             } else {
-                logger.warning("Unknown region parent: " + entry.getValue());
+                logger.warning("Unknown request parent: " + entry.getValue());
             }
         }
 
-        this.regions = regions;
+        this.requests = requests;
     }
 
     /**
@@ -251,7 +251,7 @@ public class CSVDatabase extends AbstractProtectionDatabase {
      *
      * @param data The flag data in string format
      */
-    private void parseFlags(ProtectedRegion region, String data) {
+    private void parseFlags(ProtectedRequest request, String data) {
         if (data == null) {
             return;
         }
@@ -282,7 +282,7 @@ public class CSVDatabase extends AbstractProtectionDatabase {
 
                 StateFlag flag = legacyFlagCodes.get(flagStr);
                 if (flag != null) {
-                    region.setFlag(flag, curState);
+                    request.setFlag(flag, curState);
                 } else {
                     logger.warning("Legacy flag '" + flagStr + "' is unsupported");
                 }
@@ -347,11 +347,11 @@ public class CSVDatabase extends AbstractProtectionDatabase {
         }
     }
 
-    public Map<String,ProtectedRegion> getRegions() {
-        return regions;
+    public Map<String,ProtectedRequest> getRequests() {
+        return requests;
     }
 
-    public void setRegions(Map<String,ProtectedRegion> regions) {
-        this.regions = regions;
+    public void setRequests(Map<String,ProtectedRequest> requests) {
+        this.requests = requests;
     }
 }

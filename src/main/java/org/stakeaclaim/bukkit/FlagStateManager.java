@@ -20,9 +20,9 @@
 package org.stakeaclaim.bukkit;
 
 import com.sk89q.worldedit.Vector;
-import org.stakeaclaim.protection.ApplicableRegionSet;
+import org.stakeaclaim.protection.ApplicableRequestSet;
 import org.stakeaclaim.protection.flags.DefaultFlag;
-import org.stakeaclaim.protection.managers.RegionManager;
+import org.stakeaclaim.protection.managers.RequestManager;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -66,7 +66,7 @@ public class FlagStateManager implements Runnable {
         for (Player player : players) {
             WorldConfiguration worldConfig = config.get(player.getWorld());
 
-            if (!worldConfig.useRegions) {
+            if (!worldConfig.useRequests) {
                 continue;
             }
 
@@ -82,10 +82,10 @@ public class FlagStateManager implements Runnable {
             }
 
             Vector playerLocation = toVector(player.getLocation());
-            RegionManager regionManager = plugin.getGlobalRegionManager().get(player.getWorld());
-            ApplicableRegionSet applicable = regionManager.getApplicableRegions(playerLocation);
+            RequestManager requestManager = plugin.getGlobalRequestManager().get(player.getWorld());
+            ApplicableRequestSet applicable = requestManager.getApplicableRequests(playerLocation);
 
-            if (!RegionQueryUtil.isInvincible(plugin, player, applicable)
+            if (!RequestQueryUtil.isInvincible(plugin, player, applicable)
                     && !plugin.getGlobalStateManager().hasGodMode(player)
                     && !(player.getGameMode() == GameMode.CREATIVE)) {
                 processHeal(applicable, player, state);
@@ -97,11 +97,11 @@ public class FlagStateManager implements Runnable {
     /**
      * Process healing for a player.
      *
-     * @param applicable The set of applicable regions
+     * @param applicable The set of applicable requests
      * @param player The player to process healing flags on
      * @param state The player's state
      */
-    private void processHeal(ApplicableRegionSet applicable, Player player,
+    private void processHeal(ApplicableRequestSet applicable, Player player,
             PlayerFlagState state) {
 
         if (player.getHealth() <= 0) {
@@ -142,11 +142,11 @@ public class FlagStateManager implements Runnable {
     /**
      * Process restoring hunger for a player.
      *
-     * @param applicable The set of applicable regions
+     * @param applicable The set of applicable requests
      * @param player The player to process hunger flags on
      * @param state The player's state
      */
-    private void processFeed(ApplicableRegionSet applicable, Player player,
+    private void processFeed(ApplicableRequestSet applicable, Player player,
             PlayerFlagState state) {
 
         long now = System.currentTimeMillis();

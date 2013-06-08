@@ -61,8 +61,8 @@ import org.stakeaclaim.LocalPlayer;
 //import org.stakeaclaim.bukkit.commands.GeneralCommands;
 import org.stakeaclaim.bukkit.commands.ProtectionCommands;
 //import org.stakeaclaim.bukkit.commands.ToggleCommands;
-import org.stakeaclaim.protection.GlobalRegionManager;
-import org.stakeaclaim.protection.managers.RegionManager;
+import org.stakeaclaim.protection.GlobalRequestManager;
+import org.stakeaclaim.protection.managers.RequestManager;
 import org.stakeaclaim.util.FatalConfigurationLoadingException;
 
 /**
@@ -80,15 +80,16 @@ public class StakeAClaimPlugin extends JavaPlugin {
     private final CommandsManager<CommandSender> commands;
 
     /**
-     * Handles the region databases for all worlds.
+     * Handles the request databases for all worlds.
      */
-    private final GlobalRegionManager globalRegionManager;
+    private final GlobalRequestManager globalRequestManager;
 
     /**
      * Handles all configuration.
      */
     private final ConfigurationManager configuration;
 
+    // --------- to remove? --------
     /**
      * Used for scheduling flags.
      */
@@ -100,7 +101,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
      */
     public StakeAClaimPlugin() {
         configuration = new ConfigurationManager(this);
-        globalRegionManager = new GlobalRegionManager(this);
+        globalRequestManager = new GlobalRequestManager(this);
 
         final StakeAClaimPlugin plugin = this;
         commands = new CommandsManager<CommandSender>() {
@@ -146,19 +147,20 @@ public class StakeAClaimPlugin extends JavaPlugin {
         try {
             // Load the configuration
             configuration.load();
-            globalRegionManager.preload();
+            globalRequestManager.preload();
         } catch (FatalConfigurationLoadingException e) {
             e.printStackTrace();
             getServer().shutdown();
         }
 
-        // Migrate regions after the regions were loaded because
-        // the migration code reuses the loaded region managers
-//        LegacyStakeAClaimMigration.migrateRegions(this);
+//        // Migrate requests after the requests were loaded because
+//        // the migration code reuses the loaded request managers
+//        LegacyStakeAClaimMigration.migrateRequests(this);
 
+        // --------- to remove? --------
         flagStateManager = new FlagStateManager(this);
 
-        if (configuration.useRegionsScheduler) {
+        if (configuration.useRequestsScheduler) {
             getServer().getScheduler().scheduleSyncRepeatingTask(this, flagStateManager,
                     FlagStateManager.RUN_DELAY, FlagStateManager.RUN_DELAY);
         }
@@ -204,7 +206,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
      */
     @Override
     public void onDisable() {
-        globalRegionManager.unload();
+        globalRequestManager.unload();
         configuration.unload();
         this.getServer().getScheduler().cancelTasks(this);
     }
@@ -239,12 +241,12 @@ public class StakeAClaimPlugin extends JavaPlugin {
     }
 
     /**
-     * Get the GlobalRegionManager.
+     * Get the GlobalRequestManager.
      *
-     * @return The plugin's global region manager
+     * @return The plugin's global request manager
      */
-    public GlobalRegionManager getGlobalRegionManager() {
-        return globalRegionManager;
+    public GlobalRequestManager getGlobalRequestManager() {
+        return globalRequestManager;
     }
 
     /**
@@ -258,6 +260,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
         return getGlobalStateManager();
     }
 
+    // --------- to remove? --------
     /**
      * Gets the flag state manager.
      *
@@ -324,7 +327,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
     }
 
     /**
-     * Gets the name of a command sender. This play be a display name.
+     * Gets the name of a command sender. This may be a display name.
      *
      * @param sender The CommandSender to get the name of.
      * @return The name of the given sender
@@ -792,44 +795,44 @@ public class StakeAClaimPlugin extends JavaPlugin {
         flagStateManager.forget(player);
     }
 
-    /**
-     * Checks to see if a player can build at a location. This will return
-     * true if region protection is disabled.
-     *
-     * @param player The player to check.
-     * @param loc The location to check at.
-     * @see GlobalRegionManager#canBuild(org.bukkit.entity.Player, org.bukkit.Location)
-     * @return whether {@code player} can build at {@code loc}
-     */
-    public boolean canBuild(Player player, Location loc) {
-        return getGlobalRegionManager().canBuild(player, loc);
-    }
+//    /**
+//     * Checks to see if a player can build at a location. This will return
+//     * true if request protection is disabled.
+//     *
+//     * @param player The player to check.
+//     * @param loc The location to check at.
+//     * @see GlobalRequestManager#canBuild(org.bukkit.entity.Player, org.bukkit.Location)
+//     * @return whether {@code player} can build at {@code loc}
+//     */
+//    public boolean canBuild(Player player, Location loc) {
+//        return getGlobalRequestManager().canBuild(player, loc);
+//    }
+
+//    /**
+//     * Checks to see if a player can build at a location. This will return
+//     * true if request protection is disabled.
+//     *
+//     * @param player The player to check
+//     * @param block The block to check at.
+//     * @see GlobalRequestManager#canBuild(org.bukkit.entity.Player, org.bukkit.block.Block)
+//     * @return whether {@code player} can build at {@code block}'s location
+//     */
+//    public boolean canBuild(Player player, Block block) {
+//        return getGlobalRequestManager().canBuild(player, block);
+//    }
 
     /**
-     * Checks to see if a player can build at a location. This will return
-     * true if region protection is disabled.
+     * Gets the request manager for a world.
      *
-     * @param player The player to check
-     * @param block The block to check at.
-     * @see GlobalRegionManager#canBuild(org.bukkit.entity.Player, org.bukkit.block.Block)
-     * @return whether {@code player} can build at {@code block}'s location
+     * @param world world to get the request manager for
+     * @return the request manager or null if requests are not enabled
      */
-    public boolean canBuild(Player player, Block block) {
-        return getGlobalRegionManager().canBuild(player, block);
-    }
-
-    /**
-     * Gets the region manager for a world.
-     *
-     * @param world world to get the region manager for
-     * @return the region manager or null if regions are not enabled
-     */
-    public RegionManager getRegionManager(World world) {
-        if (!getGlobalStateManager().get(world).useRegions) {
+    public RequestManager getRequestManager(World world) {
+        if (!getGlobalStateManager().get(world).useRequests) {
             return null;
         }
 
-        return getGlobalRegionManager().get(world);
+        return getGlobalRequestManager().get(world);
     }
 
     /**

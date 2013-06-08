@@ -31,24 +31,24 @@ import org.stakeaclaim.LocalPlayer;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 import org.stakeaclaim.domains.DefaultDomain;
 import org.stakeaclaim.protection.databases.ProtectionDatabaseException;
-import org.stakeaclaim.protection.databases.RegionDBUtil;
+import org.stakeaclaim.protection.databases.RequestDBUtil;
 import org.stakeaclaim.protection.flags.DefaultFlag;
-import org.stakeaclaim.protection.managers.RegionManager;
-import org.stakeaclaim.protection.regions.ProtectedRegion;
+import org.stakeaclaim.protection.managers.RequestManager;
+import org.stakeaclaim.protection.requests.ProtectedRequest;
 
 // @TODO: A lot of code duplication here! Need to fix.
 
-public class RegionMemberCommands {
+public class RequestMemberCommands {
     private final StakeAClaimPlugin plugin;
 
-    public RegionMemberCommands(StakeAClaimPlugin plugin) {
+    public RequestMemberCommands(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
     }
 
     @Command(aliases = {"addmember", "addmember"},
             usage = "<id> <members...>",
             flags = "w:",
-            desc = "Add a member to a region",
+            desc = "Add a member to a request",
             min = 2)
     public void addMember(CommandContext args, CommandSender sender) throws CommandException {
         final World world;
@@ -64,34 +64,34 @@ public class RegionMemberCommands {
 
         String id = args.getString(0);
 
-        RegionManager mgr = plugin.getGlobalRegionManager().get(world);
-        ProtectedRegion region = mgr.getRegion(id);
+        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+        ProtectedRequest request = mgr.getRequest(id);
 
-        if (region == null) {
-            throw new CommandException("Could not find a region by that ID.");
+        if (request == null) {
+            throw new CommandException("Could not find a request by that ID.");
         }
 
-        id = region.getId();
+        id = request.getId();
 
         if (localPlayer != null) {
-            if (region.isOwner(localPlayer)) {
-                plugin.checkPermission(sender, "worldguard.region.addmember.own." + id.toLowerCase());
-            } else if (region.isMember(localPlayer)) {
-                plugin.checkPermission(sender, "worldguard.region.addmember.member." + id.toLowerCase());
+            if (request.isOwner(localPlayer)) {
+                plugin.checkPermission(sender, "worldguard.request.addmember.own." + id.toLowerCase());
+            } else if (request.isMember(localPlayer)) {
+                plugin.checkPermission(sender, "worldguard.request.addmember.member." + id.toLowerCase());
             } else {
-                plugin.checkPermission(sender, "worldguard.region.addmember." + id.toLowerCase());
+                plugin.checkPermission(sender, "worldguard.request.addmember." + id.toLowerCase());
             }
         }
 
-        RegionDBUtil.addToDomain(region.getMembers(), args.getPaddedSlice(2, 0), 0);
+        RequestDBUtil.addToDomain(request.getMembers(), args.getPaddedSlice(2, 0), 0);
 
         sender.sendMessage(ChatColor.YELLOW
-                + "Region '" + id + "' updated.");
+                + "Request '" + id + "' updated.");
 
         try {
             mgr.save();
         } catch (ProtectionDatabaseException e) {
-            throw new CommandException("Failed to write regions: "
+            throw new CommandException("Failed to write requests: "
                     + e.getMessage());
         }
     }
@@ -99,7 +99,7 @@ public class RegionMemberCommands {
     @Command(aliases = {"addowner", "addowner"},
             usage = "<id> <owners...>",
             flags = "w:",
-            desc = "Add an owner to a region",
+            desc = "Add an owner to a request",
             min = 2)
     public void addOwner(CommandContext args, CommandSender sender) throws CommandException {
         final World world;
@@ -115,47 +115,47 @@ public class RegionMemberCommands {
 
         String id = args.getString(0);
 
-        RegionManager mgr = plugin.getGlobalRegionManager().get(world);
-        ProtectedRegion region = mgr.getRegion(id);
+        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+        ProtectedRequest request = mgr.getRequest(id);
 
-        if (region == null) {
-            throw new CommandException("Could not find a region by that ID.");
+        if (request == null) {
+            throw new CommandException("Could not find a request by that ID.");
         }
 
-        id = region.getId();
+        id = request.getId();
 
-        Boolean flag = region.getFlag(DefaultFlag.BUYABLE);
-        DefaultDomain owners = region.getOwners();
+        Boolean flag = request.getFlag(DefaultFlag.BUYABLE);
+        DefaultDomain owners = request.getOwners();
         if (localPlayer != null) {
             if (flag != null && flag && owners != null && owners.size() == 0) {
-                if (!plugin.hasPermission(player, "worldguard.region.unlimited")) {
-                    int maxRegionCount = plugin.getGlobalStateManager().get(world).getMaxRegionCount(player);
-                    if (maxRegionCount >= 0 && mgr.getRegionCountOfPlayer(localPlayer)
-                            >= maxRegionCount) {
-                        throw new CommandException("You already own the maximum allowed amount of regions.");
+                if (!plugin.hasPermission(player, "worldguard.request.unlimited")) {
+                    int maxRequestCount = plugin.getGlobalStateManager().get(world).getMaxRequestCount(player);
+                    if (maxRequestCount >= 0 && mgr.getRequestCountOfPlayer(localPlayer)
+                            >= maxRequestCount) {
+                        throw new CommandException("You already own the maximum allowed amount of requests.");
                     }
                 }
-                plugin.checkPermission(sender, "worldguard.region.addowner.unclaimed." + id.toLowerCase());
+                plugin.checkPermission(sender, "worldguard.request.addowner.unclaimed." + id.toLowerCase());
             } else {
-                if (region.isOwner(localPlayer)) {
-                    plugin.checkPermission(sender, "worldguard.region.addowner.own." + id.toLowerCase());
-                } else if (region.isMember(localPlayer)) {
-                    plugin.checkPermission(sender, "worldguard.region.addowner.member." + id.toLowerCase());
+                if (request.isOwner(localPlayer)) {
+                    plugin.checkPermission(sender, "worldguard.request.addowner.own." + id.toLowerCase());
+                } else if (request.isMember(localPlayer)) {
+                    plugin.checkPermission(sender, "worldguard.request.addowner.member." + id.toLowerCase());
                 } else {
-                    plugin.checkPermission(sender, "worldguard.region.addowner." + id.toLowerCase());
+                    plugin.checkPermission(sender, "worldguard.request.addowner." + id.toLowerCase());
                 }
             }
         }
 
-        RegionDBUtil.addToDomain(region.getOwners(), args.getPaddedSlice(2, 0), 0);
+        RequestDBUtil.addToDomain(request.getOwners(), args.getPaddedSlice(2, 0), 0);
 
         sender.sendMessage(ChatColor.YELLOW
-                + "Region '" + id + "' updated.");
+                + "Request '" + id + "' updated.");
 
         try {
             mgr.save();
         } catch (ProtectionDatabaseException e) {
-            throw new CommandException("Failed to write regions: "
+            throw new CommandException("Failed to write requests: "
                     + e.getMessage());
         }
     }
@@ -163,7 +163,7 @@ public class RegionMemberCommands {
     @Command(aliases = {"removemember", "remmember", "removemem", "remmem"},
             usage = "<id> <owners...>",
             flags = "w:",
-            desc = "Remove an owner to a region",
+            desc = "Remove an owner to a request",
             min = 2)
     public void removeMember(CommandContext args, CommandSender sender) throws CommandException {
         final World world;
@@ -179,34 +179,34 @@ public class RegionMemberCommands {
 
         String id = args.getString(0);
 
-        RegionManager mgr = plugin.getGlobalRegionManager().get(world);
-        ProtectedRegion region = mgr.getRegion(id);
+        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+        ProtectedRequest request = mgr.getRequest(id);
 
-        if (region == null) {
-            throw new CommandException("Could not find a region by that ID.");
+        if (request == null) {
+            throw new CommandException("Could not find a request by that ID.");
         }
 
-        id = region.getId();
+        id = request.getId();
 
         if (localPlayer != null) {
-            if (region.isOwner(localPlayer)) {
-                plugin.checkPermission(sender, "worldguard.region.removemember.own." + id.toLowerCase());
-            } else if (region.isMember(localPlayer)) {
-                plugin.checkPermission(sender, "worldguard.region.removemember.member." + id.toLowerCase());
+            if (request.isOwner(localPlayer)) {
+                plugin.checkPermission(sender, "worldguard.request.removemember.own." + id.toLowerCase());
+            } else if (request.isMember(localPlayer)) {
+                plugin.checkPermission(sender, "worldguard.request.removemember.member." + id.toLowerCase());
             } else {
-                plugin.checkPermission(sender, "worldguard.region.removemember." + id.toLowerCase());
+                plugin.checkPermission(sender, "worldguard.request.removemember." + id.toLowerCase());
             }
         }
 
-        RegionDBUtil.removeFromDomain(region.getMembers(), args.getPaddedSlice(2, 0), 0);
+        RequestDBUtil.removeFromDomain(request.getMembers(), args.getPaddedSlice(2, 0), 0);
 
         sender.sendMessage(ChatColor.YELLOW
-                + "Region '" + id + "' updated.");
+                + "Request '" + id + "' updated.");
 
         try {
             mgr.save();
         } catch (ProtectionDatabaseException e) {
-            throw new CommandException("Failed to write regions: "
+            throw new CommandException("Failed to write requests: "
                     + e.getMessage());
         }
     }
@@ -214,7 +214,7 @@ public class RegionMemberCommands {
     @Command(aliases = {"removeowner", "remowner"},
             usage = "<id> <owners...>",
             flags = "w:",
-            desc = "Remove an owner to a region",
+            desc = "Remove an owner to a request",
             min = 2)
     public void removeOwner(CommandContext args,
             CommandSender sender) throws CommandException {
@@ -231,34 +231,34 @@ public class RegionMemberCommands {
 
         String id = args.getString(0);
 
-        RegionManager mgr = plugin.getGlobalRegionManager().get(world);
-        ProtectedRegion region = mgr.getRegion(id);
+        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+        ProtectedRequest request = mgr.getRequest(id);
 
-        if (region == null) {
-            throw new CommandException("Could not find a region by that ID.");
+        if (request == null) {
+            throw new CommandException("Could not find a request by that ID.");
         }
 
-        id = region.getId();
+        id = request.getId();
 
         if (localPlayer != null) {
-            if (region.isOwner(localPlayer)) {
-                plugin.checkPermission(sender, "worldguard.region.removeowner.own." + id.toLowerCase());
-            } else if (region.isMember(localPlayer)) {
-                plugin.checkPermission(sender, "worldguard.region.removeowner.member." + id.toLowerCase());
+            if (request.isOwner(localPlayer)) {
+                plugin.checkPermission(sender, "worldguard.request.removeowner.own." + id.toLowerCase());
+            } else if (request.isMember(localPlayer)) {
+                plugin.checkPermission(sender, "worldguard.request.removeowner.member." + id.toLowerCase());
             } else {
-                plugin.checkPermission(sender, "worldguard.region.removeowner." + id.toLowerCase());
+                plugin.checkPermission(sender, "worldguard.request.removeowner." + id.toLowerCase());
             }
         }
 
-        RegionDBUtil.removeFromDomain(region.getOwners(), args.getPaddedSlice(2, 0), 0);
+        RequestDBUtil.removeFromDomain(request.getOwners(), args.getPaddedSlice(2, 0), 0);
 
         sender.sendMessage(ChatColor.YELLOW
-                + "Region '" + id + "' updated.");
+                + "Request '" + id + "' updated.");
 
         try {
             mgr.save();
         } catch (ProtectionDatabaseException e) {
-            throw new CommandException("Failed to write regions: "
+            throw new CommandException("Failed to write requests: "
                     + e.getMessage());
         }
     }

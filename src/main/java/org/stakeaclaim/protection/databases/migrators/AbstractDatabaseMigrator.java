@@ -1,6 +1,6 @@
 // $Id$
 /*
- * MySQL WordGuard Region Database
+ * MySQL WordGuard Request Database
  * Copyright (C) 2011 Nicholas Steicke <http://narthollis.net>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@ import java.util.Set;
 
 import org.stakeaclaim.protection.databases.ProtectionDatabase;
 import org.stakeaclaim.protection.databases.ProtectionDatabaseException;
-import org.stakeaclaim.protection.regions.ProtectedRegion;
+import org.stakeaclaim.protection.requests.ProtectedRequest;
 
 public abstract class AbstractDatabaseMigrator implements DatabaseMigrator {
 
@@ -43,14 +43,14 @@ public abstract class AbstractDatabaseMigrator implements DatabaseMigrator {
 
     protected abstract Set<String> getWorldsFromOld() throws MigrationException;
 
-    protected abstract Map<String, ProtectedRegion> getRegionsForWorldFromOld(String world) throws MigrationException;
+    protected abstract Map<String, ProtectedRequest> getRequestsForWorldFromOld(String world) throws MigrationException;
 
     protected abstract ProtectionDatabase getNewWorldStorage(String world) throws MigrationException;
 
     public void migrate() throws MigrationException {
         for (String world : this.getWorldsFromOld()) {
             ProtectionDatabase database = this.getNewWorldStorage(world);
-            database.setRegions(this.getRegionsForWorldFromOld(world));
+            database.setRequests(this.getRequestsForWorldFromOld(world));
 
             try {
                 database.save();

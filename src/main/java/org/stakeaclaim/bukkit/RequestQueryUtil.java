@@ -24,19 +24,19 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.sk89q.worldedit.Vector;
-import org.stakeaclaim.protection.ApplicableRegionSet;
+import org.stakeaclaim.protection.ApplicableRequestSet;
 import org.stakeaclaim.protection.flags.DefaultFlag;
 import org.stakeaclaim.protection.flags.StateFlag;
-import org.stakeaclaim.protection.managers.RegionManager;
+import org.stakeaclaim.protection.managers.RequestManager;
 
-public class RegionQueryUtil {
+public class RequestQueryUtil {
 
     public static boolean isInvincible(StakeAClaimPlugin plugin, Player player) {
         return isInvincible(plugin, player, null);
     }
 
     public static boolean isInvincible(StakeAClaimPlugin plugin, Player player,
-                                       ApplicableRegionSet set) {
+                                       ApplicableRequestSet set) {
         Location loc = player.getLocation();
         World world = player.getWorld();
         
@@ -55,8 +55,8 @@ public class RegionQueryUtil {
             if (set == null) {
                 Vector vec = new Vector(state.lastInvincibleX,
                         state.lastInvincibleY, state.lastInvincibleZ);
-                RegionManager mgr = plugin.getGlobalRegionManager().get(world);
-                set = mgr.getApplicableRegions(vec);
+                RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+                set = mgr.getApplicableRequests(vec);
             }
 
             state.wasInvincible = set.allows(DefaultFlag.INVINCIBILITY, plugin.wrapPlayer(player));
@@ -70,11 +70,11 @@ public class RegionQueryUtil {
         FlagStateManager.PlayerFlagState state = plugin.getFlagStateManager().getState(player);
         Vector vec = new Vector(state.lastInvincibleX, state.lastInvincibleY, state.lastInvincibleZ);
 
-        StateFlag.State regionState = plugin.getGlobalRegionManager().get(world).
-                getApplicableRegions(vec).getFlag(DefaultFlag.INVINCIBILITY, plugin.wrapPlayer(player));
-        if (regionState == StateFlag.State.ALLOW) {
+        StateFlag.State requestState = plugin.getGlobalRequestManager().get(world).
+                getApplicableRequests(vec).getFlag(DefaultFlag.INVINCIBILITY, plugin.wrapPlayer(player));
+        if (requestState == StateFlag.State.ALLOW) {
             return Boolean.TRUE;
-        } else if (regionState == StateFlag.State.DENY) {
+        } else if (requestState == StateFlag.State.DENY) {
             return Boolean.FALSE;
         } else {
             return null;

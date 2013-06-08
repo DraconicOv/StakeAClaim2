@@ -30,26 +30,26 @@ import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 public abstract class Flag<T> {
 
     private String name;
-    private RegionGroupFlag regionGroup;
+    private RequestGroupFlag requestGroup;
     
-    public Flag(String name, RegionGroup defaultGroup) {
+    public Flag(String name, RequestGroup defaultGroup) {
         this.name = name;
 
         if (defaultGroup != null) {
-            this.regionGroup = new RegionGroupFlag(name + "-group", defaultGroup);
+            this.requestGroup = new RequestGroupFlag(name + "-group", defaultGroup);
         }
     }
 
     public Flag(String name) {
-        this(name, RegionGroup.NON_MEMBERS);
+        this(name, RequestGroup.NON_MEMBERS);
     }
 
     public String getName() {
         return name;
     }
     
-    public RegionGroupFlag getRegionGroupFlag() {
-        return regionGroup;
+    public RequestGroupFlag getRequestGroupFlag() {
+        return requestGroup;
     }
 
     public abstract T parseInput(StakeAClaimPlugin plugin, CommandSender sender,

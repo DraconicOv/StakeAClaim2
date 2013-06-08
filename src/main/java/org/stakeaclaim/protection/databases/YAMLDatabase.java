@@ -39,16 +39,16 @@ import com.sk89q.worldedit.Vector;
 import org.stakeaclaim.domains.DefaultDomain;
 import org.stakeaclaim.protection.flags.DefaultFlag;
 import org.stakeaclaim.protection.flags.Flag;
-import org.stakeaclaim.protection.regions.GlobalProtectedRegion;
-import org.stakeaclaim.protection.regions.ProtectedCuboidRegion;
-import org.stakeaclaim.protection.regions.ProtectedPolygonalRegion;
-import org.stakeaclaim.protection.regions.ProtectedRegion;
-import org.stakeaclaim.protection.regions.ProtectedRegion.CircularInheritanceException;
+import org.stakeaclaim.protection.requests.GlobalProtectedRequest;
+import org.stakeaclaim.protection.requests.ProtectedCuboidRequest;
+import org.stakeaclaim.protection.requests.ProtectedPolygonalRequest;
+import org.stakeaclaim.protection.requests.ProtectedRequest;
+import org.stakeaclaim.protection.requests.ProtectedRequest.CircularInheritanceException;
 
 public class YAMLDatabase extends AbstractProtectionDatabase {
     
     private YAMLProcessor config;
-    private Map<String, ProtectedRegion> regions;
+    private Map<String, ProtectedRequest> requests;
     private final Logger logger;
     
     public YAMLDatabase(File file, Logger logger) throws ProtectionDatabaseException, FileNotFoundException {
@@ -70,67 +70,67 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
             throw new ProtectionDatabaseException(e);
         }
         
-        Map<String, YAMLNode> regionData = config.getNodes("regions");
+        Map<String, YAMLNode> requestData = config.getNodes("requests");
         
-        // No regions are even configured
-        if (regionData == null) {
-            this.regions = new HashMap<String, ProtectedRegion>();
+        // No requests are even configured
+        if (requestData == null) {
+            this.requests = new HashMap<String, ProtectedRequest>();
             return;
         }
 
-        Map<String,ProtectedRegion> regions =
-            new HashMap<String,ProtectedRegion>();
-        Map<ProtectedRegion,String> parentSets =
-            new LinkedHashMap<ProtectedRegion, String>();
+        Map<String,ProtectedRequest> requests =
+            new HashMap<String,ProtectedRequest>();
+        Map<ProtectedRequest,String> parentSets =
+            new LinkedHashMap<ProtectedRequest, String>();
         
-        for (Map.Entry<String, YAMLNode> entry : regionData.entrySet()) {
+        for (Map.Entry<String, YAMLNode> entry : requestData.entrySet()) {
             String id = entry.getKey().toLowerCase().replace(".", "");
             YAMLNode node = entry.getValue();
             
             String type = node.getString("type");
-            ProtectedRegion region;
+            ProtectedRequest request;
             
             try {
                 if (type == null) {
-                    logger.warning("Undefined region type for region '" + id + '"');
+                    logger.warning("Undefined request type for request '" + id + '"');
                     continue;
                 } else if (type.equals("cuboid")) {
                     Vector pt1 = checkNonNull(node.getVector("min"));
                     Vector pt2 = checkNonNull(node.getVector("max"));
                     BlockVector min = Vector.getMinimum(pt1, pt2).toBlockVector();
                     BlockVector max = Vector.getMaximum(pt1, pt2).toBlockVector();
-                    region = new ProtectedCuboidRegion(id, min, max);
+                    request = new ProtectedCuboidRequest(id, min, max);
                 } else if (type.equals("poly2d")) {
                     Integer minY = checkNonNull(node.getInt("min-y"));
                     Integer maxY = checkNonNull(node.getInt("max-y"));
                     List<BlockVector2D> points = node.getBlockVector2dList("points", null);
-                    region = new ProtectedPolygonalRegion(id, points, minY, maxY);
+                    request = new ProtectedPolygonalRequest(id, points, minY, maxY);
                 } else if (type.equals("global")) {
-                    region = new GlobalProtectedRegion(id);
+                    request = new GlobalProtectedRequest(id);
                 } else {
-                    logger.warning("Unknown region type for region '" + id + '"');
+                    logger.warning("Unknown request type for request '" + id + '"');
                     continue;
                 }
                 
                 Integer priority = checkNonNull(node.getInt("priority"));
-                region.setPriority(priority);
-                setFlags(region, node.getNode("flags"));
-                region.setOwners(parseDomain(node.getNode("owners")));
-                region.setMembers(parseDomain(node.getNode("members")));
-                regions.put(id, region);
+                request.setPriority(priority);
+                setFlags(request, node.getNode("flags"));
+                request.setOwners(parseDomain(node.getNode("owners")));
+                request.setMembers(parseDomain(node.getNode("members")));
+                requests.put(id, request);
                 
                 String parentId = node.getString("parent");
                 if (parentId != null) {
-                    parentSets.put(region, parentId);
+                    parentSets.put(request, parentId);
                 }
             } catch (NullPointerException e) {
-                logger.warning("Missing data for region '" + id + '"');
+                logger.warning("Missing data for request '" + id + '"');
             }
         }
         
         // Relink parents
-        for (Map.Entry<ProtectedRegion, String> entry : parentSets.entrySet()) {
-            ProtectedRegion parent = regions.get(entry.getValue());
+        for (Map.Entry<ProtectedRequest, String> entry : parentSets.entrySet()) {
+            ProtectedRequest parent = requests.get(entry.getValue());
             if (parent != null) {
                 try {
                     entry.getKey().setParent(parent);
@@ -139,11 +139,11 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
                             + entry.getValue() + "' detected as a parent");
                 }
             } else {
-                logger.warning("Unknown region parent: " + entry.getValue());
+                logger.warning("Unknown request parent: " + entry.getValue());
             }
         }
         
-        this.regions = regions;
+        this.requests = requests;
     }
     
     private <V> V checkNonNull(V val) throws NullPointerException {
@@ -154,7 +154,7 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
         return val;
     }
     
-    private void setFlags(ProtectedRegion region, YAMLNode flagsData) {
+    private void setFlags(ProtectedRequest request, YAMLNode flagsData) {
         if (flagsData == null) {
             return;
         }
@@ -163,26 +163,26 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
         for (Flag<?> flag : DefaultFlag.getFlags()) {
             Object o = flagsData.getProperty(flag.getName());
             if (o != null) {
-                setFlag(region, flag, o);
+                setFlag(request, flag, o);
             }
             
-            if (flag.getRegionGroupFlag() != null) {
-            Object o2 = flagsData.getProperty(flag.getRegionGroupFlag().getName());
+            if (flag.getRequestGroupFlag() != null) {
+            Object o2 = flagsData.getProperty(flag.getRequestGroupFlag().getName());
                 if (o2 != null) {
-                    setFlag(region, flag.getRegionGroupFlag(), o2);
+                    setFlag(request, flag.getRequestGroupFlag(), o2);
                 }
             }
         }
     }
     
-    private <T> void setFlag(ProtectedRegion region, Flag<T> flag, Object rawValue) {
+    private <T> void setFlag(ProtectedRequest request, Flag<T> flag, Object rawValue) {
         T val = flag.unmarshal(rawValue);
         if (val == null) {
             logger.warning("Failed to parse flag '" + flag.getName()
                     + "' with value '" + rawValue.toString() + "'");
             return;
         }
-        region.setFlag(flag, val);
+        request.setFlag(flag, val);
     }
     
     private DefaultDomain parseDomain(YAMLNode node) {
@@ -206,17 +206,17 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
     public void save() throws ProtectionDatabaseException {
         config.clear();
         
-        for (Map.Entry<String, ProtectedRegion> entry : regions.entrySet()) {
-            ProtectedRegion region = entry.getValue();
-            YAMLNode node = config.addNode("regions." + entry.getKey());
+        for (Map.Entry<String, ProtectedRequest> entry : requests.entrySet()) {
+            ProtectedRequest request = entry.getValue();
+            YAMLNode node = config.addNode("requests." + entry.getKey());
             
-            if (region instanceof ProtectedCuboidRegion) {
-                ProtectedCuboidRegion cuboid = (ProtectedCuboidRegion) region;
+            if (request instanceof ProtectedCuboidRequest) {
+                ProtectedCuboidRequest cuboid = (ProtectedCuboidRequest) request;
                 node.setProperty("type", "cuboid");
                 node.setProperty("min", cuboid.getMinimumPoint());
                 node.setProperty("max", cuboid.getMaximumPoint());
-            } else if (region instanceof ProtectedPolygonalRegion) {
-                ProtectedPolygonalRegion poly = (ProtectedPolygonalRegion) region;
+            } else if (request instanceof ProtectedPolygonalRequest) {
+                ProtectedPolygonalRequest poly = (ProtectedPolygonalRequest) request;
                 node.setProperty("type", "poly2d");
                 node.setProperty("min-y", poly.getMinimumPoint().getBlockY());
                 node.setProperty("max-y", poly.getMaximumPoint().getBlockY());
@@ -230,28 +230,28 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
                 }
                 
                 node.setProperty("points", points);
-            } else if (region instanceof GlobalProtectedRegion) {
+            } else if (request instanceof GlobalProtectedRequest) {
                 node.setProperty("type", "global");
             } else {
-                node.setProperty("type", region.getClass().getCanonicalName());
+                node.setProperty("type", request.getClass().getCanonicalName());
             }
 
-            node.setProperty("priority", region.getPriority());
-            node.setProperty("flags", getFlagData(region));
-            node.setProperty("owners", getDomainData(region.getOwners()));
-            node.setProperty("members", getDomainData(region.getMembers()));
-            ProtectedRegion parent = region.getParent();
+            node.setProperty("priority", request.getPriority());
+            node.setProperty("flags", getFlagData(request));
+            node.setProperty("owners", getDomainData(request.getOwners()));
+            node.setProperty("members", getDomainData(request.getMembers()));
+            ProtectedRequest parent = request.getParent();
             if (parent != null) {
                 node.setProperty("parent", parent.getId());
             }
         }
         
         config.setHeader("#\r\n" +
-                "# StakeAClaim regions file\r\n" +
+                "# StakeAClaim requests file\r\n" +
                 "#\r\n" +
                 "# WARNING: THIS FILE IS AUTOMATICALLY GENERATED. If you modify this file by\r\n" +
                 "# hand, be aware that A SINGLE MISTYPED CHARACTER CAN CORRUPT THE FILE. If\r\n" +
-                "# StakeAClaim is unable to parse the file, your regions will FAIL TO LOAD and\r\n" +
+                "# StakeAClaim is unable to parse the file, your requests will FAIL TO LOAD and\r\n" +
                 "# the contents of this file will reset. Please use a YAML validator such as\r\n" +
                 "# http://yaml-online-parser.appspot.com (for smaller files).\r\n" +
                 "#\r\n" +
@@ -260,10 +260,10 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
         config.save();
     }
     
-    private Map<String, Object> getFlagData(ProtectedRegion region) {
+    private Map<String, Object> getFlagData(ProtectedRequest request) {
         Map<String, Object> flagData = new HashMap<String, Object>();
         
-        for (Map.Entry<Flag<?>, Object> entry : region.getFlags().entrySet()) {
+        for (Map.Entry<Flag<?>, Object> entry : request.getFlags().entrySet()) {
             Flag<?> flag = entry.getKey();
             addMarshalledFlag(flagData, flag, entry.getValue());
         }
@@ -304,12 +304,12 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
         domainData.put(key, list);
     }
 
-    public Map<String, ProtectedRegion> getRegions() {
-        return regions;
+    public Map<String, ProtectedRequest> getRequests() {
+        return requests;
     }
 
-    public void setRegions(Map<String, ProtectedRegion> regions) {
-        this.regions = regions;
+    public void setRequests(Map<String, ProtectedRequest> requests) {
+        this.requests = requests;
     }
     
 }

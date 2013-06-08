@@ -19,9 +19,9 @@
 package org.stakeaclaim.protection.flags;
 
 /**
- * A grouping of region membership types
+ * A grouping of request membership types
  */
-public enum RegionGroup {
+public enum RequestGroup {
     MEMBERS,
     OWNERS,
     NON_MEMBERS,

@@ -28,7 +28,7 @@ import org.stakeaclaim.bukkit.StakeAClaimPlugin;
  */
 public class BooleanFlag extends Flag<Boolean> {
 
-    public BooleanFlag(String name, RegionGroup defaultGroup) {
+    public BooleanFlag(String name, RequestGroup defaultGroup) {
         super(name, defaultGroup);
     }
 

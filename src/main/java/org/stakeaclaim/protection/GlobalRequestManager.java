@@ -41,17 +41,17 @@ import org.stakeaclaim.protection.databases.ProtectionDatabase;
 import org.stakeaclaim.protection.databases.ProtectionDatabaseException;
 import org.stakeaclaim.protection.databases.YAMLDatabase;
 import org.stakeaclaim.protection.flags.StateFlag;
-import org.stakeaclaim.protection.managers.PRTreeRegionManager;
-import org.stakeaclaim.protection.managers.RegionManager;
+import org.stakeaclaim.protection.managers.PRTreeRequestManager;
+import org.stakeaclaim.protection.managers.RequestManager;
 
 /**
- * This class keeps track of region information for every world. It loads
- * world region information as needed.
+ * This class keeps track of request information for every world. It loads
+ * world request information as needed.
  *
  * @author sk89q
  * @author Redecouverte
  */
-public class GlobalRegionManager {
+public class GlobalRequestManager {
 
     /**
      * Reference to the plugin.
@@ -66,7 +66,7 @@ public class GlobalRegionManager {
     /**
      * Map of managers per-world.
      */
-    private ConcurrentHashMap<String, RegionManager> managers;
+    private ConcurrentHashMap<String, RequestManager> managers;
 
     /**
      * Stores the list of modification dates for the world files. This allows
@@ -79,15 +79,15 @@ public class GlobalRegionManager {
      *
      * @param plugin The plugin instance
      */
-    public GlobalRegionManager(StakeAClaimPlugin plugin) {
+    public GlobalRequestManager(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
         config = plugin.getGlobalStateManager();
-        managers = new ConcurrentHashMap<String, RegionManager>();
+        managers = new ConcurrentHashMap<String, RequestManager>();
         lastModified = new HashMap<String, Long>();
     }
 
     /**
-     * Unload region information.
+     * Unload request information.
      */
     public void unload() {
         managers.clear();
@@ -95,23 +95,23 @@ public class GlobalRegionManager {
     }
 
     /**
-     * Get the path for a world's regions file.
+     * Get the path for a world's requests file.
      *
      * @param name The name of the world
-     * @return The region file path for a world's region file
+     * @return The request file path for a world's request file
      */
     protected File getPath(String name) {
         return new File(plugin.getDataFolder(),
-                "worlds" + File.separator + name + File.separator + "regions.yml");
+                "worlds" + File.separator + name + File.separator + "requests.yml");
     }
 
     /**
-     * Unload region information for a world.
+     * Unload request information for a world.
      *
      * @param name The name of the world to unload
      */
     public void unload(String name) {
-        RegionManager manager = managers.remove(name);
+        RequestManager manager = managers.remove(name);
 
         if (manager != null) {
             lastModified.remove(name);
@@ -119,26 +119,26 @@ public class GlobalRegionManager {
     }
 
     /**
-     * Unload all region information.
+     * Unload all request information.
      */
     public void unloadAll() {
         managers.clear();
         lastModified.clear();
     }
 
-    public RegionManager load(World world) {
-        RegionManager manager = create(world);
+    public RequestManager load(World world) {
+        RequestManager manager = create(world);
         managers.put(world.getName(), manager);
         return manager;
     }
 
     /**
-     * Load region information for a world.
+     * Load request information for a world.
      *
-     * @param world The world to load a RegionManager for
-     * @return the loaded RegionManager
+     * @param world The world to load a RequestManager for
+     * @return the loaded RequestManager
      */
-    public RegionManager create(World world) {
+    public RequestManager create(World world) {
         String name = world.getName();
         boolean sql = config.useSqlDatabase;
         ProtectionDatabase database;
@@ -156,17 +156,17 @@ public class GlobalRegionManager {
             }
 
             // Create a manager
-            RegionManager manager = new PRTreeRegionManager(database);
+            RequestManager manager = new PRTreeRequestManager(database);
             manager.load();
 
             if (plugin.getGlobalStateManager().get(world).summaryOnStart) {
-                plugin.getLogger().info(manager.getRegions().size()
-                        + " regions loaded for '" + name + "'");
+                plugin.getLogger().info(manager.getRequests().size()
+                        + " requests loaded for '" + name + "'");
             }
 
             return manager;
         } catch (ProtectionDatabaseException e) {
-            String logStr = "Failed to load regions from ";
+            String logStr = "Failed to load requests from ";
             if (sql) {
                 logStr += "SQL Database <" + config.sqlDsn + "> ";
             } else {
@@ -176,7 +176,7 @@ public class GlobalRegionManager {
             plugin.getLogger().log(Level.SEVERE, logStr + " : " + e.getMessage());
             e.printStackTrace();
         } catch (FileNotFoundException e) {
-            plugin.getLogger().log(Level.SEVERE, "Error loading regions for world \""
+            plugin.getLogger().log(Level.SEVERE, "Error loading requests for world \""
                     + name + "\": " + e.toString() + "\n\t" + e.getMessage());
             e.printStackTrace();
         }
@@ -186,17 +186,17 @@ public class GlobalRegionManager {
     }
 
     /**
-     * Preloads region managers for all worlds.
+     * Preloads request managers for all worlds.
      */
     public void preload() {
-        // Load regions
+        // Load requests
         for (World world : plugin.getServer().getWorlds()) {
             load(world);
         }
     }
 
     /**
-     * Reloads the region information from file when region databases
+     * Reloads the request information from file when request databases
      * have changed.
      */
     public void reloadChanged() {
@@ -225,14 +225,14 @@ public class GlobalRegionManager {
     }
 
     /**
-     * Get the region manager for a particular world.
+     * Get the request manager for a particular world.
      *
-     * @param world The world to get a RegionManager for
-     * @return The region manager.
+     * @param world The world to get a RequestManager for
+     * @return The request manager.
      */
-    public RegionManager get(World world) {
-        RegionManager manager = managers.get(world.getName());
-        RegionManager newManager = null;
+    public RequestManager get(World world) {
+        RequestManager manager = managers.get(world.getName());
+        RequestManager newManager = null;
 
         while (manager == null) {
             if (newManager == null) {
@@ -253,7 +253,7 @@ public class GlobalRegionManager {
      * @return Whether {@code player} has bypass permission for {@code world}
      */
     public boolean hasBypass(LocalPlayer player, World world) {
-        return player.hasPermission("worldguard.region.bypass."
+        return player.hasPermission("worldguard.request.bypass."
                         + world.getName());
     }
 
@@ -265,7 +265,7 @@ public class GlobalRegionManager {
      * @return Whether {@code player} has bypass permission for {@code world}
      */
     public boolean hasBypass(Player player, World world) {
-        return plugin.hasPermission(player, "worldguard.region.bypass."
+        return plugin.hasPermission(player, "worldguard.request.bypass."
                 + world.getName());
     }
 
@@ -291,16 +291,16 @@ public class GlobalRegionManager {
         World world = loc.getWorld();
         WorldConfiguration worldConfig = config.get(world);
 
-        if (!worldConfig.useRegions) {
+        if (!worldConfig.useRequests) {
             return true;
         }
 
         LocalPlayer localPlayer = plugin.wrapPlayer(player);
 
         if (!hasBypass(player, world)) {
-            RegionManager mgr = get(world);
+            RequestManager mgr = get(world);
 
-            if (!mgr.getApplicableRegions(BukkitUtil.toVector(loc))
+            if (!mgr.getApplicableRequests(BukkitUtil.toVector(loc))
                     .canBuild(localPlayer)) {
                 return false;
             }
@@ -317,20 +317,20 @@ public class GlobalRegionManager {
         World world = loc.getWorld();
         WorldConfiguration worldConfig = config.get(world);
 
-        if (!worldConfig.useRegions) {
+        if (!worldConfig.useRequests) {
             return true;
         }
 
         LocalPlayer localPlayer = plugin.wrapPlayer(player);
 
         if (!hasBypass(player, world)) {
-            RegionManager mgr = get(world);
+            RequestManager mgr = get(world);
 
-            final ApplicableRegionSet applicableRegions = mgr.getApplicableRegions(BukkitUtil.toVector(loc));
-            if (!applicableRegions.canBuild(localPlayer)) {
+            final ApplicableRequestSet applicableRequests = mgr.getApplicableRequests(BukkitUtil.toVector(loc));
+            if (!applicableRequests.canBuild(localPlayer)) {
                 return false;
             }
-            if (!applicableRegions.canConstruct(localPlayer)) {
+            if (!applicableRequests.canConstruct(localPlayer)) {
                 return false;
             }
         }
@@ -355,18 +355,18 @@ public class GlobalRegionManager {
      *
      * @param flag The flag to check
      * @param loc The location to check the flag at
-     * @param player The player to check for the flag's {@link org.stakeaclaim.protection.flags.RegionGroup}
+     * @param player The player to check for the flag's {@link org.stakeaclaim.protection.flags.RequestGroup}
      * @return Whether the flag is allowed
      */
     public boolean allows(StateFlag flag, Location loc, LocalPlayer player) {
         World world = loc.getWorld();
         WorldConfiguration worldConfig = config.get(world);
 
-        if (!worldConfig.useRegions) {
+        if (!worldConfig.useRequests) {
             return true;
         }
 
-        RegionManager mgr = get(world);
-        return mgr.getApplicableRegions(toVector(loc)).allows(flag, player);
+        RequestManager mgr = get(world);
+        return mgr.getApplicableRequests(toVector(loc)).allows(flag, player);
     }
 }

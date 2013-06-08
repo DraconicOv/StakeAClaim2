@@ -19,64 +19,64 @@
 package org.stakeaclaim.protection.flags;
 
 import org.stakeaclaim.LocalPlayer;
-import org.stakeaclaim.protection.ApplicableRegionSet;
-import org.stakeaclaim.protection.regions.ProtectedRegion;
+import org.stakeaclaim.protection.ApplicableRequestSet;
+import org.stakeaclaim.protection.requests.ProtectedRequest;
 
 /**
  *
  * @author sk89q
  */
-public class RegionGroupFlag extends EnumFlag<RegionGroup> {
+public class RequestGroupFlag extends EnumFlag<RequestGroup> {
 
-    private RegionGroup def;
+    private RequestGroup def;
 
-    public RegionGroupFlag(String name, RegionGroup def) {
-        super(name, RegionGroup.class, null);
+    public RequestGroupFlag(String name, RequestGroup def) {
+        super(name, RequestGroup.class, null);
         this.def = def;
     }
 
-    public RegionGroup getDefault() {
+    public RequestGroup getDefault() {
         return def;
     }
 
     @Override
-    public RegionGroup detectValue(String input) {
+    public RequestGroup detectValue(String input) {
         input = input.trim();
 
         if (input.equalsIgnoreCase("members") || input.equalsIgnoreCase("member")) {
-            return RegionGroup.MEMBERS;
+            return RequestGroup.MEMBERS;
         } else if (input.equalsIgnoreCase("owners") || input.equalsIgnoreCase("owner")) {
-            return RegionGroup.OWNERS;
+            return RequestGroup.OWNERS;
         } else if (input.equalsIgnoreCase("nonowners") || input.equalsIgnoreCase("nonowner")) {
-            return RegionGroup.NON_OWNERS;
+            return RequestGroup.NON_OWNERS;
         } else if (input.equalsIgnoreCase("nonmembers") || input.equalsIgnoreCase("nonmember")) {
-            return RegionGroup.NON_MEMBERS;
+            return RequestGroup.NON_MEMBERS;
         } else if (input.equalsIgnoreCase("everyone") || input.equalsIgnoreCase("anyone") || input.equalsIgnoreCase("all")) {
-            return RegionGroup.ALL;
+            return RequestGroup.ALL;
         } else if (input.equalsIgnoreCase("none") || input.equalsIgnoreCase("noone") || input.equalsIgnoreCase("deny")) {
-            return RegionGroup.NONE;
+            return RequestGroup.NONE;
         } else {
             return null;
         }
     }
 
-    public static boolean isMember(ProtectedRegion region, RegionGroup group, LocalPlayer player) {
-        if (group == null || group == RegionGroup.ALL) {
+    public static boolean isMember(ProtectedRequest request, RequestGroup group, LocalPlayer player) {
+        if (group == null || group == RequestGroup.ALL) {
             return true;
-        } else if (group == RegionGroup.OWNERS) {
-            if (region.isOwner(player)) {
+        } else if (group == RequestGroup.OWNERS) {
+            if (request.isOwner(player)) {
                 return true;
             }
-        } else if (group == RegionGroup.MEMBERS) {
-            if (region.isMember(player)) {
+        } else if (group == RequestGroup.MEMBERS) {
+            if (request.isMember(player)) {
                 return true;
             }
-        } else if (group == RegionGroup.NON_OWNERS) {
-            if (!region.isOwner(player)) {
+        } else if (group == RequestGroup.NON_OWNERS) {
+            if (!request.isOwner(player)) {
                 return true;
             }
-        } else if (group == RegionGroup.NON_MEMBERS) {
-            if (!region.isMember(player)) {
+        } else if (group == RequestGroup.NON_MEMBERS) {
+            if (!request.isMember(player)) {
                 return true;
             }
         }
@@ -84,23 +84,23 @@ public class RegionGroupFlag extends EnumFlag<RegionGroup> {
         return false;
     }
 
-    public static boolean isMember(ApplicableRegionSet set,
-                                   RegionGroup group, LocalPlayer player) {
-        if (group == null || group == RegionGroup.ALL) {
+    public static boolean isMember(ApplicableRequestSet set,
+                                   RequestGroup group, LocalPlayer player) {
+        if (group == null || group == RequestGroup.ALL) {
             return true;
-        } else if (group == RegionGroup.OWNERS) {
+        } else if (group == RequestGroup.OWNERS) {
             if (set.isOwnerOfAll(player)) {
                 return true;
             }
-        } else if (group == RegionGroup.MEMBERS) {
+        } else if (group == RequestGroup.MEMBERS) {
             if (set.isMemberOfAll(player)) {
                 return true;
             }
-        } else if (group == RegionGroup.NON_OWNERS) {
+        } else if (group == RequestGroup.NON_OWNERS) {
             if (!set.isOwnerOfAll(player)) {
                 return true;
             }
-        } else if (group == RegionGroup.NON_MEMBERS) {
+        } else if (group == RequestGroup.NON_MEMBERS) {
             if (!set.isMemberOfAll(player)) {
                 return true;
             }

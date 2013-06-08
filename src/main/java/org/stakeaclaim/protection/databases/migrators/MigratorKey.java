@@ -1,6 +1,6 @@
 // $Id$
 /*
- * MySQL WordGuard Region Database
+ * MySQL WordGuard Request Database
  * Copyright (C) 2011 Nicholas Steicke <http://narthollis.net>
  *
  * This program is free software: you can redistribute it and/or modify

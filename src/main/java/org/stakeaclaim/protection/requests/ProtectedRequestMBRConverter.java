@@ -17,11 +17,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.stakeaclaim.protection.regions;
+package org.stakeaclaim.protection.requests;
 
 import org.khelekore.prtree.MBRConverter;
 
-public class ProtectedRegionMBRConverter implements MBRConverter<ProtectedRegion> {
+public class ProtectedRequestMBRConverter implements MBRConverter<ProtectedRequest> {
 
     @Override
     public int getDimensions() {
@@ -29,27 +29,27 @@ public class ProtectedRegionMBRConverter implements MBRConverter<ProtectedRegion
     }
 
     @Override
-    public double getMax(int dimension, ProtectedRegion region) {
+    public double getMax(int dimension, ProtectedRequest request) {
         switch (dimension) {
             case 0:
-                return region.getMaximumPoint().getBlockX();
+                return request.getMaximumPoint().getBlockX();
             case 1:
-                return region.getMaximumPoint().getBlockY();
+                return request.getMaximumPoint().getBlockY();
             case 2:
-                return region.getMaximumPoint().getBlockZ();
+                return request.getMaximumPoint().getBlockZ();
         }
         return 0;
     }
 
     @Override
-    public double getMin(int dimension, ProtectedRegion region) {
+    public double getMin(int dimension, ProtectedRequest request) {
         switch (dimension) {
             case 0:
-                return region.getMinimumPoint().getBlockX();
+                return request.getMinimumPoint().getBlockX();
             case 1:
-                return region.getMinimumPoint().getBlockY();
+                return request.getMinimumPoint().getBlockY();
             case 2:
-                return region.getMinimumPoint().getBlockZ();
+                return request.getMinimumPoint().getBlockZ();
         }
         return 0;
     }

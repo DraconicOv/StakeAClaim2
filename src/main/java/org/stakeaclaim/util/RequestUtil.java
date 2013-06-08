@@ -20,17 +20,17 @@
 package org.stakeaclaim.util;
 
 import org.stakeaclaim.domains.DefaultDomain;
-import org.stakeaclaim.protection.databases.RegionDBUtil;
+import org.stakeaclaim.protection.databases.RequestDBUtil;
 
 /**
- * Various utility functions for regions.
+ * Various utility functions for requests.
  * 
  * @author sk89q
  */
 @Deprecated
-public class RegionUtil {
+public class RequestUtil {
     
-    private RegionUtil() {
+    private RequestUtil() {
     }
 
     /**
@@ -39,12 +39,12 @@ public class RegionUtil {
      * @param domain The domain
      * @param split The arguments
      * @param startIndex The index to start at
-     * @deprecated see {@link RegionDBUtil#addToDomain(org.stakeaclaim.domains.DefaultDomain, String[], int)}
+     * @deprecated see {@link RequestDBUtil#addToDomain(org.stakeaclaim.domains.DefaultDomain, String[], int)}
      */
     @Deprecated
     public static void addToDomain(DefaultDomain domain, String[] split,
             int startIndex) {
-        RegionDBUtil.addToDomain(domain, split, startIndex);
+        RequestDBUtil.addToDomain(domain, split, startIndex);
     }
 
     /**
@@ -53,12 +53,12 @@ public class RegionUtil {
      * @param domain The domain to add to
      * @param split The arguments
      * @param startIndex The index to start at
-     * @deprecated see {@link RegionDBUtil#removeFromDomain(org.stakeaclaim.domains.DefaultDomain, String[], int)}
+     * @deprecated see {@link RequestDBUtil#removeFromDomain(org.stakeaclaim.domains.DefaultDomain, String[], int)}
      */
     @Deprecated
     public static void removeFromDomain(DefaultDomain domain, String[] split,
             int startIndex) {
-        RegionDBUtil.removeFromDomain(domain, split, startIndex);
+        RequestDBUtil.removeFromDomain(domain, split, startIndex);
     }
 
     /**
@@ -66,11 +66,11 @@ public class RegionUtil {
      *
      * @param split The arguments
      * @param startIndex The index to start at
-     * @deprecated see {@link RegionDBUtil#parseDomainString(String[], int)}
+     * @deprecated see {@link RequestDBUtil#parseDomainString(String[], int)}
      * @return the parsed domain
      */
     @Deprecated
     public static DefaultDomain parseDomainString(String[] split, int startIndex) {
-        return RegionDBUtil.parseDomainString(split, startIndex);
+        return RequestDBUtil.parseDomainString(split, startIndex);
     }
 }

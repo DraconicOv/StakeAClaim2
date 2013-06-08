@@ -28,7 +28,7 @@ import org.stakeaclaim.bukkit.StakeAClaimPlugin;
  */
 public class DoubleFlag extends Flag<Double> {
 
-    public DoubleFlag(String name, RegionGroup defaultGroup) {
+    public DoubleFlag(String name, RequestGroup defaultGroup) {
         super(name, defaultGroup);
     }
 

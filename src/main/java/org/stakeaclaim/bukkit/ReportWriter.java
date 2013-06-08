@@ -35,12 +35,12 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 
-import org.stakeaclaim.protection.GlobalRegionManager;
+import org.stakeaclaim.protection.GlobalRequestManager;
 import org.stakeaclaim.protection.flags.DefaultFlag;
 import org.stakeaclaim.protection.flags.Flag;
 import org.stakeaclaim.protection.flags.StateFlag;
-import org.stakeaclaim.protection.managers.RegionManager;
-import org.stakeaclaim.protection.regions.ProtectedRegion;
+import org.stakeaclaim.protection.managers.RequestManager;
+import org.stakeaclaim.protection.requests.ProtectedRequest;
 import org.stakeaclaim.util.LogListBlock;
 
 public class ReportWriter {
@@ -58,7 +58,7 @@ public class ReportWriter {
         appendWorldInformation(plugin.getServer().getWorlds());
         appendGlobalConfiguration(plugin.getGlobalStateManager());
         appendWorldConfigurations(plugin, plugin.getServer().getWorlds(),
-                plugin.getGlobalRegionManager(), plugin.getGlobalStateManager());
+                plugin.getGlobalRequestManager(), plugin.getGlobalStateManager());
         appendln("-------------");
         appendln("END OF REPORT");
         appendln();
@@ -244,7 +244,7 @@ public class ReportWriter {
     }
     
     private void appendWorldConfigurations(StakeAClaimPlugin plugin, List<World> worlds,
-            GlobalRegionManager regionMgr, ConfigurationManager mgr) {
+            GlobalRequestManager requestMgr, ConfigurationManager mgr) {
         appendHeader("World Configurations");
         
         LogListBlock log = new LogListBlock();
@@ -255,15 +255,15 @@ public class ReportWriter {
             LogListBlock infoLog = worldLog.putChild("Information");
             LogListBlock configLog = worldLog.putChild("Configuration");
             LogListBlock blacklistLog = worldLog.putChild("Blacklist");
-            LogListBlock regionsLog = worldLog.putChild("Region manager");
+            LogListBlock requestsLog = worldLog.putChild("Request manager");
 
             infoLog.put("Configuration file", (new File(plugin.getDataFolder(), "worlds/"
                     + world.getName() + "/config.yml")).getAbsoluteFile());
 
             infoLog.put("Blacklist file", (new File(plugin.getDataFolder(), "worlds/"
                     + world.getName() + "/blacklist.txt")).getAbsoluteFile());
-            infoLog.put("Regions file", (new File(plugin.getDataFolder(), "worlds/"
-                    + world.getName() + "/regions.yml")).getAbsoluteFile());
+            infoLog.put("Requests file", (new File(plugin.getDataFolder(), "worlds/"
+                    + world.getName() + "/requests.yml")).getAbsoluteFile());
             
             WorldConfiguration config = mgr.get(world);
             
@@ -288,20 +288,20 @@ public class ReportWriter {
 //                        config.getBlacklist().isWhitelist());
 //            }
 
-            RegionManager worldRegions = regionMgr.get(world);
+            RequestManager worldRequests = requestMgr.get(world);
 
-            regionsLog.put("Type", worldRegions.getClass().getCanonicalName());
-            regionsLog.put("Number of regions", worldRegions.getRegions().size());
-            LogListBlock globalRegionLog = regionsLog.putChild("Global region");
+            requestsLog.put("Type", worldRequests.getClass().getCanonicalName());
+            requestsLog.put("Number of requests", worldRequests.getRequests().size());
+            LogListBlock globalRequestLog = requestsLog.putChild("Global request");
             
-            ProtectedRegion globalRegion = worldRegions.getRegion("__global__");
-            if (globalRegion == null) {
-                globalRegionLog.put("Status", "UNDEFINED");
+            ProtectedRequest globalRequest = worldRequests.getRequest("__global__");
+            if (globalRequest == null) {
+                globalRequestLog.put("Status", "UNDEFINED");
             } else {
                 for (Flag<?> flag : DefaultFlag.getFlags()) {
                     if (flag instanceof StateFlag) {
-                        globalRegionLog.put(flag.getName(),
-                                globalRegion.getFlag(flag));
+                        globalRequestLog.put(flag.getName(),
+                                globalRequest.getFlag(flag));
                     }
                 }
             }

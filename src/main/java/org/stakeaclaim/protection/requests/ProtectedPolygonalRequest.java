@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.stakeaclaim.protection.regions;
+package org.stakeaclaim.protection.requests;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,13 +25,13 @@ import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.Vector;
 import org.stakeaclaim.protection.UnsupportedIntersectionException;
 
-public class ProtectedPolygonalRegion extends ProtectedRegion {
+public class ProtectedPolygonalRequest extends ProtectedRequest {
 
     protected List<BlockVector2D> points;
     protected int minY;
     protected int maxY;
 
-    public ProtectedPolygonalRegion(String id, List<BlockVector2D> points, int minY, int maxY) {
+    public ProtectedPolygonalRequest(String id, List<BlockVector2D> points, int minY, int maxY) {
         super(id);
         this.points = points;
         setMinMaxPoints(points, minY, maxY);
@@ -42,7 +42,7 @@ public class ProtectedPolygonalRegion extends ProtectedRegion {
     /**
      * Sets the min and max points from all the 2d points and the min/max Y values
      *
-     * @param points2D A {@link List} of points that this region should contain
+     * @param points2D A {@link List} of points that this request should contain
      * @param minY The minimum y coordinate
      * @param maxY The maximum y coordinate
      */
@@ -61,7 +61,7 @@ public class ProtectedPolygonalRegion extends ProtectedRegion {
     }
 
     /**
-     * Checks to see if a point is inside this region.
+     * Checks to see if a point is inside this request.
      */
     @Override
     public boolean contains(Vector pt) {
@@ -123,33 +123,33 @@ public class ProtectedPolygonalRegion extends ProtectedRegion {
     }
 
     @Override
-    public List<ProtectedRegion> getIntersectingRegions(List<ProtectedRegion> regions) throws UnsupportedIntersectionException {
-        List<ProtectedRegion> intersectingRegions = new ArrayList<ProtectedRegion>();
+    public List<ProtectedRequest> getIntersectingRequests(List<ProtectedRequest> requests) throws UnsupportedIntersectionException {
+        List<ProtectedRequest> intersectingRequests = new ArrayList<ProtectedRequest>();
 
-        for (ProtectedRegion region : regions) {
-            if (!intersectsBoundingBox(region)) continue;
+        for (ProtectedRequest request : requests) {
+            if (!intersectsBoundingBox(request)) continue;
 
-            if (region instanceof ProtectedPolygonalRegion || region instanceof ProtectedCuboidRegion) {
-                // If either region contains the points of the other,
-                // or if any edges intersect, the regions intersect
-                if (containsAny(region.getPoints())
-                        || region.containsAny(getPoints())
-                        || intersectsEdges(region)) {
-                    intersectingRegions.add(region);
+            if (request instanceof ProtectedPolygonalRequest || request instanceof ProtectedCuboidRequest) {
+                // If either request contains the points of the other,
+                // or if any edges intersect, the requests intersect
+                if (containsAny(request.getPoints())
+                        || request.containsAny(getPoints())
+                        || intersectsEdges(request)) {
+                    intersectingRequests.add(request);
                     continue;
                 }
             } else {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
         }
-        return intersectingRegions;
+        return intersectingRequests;
     }
 
 
     /**
-     * Return the type of region as a user-friendly name.
+     * Return the type of request as a user-friendly name.
      *
-     * @return type of region
+     * @return type of request
      */
     @Override
     public String getTypeName() {

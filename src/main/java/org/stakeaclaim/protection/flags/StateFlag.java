@@ -35,7 +35,7 @@ public class StateFlag extends Flag<StateFlag.State> {
 
     private boolean def;
 
-    public StateFlag(String name, boolean def, RegionGroup defaultGroup) {
+    public StateFlag(String name, boolean def, RequestGroup defaultGroup) {
         super(name, defaultGroup);
         this.def = def;
     }

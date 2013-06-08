@@ -21,52 +21,52 @@ package org.stakeaclaim.protection;
 import org.stakeaclaim.LocalPlayer;
 import org.stakeaclaim.protection.flags.*;
 import org.stakeaclaim.protection.flags.StateFlag.State;
-import org.stakeaclaim.protection.regions.ProtectedRegion;
+import org.stakeaclaim.protection.requests.ProtectedRequest;
 
 import java.util.*;
 
 /**
- * Represents a set of regions for a particular point or area and the rules
+ * Represents a set of requests for a particular point or area and the rules
  * that are represented by that set. An instance of this can be used to
  * query the value of a flag or check if a player can build in the respective
- * region or point. This object contains the list of applicable regions and so
- * the expensive search of regions that are in the desired area has already
+ * request or point. This object contains the list of applicable requests and so
+ * the expensive search of requests that are in the desired area has already
  * been completed.
  * 
  * @author sk89q
  */
-public class ApplicableRegionSet implements Iterable<ProtectedRegion> {
+public class ApplicableRequestSet implements Iterable<ProtectedRequest> {
 
-    private Collection<ProtectedRegion> applicable;
-    private ProtectedRegion globalRegion;
+    private Collection<ProtectedRequest> applicable;
+    private ProtectedRequest globalRequest;
 
     /**
      * Construct the object.
      * 
-     * @param applicable The regions contained in this set
-     * @param globalRegion The global region, set aside for special handling.
+     * @param applicable The requests contained in this set
+     * @param globalRequest The global request, set aside for special handling.
      */
-    public ApplicableRegionSet(Collection<ProtectedRegion> applicable,
-            ProtectedRegion globalRegion) {
+    public ApplicableRequestSet(Collection<ProtectedRequest> applicable,
+            ProtectedRequest globalRequest) {
         this.applicable = applicable;
-        this.globalRegion = globalRegion;
+        this.globalRequest = globalRequest;
     }
 
     /* MCA add start */
     /**
-     * Gets the region that is a claim.
+     * Gets the request that is a claim.
      * 
-     * @return the region that is a claim, if there are more or less than 1, null.
+     * @return the request that is a claim, if there are more or less than 1, null.
      */
-    public ProtectedRegion getClaim() {
-        ProtectedRegion claim = null;
-        ProtectedRegion parent = null;
-        for (ProtectedRegion region : this) {
-            parent = region.getParent();
+    public ProtectedRequest getClaim() {
+        ProtectedRequest claim = null;
+        ProtectedRequest parent = null;
+        for (ProtectedRequest request : this) {
+            parent = request.getParent();
             if (parent != null) {
                 if (!parent.getId().equals("world")) {
                     if (claim == null) {
-                        claim = region;
+                        claim = request;
                     } else {
                         return null;
                     }
@@ -88,8 +88,8 @@ public class ApplicableRegionSet implements Iterable<ProtectedRegion> {
     }
 
     public boolean canConstruct(LocalPlayer player) {
-        final RegionGroup flag = getFlag(DefaultFlag.CONSTRUCT, player);
-        return RegionGroupFlag.isMember(this, flag, player);
+        final RequestGroup flag = getFlag(DefaultFlag.CONSTRUCT, player);
+        return RequestGroupFlag.isMember(this, flag, player);
     }
 
     /**
@@ -135,14 +135,14 @@ public class ApplicableRegionSet implements Iterable<ProtectedRegion> {
     }
     
     /**
-     * Indicates whether a player is an owner of all regions in this set.
+     * Indicates whether a player is an owner of all requests in this set.
      * 
      * @param player player
-     * @return whether the player is an owner of all regions
+     * @return whether the player is an owner of all requests
      */
     public boolean isOwnerOfAll(LocalPlayer player) {
-        for (ProtectedRegion region : applicable) {
-            if (!region.isOwner(player)) {
+        for (ProtectedRequest request : applicable) {
+            if (!request.isOwner(player)) {
                 return false;
             }
         }
@@ -151,15 +151,15 @@ public class ApplicableRegionSet implements Iterable<ProtectedRegion> {
     }
     
     /**
-     * Indicates whether a player is an owner or member of all regions in
+     * Indicates whether a player is an owner or member of all requests in
      * this set.
      * 
      * @param player player
-     * @return whether the player is a member of all regions
+     * @return whether the player is a member of all requests
      */
     public boolean isMemberOfAll(LocalPlayer player) {
-        for (ProtectedRegion region : applicable) {
-            if (!region.isMember(player)) {
+        for (ProtectedRequest request : applicable) {
+            if (!request.isMember(player)) {
                 return false;
             }
         }
@@ -183,30 +183,30 @@ public class ApplicableRegionSet implements Iterable<ProtectedRegion> {
         boolean def = flag.getDefault();
         
         // Handle defaults
-        if (globalRegion != null) {
-            State globalState = globalRegion.getFlag(flag);
+        if (globalRequest != null) {
+            State globalState = globalRequest.getFlag(flag);
 
-            // The global region has this flag set
+            // The global request has this flag set
             if (globalState != null) {
                 // Build flag is very special
-                if (player != null && globalRegion.hasMembersOrOwners()) {
-                    def = globalRegion.isMember(player) && (globalState == State.ALLOW);
+                if (player != null && globalRequest.hasMembersOrOwners()) {
+                    def = globalRequest.isMember(player) && (globalState == State.ALLOW);
                 } else {
                     def = (globalState == State.ALLOW);
                 }
             } else {
                 // Build flag is very special
-                if (player != null && globalRegion.hasMembersOrOwners()) {
-                    def = globalRegion.isMember(player);
+                if (player != null && globalRequest.hasMembersOrOwners()) {
+                    def = globalRequest.isMember(player);
                 }
             }
         }
         
         // The player argument is used if and only if the flag is the build
-        // flag -- in which case, if there are any regions in this area, we
-        // default to FALSE, otherwise true if there are no defined regions.
-        // However, other flags are different -- if there are regions defined,
-        // we default to the global region value. 
+        // flag -- in which case, if there are any requests in this area, we
+        // default to FALSE, otherwise true if there are no defined requests.
+        // However, other flags are different -- if there are requests defined,
+        // we default to the global request value. 
         if (player == null) {
             allowed = def; 
         }
@@ -214,7 +214,7 @@ public class ApplicableRegionSet implements Iterable<ProtectedRegion> {
         int lastPriority = Integer.MIN_VALUE;
 
         // The algorithm is as follows:
-        // While iterating through the list of regions, if an entry disallows
+        // While iterating through the list of requests, if an entry disallows
         // the flag, then put it into the needsClear set. If an entry allows
         // the flag and it has a parent, then its parent is put into hasCleared.
         // In the situation that the child is reached before the parent, upon
@@ -228,42 +228,42 @@ public class ApplicableRegionSet implements Iterable<ProtectedRegion> {
         // and one child does not allow permissions, then it will be placed into
         // needsClear just like as if was a parent.
 
-        Set<ProtectedRegion> needsClear = new HashSet<ProtectedRegion>();
-        Set<ProtectedRegion> hasCleared = new HashSet<ProtectedRegion>();
+        Set<ProtectedRequest> needsClear = new HashSet<ProtectedRequest>();
+        Set<ProtectedRequest> hasCleared = new HashSet<ProtectedRequest>();
 
-        for (ProtectedRegion region : applicable) {
-            // Ignore lower priority regions
-            if (hasFlagDefined && region.getPriority() < lastPriority) {
+        for (ProtectedRequest request : applicable) {
+            // Ignore lower priority requests
+            if (hasFlagDefined && request.getPriority() < lastPriority) {
                 break;
             }
 
-            lastPriority = region.getPriority();
+            lastPriority = request.getPriority();
 
-            // Ignore non-build regions
+            // Ignore non-build requests
             if (player != null
-                    && region.getFlag(DefaultFlag.PASSTHROUGH) == State.ALLOW) {
+                    && request.getFlag(DefaultFlag.PASSTHROUGH) == State.ALLOW) {
                 continue;
             }
 
             // Check group permissions
-            if (groupPlayer != null && flag.getRegionGroupFlag() != null) {
-                RegionGroup group = region.getFlag(flag.getRegionGroupFlag());
+            if (groupPlayer != null && flag.getRequestGroupFlag() != null) {
+                RequestGroup group = request.getFlag(flag.getRequestGroupFlag());
                 if (group == null) {
-                    group = flag.getRegionGroupFlag().getDefault();
+                    group = flag.getRequestGroupFlag().getDefault();
                 }
-                if (!RegionGroupFlag.isMember(region, group, groupPlayer)) {
+                if (!RequestGroupFlag.isMember(request, group, groupPlayer)) {
                     continue;
                 }
             }
 
-            State v = region.getFlag(flag);
+            State v = request.getFlag(flag);
 
             // Allow DENY to override everything
             if (v == State.DENY) {
                 return false;
             }
 
-            // Forget about regions that allow it, although make sure the
+            // Forget about requests that allow it, although make sure the
             // default state is now to allow
             if (v == State.ALLOW) {
                 allowed = true;
@@ -278,14 +278,14 @@ public class ApplicableRegionSet implements Iterable<ProtectedRegion> {
             if (player != null) {
                 hasFlagDefined = true;
 
-                if (hasCleared.contains(region)) {
+                if (hasCleared.contains(request)) {
                     // Already cleared, so do nothing
                 } else {
-                    if (!region.isMember(player)) {
-                        needsClear.add(region);
+                    if (!request.isMember(player)) {
+                        needsClear.add(request);
                     } else {
                         // Need to clear all parents
-                        clearParents(needsClear, hasCleared, region);
+                        clearParents(needsClear, hasCleared, request);
                     }
                 }
             }
@@ -298,15 +298,15 @@ public class ApplicableRegionSet implements Iterable<ProtectedRegion> {
     }
 
     /**
-     * Clear a region's parents for isFlagAllowed().
+     * Clear a request's parents for isFlagAllowed().
      * 
-     * @param needsClear The regions that should be cleared
-     * @param hasCleared The regions already cleared
-     * @param region The region to start from
+     * @param needsClear The requests that should be cleared
+     * @param hasCleared The requests already cleared
+     * @param request The request to start from
      */
-    private void clearParents(Set<ProtectedRegion> needsClear,
-            Set<ProtectedRegion> hasCleared, ProtectedRegion region) {
-        ProtectedRegion parent = region.getParent();
+    private void clearParents(Set<ProtectedRequest> needsClear,
+            Set<ProtectedRequest> hasCleared, ProtectedRequest request) {
+        ProtectedRequest parent = request.getParent();
 
         while (parent != null) {
             if (!needsClear.remove(parent)) {
@@ -331,7 +331,7 @@ public class ApplicableRegionSet implements Iterable<ProtectedRegion> {
      * (use {@link #allows(StateFlag, LocalPlayer)} for that).
      * 
      * @param flag flag to check
-     * @param groupPlayer player to check {@link RegionGroup}s against
+     * @param groupPlayer player to check {@link RequestGroup}s against
      * @return value of the flag
      * @throws IllegalArgumentException if a StateFlag is given
      */
@@ -345,44 +345,44 @@ public class ApplicableRegionSet implements Iterable<ProtectedRegion> {
         int lastPriority = 0;
         boolean found = false;
 
-        Map<ProtectedRegion, V> needsClear = new HashMap<ProtectedRegion, V>();
-        Set<ProtectedRegion> hasCleared = new HashSet<ProtectedRegion>();
+        Map<ProtectedRequest, V> needsClear = new HashMap<ProtectedRequest, V>();
+        Set<ProtectedRequest> hasCleared = new HashSet<ProtectedRequest>();
 
-        for (ProtectedRegion region : applicable) {
-            // Ignore lower priority regions
-            if (found && region.getPriority() < lastPriority) {
+        for (ProtectedRequest request : applicable) {
+            // Ignore lower priority requests
+            if (found && request.getPriority() < lastPriority) {
                 break;
             }
 
             // Check group permissions
-            if (groupPlayer != null && flag.getRegionGroupFlag() != null) {
-                RegionGroup group = region.getFlag(flag.getRegionGroupFlag());
+            if (groupPlayer != null && flag.getRequestGroupFlag() != null) {
+                RequestGroup group = request.getFlag(flag.getRequestGroupFlag());
                 if (group == null) {
-                    group = flag.getRegionGroupFlag().getDefault();
+                    group = flag.getRequestGroupFlag().getDefault();
                 }
-                if (!RegionGroupFlag.isMember(region, group, groupPlayer)) {
+                if (!RequestGroupFlag.isMember(request, group, groupPlayer)) {
                     continue;
                 }
             }
 
-            if (hasCleared.contains(region)) {
+            if (hasCleared.contains(request)) {
                 // Already cleared, so do nothing
-            } else if (region.getFlag(flag) != null) {
-                clearParents(needsClear, hasCleared, region);
+            } else if (request.getFlag(flag) != null) {
+                clearParents(needsClear, hasCleared, request);
 
-                needsClear.put(region, region.getFlag(flag));
+                needsClear.put(request, request.getFlag(flag));
 
                 found = true;
             }
 
-            lastPriority = region.getPriority();
+            lastPriority = request.getPriority();
         }
         
         try {
             return needsClear.values().iterator().next();
         } catch (NoSuchElementException e) {
-            if (globalRegion != null) {
-                V gFlag = globalRegion.getFlag(flag);
+            if (globalRequest != null) {
+                V gFlag = globalRequest.getFlag(flag);
                 if (gFlag != null) return gFlag;
             }
             return null;
@@ -390,15 +390,15 @@ public class ApplicableRegionSet implements Iterable<ProtectedRegion> {
     }
 
     /**
-     * Clear a region's parents for getFlag().
+     * Clear a request's parents for getFlag().
      * 
-     * @param needsClear The regions that should be cleared
-     * @param hasCleared The regions already cleared
-     * @param region The region to start from
+     * @param needsClear The requests that should be cleared
+     * @param hasCleared The requests already cleared
+     * @param request The request to start from
      */
-    private void clearParents(Map<ProtectedRegion, ?> needsClear,
-            Set<ProtectedRegion> hasCleared, ProtectedRegion region) {
-        ProtectedRegion parent = region.getParent();
+    private void clearParents(Map<ProtectedRequest, ?> needsClear,
+            Set<ProtectedRequest> hasCleared, ProtectedRequest request) {
+        ProtectedRequest parent = request.getParent();
 
         while (parent != null) {
             if (needsClear.remove(parent) == null) {
@@ -410,18 +410,18 @@ public class ApplicableRegionSet implements Iterable<ProtectedRegion> {
     }
     
     /**
-     * Get the number of regions that are included.
+     * Get the number of requests that are included.
      * 
-     * @return the size of this ApplicbleRegionSet
+     * @return the size of this ApplicbleRequestSet
      */
     public int size() {
         return applicable.size();
     }
     
     /**
-     * Get an iterator of affected regions.
+     * Get an iterator of affected requests.
      */
-    public Iterator<ProtectedRegion> iterator() {
+    public Iterator<ProtectedRequest> iterator() {
         return applicable.iterator();
     }
 }

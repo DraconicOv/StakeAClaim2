@@ -21,52 +21,52 @@ package org.stakeaclaim.protection.databases;
 
 import java.util.Map;
 
-import org.stakeaclaim.protection.managers.RegionManager;
-import org.stakeaclaim.protection.regions.ProtectedRegion;
+import org.stakeaclaim.protection.managers.RequestManager;
+import org.stakeaclaim.protection.requests.ProtectedRequest;
 
 /**
- * Represents a database to read and write lists of regions from and to.
+ * Represents a database to read and write lists of requests from and to.
  *
  * @author sk89q
  */
 public interface ProtectionDatabase {
     /**
-     * Load the list of regions. The method should not modify the list returned
-     * by getRegions() unless the load finishes successfully.
+     * Load the list of requests. The method should not modify the list returned
+     * by getRequests() unless the load finishes successfully.
      *
      * @throws ProtectionDatabaseException when an error occurs
      */
     public void load() throws ProtectionDatabaseException;
     /**
-     * Save the list of regions.
+     * Save the list of requests.
      *
      * @throws ProtectionDatabaseException when an error occurs
      */
     public void save() throws ProtectionDatabaseException;
     /**
-     * Load the list of regions into a region manager.
+     * Load the list of requests into a request manager.
      *
-     * @param manager The manager to load regions into
+     * @param manager The manager to load requests into
      * @throws ProtectionDatabaseException when an error occurs
      */
-    public void load(RegionManager manager) throws ProtectionDatabaseException;
+    public void load(RequestManager manager) throws ProtectionDatabaseException;
     /**
-     * Save the list of regions from a region manager.
+     * Save the list of requests from a request manager.
      *
-     * @param manager The manager to load regions into
+     * @param manager The manager to load requests into
      * @throws ProtectionDatabaseException when an error occurs
      */
-    public void save(RegionManager manager) throws ProtectionDatabaseException;
+    public void save(RequestManager manager) throws ProtectionDatabaseException;
     /**
-     * Get a list of regions.
+     * Get a list of requests.
      *
-     * @return the regions loaded by this ProtectionDatabase
+     * @return the requests loaded by this ProtectionDatabase
      */
-    public Map<String,ProtectedRegion> getRegions();
+    public Map<String,ProtectedRequest> getRequests();
     /**
-     * Set the list of regions.
+     * Set the list of requests.
      *
-     * @param regions The regions to be applied to this ProtectionDatabase
+     * @param requests The requests to be applied to this ProtectionDatabase
      */
-    public void setRegions(Map<String,ProtectedRegion> regions);
+    public void setRequests(Map<String,ProtectedRequest> requests);
 }
