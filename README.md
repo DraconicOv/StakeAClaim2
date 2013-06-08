@@ -1,7 +1,7 @@
-![WorldGuard](http://static.sk89q.com/readme/worldguard.png)
+![StakeAClaim](http://static.sk89q.com/readme/worldguard.png)
 ==========
 
-WorldGuard is a toolbox of various functions, useful for multiplayer servers, that lets you:
+StakeAClaim is a toolbox of various functions, useful for multiplayer servers, that lets you:
 
 * Protect your server from a number of problems.
 * Block fire spread, lava spread, endermen, and more.
@@ -9,7 +9,7 @@ WorldGuard is a toolbox of various functions, useful for multiplayer servers, th
 * Assign ownership to areas so only selected individuals can build.
 * Use a number of useful commands.
 
-WorldGuard is open source and is available under the GNU General Public License v3.
+StakeAClaim is open source and is available under the GNU General Public License v3.
 
 Compiling
 ---------

@@ -1,6 +1,6 @@
 // $Id$
 /*
- * WorldGuard
+ * StakeAClaim
  * Copyright (C) 2010 sk89q <http://www.sk89q.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -46,7 +46,7 @@ import com.sk89q.worldedit.bukkit.selections.Polygonal2DSelection;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import org.stakeaclaim.LocalPlayer;
 import org.stakeaclaim.bukkit.WorldConfiguration;
-import org.stakeaclaim.bukkit.WorldGuardPlugin;
+import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 import org.stakeaclaim.domains.DefaultDomain;
 import org.stakeaclaim.protection.ApplicableRegionSet;
 import org.stakeaclaim.protection.databases.ProtectionDatabaseException;
@@ -67,12 +67,12 @@ import org.stakeaclaim.protection.regions.ProtectedRegion;
 import org.stakeaclaim.protection.regions.ProtectedRegion.CircularInheritanceException;
 
 public class RegionCommands {
-    private final WorldGuardPlugin plugin;
+    private final StakeAClaimPlugin plugin;
 
     private MigratorKey migrateDBRequest;
     private Date migrateDBRequestDate;
 
-    public RegionCommands(WorldGuardPlugin plugin) {
+    public RegionCommands(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -119,7 +119,7 @@ public class RegionCommands {
             region = new ProtectedCuboidRegion(id, min, max);
         } else {
             throw new CommandException(
-                    "The type of region selected in WorldEdit is unsupported in WorldGuard!");
+                    "The type of region selected in WorldEdit is unsupported in StakeAClaim!");
         }
 
         // Get the list of region owners
@@ -188,7 +188,7 @@ public class RegionCommands {
             region = new ProtectedCuboidRegion(id, min, max);
         } else {
             throw new CommandException(
-                    "The type of region selected in WorldEdit is unsupported in WorldGuard!");
+                    "The type of region selected in WorldEdit is unsupported in StakeAClaim!");
         }
 
         region.setMembers(existing.getMembers());
@@ -257,7 +257,7 @@ public class RegionCommands {
             region = new ProtectedCuboidRegion(id, min, max);
         } else {
             throw new CommandException(
-                    "The type of region selected in WorldEdit is unsupported in WorldGuard!");
+                    "The type of region selected in WorldEdit is unsupported in StakeAClaim!");
         }
 
         // Get the list of region owners
@@ -1151,7 +1151,7 @@ public class RegionCommands {
         Class<? extends AbstractDatabaseMigrator> cls = migrators.get(key);
 
         try {
-            AbstractDatabaseMigrator migrator = cls.getConstructor(WorldGuardPlugin.class).newInstance(plugin);
+            AbstractDatabaseMigrator migrator = cls.getConstructor(StakeAClaimPlugin.class).newInstance(plugin);
 
             migrator.migrate();
         } catch (IllegalArgumentException ignore) {
@@ -1165,7 +1165,7 @@ public class RegionCommands {
         }
 
         sender.sendMessage(ChatColor.YELLOW + "Regions have been migrated successfully.\n" +
-                "If you wish to use the destination format as your new backend, please update your config and reload WorldGuard.");
+                "If you wish to use the destination format as your new backend, please update your config and reload StakeAClaim.");
     }
 
     @Command(aliases = {"teleport", "tp"}, usage = "<id>", flags = "s",

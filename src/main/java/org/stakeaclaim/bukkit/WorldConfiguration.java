@@ -1,6 +1,6 @@
 // $Id$
 /*
- * WorldGuard
+ * StakeAClaim
  * Copyright (C) 2010 sk89q <http://www.sk89q.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -54,7 +54,7 @@ import com.sk89q.util.yaml.YAMLProcessor;
 public class WorldConfiguration {
 
     public static final String CONFIG_HEADER = "#\r\n" +
-            "# WorldGuard's world configuration file\r\n" +
+            "# StakeAClaim's world configuration file\r\n" +
             "#\r\n" +
             "# This is a world configuration file. Anything placed into here will only\r\n" +
             "# affect this world. If you don't put anything in this file, then the\r\n" +
@@ -64,7 +64,7 @@ public class WorldConfiguration {
             "# Remove the {} and add your own entries.\r\n" +
             "#\r\n";
 
-    private WorldGuardPlugin plugin;
+    private StakeAClaimPlugin plugin;
 
     private String worldName;
     private YAMLProcessor parentConfig;
@@ -172,11 +172,11 @@ public class WorldConfiguration {
     /**
      * Construct the object.
      *
-     * @param plugin The WorldGuardPlugin instance
+     * @param plugin The StakeAClaimPlugin instance
      * @param worldName The world name that this WorldConfiguration is for.
      * @param parentConfig The parent configuration to read defaults from
      */
-    public WorldConfiguration(WorldGuardPlugin plugin, String worldName, YAMLProcessor parentConfig) {
+    public WorldConfiguration(StakeAClaimPlugin plugin, String worldName, YAMLProcessor parentConfig) {
         File baseFolder = new File(plugin.getDataFolder(), "worlds/" + worldName);
         File configFile = new File(baseFolder, "config.yml");
         blacklistFile = new File(baseFolder, "blacklist.txt");
@@ -491,9 +491,9 @@ public class WorldConfiguration {
 //                }
 //            }
 //        } catch (FileNotFoundException e) {
-//            plugin.getLogger().log(Level.WARNING, "WorldGuard blacklist does not exist.");
+//            plugin.getLogger().log(Level.WARNING, "StakeAClaim blacklist does not exist.");
 //        } catch (IOException e) {
-//            plugin.getLogger().log(Level.WARNING, "Could not load WorldGuard blacklist: "
+//            plugin.getLogger().log(Level.WARNING, "Could not load StakeAClaim blacklist: "
 //                    + e.getMessage());
 //        }
 

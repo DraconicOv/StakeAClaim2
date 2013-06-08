@@ -1,6 +1,6 @@
 // $Id$
 /*
- * WorldGuard
+ * StakeAClaim
  * Copyright (C) 2010 sk89q <http://www.sk89q.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,7 +20,7 @@ package org.stakeaclaim.protection.flags;
 
 import org.bukkit.command.CommandSender;
 
-import org.stakeaclaim.bukkit.WorldGuardPlugin;
+import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 
 /**
  *
@@ -52,7 +52,7 @@ public abstract class Flag<T> {
         return regionGroup;
     }
 
-    public abstract T parseInput(WorldGuardPlugin plugin, CommandSender sender,
+    public abstract T parseInput(StakeAClaimPlugin plugin, CommandSender sender,
             String input) throws InvalidFlagFormat;
 
     public abstract T unmarshal(Object o);

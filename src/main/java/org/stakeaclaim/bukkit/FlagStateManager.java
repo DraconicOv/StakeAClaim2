@@ -1,6 +1,6 @@
 // $Id$
 /*
- * WorldGuard
+ * StakeAClaim
  * Copyright (C) 2010 sk89q <http://www.sk89q.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -42,7 +42,7 @@ public class FlagStateManager implements Runnable {
 
     public static final int RUN_DELAY = 20;
 
-    private WorldGuardPlugin plugin;
+    private StakeAClaimPlugin plugin;
     private Map<String, PlayerFlagState> states;
 
     /**
@@ -50,7 +50,7 @@ public class FlagStateManager implements Runnable {
      *
      * @param plugin The plugin instance
      */
-    public FlagStateManager(WorldGuardPlugin plugin) {
+    public FlagStateManager(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
 
         states = new HashMap<String, PlayerFlagState>();

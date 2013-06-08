@@ -1,6 +1,6 @@
 // $Id$
 /*
- * WorldGuard
+ * StakeAClaim
  * Copyright (C) 2010 sk89q <http://www.sk89q.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -31,11 +31,11 @@ import org.stakeaclaim.protection.managers.RegionManager;
 
 public class RegionQueryUtil {
 
-    public static boolean isInvincible(WorldGuardPlugin plugin, Player player) {
+    public static boolean isInvincible(StakeAClaimPlugin plugin, Player player) {
         return isInvincible(plugin, player, null);
     }
 
-    public static boolean isInvincible(WorldGuardPlugin plugin, Player player,
+    public static boolean isInvincible(StakeAClaimPlugin plugin, Player player,
                                        ApplicableRegionSet set) {
         Location loc = player.getLocation();
         World world = player.getWorld();
@@ -65,7 +65,7 @@ public class RegionQueryUtil {
         return state.wasInvincible;
     }
 
-    public static Boolean isAllowedInvinciblity(WorldGuardPlugin plugin, Player player) {
+    public static Boolean isAllowedInvinciblity(StakeAClaimPlugin plugin, Player player) {
         World world = player.getWorld();
         FlagStateManager.PlayerFlagState state = plugin.getFlagStateManager().getState(player);
         Vector vec = new Vector(state.lastInvincibleX, state.lastInvincibleY, state.lastInvincibleZ);

@@ -1,6 +1,6 @@
 // $Id$
 /*
- * WorldGuard ProtectionDatabaseException
+ * StakeAClaim ProtectionDatabaseException
  * Copyright (C) 2011 Nicholas Steicke <http://narthollis.net>
  *
  * This program is free software: you can redistribute it and/or modify

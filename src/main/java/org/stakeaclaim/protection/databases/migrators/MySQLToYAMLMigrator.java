@@ -20,7 +20,7 @@
 package org.stakeaclaim.protection.databases.migrators;
 
 import org.stakeaclaim.bukkit.ConfigurationManager;
-import org.stakeaclaim.bukkit.WorldGuardPlugin;
+import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 import org.stakeaclaim.protection.databases.MySQLDatabase;
 import org.stakeaclaim.protection.databases.ProtectionDatabase;
 import org.stakeaclaim.protection.databases.ProtectionDatabaseException;
@@ -39,10 +39,10 @@ import java.util.Set;
 
 public class MySQLToYAMLMigrator extends AbstractDatabaseMigrator {
 
-    private WorldGuardPlugin plugin;
+    private StakeAClaimPlugin plugin;
     private Set<String> worlds;
 
-    public MySQLToYAMLMigrator(WorldGuardPlugin plugin) throws MigrationException {
+    public MySQLToYAMLMigrator(StakeAClaimPlugin plugin) throws MigrationException {
         this.plugin = plugin;
         this.worlds = new HashSet<String>();
 

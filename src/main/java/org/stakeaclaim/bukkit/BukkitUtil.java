@@ -1,6 +1,6 @@
 // $Id$
 /*
- * WorldGuard
+ * StakeAClaim
  * Copyright (C) 2010 sk89q <http://www.sk89q.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -85,7 +85,7 @@ public class BukkitUtil {
      *
      * @param server The server to check
      * @param name The name to attempt to match
-     * @deprecated see {@link WorldGuardPlugin#matchSinglePlayer(org.bukkit.command.CommandSender, String)}
+     * @deprecated see {@link StakeAClaimPlugin#matchSinglePlayer(org.bukkit.command.CommandSender, String)}
      * @return The matched player if any, otherwise null
      */
     @Deprecated

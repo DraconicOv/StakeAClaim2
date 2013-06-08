@@ -1,6 +1,6 @@
 // $Id$
 /*
- * WorldGuard
+ * StakeAClaim
  * Copyright (C) 2010 sk89q <http://www.sk89q.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -66,11 +66,11 @@ import org.stakeaclaim.protection.managers.RegionManager;
 import org.stakeaclaim.util.FatalConfigurationLoadingException;
 
 /**
- * The main class for WorldGuard as a Bukkit plugin.
+ * The main class for StakeAClaim as a Bukkit plugin.
  *
  * @author sk89q
  */
-public class WorldGuardPlugin extends JavaPlugin {
+public class StakeAClaimPlugin extends JavaPlugin {
 
     /**
      * Manager for commands. This automatically handles nested commands,
@@ -98,11 +98,11 @@ public class WorldGuardPlugin extends JavaPlugin {
      * Construct objects. Actual loading occurs when the plugin is enabled, so
      * this merely instantiates the objects.
      */
-    public WorldGuardPlugin() {
+    public StakeAClaimPlugin() {
         configuration = new ConfigurationManager(this);
         globalRegionManager = new GlobalRegionManager(this);
 
-        final WorldGuardPlugin plugin = this;
+        final StakeAClaimPlugin plugin = this;
         commands = new CommandsManager<CommandSender>() {
             @Override
             public boolean hasPermission(CommandSender player, String perm) {
@@ -135,13 +135,13 @@ public class WorldGuardPlugin extends JavaPlugin {
 //            }
 //        }, 0L);
 
-        // Need to create the plugins/WorldGuard folder
+        // Need to create the plugins/StakeAClaim folder
         getDataFolder().mkdirs();
 
         PermissionsResolverManager.initialize(this);
 
         // This must be done before configuration is loaded
-//        LegacyWorldGuardMigration.migrateBlacklist(this);
+//        LegacyStakeAClaimMigration.migrateBlacklist(this);
 
         try {
             // Load the configuration
@@ -154,7 +154,7 @@ public class WorldGuardPlugin extends JavaPlugin {
 
         // Migrate regions after the regions were loaded because
         // the migration code reuses the loaded region managers
-//        LegacyWorldGuardMigration.migrateRegions(this);
+//        LegacyStakeAClaimMigration.migrateRegions(this);
 
         flagStateManager = new FlagStateManager(this);
 
@@ -164,25 +164,25 @@ public class WorldGuardPlugin extends JavaPlugin {
         }
 
         // Register events
-        (new WorldGuardPlayerListener(this)).registerEvents();
-//        (new WorldGuardBlockListener(this)).registerEvents();
-//        (new WorldGuardEntityListener(this)).registerEvents();
-//        (new WorldGuardWeatherListener(this)).registerEvents();
-//        (new WorldGuardVehicleListener(this)).registerEvents();
-//        (new WorldGuardServerListener(this)).registerEvents();
+        (new StakeAClaimPlayerListener(this)).registerEvents();
+//        (new StakeAClaimBlockListener(this)).registerEvents();
+//        (new StakeAClaimEntityListener(this)).registerEvents();
+//        (new StakeAClaimWeatherListener(this)).registerEvents();
+//        (new StakeAClaimVehicleListener(this)).registerEvents();
+//        (new StakeAClaimServerListener(this)).registerEvents();
 //        if (hasHangingEvent()) {
-//            (new WorldGuardHangingListener(this)).registerEvents();
+//            (new StakeAClaimHangingListener(this)).registerEvents();
 //        } else {
-//            (new WorldGuardPaintingListener(this)).registerEvents();
+//            (new StakeAClaimPaintingListener(this)).registerEvents();
 //        }
         configuration.updateCommandBookGodMode();
 
 //        if (getServer().getPluginManager().isPluginEnabled("CommandBook")) {
-//            getServer().getPluginManager().registerEvents(new WorldGuardCommandBookListener(this), this);
+//            getServer().getPluginManager().registerEvents(new StakeAClaimCommandBookListener(this), this);
 //        }
 
         // handle worlds separately to initialize already loaded worlds
-        WorldGuardWorldListener worldListener = (new WorldGuardWorldListener(this));
+        StakeAClaimWorldListener worldListener = (new StakeAClaimWorldListener(this));
         for (World world : getServer().getWorlds()) {
             worldListener.initWorld(world);
         }
@@ -248,7 +248,7 @@ public class WorldGuardPlugin extends JavaPlugin {
     }
 
     /**
-     * Get the WorldGuard Configuration.
+     * Get the StakeAClaim Configuration.
      *
      * @return ConfigurationManager
      * @deprecated Use {@link #getGlobalStateManager()} instead

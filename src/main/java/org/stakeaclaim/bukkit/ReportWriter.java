@@ -1,6 +1,6 @@
 // $Id$
 /*
- * WorldGuard
+ * StakeAClaim
  * Copyright (C) 2010 sk89q <http://www.sk89q.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -51,7 +51,7 @@ public class ReportWriter {
     private Date date = new Date();
     private StringBuilder output = new StringBuilder();
     
-    public ReportWriter(WorldGuardPlugin plugin) {
+    public ReportWriter(StakeAClaimPlugin plugin) {
         appendReportHeader(plugin);
         appendServerInformation(plugin.getServer());
         appendPluginInformation(plugin.getServer().getPluginManager().getPlugins());
@@ -105,8 +105,8 @@ public class ReportWriter {
         appendln();
     }
     
-    private void appendReportHeader(WorldGuardPlugin plugin) {
-        appendln("WorldGuard Configuration Report");
+    private void appendReportHeader(StakeAClaimPlugin plugin) {
+        appendln("StakeAClaim Configuration Report");
         appendln("Generated " + dateFmt.format(date));
         appendln();
         appendln("Version: " + plugin.getDescription().getVersion());
@@ -243,7 +243,7 @@ public class ReportWriter {
         appendln();
     }
     
-    private void appendWorldConfigurations(WorldGuardPlugin plugin, List<World> worlds,
+    private void appendWorldConfigurations(StakeAClaimPlugin plugin, List<World> worlds,
             GlobalRegionManager regionMgr, ConfigurationManager mgr) {
         appendHeader("World Configurations");
         

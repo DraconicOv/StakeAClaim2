@@ -1,6 +1,6 @@
 // $Id$
 /*
- * WorldGuard
+ * StakeAClaim
  * Copyright (C) 2010 sk89q <http://www.sk89q.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -27,9 +27,9 @@ import org.stakeaclaim.LocalPlayer;
 
 public class BukkitPlayer extends LocalPlayer {
     private Player player;
-    private WorldGuardPlugin plugin;
+    private StakeAClaimPlugin plugin;
     
-    public BukkitPlayer(WorldGuardPlugin plugin, Player player) {
+    public BukkitPlayer(StakeAClaimPlugin plugin, Player player) {
         this.plugin = plugin;
         this.player = player;
     }

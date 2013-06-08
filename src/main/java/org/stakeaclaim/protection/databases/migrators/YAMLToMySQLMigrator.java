@@ -19,7 +19,7 @@
 
 package org.stakeaclaim.protection.databases.migrators;
 
-import org.stakeaclaim.bukkit.WorldGuardPlugin;
+import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 import org.stakeaclaim.protection.databases.MySQLDatabase;
 import org.stakeaclaim.protection.databases.ProtectionDatabase;
 import org.stakeaclaim.protection.databases.ProtectionDatabaseException;
@@ -34,10 +34,10 @@ import java.util.Set;
 
 public class YAMLToMySQLMigrator extends AbstractDatabaseMigrator {
 
-    private WorldGuardPlugin plugin;
+    private StakeAClaimPlugin plugin;
     private HashMap<String,File> regionYamlFiles;
 
-    public YAMLToMySQLMigrator(WorldGuardPlugin plugin) {
+    public YAMLToMySQLMigrator(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
 
         this.regionYamlFiles = new HashMap<String,File>();

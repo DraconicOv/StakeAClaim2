@@ -1,6 +1,6 @@
 // $Id$
 /*
- * WorldGuard
+ * StakeAClaim
  * Copyright (C) 2010 sk89q <http://www.sk89q.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,7 +28,7 @@ import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
 import org.stakeaclaim.LocalPlayer;
-import org.stakeaclaim.bukkit.WorldGuardPlugin;
+import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 import org.stakeaclaim.domains.DefaultDomain;
 import org.stakeaclaim.protection.databases.ProtectionDatabaseException;
 import org.stakeaclaim.protection.databases.RegionDBUtil;
@@ -39,9 +39,9 @@ import org.stakeaclaim.protection.regions.ProtectedRegion;
 // @TODO: A lot of code duplication here! Need to fix.
 
 public class RegionMemberCommands {
-    private final WorldGuardPlugin plugin;
+    private final StakeAClaimPlugin plugin;
 
-    public RegionMemberCommands(WorldGuardPlugin plugin) {
+    public RegionMemberCommands(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
     }
 

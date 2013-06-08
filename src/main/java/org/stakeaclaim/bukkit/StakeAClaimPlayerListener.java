@@ -1,6 +1,6 @@
 // $Id$
 /*
- * WorldGuard
+ * StakeAClaim
  * Copyright (C) 2010 sk89q <http://www.sk89q.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -84,17 +84,17 @@ import org.stakeaclaim.protection.regions.ProtectedRegion;
 /**
  * Handles all events thrown in relation to a player.
  */
-public class WorldGuardPlayerListener implements Listener {
+public class StakeAClaimPlayerListener implements Listener {
 
     private Pattern opPattern = Pattern.compile("^/op(?:\\s.*)?$", Pattern.CASE_INSENSITIVE);
-    private WorldGuardPlugin plugin;
+    private StakeAClaimPlugin plugin;
 
     /**
      * Construct the object;
      *
      * @param plugin
      */
-    public WorldGuardPlayerListener(WorldGuardPlugin plugin) {
+    public StakeAClaimPlayerListener(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -422,7 +422,7 @@ public class WorldGuardPlayerListener implements Listener {
             if (!hostname.equals(hostKey)) {
                 event.disallow(PlayerLoginEvent.Result.KICK_OTHER,
                         "You did not join with the valid host key!");
-                plugin.getLogger().warning("WorldGuard host key check: " +
+                plugin.getLogger().warning("StakeAClaim host key check: " +
                         player.getName() + " joined with '" + hostname +
                         "' but '" + hostKey + "' was expected. Kicked!");
                 return;
@@ -727,7 +727,7 @@ public class WorldGuardPlayerListener implements Listener {
 
                     player.sendMessage(ChatColor.YELLOW + "Applicable regions: " + str.toString());
                 } else {
-                    player.sendMessage(ChatColor.YELLOW + "WorldGuard: No defined regions here!");
+                    player.sendMessage(ChatColor.YELLOW + "StakeAClaim: No defined regions here!");
                 }
 
                 event.setCancelled(true);
@@ -1078,13 +1078,13 @@ public class WorldGuardPlayerListener implements Listener {
                     && (type == BlockID.SIGN_POST || type == ItemID.SIGN || type == BlockID.WALL_SIGN)) {
             BlockState block = blockClicked.getState();
 
-            if (((Sign)block).getLine(0).equalsIgnoreCase("[WorldGuard]")
+            if (((Sign)block).getLine(0).equalsIgnoreCase("[StakeAClaim]")
                     && ((Sign)block).getLine(1).equalsIgnoreCase("For sale")) {
                 String regionId = ((Sign)block).getLine(2);
                 //String regionComment = ((Sign)block).getLine(3);
 
                 if (regionId != null && regionId != "") {
-                    RegionManager mgr = cfg.getWorldGuardPlugin().getGlobalRegionManager().get(player.getWorld().getName());
+                    RegionManager mgr = cfg.getStakeAClaimPlugin().getGlobalRegionManager().get(player.getWorld().getName());
                     ProtectedRegion region = mgr.getRegion(regionId);
 
                     if (region != null) {

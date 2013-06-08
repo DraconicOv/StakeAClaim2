@@ -1,6 +1,6 @@
 // $Id$
 /*
- * WorldGuard
+ * StakeAClaim
  * Copyright (C) 2010 sk89q <http://www.sk89q.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -46,7 +46,7 @@ import java.util.concurrent.ConcurrentMap;
 public class ConfigurationManager {
 
     private static final String CONFIG_HEADER = "#\r\n" +
-            "# WorldGuard's main configuration file\r\n" +
+            "# StakeAClaim's main configuration file\r\n" +
             "#\r\n" +
             "# This is the global configuration file. Anything placed into here will\r\n" +
             "# be applied to all worlds. However, each world has its own configuration\r\n" +
@@ -61,7 +61,7 @@ public class ConfigurationManager {
             "#   in categories (like \"enforce-single-session\" is in the \"protection\"\r\n" +
             "#   category.\r\n" +
             "# - If you want to check the format of this file before putting it\r\n" +
-            "#   into WorldGuard, paste it into http://yaml-online-parser.appspot.com/\r\n" +
+            "#   into StakeAClaim, paste it into http://yaml-online-parser.appspot.com/\r\n" +
             "#   and see if it gives \"ERROR:\".\r\n" +
             "# - Lines starting with # are comments and so they are ignored.\r\n" +
             "#\r\n";
@@ -69,7 +69,7 @@ public class ConfigurationManager {
     /**
      * Reference to the plugin.
      */
-    private WorldGuardPlugin plugin;
+    private StakeAClaimPlugin plugin;
 
     /**
      * Holds configurations for different worlds.
@@ -116,7 +116,7 @@ public class ConfigurationManager {
      *
      * @param plugin The plugin instance
      */
-    public ConfigurationManager(WorldGuardPlugin plugin) {
+    public ConfigurationManager(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
         this.worlds = new ConcurrentHashMap<String, WorldConfiguration>();
     }
@@ -253,7 +253,7 @@ public class ConfigurationManager {
      * Check to see if god mode is enabled for a player.
      *
      * @param player The player to check
-     * @return Whether the player has godmode through WorldGuard or CommandBook
+     * @return Whether the player has godmode through StakeAClaim or CommandBook
      */
     public boolean hasGodMode(Player player) {
         if (hasCommandBookGodMode) {

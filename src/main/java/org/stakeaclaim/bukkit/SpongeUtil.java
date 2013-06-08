@@ -1,6 +1,6 @@
 // $Id$
 /*
- * WorldGuard
+ * StakeAClaim
  * Copyright (C) 2010 sk89q <http://www.sk89q.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -35,7 +35,7 @@ public class SpongeUtil {
      * @param oy The y coordinate of the 'sponge' block
      * @param oz The z coordinate of the 'sponge' block
      */
-    public static void clearSpongeWater(WorldGuardPlugin plugin, World world, int ox, int oy, int oz) {
+    public static void clearSpongeWater(StakeAClaimPlugin plugin, World world, int ox, int oy, int oz) {
         ConfigurationManager cfg = plugin.getGlobalStateManager();
         WorldConfiguration wcfg = cfg.get(world);
 
@@ -59,7 +59,7 @@ public class SpongeUtil {
      * @param oy The y coordinate of the 'sponge' block
      * @param oz The z coordinate of the 'sponge' block
      */
-    public static void addSpongeWater(WorldGuardPlugin plugin, World world, int ox, int oy, int oz) {
+    public static void addSpongeWater(StakeAClaimPlugin plugin, World world, int ox, int oy, int oz) {
         ConfigurationManager cfg = plugin.getGlobalStateManager();
         WorldConfiguration wcfg = cfg.get(world);
 

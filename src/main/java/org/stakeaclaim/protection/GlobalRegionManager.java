@@ -1,6 +1,6 @@
 // $Id$
 /*
- * WorldGuard
+ * StakeAClaim
  * Copyright (C) 2010 sk89q <http://www.sk89q.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -35,7 +35,7 @@ import org.stakeaclaim.LocalPlayer;
 import org.stakeaclaim.bukkit.BukkitUtil;
 import org.stakeaclaim.bukkit.ConfigurationManager;
 import org.stakeaclaim.bukkit.WorldConfiguration;
-import org.stakeaclaim.bukkit.WorldGuardPlugin;
+import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 import org.stakeaclaim.protection.databases.MySQLDatabase;
 import org.stakeaclaim.protection.databases.ProtectionDatabase;
 import org.stakeaclaim.protection.databases.ProtectionDatabaseException;
@@ -56,7 +56,7 @@ public class GlobalRegionManager {
     /**
      * Reference to the plugin.
      */
-    private WorldGuardPlugin plugin;
+    private StakeAClaimPlugin plugin;
 
     /**
      * Reference to the global configuration.
@@ -70,7 +70,7 @@ public class GlobalRegionManager {
 
     /**
      * Stores the list of modification dates for the world files. This allows
-     * WorldGuard to reload files as needed.
+     * StakeAClaim to reload files as needed.
      */
     private HashMap<String, Long> lastModified;
 
@@ -79,7 +79,7 @@ public class GlobalRegionManager {
      *
      * @param plugin The plugin instance
      */
-    public GlobalRegionManager(WorldGuardPlugin plugin) {
+    public GlobalRegionManager(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
         config = plugin.getGlobalStateManager();
         managers = new ConcurrentHashMap<String, RegionManager>();

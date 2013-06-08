@@ -1,8 +1,8 @@
 // $Id$
 /*
- * This file is a part of WorldGuard.
+ * This file is a part of StakeAClaim.
  * Copyright (c) sk89q <http://www.sk89q.com>
- * Copyright (c) the WorldGuard team and contributors
+ * Copyright (c) the StakeAClaim team and contributors
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -24,40 +24,40 @@ import org.bukkit.World;
 import org.stakeaclaim.protection.managers.RegionManager;
 
 /**
- * Helper class to get a reference to WorldGuard and its components.
+ * Helper class to get a reference to StakeAClaim and its components.
  */
 public class WGBukkit {
-    private static WorldGuardPlugin cachedPlugin = null;
+    private static StakeAClaimPlugin cachedPlugin = null;
 
     private WGBukkit() {
     }
 
     /**
-     * Get the WorldGuard plugin. If WorldGuard isn't loaded yet, then this will
+     * Get the StakeAClaim plugin. If StakeAClaim isn't loaded yet, then this will
      * return null.
      * <p>
-     * If you are depending on WorldGuard in your plugin, you should place
-     * <code>softdepend: [WorldGuard]</code> or <code>depend: [WorldGuard]</code>
+     * If you are depending on StakeAClaim in your plugin, you should place
+     * <code>softdepend: [StakeAClaim]</code> or <code>depend: [StakeAClaim]</code>
      * in your plugin.yml so that this won't return null for you.
      *
-     * @return the WorldGuard plugin or null
+     * @return the StakeAClaim plugin or null
      */
-    public static WorldGuardPlugin getPlugin() {
+    public static StakeAClaimPlugin getPlugin() {
         if (cachedPlugin == null) {
-            cachedPlugin = (WorldGuardPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldGuard");
+            cachedPlugin = (StakeAClaimPlugin) Bukkit.getServer().getPluginManager().getPlugin("StakeAClaim");
         }
         return cachedPlugin;
     }
 
     /**
-     * Set cache to null for reload WorldGuardPlugin
+     * Set cache to null for reload StakeAClaimPlugin
      */
     public static void cleanCache() {
         cachedPlugin = null;
     }
 
     /**
-     * Returns the region manager for a given world. May return null if WorldGuard
+     * Returns the region manager for a given world. May return null if StakeAClaim
      * is not loaded or region protection is not enabled for the given world.
      *
      * @param world world

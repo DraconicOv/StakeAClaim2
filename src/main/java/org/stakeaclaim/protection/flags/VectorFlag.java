@@ -1,6 +1,6 @@
 // $Id$
 /*
- * WorldGuard
+ * StakeAClaim
  * Copyright (C) 2010 sk89q <http://www.sk89q.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@ import org.bukkit.command.CommandSender;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.worldedit.Vector;
 import org.stakeaclaim.bukkit.BukkitUtil;
-import org.stakeaclaim.bukkit.WorldGuardPlugin;
+import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 
 /**
  *
@@ -43,7 +43,7 @@ public class VectorFlag extends Flag<Vector> {
     }
 
     @Override
-    public Vector parseInput(WorldGuardPlugin plugin, CommandSender sender, String input) throws InvalidFlagFormat {
+    public Vector parseInput(StakeAClaimPlugin plugin, CommandSender sender, String input) throws InvalidFlagFormat {
         input = input.trim();
 
         if ("here".equalsIgnoreCase(input)) {

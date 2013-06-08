@@ -1,6 +1,6 @@
 // $Id$
 /*
- * WorldGuard
+ * StakeAClaim
  * Copyright (C) 2010 sk89q <http://www.sk89q.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@ import java.util.Set;
 
 import org.bukkit.command.CommandSender;
 
-import org.stakeaclaim.bukkit.WorldGuardPlugin;
+import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 
 /**
  * Represents a flag that consists of a set.
@@ -48,7 +48,7 @@ public class SetFlag<T> extends Flag<Set<T>> {
     }
 
     @Override
-    public Set<T> parseInput(WorldGuardPlugin plugin, CommandSender sender,
+    public Set<T> parseInput(StakeAClaimPlugin plugin, CommandSender sender,
             String input) throws InvalidFlagFormat {
         Set<T> items = new HashSet<T>();
 

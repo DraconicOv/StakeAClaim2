@@ -12,16 +12,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 
-public class WorldGuardWorldListener implements Listener {
+public class StakeAClaimWorldListener implements Listener {
 
-    private WorldGuardPlugin plugin;
+    private StakeAClaimPlugin plugin;
 
     /**
      * Construct the object;
      *
      * @param plugin The plugin instance
      */
-    public WorldGuardWorldListener(WorldGuardPlugin plugin) {
+    public StakeAClaimWorldListener(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
     }
 

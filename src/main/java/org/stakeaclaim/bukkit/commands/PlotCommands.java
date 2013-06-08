@@ -1,6 +1,6 @@
 // $Id$
 /*
- * WorldGuard
+ * StakeAClaim
  * Copyright (C) 2010 sk89q <http://www.sk89q.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -32,7 +32,7 @@ import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.Vector;
 import org.stakeaclaim.LocalPlayer;
 //import org.stakeaclaim.bukkit.commands.RegionCommands;
-import org.stakeaclaim.bukkit.WorldGuardPlugin;
+import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 import org.stakeaclaim.domains.DefaultDomain;
 import org.stakeaclaim.protection.ApplicableRegionSet;
 import org.stakeaclaim.protection.databases.ProtectionDatabaseException;
@@ -43,9 +43,9 @@ import org.stakeaclaim.protection.managers.RegionManager;
 import org.stakeaclaim.protection.regions.ProtectedRegion;
 
 public class PlotCommands {
-    private final WorldGuardPlugin plugin;
+    private final StakeAClaimPlugin plugin;
 
-    public PlotCommands(WorldGuardPlugin plugin) {
+    public PlotCommands(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
     }
 

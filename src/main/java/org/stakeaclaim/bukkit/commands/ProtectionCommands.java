@@ -1,6 +1,6 @@
 // $Id$
 /*
- * WorldGuard
+ * StakeAClaim
  * Copyright (C) 2010 sk89q <http://www.sk89q.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,13 +24,13 @@ import org.bukkit.command.CommandSender;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.NestedCommand;
-import org.stakeaclaim.bukkit.WorldGuardPlugin;
+import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 
 public class ProtectionCommands {
     @SuppressWarnings("unused")
-    private final WorldGuardPlugin plugin;
+    private final StakeAClaimPlugin plugin;
 
-    public ProtectionCommands(WorldGuardPlugin plugin) {
+    public ProtectionCommands(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -38,8 +38,8 @@ public class ProtectionCommands {
     @NestedCommand({RegionCommands.class, RegionMemberCommands.class})
     public void region(CommandContext args, CommandSender sender) {}
 
-//    @Command(aliases = {"worldguard", "wg"}, desc = "WorldGuard commands")
-//    @NestedCommand({WorldGuardCommands.class})
+//    @Command(aliases = {"worldguard", "wg"}, desc = "StakeAClaim commands")
+//    @NestedCommand({StakeAClaimCommands.class})
 //    public void worldGuard(CommandContext args, CommandSender sender) {}
     
     /* MCA add start */
