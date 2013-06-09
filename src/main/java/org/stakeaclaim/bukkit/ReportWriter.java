@@ -35,12 +35,12 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 
-import org.stakeaclaim.protection.GlobalRequestManager;
-import org.stakeaclaim.protection.flags.DefaultFlag;
-import org.stakeaclaim.protection.flags.Flag;
-import org.stakeaclaim.protection.flags.StateFlag;
-import org.stakeaclaim.protection.managers.RequestManager;
-import org.stakeaclaim.protection.requests.Request;
+import org.stakeaclaim.stakes.GlobalRequestManager;
+import org.stakeaclaim.stakes.flags.DefaultFlag;
+import org.stakeaclaim.stakes.flags.Flag;
+import org.stakeaclaim.stakes.flags.StateFlag;
+import org.stakeaclaim.stakes.managers.RequestManager;
+import org.stakeaclaim.stakes.StakeRequest;
 import org.stakeaclaim.util.LogListBlock;
 
 public class ReportWriter {
@@ -294,7 +294,7 @@ public class ReportWriter {
             requestsLog.put("Number of requests", worldRequests.getRequests().size());
             LogListBlock globalRequestLog = requestsLog.putChild("Global request");
             
-            Request globalRequest = worldRequests.getRequest("__global__");
+            StakeRequest globalRequest = worldRequests.getRequest("__global__");
 //            if (globalRequest == null) {
 //                globalRequestLog.put("Status", "UNDEFINED");
 //            } else {

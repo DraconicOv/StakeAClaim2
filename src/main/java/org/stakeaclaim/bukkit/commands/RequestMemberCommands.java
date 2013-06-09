@@ -30,11 +30,11 @@ import com.sk89q.minecraft.util.commands.CommandException;
 import org.stakeaclaim.LocalPlayer;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 import org.stakeaclaim.domains.DefaultDomain;
-import org.stakeaclaim.protection.databases.ProtectionDatabaseException;
-import org.stakeaclaim.protection.databases.RequestDBUtil;
-import org.stakeaclaim.protection.flags.DefaultFlag;
-import org.stakeaclaim.protection.managers.RequestManager;
-import org.stakeaclaim.protection.requests.Request;
+import org.stakeaclaim.stakes.databases.ProtectionDatabaseException;
+import org.stakeaclaim.stakes.databases.RequestDBUtil;
+import org.stakeaclaim.stakes.flags.DefaultFlag;
+import org.stakeaclaim.stakes.managers.RequestManager;
+import org.stakeaclaim.stakes.StakeRequest;
 
 // @TODO: A lot of code duplication here! Need to fix.
 
@@ -65,7 +65,7 @@ public class RequestMemberCommands {
 //        String id = args.getString(0);
 //
 //        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-//        Request request = mgr.getRequest(id);
+//        StakeRequest request = mgr.getRequest(id);
 //
 //        if (request == null) {
 //            throw new CommandException("Could not find a request by that ID.");
@@ -116,7 +116,7 @@ public class RequestMemberCommands {
 //        String id = args.getString(0);
 //
 //        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-//        Request request = mgr.getRequest(id);
+//        StakeRequest request = mgr.getRequest(id);
 //
 //        if (request == null) {
 //            throw new CommandException("Could not find a request by that ID.");
@@ -180,7 +180,7 @@ public class RequestMemberCommands {
 //        String id = args.getString(0);
 //
 //        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-//        Request request = mgr.getRequest(id);
+//        StakeRequest request = mgr.getRequest(id);
 //
 //        if (request == null) {
 //            throw new CommandException("Could not find a request by that ID.");
@@ -232,7 +232,7 @@ public class RequestMemberCommands {
 //        String id = args.getString(0);
 //
 //        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-//        Request request = mgr.getRequest(id);
+//        StakeRequest request = mgr.getRequest(id);
 //
 //        if (request == null) {
 //            throw new CommandException("Could not find a request by that ID.");

@@ -76,10 +76,10 @@ import org.stakeaclaim.LocalPlayer;
 //import org.stakeaclaim.blacklist.events.ItemUseBlacklistEvent;
 import org.stakeaclaim.bukkit.FlagStateManager.PlayerFlagState;
 import org.stakeaclaim.domains.DefaultDomain; /* MCA add */
-import org.stakeaclaim.protection.ApplicableRequestSet;
-import org.stakeaclaim.protection.flags.DefaultFlag;
-import org.stakeaclaim.protection.managers.RequestManager;
-import org.stakeaclaim.protection.requests.Request;
+import org.stakeaclaim.stakes.ApplicableRequestSet;
+import org.stakeaclaim.stakes.flags.DefaultFlag;
+import org.stakeaclaim.stakes.managers.RequestManager;
+import org.stakeaclaim.stakes.StakeRequest;
 
 /**
  * Handles all events thrown in relation to a player.
@@ -148,7 +148,7 @@ public class StakeAClaimPlayerListener implements Listener {
                     boolean requestFull = false;
                     String maxPlayerMessage = null;
                     if (!hasBypass) {
-                        for (Request request : set) {
+                        for (StakeRequest request : set) {
                             if (request instanceof GlobalRequest) {
                                 continue; // global request can't have a max
                             }
@@ -244,7 +244,7 @@ public class StakeAClaimPlayerListener implements Listener {
 //
 //                    if (item.getTypeId() == wcfg.requestWand && plugin.hasPermission(player, "stakeaclaim.request.wand")) {
 //
-//                        final Request claim = set.getClaim();
+//                        final StakeRequest claim = set.getClaim();
 //                        if (claim != null) {
 //                            StringBuilder message = new StringBuilder(ChatColor.YELLOW + "Location: " + ChatColor.WHITE + claim.getId());
 //                            final DefaultDomain owners = claim.getOwners();
@@ -276,7 +276,7 @@ public class StakeAClaimPlayerListener implements Listener {
 //                            || !state.notifiedForEnter)) {
 //                        StringBuilder requestList = new StringBuilder();
 //
-//                        for (Request request : set) {
+//                        for (StakeRequest request : set) {
 //                            if (requestList.length() != 0) {
 //                                requestList.append(", ");
 //                            }
@@ -445,9 +445,9 @@ public class StakeAClaimPlayerListener implements Listener {
 //        if (plugin.hasPermission(player, "stakeaclaim.plot.public")) {
 //            final LocalPlayer localPlayer2 = plugin.wrapPlayer(player);
 //            final RequestManager mgr2 = plugin.getGlobalRequestManager().get(world);
-//            final Map<String, Request> requests = mgr2.getRequests();
+//            final Map<long, StakeRequest> requests = mgr2.getRequests();
 //
-//            for (Request claim : requests.values()) {
+//            for (StakeRequest claim : requests.values()) {
 //                if (claim.isOwner(localPlayer2)) {
 //                    claim.setFlag(DefaultFlag.ENTRY, null);
 //                }
@@ -718,7 +718,7 @@ public class StakeAClaimPlayerListener implements Listener {
 //                            + (set.canBuild(localPlayer) ? "Yes" : "No"));
 //
 //                    StringBuilder str = new StringBuilder();
-//                    for (Iterator<Request> it = set.iterator(); it.hasNext();) {
+//                    for (Iterator<StakeRequest> it = set.iterator(); it.hasNext();) {
 //                        str.append(it.next().getId());
 //                        if (it.hasNext()) {
 //                            str.append(", ");
@@ -1085,7 +1085,7 @@ public class StakeAClaimPlayerListener implements Listener {
 //
 //                if (requestId != null && requestId != "") {
 //                    RequestManager mgr = cfg.getStakeAClaimPlugin().getGlobalRequestManager().get(player.getWorld().getName());
-//                    Request request = mgr.getRequest(requestId);
+//                    StakeRequest request = mgr.getRequest(requestId);
 //
 //                    if (request != null) {
 //                        RequestFlags flags = request.getFlags();

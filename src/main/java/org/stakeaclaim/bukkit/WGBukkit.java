@@ -21,7 +21,7 @@ package org.stakeaclaim.bukkit;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
-import org.stakeaclaim.protection.managers.RequestManager;
+import org.stakeaclaim.stakes.managers.RequestManager;
 
 /**
  * Helper class to get a reference to StakeAClaim and its components.

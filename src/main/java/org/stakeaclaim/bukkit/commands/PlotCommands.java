@@ -34,13 +34,13 @@ import org.stakeaclaim.LocalPlayer;
 //import org.stakeaclaim.bukkit.commands.RequestCommands;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 import org.stakeaclaim.domains.DefaultDomain;
-import org.stakeaclaim.protection.ApplicableRequestSet;
-import org.stakeaclaim.protection.databases.ProtectionDatabaseException;
-import org.stakeaclaim.protection.databases.RequestDBUtil;
-import org.stakeaclaim.protection.flags.DefaultFlag;
-import org.stakeaclaim.protection.flags.StateFlag;
-import org.stakeaclaim.protection.managers.RequestManager;
-import org.stakeaclaim.protection.requests.Request;
+import org.stakeaclaim.stakes.ApplicableRequestSet;
+import org.stakeaclaim.stakes.databases.ProtectionDatabaseException;
+import org.stakeaclaim.stakes.databases.RequestDBUtil;
+import org.stakeaclaim.stakes.flags.DefaultFlag;
+import org.stakeaclaim.stakes.flags.StateFlag;
+import org.stakeaclaim.stakes.managers.RequestManager;
+import org.stakeaclaim.stakes.StakeRequest;
 
 public class PlotCommands {
     private final StakeAClaimPlugin plugin;
@@ -56,7 +56,7 @@ public class PlotCommands {
 //    public void info(CommandContext args, CommandSender sender) throws CommandException {
 //
 //        final Player player = plugin.checkPlayer(sender);
-//        final Request claim = claimPlayerIsIn(player);
+//        final StakeRequest claim = claimPlayerIsIn(player);
 //        final String id = claim.getId();
 //
 //        checkPerm(player, "info", claim);
@@ -97,7 +97,7 @@ public class PlotCommands {
 //    public void add(CommandContext args, CommandSender sender) throws CommandException {
 //
 //        final Player player = plugin.checkPlayer(sender);
-//        final Request claim = claimPlayerIsIn(player);
+//        final StakeRequest claim = claimPlayerIsIn(player);
 //        final String id = claim.getId();
 //        final World world = player.getWorld();
 //
@@ -117,7 +117,7 @@ public class PlotCommands {
 //    public void remove(CommandContext args, CommandSender sender) throws CommandException {
 //
 //        final Player player = plugin.checkPlayer(sender);
-//        final Request claim = claimPlayerIsIn(player);
+//        final StakeRequest claim = claimPlayerIsIn(player);
 //        final String id = claim.getId();
 //        final World world = player.getWorld();
 //
@@ -137,7 +137,7 @@ public class PlotCommands {
 //    public void keepout(CommandContext args, CommandSender sender) throws CommandException {
 //
 //        final Player player = plugin.checkPlayer(sender);
-//        final Request claim = claimPlayerIsIn(player);
+//        final StakeRequest claim = claimPlayerIsIn(player);
 //        final String id = claim.getId();
 //        final World world = player.getWorld();
 //
@@ -157,7 +157,7 @@ public class PlotCommands {
 //    public void letin(CommandContext args, CommandSender sender) throws CommandException {
 //
 //        final Player player = plugin.checkPlayer(sender);
-//        final Request claim = claimPlayerIsIn(player);
+//        final StakeRequest claim = claimPlayerIsIn(player);
 //        final String id = claim.getId();
 //        final World world = player.getWorld();
 //
@@ -170,15 +170,15 @@ public class PlotCommands {
 //        saveRequests(world);
 //    }
 
-    public Request claimPlayerIsIn(Player player) throws CommandException {
+    public StakeRequest claimPlayerIsIn(Player player) throws CommandException {
 
 //        final LocalPlayer localPlayer = plugin.wrapPlayer(player);
 //        final World world = player.getWorld();
 //        final RequestManager mgr = plugin.getGlobalRequestManager().get(world);
 //        final Vector pt = localPlayer.getPosition();
 //        final ApplicableRequestSet set = mgr.getApplicableRequests(pt);
-//        final Request claim = set.getClaim();
-        final Request claim = null;
+//        final StakeRequest claim = set.getClaim();
+        final StakeRequest claim = null;
 //
 //        if (claim == null) {
 //            throw new CommandException("You are not in a valid claim!");
@@ -187,7 +187,7 @@ public class PlotCommands {
         return claim;
     }
 
-//    public void checkPerm(Player player, String command, Request claim) throws CommandPermissionsException {
+//    public void checkPerm(Player player, String command, StakeRequest claim) throws CommandPermissionsException {
 //
 //        final LocalPlayer localPlayer = plugin.wrapPlayer(player);
 //        final String id = claim.getId();

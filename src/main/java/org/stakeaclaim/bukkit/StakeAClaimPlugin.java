@@ -61,8 +61,8 @@ import org.stakeaclaim.LocalPlayer;
 //import org.stakeaclaim.bukkit.commands.GeneralCommands;
 import org.stakeaclaim.bukkit.commands.ProtectionCommands;
 //import org.stakeaclaim.bukkit.commands.ToggleCommands;
-import org.stakeaclaim.protection.GlobalRequestManager;
-import org.stakeaclaim.protection.managers.RequestManager;
+import org.stakeaclaim.stakes.GlobalRequestManager;
+import org.stakeaclaim.stakes.managers.RequestManager;
 import org.stakeaclaim.util.FatalConfigurationLoadingException;
 
 /**

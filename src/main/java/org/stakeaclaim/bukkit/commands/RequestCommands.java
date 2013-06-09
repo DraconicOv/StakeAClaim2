@@ -48,23 +48,23 @@ import org.stakeaclaim.LocalPlayer;
 import org.stakeaclaim.bukkit.WorldConfiguration;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 import org.stakeaclaim.domains.DefaultDomain;
-import org.stakeaclaim.protection.ApplicableRequestSet;
-import org.stakeaclaim.protection.databases.ProtectionDatabaseException;
-import org.stakeaclaim.protection.databases.RequestDBUtil;
-import org.stakeaclaim.protection.databases.migrators.AbstractDatabaseMigrator;
-import org.stakeaclaim.protection.databases.migrators.MigrationException;
-import org.stakeaclaim.protection.databases.migrators.MigratorKey;
-import org.stakeaclaim.protection.flags.DefaultFlag;
-import org.stakeaclaim.protection.flags.Flag;
-import org.stakeaclaim.protection.flags.InvalidFlagFormat;
-import org.stakeaclaim.protection.flags.RequestGroup;
-import org.stakeaclaim.protection.flags.RequestGroupFlag;
-import org.stakeaclaim.protection.managers.RequestManager;
-import org.stakeaclaim.protection.requests.GlobalRequest;
-//import org.stakeaclaim.protection.requests.ProtectedCuboidRequest;
-//import org.stakeaclaim.protection.requests.ProtectedPolygonalRequest;
-import org.stakeaclaim.protection.requests.Request;
-//import org.stakeaclaim.protection.requests.Request.CircularInheritanceException;
+import org.stakeaclaim.stakes.ApplicableRequestSet;
+import org.stakeaclaim.stakes.databases.ProtectionDatabaseException;
+import org.stakeaclaim.stakes.databases.RequestDBUtil;
+import org.stakeaclaim.stakes.databases.migrators.AbstractDatabaseMigrator;
+import org.stakeaclaim.stakes.databases.migrators.MigrationException;
+import org.stakeaclaim.stakes.databases.migrators.MigratorKey;
+import org.stakeaclaim.stakes.flags.DefaultFlag;
+import org.stakeaclaim.stakes.flags.Flag;
+import org.stakeaclaim.stakes.flags.InvalidFlagFormat;
+import org.stakeaclaim.stakes.flags.RequestGroup;
+import org.stakeaclaim.stakes.flags.RequestGroupFlag;
+import org.stakeaclaim.stakes.managers.RequestManager;
+import org.stakeaclaim.stakes.requests.GlobalRequest;
+//import org.stakeaclaim.stakes.requests.ProtectedCuboidRequest;
+//import org.stakeaclaim.stakes.requests.ProtectedPolygonalRequest;
+import org.stakeaclaim.stakes.StakeRequest;
+//import org.stakeaclaim.stakes.requests.Request.CircularInheritanceException;
 
 public class RequestCommands {
     private final StakeAClaimPlugin plugin;
@@ -85,7 +85,7 @@ public class RequestCommands {
 //        WorldEditPlugin worldEdit = plugin.getWorldEdit();
 //        String id = args.getString(0);
 //
-//        if (!Request.isValidId(id)) {
+//        if (!StakeRequest.isValidId(id)) {
 //            throw new CommandException("Invalid request ID specified!");
 //        }
 //
@@ -105,7 +105,7 @@ public class RequestCommands {
 //            throw new CommandException("That request is already defined. Use redefine instead.");
 //        }
 //
-//        Request request;
+//        StakeRequest request;
 //
 //        // Detect the type of request from WorldEdit
 //        if (sel instanceof Polygonal2DSelection) {
@@ -153,7 +153,7 @@ public class RequestCommands {
 //        }
 //
 //        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-//        Request existing = mgr.getRequestExact(id);
+//        StakeRequest existing = mgr.getRequestExact(id);
 //
 //        if (existing == null) {
 //            throw new CommandException("Could not find a request by that ID.");
@@ -174,7 +174,7 @@ public class RequestCommands {
 //            throw new CommandException("Select a request with WorldEdit first.");
 //        }
 //
-//        Request request;
+//        StakeRequest request;
 //
 //        // Detect the type of request from WorldEdit
 //        if (sel instanceof Polygonal2DSelection) {
@@ -222,7 +222,7 @@ public class RequestCommands {
 //        WorldEditPlugin worldEdit = plugin.getWorldEdit();
 //        String id = args.getString(0);
 //
-//        if (!Request.isValidId(id)) {
+//        if (!StakeRequest.isValidId(id)) {
 //            throw new CommandException("Invalid request ID specified!");
 //        }
 //
@@ -243,7 +243,7 @@ public class RequestCommands {
 //            throw new CommandException("That request already exists. Please choose a different name.");
 //        }
 //
-//        Request request;
+//        StakeRequest request;
 //
 //        // Detect the type of request from WorldEdit
 //        if (sel instanceof Polygonal2DSelection) {
@@ -276,7 +276,7 @@ public class RequestCommands {
 //            }
 //        }
 //
-//        Request existing = mgr.getRequestExact(id);
+//        StakeRequest existing = mgr.getRequestExact(id);
 //
 //        // Check for an existing request
 //        if (existing != null) {
@@ -367,7 +367,7 @@ public class RequestCommands {
 //            id = args.getString(0);
 //        }
 //
-//        final Request request = mgr.getRequest(id);
+//        final StakeRequest request = mgr.getRequest(id);
 //
 //        if (request == null) {
 //            throw new CommandException("Could not find a request by that ID.");
@@ -376,7 +376,7 @@ public class RequestCommands {
 //        selectRequest(player, localPlayer, request);
 //    }
 
-//    public void selectRequest(Player player, LocalPlayer localPlayer, Request request) throws CommandException, CommandPermissionsException {
+//    public void selectRequest(Player player, LocalPlayer localPlayer, StakeRequest request) throws CommandException, CommandPermissionsException {
 //        final WorldEditPlugin worldEdit = plugin.getWorldEdit();
 //        final String id = request.getId();
 //
@@ -457,10 +457,10 @@ public class RequestCommands {
 //            id = args.getString(1).toLowerCase();
 //        }
 //
-//        final Request request = mgr.getRequest(id);
+//        final StakeRequest request = mgr.getRequest(id);
 //
 //        if (request == null) {
-//            if (!Request.isValidId(id)) {
+//            if (!StakeRequest.isValidId(id)) {
 //                throw new CommandException("Invalid request ID specified!");
 //            }
 //            throw new CommandException("A request with ID '" + id + "' doesn't exist.");
@@ -473,7 +473,7 @@ public class RequestCommands {
 //        }
 //    }
 
-//    public void displayRequestInfo(CommandSender sender, final LocalPlayer localPlayer, Request request) throws CommandPermissionsException {
+//    public void displayRequestInfo(CommandSender sender, final LocalPlayer localPlayer, StakeRequest request) throws CommandPermissionsException {
 //        if (localPlayer == null) {
 //            plugin.checkPermission(sender, "stakeaclaim.request.info");
 //        } else if (request.isOwner(localPlayer)) {
@@ -618,7 +618,7 @@ public class RequestCommands {
 //        }
 //
 //        final RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-//        final Map<String, Request> requests = mgr.getRequests();
+//        final Map<long, StakeRequest> requests = mgr.getRequests();
 //
 //        List<RequestEntry> requestEntries = new ArrayList<RequestEntry>();
 //        int index = 0;
@@ -687,7 +687,7 @@ public class RequestCommands {
 //        }
 //
 //        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-//        Request request = mgr.getRequest(id);
+//        StakeRequest request = mgr.getRequest(id);
 //
 //        if (request == null) {
 //            if (id.equalsIgnoreCase("__global__")) {
@@ -846,7 +846,7 @@ public class RequestCommands {
 //        }
 //    }
 
-//    public <V> void setFlag(Request request,
+//    public <V> void setFlag(StakeRequest request,
 //            Flag<V> flag, CommandSender sender, String value)
 //                    throws InvalidFlagFormat {
 //        request.setFlag(flag, flag.parseInput(plugin, sender, value));
@@ -877,7 +877,7 @@ public class RequestCommands {
 //        }
 //
 //        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-//        Request request = mgr.getRequest(id);
+//        StakeRequest request = mgr.getRequest(id);
 //        if (request == null) {
 //            throw new CommandException("Could not find a request by that ID.");
 //        }
@@ -932,7 +932,7 @@ public class RequestCommands {
 //        }
 //
 //        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-//        Request request = mgr.getRequest(id);
+//        StakeRequest request = mgr.getRequest(id);
 //        if (request == null) {
 //            throw new CommandException("Could not find a target request by that ID.");
 //        }
@@ -949,7 +949,7 @@ public class RequestCommands {
 //                    + "Parent of '" + request.getId() + "' cleared.");
 //        } else {
 //            String parentId = args.getString(1);
-//            Request parent = mgr.getRequest(parentId);
+//            StakeRequest parent = mgr.getRequest(parentId);
 //
 //            if (parent == null) {
 //                throw new CommandException("Could not find the parent request by that ID.");
@@ -1011,7 +1011,7 @@ public class RequestCommands {
 //        String id = args.getString(0);
 //
 //        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-//        Request request = mgr.getRequestExact(id);
+//        StakeRequest request = mgr.getRequestExact(id);
 //
 //        if (request == null) {
 //            throw new CommandException("Could not find a request by that ID.");
@@ -1176,9 +1176,9 @@ public class RequestCommands {
 //        final RequestManager mgr = plugin.getGlobalRequestManager().get(player.getWorld());
 //        String id = args.getString(0);
 //
-//        final Request request = mgr.getRequest(id);
+//        final StakeRequest request = mgr.getRequest(id);
 //        if (request == null) {
-//            if (!Request.isValidId(id)) {
+//            if (!StakeRequest.isValidId(id)) {
 //                throw new CommandException("Invalid request ID specified!");
 //            }
 //            throw new CommandException("A request with ID '" + id + "' doesn't exist.");

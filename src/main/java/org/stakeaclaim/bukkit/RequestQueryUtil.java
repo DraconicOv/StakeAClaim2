@@ -24,10 +24,10 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.sk89q.worldedit.Vector;
-import org.stakeaclaim.protection.ApplicableRequestSet;
-import org.stakeaclaim.protection.flags.DefaultFlag;
-import org.stakeaclaim.protection.flags.StateFlag;
-import org.stakeaclaim.protection.managers.RequestManager;
+import org.stakeaclaim.stakes.ApplicableRequestSet;
+import org.stakeaclaim.stakes.flags.DefaultFlag;
+import org.stakeaclaim.stakes.flags.StateFlag;
+import org.stakeaclaim.stakes.managers.RequestManager;
 
 public class RequestQueryUtil {
 

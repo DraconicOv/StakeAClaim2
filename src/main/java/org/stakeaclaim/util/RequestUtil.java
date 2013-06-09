@@ -20,7 +20,7 @@
 package org.stakeaclaim.util;
 
 import org.stakeaclaim.domains.DefaultDomain;
-import org.stakeaclaim.protection.databases.RequestDBUtil;
+import org.stakeaclaim.stakes.databases.RequestDBUtil;
 
 /**
  * Various utility functions for requests.
