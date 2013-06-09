@@ -25,7 +25,7 @@ import org.stakeaclaim.protection.databases.MySQLDatabase;
 import org.stakeaclaim.protection.databases.ProtectionDatabase;
 import org.stakeaclaim.protection.databases.ProtectionDatabaseException;
 import org.stakeaclaim.protection.databases.YAMLDatabase;
-import org.stakeaclaim.protection.requests.ProtectedRequest;
+import org.stakeaclaim.protection.requests.Request;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -69,7 +69,7 @@ public class MySQLToYAMLMigrator extends AbstractDatabaseMigrator {
     }
 
     @Override
-    protected Map<String, ProtectedRequest> getRequestsForWorldFromOld(String world) throws MigrationException {
+    protected Map<String, Request> getRequestsForWorldFromOld(String world) throws MigrationException {
         ProtectionDatabase oldDatabase;
         try {
             oldDatabase = new MySQLDatabase(plugin.getGlobalStateManager(), world, plugin.getLogger());

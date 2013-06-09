@@ -37,9 +37,9 @@ import org.stakeaclaim.domains.DefaultDomain;
 import org.stakeaclaim.protection.flags.DefaultFlag;
 import org.stakeaclaim.protection.flags.StateFlag;
 import org.stakeaclaim.protection.flags.StateFlag.State;
-import org.stakeaclaim.protection.requests.ProtectedCuboidRequest;
-import org.stakeaclaim.protection.requests.ProtectedRequest;
-import org.stakeaclaim.protection.requests.ProtectedRequest.CircularInheritanceException;
+//import org.stakeaclaim.protection.requests.ProtectedCuboidRequest;
+import org.stakeaclaim.protection.requests.Request;
+//import org.stakeaclaim.protection.requests.Request.CircularInheritanceException;
 import org.stakeaclaim.util.ArrayReader;
 
 /**
@@ -72,7 +72,7 @@ public class CSVDatabase extends AbstractProtectionDatabase {
     /**
      * Holds the list of requests.
      */
-    private Map<String,ProtectedRequest> requests;
+    private Map<String,Request> requests;
 
     /**
      * Construct the database with a path to a file. No file is read or
@@ -94,113 +94,113 @@ public class CSVDatabase extends AbstractProtectionDatabase {
     }
 
     public void load() throws ProtectionDatabaseException {
-        Map<String,ProtectedRequest> requests =
-                new HashMap<String,ProtectedRequest>();
-        Map<ProtectedRequest,String> parentSets =
-                new LinkedHashMap<ProtectedRequest, String>();
-
-        CSVReader reader = null;
-        try {
-            reader = new CSVReader(new FileReader(file));
-
-            String[] line;
-
-            while ((line = reader.readNext()) != null) {
-                if (line.length < 2) {
-                    logger.warning("Invalid request definition: " + line);
-                    continue;
-                }
-
-                String id = line[0].toLowerCase().replace(".", "");
-                String type = line[1];
-                ArrayReader<String> entries = new ArrayReader<String>(line);
-
-                if (type.equalsIgnoreCase("cuboid")) {
-                    if (line.length < 8) {
-                        logger.warning("Invalid request definition: " + line);
-                        continue;
-                    }
-
-                    Vector pt1 = new Vector(
-                            Integer.parseInt(line[2]),
-                            Integer.parseInt(line[3]),
-                            Integer.parseInt(line[4]));
-                    Vector pt2 = new Vector(
-                            Integer.parseInt(line[5]),
-                            Integer.parseInt(line[6]),
-                            Integer.parseInt(line[7]));
-
-                    BlockVector min = Vector.getMinimum(pt1, pt2).toBlockVector();
-                    BlockVector max = Vector.getMaximum(pt1, pt2).toBlockVector();
-
-                    int priority = entries.get(8) == null ? 0 : Integer.parseInt(entries.get(8));
-                    String ownersData = entries.get(9);
-                    String flagsData = entries.get(10);
-                    //String enterMessage = nullEmptyString(entries.get(11));
-
-                    ProtectedRequest request = new ProtectedCuboidRequest(id, min, max);
-                    request.setPriority(priority);
-                    parseFlags(request, flagsData);
-                    request.setOwners(this.parseDomains(ownersData));
-                    requests.put(id, request);
-                } else if (type.equalsIgnoreCase("cuboid.2")) {
-                    Vector pt1 = new Vector(
-                            Integer.parseInt(line[2]),
-                            Integer.parseInt(line[3]),
-                            Integer.parseInt(line[4]));
-                    Vector pt2 = new Vector(
-                            Integer.parseInt(line[5]),
-                            Integer.parseInt(line[6]),
-                            Integer.parseInt(line[7]));
-
-                    BlockVector min = Vector.getMinimum(pt1, pt2).toBlockVector();
-                    BlockVector max = Vector.getMaximum(pt1, pt2).toBlockVector();
-
-                    int priority = entries.get(8) == null ? 0 : Integer.parseInt(entries.get(8));
-                    String parentId = entries.get(9);
-                    String ownersData = entries.get(10);
-                    String membersData = entries.get(11);
-                    String flagsData = entries.get(12);
-                    //String enterMessage = nullEmptyString(entries.get(13));
-                    //String leaveMessage = nullEmptyString(entries.get(14));
-
-                    ProtectedRequest request = new ProtectedCuboidRequest(id, min, max);
-                    request.setPriority(priority);
-                    parseFlags(request, flagsData);
-                    request.setOwners(this.parseDomains(ownersData));
-                    request.setMembers(this.parseDomains(membersData));
-                    requests.put(id, request);
-
-                    // Link children to parents later
-                    if (parentId.length() > 0) {
-                        parentSets.put(request, parentId);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            throw new ProtectionDatabaseException(e);
-        } finally {
-            try {
-                reader.close();
-            } catch (IOException ignored) {
-            }
-        }
-
-        for (Map.Entry<ProtectedRequest, String> entry : parentSets.entrySet()) {
-            ProtectedRequest parent = requests.get(entry.getValue());
-            if (parent != null) {
-                try {
-                    entry.getKey().setParent(parent);
-                } catch (CircularInheritanceException e) {
-                    logger.warning("Circular inheritance detect with '"
-                            + entry.getValue() + "' detected as a parent");
-                }
-            } else {
-                logger.warning("Unknown request parent: " + entry.getValue());
-            }
-        }
-
-        this.requests = requests;
+//        Map<String,Request> requests =
+//                new HashMap<String,Request>();
+//        Map<Request,String> parentSets =
+//                new LinkedHashMap<Request, String>();
+//
+//        CSVReader reader = null;
+//        try {
+//            reader = new CSVReader(new FileReader(file));
+//
+//            String[] line;
+//
+//            while ((line = reader.readNext()) != null) {
+//                if (line.length < 2) {
+//                    logger.warning("Invalid request definition: " + line);
+//                    continue;
+//                }
+//
+//                String id = line[0].toLowerCase().replace(".", "");
+//                String type = line[1];
+//                ArrayReader<String> entries = new ArrayReader<String>(line);
+//
+//                if (type.equalsIgnoreCase("cuboid")) {
+//                    if (line.length < 8) {
+//                        logger.warning("Invalid request definition: " + line);
+//                        continue;
+//                    }
+//
+//                    Vector pt1 = new Vector(
+//                            Integer.parseInt(line[2]),
+//                            Integer.parseInt(line[3]),
+//                            Integer.parseInt(line[4]));
+//                    Vector pt2 = new Vector(
+//                            Integer.parseInt(line[5]),
+//                            Integer.parseInt(line[6]),
+//                            Integer.parseInt(line[7]));
+//
+//                    BlockVector min = Vector.getMinimum(pt1, pt2).toBlockVector();
+//                    BlockVector max = Vector.getMaximum(pt1, pt2).toBlockVector();
+//
+//                    int priority = entries.get(8) == null ? 0 : Integer.parseInt(entries.get(8));
+//                    String ownersData = entries.get(9);
+//                    String flagsData = entries.get(10);
+//                    //String enterMessage = nullEmptyString(entries.get(11));
+//
+//                    Request request = new ProtectedCuboidRequest(id, min, max);
+//                    request.setPriority(priority);
+//                    parseFlags(request, flagsData);
+//                    request.setOwners(this.parseDomains(ownersData));
+//                    requests.put(id, request);
+//                } else if (type.equalsIgnoreCase("cuboid.2")) {
+//                    Vector pt1 = new Vector(
+//                            Integer.parseInt(line[2]),
+//                            Integer.parseInt(line[3]),
+//                            Integer.parseInt(line[4]));
+//                    Vector pt2 = new Vector(
+//                            Integer.parseInt(line[5]),
+//                            Integer.parseInt(line[6]),
+//                            Integer.parseInt(line[7]));
+//
+//                    BlockVector min = Vector.getMinimum(pt1, pt2).toBlockVector();
+//                    BlockVector max = Vector.getMaximum(pt1, pt2).toBlockVector();
+//
+//                    int priority = entries.get(8) == null ? 0 : Integer.parseInt(entries.get(8));
+//                    String parentId = entries.get(9);
+//                    String ownersData = entries.get(10);
+//                    String membersData = entries.get(11);
+//                    String flagsData = entries.get(12);
+//                    //String enterMessage = nullEmptyString(entries.get(13));
+//                    //String leaveMessage = nullEmptyString(entries.get(14));
+//
+//                    Request request = new ProtectedCuboidRequest(id, min, max);
+//                    request.setPriority(priority);
+//                    parseFlags(request, flagsData);
+//                    request.setOwners(this.parseDomains(ownersData));
+//                    request.setMembers(this.parseDomains(membersData));
+//                    requests.put(id, request);
+//
+//                    // Link children to parents later
+//                    if (parentId.length() > 0) {
+//                        parentSets.put(request, parentId);
+//                    }
+//                }
+//            }
+//        } catch (IOException e) {
+//            throw new ProtectionDatabaseException(e);
+//        } finally {
+//            try {
+//                reader.close();
+//            } catch (IOException ignored) {
+//            }
+//        }
+//
+//        for (Map.Entry<Request, String> entry : parentSets.entrySet()) {
+//            Request parent = requests.get(entry.getValue());
+//            if (parent != null) {
+//                try {
+//                    entry.getKey().setParent(parent);
+//                } catch (CircularInheritanceException e) {
+//                    logger.warning("Circular inheritance detect with '"
+//                            + entry.getValue() + "' detected as a parent");
+//                }
+//            } else {
+//                logger.warning("Unknown request parent: " + entry.getValue());
+//            }
+//        }
+//
+//        this.requests = requests;
     }
 
     /**
@@ -251,43 +251,43 @@ public class CSVDatabase extends AbstractProtectionDatabase {
      *
      * @param data The flag data in string format
      */
-    private void parseFlags(ProtectedRequest request, String data) {
+    private void parseFlags(Request request, String data) {
         if (data == null) {
             return;
         }
 
-        State curState = State.ALLOW;
-
-        for (int i = 0; i < data.length(); i++) {
-            char k = data.charAt(i);
-            if (k == '+') {
-                curState = State.ALLOW;
-            } else if (k == '-') {
-                curState = State.DENY;
-            } else {
-                String flagStr;
-                if (k == '_') {
-                    if (i == data.length() - 1) {
-                        logger.warning("_ read ahead fail");
-                        break;
-                    }
-                    flagStr = "_" + data.charAt(i + 1);
-                    i++;
-
-                    logger.warning("_? custom flags are no longer supported");
-                    continue;
-                } else {
-                    flagStr = String.valueOf(k);
-                }
-
-                StateFlag flag = legacyFlagCodes.get(flagStr);
-                if (flag != null) {
-                    request.setFlag(flag, curState);
-                } else {
-                    logger.warning("Legacy flag '" + flagStr + "' is unsupported");
-                }
-            }
-        }
+//        State curState = State.ALLOW;
+//
+//        for (int i = 0; i < data.length(); i++) {
+//            char k = data.charAt(i);
+//            if (k == '+') {
+//                curState = State.ALLOW;
+//            } else if (k == '-') {
+//                curState = State.DENY;
+//            } else {
+//                String flagStr;
+//                if (k == '_') {
+//                    if (i == data.length() - 1) {
+//                        logger.warning("_ read ahead fail");
+//                        break;
+//                    }
+//                    flagStr = "_" + data.charAt(i + 1);
+//                    i++;
+//
+//                    logger.warning("_? custom flags are no longer supported");
+//                    continue;
+//                } else {
+//                    flagStr = String.valueOf(k);
+//                }
+//
+//                StateFlag flag = legacyFlagCodes.get(flagStr);
+//                if (flag != null) {
+//                    request.setFlag(flag, curState);
+//                } else {
+//                    logger.warning("Legacy flag '" + flagStr + "' is unsupported");
+//                }
+//            }
+//        }
     }
 
     /**
@@ -347,11 +347,11 @@ public class CSVDatabase extends AbstractProtectionDatabase {
         }
     }
 
-    public Map<String,ProtectedRequest> getRequests() {
+    public Map<String,Request> getRequests() {
         return requests;
     }
 
-    public void setRequests(Map<String,ProtectedRequest> requests) {
+    public void setRequests(Map<String,Request> requests) {
         this.requests = requests;
     }
 }

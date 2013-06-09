@@ -20,7 +20,7 @@ package org.stakeaclaim.protection.flags;
 
 import org.stakeaclaim.LocalPlayer;
 import org.stakeaclaim.protection.ApplicableRequestSet;
-import org.stakeaclaim.protection.requests.ProtectedRequest;
+import org.stakeaclaim.protection.requests.Request;
 
 /**
  *
@@ -60,53 +60,53 @@ public class RequestGroupFlag extends EnumFlag<RequestGroup> {
         }
     }
 
-    public static boolean isMember(ProtectedRequest request, RequestGroup group, LocalPlayer player) {
-        if (group == null || group == RequestGroup.ALL) {
-            return true;
-        } else if (group == RequestGroup.OWNERS) {
-            if (request.isOwner(player)) {
-                return true;
-            }
-        } else if (group == RequestGroup.MEMBERS) {
-            if (request.isMember(player)) {
-                return true;
-            }
-        } else if (group == RequestGroup.NON_OWNERS) {
-            if (!request.isOwner(player)) {
-                return true;
-            }
-        } else if (group == RequestGroup.NON_MEMBERS) {
-            if (!request.isMember(player)) {
-                return true;
-            }
-        }
+//    public static boolean isMember(Request request, RequestGroup group, LocalPlayer player) {
+//        if (group == null || group == RequestGroup.ALL) {
+//            return true;
+//        } else if (group == RequestGroup.OWNERS) {
+//            if (request.isOwner(player)) {
+//                return true;
+//            }
+//        } else if (group == RequestGroup.MEMBERS) {
+//            if (request.isMember(player)) {
+//                return true;
+//            }
+//        } else if (group == RequestGroup.NON_OWNERS) {
+//            if (!request.isOwner(player)) {
+//                return true;
+//            }
+//        } else if (group == RequestGroup.NON_MEMBERS) {
+//            if (!request.isMember(player)) {
+//                return true;
+//            }
+//        }
+//
+//        return false;
+//    }
 
-        return false;
-    }
-
-    public static boolean isMember(ApplicableRequestSet set,
-                                   RequestGroup group, LocalPlayer player) {
-        if (group == null || group == RequestGroup.ALL) {
-            return true;
-        } else if (group == RequestGroup.OWNERS) {
-            if (set.isOwnerOfAll(player)) {
-                return true;
-            }
-        } else if (group == RequestGroup.MEMBERS) {
-            if (set.isMemberOfAll(player)) {
-                return true;
-            }
-        } else if (group == RequestGroup.NON_OWNERS) {
-            if (!set.isOwnerOfAll(player)) {
-                return true;
-            }
-        } else if (group == RequestGroup.NON_MEMBERS) {
-            if (!set.isMemberOfAll(player)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
+//    public static boolean isMember(ApplicableRequestSet set,
+//                                   RequestGroup group, LocalPlayer player) {
+//        if (group == null || group == RequestGroup.ALL) {
+//            return true;
+//        } else if (group == RequestGroup.OWNERS) {
+//            if (set.isOwnerOfAll(player)) {
+//                return true;
+//            }
+//        } else if (group == RequestGroup.MEMBERS) {
+//            if (set.isMemberOfAll(player)) {
+//                return true;
+//            }
+//        } else if (group == RequestGroup.NON_OWNERS) {
+//            if (!set.isOwnerOfAll(player)) {
+//                return true;
+//            }
+//        } else if (group == RequestGroup.NON_MEMBERS) {
+//            if (!set.isMemberOfAll(player)) {
+//                return true;
+//            }
+//        }
+//
+//        return false;
+//    }
 
 }

@@ -40,7 +40,7 @@ import org.stakeaclaim.protection.flags.DefaultFlag;
 import org.stakeaclaim.protection.flags.Flag;
 import org.stakeaclaim.protection.flags.StateFlag;
 import org.stakeaclaim.protection.managers.RequestManager;
-import org.stakeaclaim.protection.requests.ProtectedRequest;
+import org.stakeaclaim.protection.requests.Request;
 import org.stakeaclaim.util.LogListBlock;
 
 public class ReportWriter {
@@ -294,17 +294,17 @@ public class ReportWriter {
             requestsLog.put("Number of requests", worldRequests.getRequests().size());
             LogListBlock globalRequestLog = requestsLog.putChild("Global request");
             
-            ProtectedRequest globalRequest = worldRequests.getRequest("__global__");
-            if (globalRequest == null) {
-                globalRequestLog.put("Status", "UNDEFINED");
-            } else {
-                for (Flag<?> flag : DefaultFlag.getFlags()) {
-                    if (flag instanceof StateFlag) {
-                        globalRequestLog.put(flag.getName(),
-                                globalRequest.getFlag(flag));
-                    }
-                }
-            }
+            Request globalRequest = worldRequests.getRequest("__global__");
+//            if (globalRequest == null) {
+//                globalRequestLog.put("Status", "UNDEFINED");
+//            } else {
+//                for (Flag<?> flag : DefaultFlag.getFlags()) {
+//                    if (flag instanceof StateFlag) {
+//                        globalRequestLog.put(flag.getName(),
+//                                globalRequest.getFlag(flag));
+//                    }
+//                }
+//            }
         }
 
         append(log);

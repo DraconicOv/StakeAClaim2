@@ -25,7 +25,7 @@ import java.util.Set;
 
 import org.stakeaclaim.protection.databases.ProtectionDatabase;
 import org.stakeaclaim.protection.databases.ProtectionDatabaseException;
-import org.stakeaclaim.protection.requests.ProtectedRequest;
+import org.stakeaclaim.protection.requests.Request;
 
 public abstract class AbstractDatabaseMigrator implements DatabaseMigrator {
 
@@ -43,7 +43,7 @@ public abstract class AbstractDatabaseMigrator implements DatabaseMigrator {
 
     protected abstract Set<String> getWorldsFromOld() throws MigrationException;
 
-    protected abstract Map<String, ProtectedRequest> getRequestsForWorldFromOld(String world) throws MigrationException;
+    protected abstract Map<String, Request> getRequestsForWorldFromOld(String world) throws MigrationException;
 
     protected abstract ProtectionDatabase getNewWorldStorage(String world) throws MigrationException;
 

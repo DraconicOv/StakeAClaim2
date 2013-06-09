@@ -39,16 +39,16 @@ import com.sk89q.worldedit.Vector;
 import org.stakeaclaim.domains.DefaultDomain;
 import org.stakeaclaim.protection.flags.DefaultFlag;
 import org.stakeaclaim.protection.flags.Flag;
-import org.stakeaclaim.protection.requests.GlobalProtectedRequest;
-import org.stakeaclaim.protection.requests.ProtectedCuboidRequest;
-import org.stakeaclaim.protection.requests.ProtectedPolygonalRequest;
-import org.stakeaclaim.protection.requests.ProtectedRequest;
-import org.stakeaclaim.protection.requests.ProtectedRequest.CircularInheritanceException;
+import org.stakeaclaim.protection.requests.GlobalRequest;
+//import org.stakeaclaim.protection.requests.ProtectedCuboidRequest;
+//import org.stakeaclaim.protection.requests.ProtectedPolygonalRequest;
+import org.stakeaclaim.protection.requests.Request;
+//import org.stakeaclaim.protection.requests.Request.CircularInheritanceException;
 
 public class YAMLDatabase extends AbstractProtectionDatabase {
     
     private YAMLProcessor config;
-    private Map<String, ProtectedRequest> requests;
+    private Map<String, Request> requests;
     private final Logger logger;
     
     public YAMLDatabase(File file, Logger logger) throws ProtectionDatabaseException, FileNotFoundException {
@@ -74,21 +74,21 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
         
         // No requests are even configured
         if (requestData == null) {
-            this.requests = new HashMap<String, ProtectedRequest>();
+            this.requests = new HashMap<String, Request>();
             return;
         }
 
-        Map<String,ProtectedRequest> requests =
-            new HashMap<String,ProtectedRequest>();
-        Map<ProtectedRequest,String> parentSets =
-            new LinkedHashMap<ProtectedRequest, String>();
+        Map<String,Request> requests =
+            new HashMap<String,Request>();
+        Map<Request,String> parentSets =
+            new LinkedHashMap<Request, String>();
         
         for (Map.Entry<String, YAMLNode> entry : requestData.entrySet()) {
             String id = entry.getKey().toLowerCase().replace(".", "");
             YAMLNode node = entry.getValue();
             
             String type = node.getString("type");
-            ProtectedRequest request;
+            Request request;
             
             try {
                 if (type == null) {
@@ -99,45 +99,45 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
                     Vector pt2 = checkNonNull(node.getVector("max"));
                     BlockVector min = Vector.getMinimum(pt1, pt2).toBlockVector();
                     BlockVector max = Vector.getMaximum(pt1, pt2).toBlockVector();
-                    request = new ProtectedCuboidRequest(id, min, max);
+//                    request = new ProtectedCuboidRequest(id, min, max);
                 } else if (type.equals("poly2d")) {
                     Integer minY = checkNonNull(node.getInt("min-y"));
                     Integer maxY = checkNonNull(node.getInt("max-y"));
                     List<BlockVector2D> points = node.getBlockVector2dList("points", null);
-                    request = new ProtectedPolygonalRequest(id, points, minY, maxY);
+//                    request = new ProtectedPolygonalRequest(id, points, minY, maxY);
                 } else if (type.equals("global")) {
-                    request = new GlobalProtectedRequest(id);
+//                    request = new GlobalRequest(id);
                 } else {
                     logger.warning("Unknown request type for request '" + id + '"');
                     continue;
                 }
                 
                 Integer priority = checkNonNull(node.getInt("priority"));
-                request.setPriority(priority);
-                setFlags(request, node.getNode("flags"));
-                request.setOwners(parseDomain(node.getNode("owners")));
-                request.setMembers(parseDomain(node.getNode("members")));
-                requests.put(id, request);
+//                request.setPriority(priority);
+//                setFlags(request, node.getNode("flags"));
+//                request.setOwners(parseDomain(node.getNode("owners")));
+//                request.setMembers(parseDomain(node.getNode("members")));
+//                requests.put(id, request);
                 
-                String parentId = node.getString("parent");
-                if (parentId != null) {
-                    parentSets.put(request, parentId);
-                }
+//                String parentId = node.getString("parent");
+//                if (parentId != null) {
+//                    parentSets.put(request, parentId);
+//                }
             } catch (NullPointerException e) {
                 logger.warning("Missing data for request '" + id + '"');
             }
         }
         
         // Relink parents
-        for (Map.Entry<ProtectedRequest, String> entry : parentSets.entrySet()) {
-            ProtectedRequest parent = requests.get(entry.getValue());
+        for (Map.Entry<Request, String> entry : parentSets.entrySet()) {
+            Request parent = requests.get(entry.getValue());
             if (parent != null) {
-                try {
-                    entry.getKey().setParent(parent);
-                } catch (CircularInheritanceException e) {
-                    logger.warning("Circular inheritance detect with '"
-                            + entry.getValue() + "' detected as a parent");
-                }
+//                try {
+//                    entry.getKey().setParent(parent);
+//                } catch (CircularInheritanceException e) {
+//                    logger.warning("Circular inheritance detect with '"
+//                            + entry.getValue() + "' detected as a parent");
+//                }
             } else {
                 logger.warning("Unknown request parent: " + entry.getValue());
             }
@@ -154,7 +154,7 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
         return val;
     }
     
-    private void setFlags(ProtectedRequest request, YAMLNode flagsData) {
+    private void setFlags(Request request, YAMLNode flagsData) {
         if (flagsData == null) {
             return;
         }
@@ -175,14 +175,14 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
         }
     }
     
-    private <T> void setFlag(ProtectedRequest request, Flag<T> flag, Object rawValue) {
+    private <T> void setFlag(Request request, Flag<T> flag, Object rawValue) {
         T val = flag.unmarshal(rawValue);
         if (val == null) {
             logger.warning("Failed to parse flag '" + flag.getName()
                     + "' with value '" + rawValue.toString() + "'");
             return;
         }
-        request.setFlag(flag, val);
+//        request.setFlag(flag, val);
     }
     
     private DefaultDomain parseDomain(YAMLNode node) {
@@ -206,44 +206,44 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
     public void save() throws ProtectionDatabaseException {
         config.clear();
         
-        for (Map.Entry<String, ProtectedRequest> entry : requests.entrySet()) {
-            ProtectedRequest request = entry.getValue();
+        for (Map.Entry<String, Request> entry : requests.entrySet()) {
+            Request request = entry.getValue();
             YAMLNode node = config.addNode("requests." + entry.getKey());
             
-            if (request instanceof ProtectedCuboidRequest) {
-                ProtectedCuboidRequest cuboid = (ProtectedCuboidRequest) request;
-                node.setProperty("type", "cuboid");
-                node.setProperty("min", cuboid.getMinimumPoint());
-                node.setProperty("max", cuboid.getMaximumPoint());
-            } else if (request instanceof ProtectedPolygonalRequest) {
-                ProtectedPolygonalRequest poly = (ProtectedPolygonalRequest) request;
-                node.setProperty("type", "poly2d");
-                node.setProperty("min-y", poly.getMinimumPoint().getBlockY());
-                node.setProperty("max-y", poly.getMaximumPoint().getBlockY());
-                
-                List<Map<String, Object>> points = new ArrayList<Map<String,Object>>();
-                for (BlockVector2D point : poly.getPoints()) {
-                    Map<String, Object> data = new HashMap<String, Object>();
-                    data.put("x", point.getBlockX());
-                    data.put("z", point.getBlockZ());
-                    points.add(data);
-                }
-                
-                node.setProperty("points", points);
-            } else if (request instanceof GlobalProtectedRequest) {
-                node.setProperty("type", "global");
-            } else {
-                node.setProperty("type", request.getClass().getCanonicalName());
-            }
+//            if (request instanceof ProtectedCuboidRequest) {
+//                ProtectedCuboidRequest cuboid = (ProtectedCuboidRequest) request;
+//                node.setProperty("type", "cuboid");
+//                node.setProperty("min", cuboid.getMinimumPoint());
+//                node.setProperty("max", cuboid.getMaximumPoint());
+//            } else if (request instanceof ProtectedPolygonalRequest) {
+//                ProtectedPolygonalRequest poly = (ProtectedPolygonalRequest) request;
+//                node.setProperty("type", "poly2d");
+//                node.setProperty("min-y", poly.getMinimumPoint().getBlockY());
+//                node.setProperty("max-y", poly.getMaximumPoint().getBlockY());
+//                
+//                List<Map<String, Object>> points = new ArrayList<Map<String,Object>>();
+//                for (BlockVector2D point : poly.getPoints()) {
+//                    Map<String, Object> data = new HashMap<String, Object>();
+//                    data.put("x", point.getBlockX());
+//                    data.put("z", point.getBlockZ());
+//                    points.add(data);
+//                }
+//                
+//                node.setProperty("points", points);
+//            } else if (request instanceof GlobalRequest) {
+//                node.setProperty("type", "global");
+//            } else {
+//                node.setProperty("type", request.getClass().getCanonicalName());
+//            }
 
-            node.setProperty("priority", request.getPriority());
+//            node.setProperty("priority", request.getPriority());
             node.setProperty("flags", getFlagData(request));
-            node.setProperty("owners", getDomainData(request.getOwners()));
-            node.setProperty("members", getDomainData(request.getMembers()));
-            ProtectedRequest parent = request.getParent();
-            if (parent != null) {
-                node.setProperty("parent", parent.getId());
-            }
+//            node.setProperty("owners", getDomainData(request.getOwners()));
+//            node.setProperty("members", getDomainData(request.getMembers()));
+//            Request parent = request.getParent();
+//            if (parent != null) {
+//                node.setProperty("parent", parent.getId());
+//            }
         }
         
         config.setHeader("#\r\n" +
@@ -260,13 +260,13 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
         config.save();
     }
     
-    private Map<String, Object> getFlagData(ProtectedRequest request) {
+    private Map<String, Object> getFlagData(Request request) {
         Map<String, Object> flagData = new HashMap<String, Object>();
         
-        for (Map.Entry<Flag<?>, Object> entry : request.getFlags().entrySet()) {
-            Flag<?> flag = entry.getKey();
-            addMarshalledFlag(flagData, flag, entry.getValue());
-        }
+//        for (Map.Entry<Flag<?>, Object> entry : request.getFlags().entrySet()) {
+//            Flag<?> flag = entry.getKey();
+//            addMarshalledFlag(flagData, flag, entry.getValue());
+//        }
         
         return flagData;
     }
@@ -304,11 +304,11 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
         domainData.put(key, list);
     }
 
-    public Map<String, ProtectedRequest> getRequests() {
+    public Map<String, Request> getRequests() {
         return requests;
     }
 
-    public void setRequests(Map<String, ProtectedRequest> requests) {
+    public void setRequests(Map<String, Request> requests) {
         this.requests = requests;
     }
     

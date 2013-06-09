@@ -34,7 +34,7 @@ import org.stakeaclaim.protection.databases.ProtectionDatabaseException;
 import org.stakeaclaim.protection.databases.RequestDBUtil;
 import org.stakeaclaim.protection.flags.DefaultFlag;
 import org.stakeaclaim.protection.managers.RequestManager;
-import org.stakeaclaim.protection.requests.ProtectedRequest;
+import org.stakeaclaim.protection.requests.Request;
 
 // @TODO: A lot of code duplication here! Need to fix.
 
@@ -45,221 +45,221 @@ public class RequestMemberCommands {
         this.plugin = plugin;
     }
 
-    @Command(aliases = {"addmember", "addmember"},
-            usage = "<id> <members...>",
-            flags = "w:",
-            desc = "Add a member to a request",
-            min = 2)
-    public void addMember(CommandContext args, CommandSender sender) throws CommandException {
-        final World world;
-        Player player;
-        LocalPlayer localPlayer = null;
-        if (args.hasFlag('w')) {
-            world = plugin.matchWorld(sender, args.getFlag('w'));
-        } else {
-            player = plugin.checkPlayer(sender);
-            localPlayer = plugin.wrapPlayer(player);
-            world = player.getWorld();
-        }
+//    @Command(aliases = {"addmember", "addmember"},
+//            usage = "<id> <members...>",
+//            flags = "w:",
+//            desc = "Add a member to a request",
+//            min = 2)
+//    public void addMember(CommandContext args, CommandSender sender) throws CommandException {
+//        final World world;
+//        Player player;
+//        LocalPlayer localPlayer = null;
+//        if (args.hasFlag('w')) {
+//            world = plugin.matchWorld(sender, args.getFlag('w'));
+//        } else {
+//            player = plugin.checkPlayer(sender);
+//            localPlayer = plugin.wrapPlayer(player);
+//            world = player.getWorld();
+//        }
+//
+//        String id = args.getString(0);
+//
+//        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+//        Request request = mgr.getRequest(id);
+//
+//        if (request == null) {
+//            throw new CommandException("Could not find a request by that ID.");
+//        }
+//
+//        id = request.getId();
+//
+//        if (localPlayer != null) {
+//            if (request.isOwner(localPlayer)) {
+//                plugin.checkPermission(sender, "stakeaclaim.request.addmember.own." + id.toLowerCase());
+//            } else if (request.isMember(localPlayer)) {
+//                plugin.checkPermission(sender, "stakeaclaim.request.addmember.member." + id.toLowerCase());
+//            } else {
+//                plugin.checkPermission(sender, "stakeaclaim.request.addmember." + id.toLowerCase());
+//            }
+//        }
+//
+//        RequestDBUtil.addToDomain(request.getMembers(), args.getPaddedSlice(2, 0), 0);
+//
+//        sender.sendMessage(ChatColor.YELLOW
+//                + "Request '" + id + "' updated.");
+//
+//        try {
+//            mgr.save();
+//        } catch (ProtectionDatabaseException e) {
+//            throw new CommandException("Failed to write requests: "
+//                    + e.getMessage());
+//        }
+//    }
 
-        String id = args.getString(0);
+//    @Command(aliases = {"addowner", "addowner"},
+//            usage = "<id> <owners...>",
+//            flags = "w:",
+//            desc = "Add an owner to a request",
+//            min = 2)
+//    public void addOwner(CommandContext args, CommandSender sender) throws CommandException {
+//        final World world;
+//        Player player = null;
+//        LocalPlayer localPlayer = null;
+//        if (args.hasFlag('w')) {
+//            world = plugin.matchWorld(sender, args.getFlag('w'));
+//        } else {
+//            player = plugin.checkPlayer(sender);
+//            localPlayer = plugin.wrapPlayer(player);
+//            world = player.getWorld();
+//        }
+//
+//        String id = args.getString(0);
+//
+//        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+//        Request request = mgr.getRequest(id);
+//
+//        if (request == null) {
+//            throw new CommandException("Could not find a request by that ID.");
+//        }
+//
+//        id = request.getId();
+//
+//        Boolean flag = request.getFlag(DefaultFlag.BUYABLE);
+//        DefaultDomain owners = request.getOwners();
+//        if (localPlayer != null) {
+//            if (flag != null && flag && owners != null && owners.size() == 0) {
+//                if (!plugin.hasPermission(player, "stakeaclaim.request.unlimited")) {
+//                    int maxRequestCount = plugin.getGlobalStateManager().get(world).getMaxRequestCount(player);
+//                    if (maxRequestCount >= 0 && mgr.getRequestCountOfPlayer(localPlayer)
+//                            >= maxRequestCount) {
+//                        throw new CommandException("You already own the maximum allowed amount of requests.");
+//                    }
+//                }
+//                plugin.checkPermission(sender, "stakeaclaim.request.addowner.unclaimed." + id.toLowerCase());
+//            } else {
+//                if (request.isOwner(localPlayer)) {
+//                    plugin.checkPermission(sender, "stakeaclaim.request.addowner.own." + id.toLowerCase());
+//                } else if (request.isMember(localPlayer)) {
+//                    plugin.checkPermission(sender, "stakeaclaim.request.addowner.member." + id.toLowerCase());
+//                } else {
+//                    plugin.checkPermission(sender, "stakeaclaim.request.addowner." + id.toLowerCase());
+//                }
+//            }
+//        }
+//
+//        RequestDBUtil.addToDomain(request.getOwners(), args.getPaddedSlice(2, 0), 0);
+//
+//        sender.sendMessage(ChatColor.YELLOW
+//                + "Request '" + id + "' updated.");
+//
+//        try {
+//            mgr.save();
+//        } catch (ProtectionDatabaseException e) {
+//            throw new CommandException("Failed to write requests: "
+//                    + e.getMessage());
+//        }
+//    }
 
-        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-        ProtectedRequest request = mgr.getRequest(id);
+//    @Command(aliases = {"removemember", "remmember", "removemem", "remmem"},
+//            usage = "<id> <owners...>",
+//            flags = "w:",
+//            desc = "Remove an owner to a request",
+//            min = 2)
+//    public void removeMember(CommandContext args, CommandSender sender) throws CommandException {
+//        final World world;
+//        Player player;
+//        LocalPlayer localPlayer = null;
+//        if (args.hasFlag('w')) {
+//            world = plugin.matchWorld(sender, args.getFlag('w'));
+//        } else {
+//            player = plugin.checkPlayer(sender);
+//            localPlayer = plugin.wrapPlayer(player);
+//            world = player.getWorld();
+//        }
+//
+//        String id = args.getString(0);
+//
+//        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+//        Request request = mgr.getRequest(id);
+//
+//        if (request == null) {
+//            throw new CommandException("Could not find a request by that ID.");
+//        }
+//
+//        id = request.getId();
+//
+//        if (localPlayer != null) {
+//            if (request.isOwner(localPlayer)) {
+//                plugin.checkPermission(sender, "stakeaclaim.request.removemember.own." + id.toLowerCase());
+//            } else if (request.isMember(localPlayer)) {
+//                plugin.checkPermission(sender, "stakeaclaim.request.removemember.member." + id.toLowerCase());
+//            } else {
+//                plugin.checkPermission(sender, "stakeaclaim.request.removemember." + id.toLowerCase());
+//            }
+//        }
+//
+//        RequestDBUtil.removeFromDomain(request.getMembers(), args.getPaddedSlice(2, 0), 0);
+//
+//        sender.sendMessage(ChatColor.YELLOW
+//                + "Request '" + id + "' updated.");
+//
+//        try {
+//            mgr.save();
+//        } catch (ProtectionDatabaseException e) {
+//            throw new CommandException("Failed to write requests: "
+//                    + e.getMessage());
+//        }
+//    }
 
-        if (request == null) {
-            throw new CommandException("Could not find a request by that ID.");
-        }
-
-        id = request.getId();
-
-        if (localPlayer != null) {
-            if (request.isOwner(localPlayer)) {
-                plugin.checkPermission(sender, "stakeaclaim.request.addmember.own." + id.toLowerCase());
-            } else if (request.isMember(localPlayer)) {
-                plugin.checkPermission(sender, "stakeaclaim.request.addmember.member." + id.toLowerCase());
-            } else {
-                plugin.checkPermission(sender, "stakeaclaim.request.addmember." + id.toLowerCase());
-            }
-        }
-
-        RequestDBUtil.addToDomain(request.getMembers(), args.getPaddedSlice(2, 0), 0);
-
-        sender.sendMessage(ChatColor.YELLOW
-                + "Request '" + id + "' updated.");
-
-        try {
-            mgr.save();
-        } catch (ProtectionDatabaseException e) {
-            throw new CommandException("Failed to write requests: "
-                    + e.getMessage());
-        }
-    }
-
-    @Command(aliases = {"addowner", "addowner"},
-            usage = "<id> <owners...>",
-            flags = "w:",
-            desc = "Add an owner to a request",
-            min = 2)
-    public void addOwner(CommandContext args, CommandSender sender) throws CommandException {
-        final World world;
-        Player player = null;
-        LocalPlayer localPlayer = null;
-        if (args.hasFlag('w')) {
-            world = plugin.matchWorld(sender, args.getFlag('w'));
-        } else {
-            player = plugin.checkPlayer(sender);
-            localPlayer = plugin.wrapPlayer(player);
-            world = player.getWorld();
-        }
-
-        String id = args.getString(0);
-
-        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-        ProtectedRequest request = mgr.getRequest(id);
-
-        if (request == null) {
-            throw new CommandException("Could not find a request by that ID.");
-        }
-
-        id = request.getId();
-
-        Boolean flag = request.getFlag(DefaultFlag.BUYABLE);
-        DefaultDomain owners = request.getOwners();
-        if (localPlayer != null) {
-            if (flag != null && flag && owners != null && owners.size() == 0) {
-                if (!plugin.hasPermission(player, "stakeaclaim.request.unlimited")) {
-                    int maxRequestCount = plugin.getGlobalStateManager().get(world).getMaxRequestCount(player);
-                    if (maxRequestCount >= 0 && mgr.getRequestCountOfPlayer(localPlayer)
-                            >= maxRequestCount) {
-                        throw new CommandException("You already own the maximum allowed amount of requests.");
-                    }
-                }
-                plugin.checkPermission(sender, "stakeaclaim.request.addowner.unclaimed." + id.toLowerCase());
-            } else {
-                if (request.isOwner(localPlayer)) {
-                    plugin.checkPermission(sender, "stakeaclaim.request.addowner.own." + id.toLowerCase());
-                } else if (request.isMember(localPlayer)) {
-                    plugin.checkPermission(sender, "stakeaclaim.request.addowner.member." + id.toLowerCase());
-                } else {
-                    plugin.checkPermission(sender, "stakeaclaim.request.addowner." + id.toLowerCase());
-                }
-            }
-        }
-
-        RequestDBUtil.addToDomain(request.getOwners(), args.getPaddedSlice(2, 0), 0);
-
-        sender.sendMessage(ChatColor.YELLOW
-                + "Request '" + id + "' updated.");
-
-        try {
-            mgr.save();
-        } catch (ProtectionDatabaseException e) {
-            throw new CommandException("Failed to write requests: "
-                    + e.getMessage());
-        }
-    }
-
-    @Command(aliases = {"removemember", "remmember", "removemem", "remmem"},
-            usage = "<id> <owners...>",
-            flags = "w:",
-            desc = "Remove an owner to a request",
-            min = 2)
-    public void removeMember(CommandContext args, CommandSender sender) throws CommandException {
-        final World world;
-        Player player;
-        LocalPlayer localPlayer = null;
-        if (args.hasFlag('w')) {
-            world = plugin.matchWorld(sender, args.getFlag('w'));
-        } else {
-            player = plugin.checkPlayer(sender);
-            localPlayer = plugin.wrapPlayer(player);
-            world = player.getWorld();
-        }
-
-        String id = args.getString(0);
-
-        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-        ProtectedRequest request = mgr.getRequest(id);
-
-        if (request == null) {
-            throw new CommandException("Could not find a request by that ID.");
-        }
-
-        id = request.getId();
-
-        if (localPlayer != null) {
-            if (request.isOwner(localPlayer)) {
-                plugin.checkPermission(sender, "stakeaclaim.request.removemember.own." + id.toLowerCase());
-            } else if (request.isMember(localPlayer)) {
-                plugin.checkPermission(sender, "stakeaclaim.request.removemember.member." + id.toLowerCase());
-            } else {
-                plugin.checkPermission(sender, "stakeaclaim.request.removemember." + id.toLowerCase());
-            }
-        }
-
-        RequestDBUtil.removeFromDomain(request.getMembers(), args.getPaddedSlice(2, 0), 0);
-
-        sender.sendMessage(ChatColor.YELLOW
-                + "Request '" + id + "' updated.");
-
-        try {
-            mgr.save();
-        } catch (ProtectionDatabaseException e) {
-            throw new CommandException("Failed to write requests: "
-                    + e.getMessage());
-        }
-    }
-
-    @Command(aliases = {"removeowner", "remowner"},
-            usage = "<id> <owners...>",
-            flags = "w:",
-            desc = "Remove an owner to a request",
-            min = 2)
-    public void removeOwner(CommandContext args,
-            CommandSender sender) throws CommandException {
-        final World world;
-        Player player;
-        LocalPlayer localPlayer = null;
-        if (args.hasFlag('w')) {
-            world = plugin.matchWorld(sender, args.getFlag('w'));
-        } else {
-            player = plugin.checkPlayer(sender);
-            localPlayer = plugin.wrapPlayer(player);
-            world = player.getWorld();
-        }
-
-        String id = args.getString(0);
-
-        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-        ProtectedRequest request = mgr.getRequest(id);
-
-        if (request == null) {
-            throw new CommandException("Could not find a request by that ID.");
-        }
-
-        id = request.getId();
-
-        if (localPlayer != null) {
-            if (request.isOwner(localPlayer)) {
-                plugin.checkPermission(sender, "stakeaclaim.request.removeowner.own." + id.toLowerCase());
-            } else if (request.isMember(localPlayer)) {
-                plugin.checkPermission(sender, "stakeaclaim.request.removeowner.member." + id.toLowerCase());
-            } else {
-                plugin.checkPermission(sender, "stakeaclaim.request.removeowner." + id.toLowerCase());
-            }
-        }
-
-        RequestDBUtil.removeFromDomain(request.getOwners(), args.getPaddedSlice(2, 0), 0);
-
-        sender.sendMessage(ChatColor.YELLOW
-                + "Request '" + id + "' updated.");
-
-        try {
-            mgr.save();
-        } catch (ProtectionDatabaseException e) {
-            throw new CommandException("Failed to write requests: "
-                    + e.getMessage());
-        }
-    }
+//    @Command(aliases = {"removeowner", "remowner"},
+//            usage = "<id> <owners...>",
+//            flags = "w:",
+//            desc = "Remove an owner to a request",
+//            min = 2)
+//    public void removeOwner(CommandContext args,
+//            CommandSender sender) throws CommandException {
+//        final World world;
+//        Player player;
+//        LocalPlayer localPlayer = null;
+//        if (args.hasFlag('w')) {
+//            world = plugin.matchWorld(sender, args.getFlag('w'));
+//        } else {
+//            player = plugin.checkPlayer(sender);
+//            localPlayer = plugin.wrapPlayer(player);
+//            world = player.getWorld();
+//        }
+//
+//        String id = args.getString(0);
+//
+//        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+//        Request request = mgr.getRequest(id);
+//
+//        if (request == null) {
+//            throw new CommandException("Could not find a request by that ID.");
+//        }
+//
+//        id = request.getId();
+//
+//        if (localPlayer != null) {
+//            if (request.isOwner(localPlayer)) {
+//                plugin.checkPermission(sender, "stakeaclaim.request.removeowner.own." + id.toLowerCase());
+//            } else if (request.isMember(localPlayer)) {
+//                plugin.checkPermission(sender, "stakeaclaim.request.removeowner.member." + id.toLowerCase());
+//            } else {
+//                plugin.checkPermission(sender, "stakeaclaim.request.removeowner." + id.toLowerCase());
+//            }
+//        }
+//
+//        RequestDBUtil.removeFromDomain(request.getOwners(), args.getPaddedSlice(2, 0), 0);
+//
+//        sender.sendMessage(ChatColor.YELLOW
+//                + "Request '" + id + "' updated.");
+//
+//        try {
+//            mgr.save();
+//        } catch (ProtectionDatabaseException e) {
+//            throw new CommandException("Failed to write requests: "
+//                    + e.getMessage());
+//        }
+//    }
 }

@@ -23,7 +23,7 @@ import org.stakeaclaim.LocalPlayer;
 import org.stakeaclaim.protection.ApplicableRequestSet;
 import org.stakeaclaim.protection.UnsupportedIntersectionException;
 import org.stakeaclaim.protection.databases.ProtectionDatabase;
-import org.stakeaclaim.protection.requests.ProtectedRequest;
+import org.stakeaclaim.protection.requests.Request;
 
 import java.util.*;
 
@@ -39,7 +39,7 @@ public class FlatRequestManager extends RequestManager {
     /**
      * List of protected requests.
      */
-    private Map<String, ProtectedRequest> requests;
+    private Map<String, Request> requests;
 
     /**
      * Construct the manager.
@@ -48,35 +48,35 @@ public class FlatRequestManager extends RequestManager {
      */
     public FlatRequestManager(ProtectionDatabase requestLoader) {
         super(requestLoader);
-        requests = new TreeMap<String, ProtectedRequest>();
+        requests = new TreeMap<String, Request>();
     }
 
     @Override
-    public Map<String, ProtectedRequest> getRequests() {
+    public Map<String, Request> getRequests() {
         return requests;
     }
 
     @Override
-    public void setRequests(Map<String, ProtectedRequest> requests) {
-        this.requests = new TreeMap<String, ProtectedRequest>(requests);
+    public void setRequests(Map<String, Request> requests) {
+        this.requests = new TreeMap<String, Request>(requests);
     }
 
     @Override
-    public void addRequest(ProtectedRequest request) {
-        requests.put(request.getId().toLowerCase(), request);
+    public void addRequest(Request request) {
+//        requests.put(request.getId().toLowerCase(), request);
     }
 
     @Override
     public void removeRequest(String id) {
-        ProtectedRequest request = requests.get(id.toLowerCase());
+        Request request = requests.get(id.toLowerCase());
         requests.remove(id.toLowerCase());
 
         if (request != null) {
             List<String> removeRequests = new ArrayList<String>();
-            for (ProtectedRequest curRequest : requests.values()) {
-                if (curRequest.getParent() == request) {
-                    removeRequests.add(curRequest.getId().toLowerCase());
-                }
+            for (Request curRequest : requests.values()) {
+//                if (curRequest.getParent() == request) {
+//                    removeRequests.add(curRequest.getId().toLowerCase());
+//                }
             }
 
             for (String remId : removeRequests) {
@@ -92,24 +92,24 @@ public class FlatRequestManager extends RequestManager {
 
     @Override
     public ApplicableRequestSet getApplicableRequests(Vector pt) {
-        TreeSet<ProtectedRequest> appRequests =
-                new TreeSet<ProtectedRequest>();
+        TreeSet<Request> appRequests =
+                new TreeSet<Request>();
 
-        for (ProtectedRequest request : requests.values()) {
-            if (request.contains(pt)) {
-                appRequests.add(request);
-
-                ProtectedRequest parent = request.getParent();
-
-                while (parent != null) {
-                    if (!appRequests.contains(parent)) {
-                        appRequests.add(parent);
-                    }
-
-                    parent = parent.getParent();
-                }
-            }
-        }
+//        for (Request request : requests.values()) {
+//            if (request.contains(pt)) {
+//                appRequests.add(request);
+//
+//                Request parent = request.getParent();
+//
+//                while (parent != null) {
+//                    if (!appRequests.contains(parent)) {
+//                        appRequests.add(parent);
+//                    }
+//
+//                    parent = parent.getParent();
+//                }
+//            }
+//        }
 
         return new ApplicableRequestSet(appRequests, requests.get("__global__"));
     }
@@ -120,16 +120,16 @@ public class FlatRequestManager extends RequestManager {
      * @return
      */
     /*@Override
-    public ApplicableRequestSet getApplicableRequests(ProtectedRequest checkRequest) {
+    public ApplicableRequestSet getApplicableRequests(Request checkRequest) {
 
-        List<ProtectedRequest> appRequests = new ArrayList<ProtectedRequest>();
+        List<Request> appRequests = new ArrayList<Request>();
         appRequests.addAll(requests.values());
 
-        List<ProtectedRequest> intersectRequests;
+        List<Request> intersectRequests;
         try {
             intersectRequests = checkRequest.getIntersectingRequests(appRequests);
         } catch (Exception e) {
-            intersectRequests = new ArrayList<ProtectedRequest>();
+            intersectRequests = new ArrayList<Request>();
         }
 
         return new ApplicableRequestSet(intersectRequests, requests.get("__global__"));
@@ -138,52 +138,54 @@ public class FlatRequestManager extends RequestManager {
     @Override
     public List<String> getApplicableRequestsIDs(Vector pt) {
         List<String> applicable = new ArrayList<String>();
-
-        for (Map.Entry<String, ProtectedRequest> entry : requests.entrySet()) {
-            if (entry.getValue().contains(pt)) {
-                applicable.add(entry.getKey());
-            }
-        }
-
+//
+//        for (Map.Entry<String, Request> entry : requests.entrySet()) {
+//            if (entry.getValue().contains(pt)) {
+//                applicable.add(entry.getKey());
+//            }
+//        }
+//
         return applicable;
     }
 
     @Override
-    public ApplicableRequestSet getApplicableRequests(ProtectedRequest checkRequest) {
-
-        List<ProtectedRequest> appRequests = new ArrayList<ProtectedRequest>();
-        appRequests.addAll(requests.values());
-
-        List<ProtectedRequest> intersectRequests;
-
-        try {
-            intersectRequests = checkRequest.getIntersectingRequests(appRequests);
-        } catch (Exception e) {
-            intersectRequests = new ArrayList<ProtectedRequest>();
-        }
-
+    public ApplicableRequestSet getApplicableRequests(Request checkRequest) {
+//
+//        List<Request> appRequests = new ArrayList<Request>();
+//        appRequests.addAll(requests.values());
+//
+//        List<Request> intersectRequests;
+        List<Request> intersectRequests = null;
+//
+//        try {
+//            intersectRequests = checkRequest.getIntersectingRequests(appRequests);
+//        } catch (Exception e) {
+//            intersectRequests = new ArrayList<Request>();
+//        }
+//
         return new ApplicableRequestSet(intersectRequests, requests.get("__global__"));
     }
 
     @Override
-    public boolean overlapsUnownedRequest(ProtectedRequest checkRequest, LocalPlayer player) {
-        List<ProtectedRequest> appRequests = new ArrayList<ProtectedRequest>();
-
-        for (ProtectedRequest other : requests.values()) {
-            if (other.getOwners().contains(player)) {
-                continue;
-            }
-
-            appRequests.add(other);
-        }
-
-        List<ProtectedRequest> intersectRequests;
-        try {
-            intersectRequests = checkRequest.getIntersectingRequests(appRequests);
-        } catch (UnsupportedIntersectionException e) {
-            intersectRequests = new ArrayList<ProtectedRequest>();
-        }
-
+    public boolean overlapsUnownedRequest(Request checkRequest, LocalPlayer player) {
+//        List<Request> appRequests = new ArrayList<Request>();
+//
+//        for (Request other : requests.values()) {
+//            if (other.getOwners().contains(player)) {
+//                continue;
+//            }
+//
+//            appRequests.add(other);
+//        }
+//
+//        List<Request> intersectRequests;
+        List<Request> intersectRequests = null;
+//        try {
+//            intersectRequests = checkRequest.getIntersectingRequests(appRequests);
+//        } catch (UnsupportedIntersectionException e) {
+//            intersectRequests = new ArrayList<Request>();
+//        }
+//
         return intersectRequests.size() > 0;
     }
 
@@ -195,13 +197,13 @@ public class FlatRequestManager extends RequestManager {
     @Override
     public int getRequestCountOfPlayer(LocalPlayer player) {
         int count = 0;
-
-        for (ProtectedRequest request : requests.values()) {
-            if (request.getOwners().contains(player)) {
-                count++;
-            }
-        }
-
+//
+//        for (Request request : requests.values()) {
+//            if (request.getOwners().contains(player)) {
+//                count++;
+//            }
+//        }
+//
         return count;
     }
 }

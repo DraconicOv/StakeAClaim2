@@ -22,7 +22,7 @@ package org.stakeaclaim.protection.databases;
 import java.util.Map;
 
 import org.stakeaclaim.protection.managers.RequestManager;
-import org.stakeaclaim.protection.requests.ProtectedRequest;
+import org.stakeaclaim.protection.requests.Request;
 
 /**
  * Represents a database to read and write lists of requests from and to.
@@ -62,11 +62,11 @@ public interface ProtectionDatabase {
      *
      * @return the requests loaded by this ProtectionDatabase
      */
-    public Map<String,ProtectedRequest> getRequests();
+    public Map<String,Request> getRequests();
     /**
      * Set the list of requests.
      *
      * @param requests The requests to be applied to this ProtectionDatabase
      */
-    public void setRequests(Map<String,ProtectedRequest> requests);
+    public void setRequests(Map<String,Request> requests);
 }

@@ -27,40 +27,41 @@ import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.Vector;
 import org.stakeaclaim.protection.UnsupportedIntersectionException;
 
-public class GlobalProtectedRequest extends ProtectedRequest {
+//public class GlobalRequest extends Request {
+public class GlobalRequest {
 
-    public GlobalProtectedRequest(String id) {
-        super(id);
-        min = new BlockVector(0, 0, 0);
-        max = new BlockVector(0, 0, 0);
-    }
+//    public GlobalRequest(String id) {
+//        super(id);
+//        min = new BlockVector(0, 0, 0);
+//        max = new BlockVector(0, 0, 0);
+//    }
 
-    public List<BlockVector2D> getPoints() {
-        List<BlockVector2D> pts = new ArrayList<BlockVector2D>();
-        pts.add(new BlockVector2D(min.getBlockX(),min.getBlockZ()));
-        return pts;
-    }
+//    public List<BlockVector2D> getPoints() {
+//        List<BlockVector2D> pts = new ArrayList<BlockVector2D>();
+//        pts.add(new BlockVector2D(min.getBlockX(),min.getBlockZ()));
+//        return pts;
+//    }
 
-    @Override
-    public int volume() {
-        return 0;
-    }
+//    @Override
+//    public int volume() {
+//        return 0;
+//    }
 
-    @Override
-    public boolean contains(Vector pt) {
-        return false;
-    }
+//    @Override
+//    public boolean contains(Vector pt) {
+//        return false;
+//    }
 
-    @Override
-    public String getTypeName() {
-        return "global";
-    }
+//    @Override
+//    public String getTypeName() {
+//        return "global";
+//    }
 
-    @Override
-    public List<ProtectedRequest> getIntersectingRequests(
-            List<ProtectedRequest> requests)
-            throws UnsupportedIntersectionException {
-        return new ArrayList<ProtectedRequest>();
-    }
+//    @Override
+//    public List<Request> getIntersectingRequests(
+//            List<Request> requests)
+//            throws UnsupportedIntersectionException {
+//        return new ArrayList<Request>();
+//    }
 
 }

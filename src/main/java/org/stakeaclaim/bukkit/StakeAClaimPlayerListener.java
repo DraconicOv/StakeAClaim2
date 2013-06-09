@@ -79,7 +79,7 @@ import org.stakeaclaim.domains.DefaultDomain; /* MCA add */
 import org.stakeaclaim.protection.ApplicableRequestSet;
 import org.stakeaclaim.protection.flags.DefaultFlag;
 import org.stakeaclaim.protection.managers.RequestManager;
-import org.stakeaclaim.protection.requests.ProtectedRequest;
+import org.stakeaclaim.protection.requests.Request;
 
 /**
  * Handles all events thrown in relation to a player.
@@ -148,8 +148,8 @@ public class StakeAClaimPlayerListener implements Listener {
                     boolean requestFull = false;
                     String maxPlayerMessage = null;
                     if (!hasBypass) {
-                        for (ProtectedRequest request : set) {
-                            if (request instanceof GlobalProtectedRequest) {
+                        for (Request request : set) {
+                            if (request instanceof GlobalRequest) {
                                 continue; // global request can't have a max
                             }
                             // get the max for just this request
@@ -194,23 +194,23 @@ public class StakeAClaimPlayerListener implements Listener {
                         return;
                     }
 
-                    // Have to set this state
-                    if (state.lastExitAllowed == null) {
-                        state.lastExitAllowed = mgr.getApplicableRequests(toVector(event.getFrom()))
-                                .allows(DefaultFlag.EXIT, localPlayer);
-                    }
+//                    // Have to set this state
+//                    if (state.lastExitAllowed == null) {
+//                        state.lastExitAllowed = mgr.getApplicableRequests(toVector(event.getFrom()))
+//                                .allows(DefaultFlag.EXIT, localPlayer);
+//                    }
 
-                    boolean exitAllowed = set.allows(DefaultFlag.EXIT, localPlayer);
-                    if (!hasBypass && exitAllowed && !state.lastExitAllowed) {
-                        player.sendMessage(ChatColor.DARK_RED + "You are not permitted to leave this area.");
-
-                        Location newLoc = event.getFrom();
-                        newLoc.setX(newLoc.getBlockX() + 0.5);
-                        newLoc.setY(newLoc.getBlockY());
-                        newLoc.setZ(newLoc.getBlockZ() + 0.5);
-                        event.setTo(newLoc);
-                        return;
-                    }
+//                    boolean exitAllowed = set.allows(DefaultFlag.EXIT, localPlayer);
+//                    if (!hasBypass && exitAllowed && !state.lastExitAllowed) {
+//                        player.sendMessage(ChatColor.DARK_RED + "You are not permitted to leave this area.");
+//
+//                        Location newLoc = event.getFrom();
+//                        newLoc.setX(newLoc.getBlockX() + 0.5);
+//                        newLoc.setY(newLoc.getBlockY());
+//                        newLoc.setZ(newLoc.getBlockZ() + 0.5);
+//                        event.setTo(newLoc);
+//                        return;
+//                    }
 
                     String greeting = set.getFlag(DefaultFlag.GREET_MESSAGE);//, localPlayer);
                     String farewell = set.getFlag(DefaultFlag.FAREWELL_MESSAGE);//, localPlayer);
@@ -218,98 +218,98 @@ public class StakeAClaimPlayerListener implements Listener {
                     Boolean notifyLeave = set.getFlag(DefaultFlag.NOTIFY_LEAVE);//, localPlayer);
                     GameMode gameMode = set.getFlag(DefaultFlag.GAME_MODE);
 
-                    if (state.lastFarewell != null && (farewell == null
-                            || !state.lastFarewell.equals(farewell))) {
-                        String replacedFarewell = plugin.replaceMacros(
-                                player, BukkitUtil.replaceColorMacros(state.lastFarewell));
-                        for (String line : replacedFarewell.split("\n")) {
-                            player.sendMessage(line);
-                        }
-                    }
+//                    if (state.lastFarewell != null && (farewell == null
+//                            || !state.lastFarewell.equals(farewell))) {
+//                        String replacedFarewell = plugin.replaceMacros(
+//                                player, BukkitUtil.replaceColorMacros(state.lastFarewell));
+//                        for (String line : replacedFarewell.split("\n")) {
+//                            player.sendMessage(line);
+//                        }
+//                    }
 
-                    if (greeting != null && (state.lastGreeting == null
-                            || !state.lastGreeting.equals(greeting))) {
-                        String replacedGreeting = plugin.replaceMacros(
-                                player, BukkitUtil.replaceColorMacros(greeting));
-                        for (String line : replacedGreeting.split("\n")) {
-                            player.sendMessage(line);
-                        }
-                    }
-
-                    /* MCA add start */
-                    // If wand is in hand, displays claim name and owner(s) as you enter
-
-                    final ItemStack item = player.getItemInHand();
-                    String support = null;
-
-                    if (item.getTypeId() == wcfg.requestWand && plugin.hasPermission(player, "stakeaclaim.request.wand")) {
-
-                        final ProtectedRequest claim = set.getClaim();
-                        if (claim != null) {
-                            StringBuilder message = new StringBuilder(ChatColor.YELLOW + "Location: " + ChatColor.WHITE + claim.getId());
-                            final DefaultDomain owners = claim.getOwners();
-                            if (owners.size() == 0) {
-                                message.append(ChatColor.GRAY + " Unclaimed");
-                            } else {
-                                message.append(" " + ChatColor.GREEN + owners.toUserFriendlyString());
-                            }
-
-                            support = message.toString();
-                            if (support != null && (state.lastSupport == null
-                                    || !state.lastSupport.equals(support))) {
-                                player.sendMessage(support);
-                            }
-                        }
-                    }
-
-                    state.lastSupport = support;
-                    /* MCA add end */
-
-                    if ((notifyLeave == null || !notifyLeave)
-                            && state.notifiedForLeave != null && state.notifiedForLeave) {
-                        plugin.broadcastNotification(ChatColor.GRAY + "WG: "
-                                + ChatColor.LIGHT_PURPLE + player.getName()
-                                + ChatColor.GOLD + " left NOTIFY request");
-                    }
-
-                    if (notifyEnter != null && notifyEnter && (state.notifiedForEnter == null
-                            || !state.notifiedForEnter)) {
-                        StringBuilder requestList = new StringBuilder();
-
-                        for (ProtectedRequest request : set) {
-                            if (requestList.length() != 0) {
-                                requestList.append(", ");
-                            }
-                            requestList.append(request.getId());
-                        }
-
-                        plugin.broadcastNotification(ChatColor.GRAY + "WG: "
-                                + ChatColor.LIGHT_PURPLE + player.getName()
-                                + ChatColor.GOLD + " entered NOTIFY request: "
-                                + ChatColor.WHITE
-                                + requestList);
-                    }
-
-                    if (!hasBypass && gameMode != null) {
-                        if (player.getGameMode() != gameMode) {
-                            state.lastGameMode = player.getGameMode();
-                            player.setGameMode(gameMode);
-                        } else if (state.lastGameMode == null) {
-                            state.lastGameMode = player.getServer().getDefaultGameMode();
-                        }
-                    } else {
-                        if (state.lastGameMode != null) {
-                            GameMode mode = state.lastGameMode;
-                            state.lastGameMode = null;
-                            player.setGameMode(mode);
-                        }
-                    }
-
-                    state.lastGreeting = greeting;
-                    state.lastFarewell = farewell;
-                    state.notifiedForEnter = notifyEnter;
-                    state.notifiedForLeave = notifyLeave;
-                    state.lastExitAllowed = exitAllowed;
+//                    if (greeting != null && (state.lastGreeting == null
+//                            || !state.lastGreeting.equals(greeting))) {
+//                        String replacedGreeting = plugin.replaceMacros(
+//                                player, BukkitUtil.replaceColorMacros(greeting));
+//                        for (String line : replacedGreeting.split("\n")) {
+//                            player.sendMessage(line);
+//                        }
+//                    }
+//
+//                    /* MCA add start */
+//                    // If wand is in hand, displays claim name and owner(s) as you enter
+//
+//                    final ItemStack item = player.getItemInHand();
+//                    String support = null;
+//
+//                    if (item.getTypeId() == wcfg.requestWand && plugin.hasPermission(player, "stakeaclaim.request.wand")) {
+//
+//                        final Request claim = set.getClaim();
+//                        if (claim != null) {
+//                            StringBuilder message = new StringBuilder(ChatColor.YELLOW + "Location: " + ChatColor.WHITE + claim.getId());
+//                            final DefaultDomain owners = claim.getOwners();
+//                            if (owners.size() == 0) {
+//                                message.append(ChatColor.GRAY + " Unclaimed");
+//                            } else {
+//                                message.append(" " + ChatColor.GREEN + owners.toUserFriendlyString());
+//                            }
+//
+//                            support = message.toString();
+//                            if (support != null && (state.lastSupport == null
+//                                    || !state.lastSupport.equals(support))) {
+//                                player.sendMessage(support);
+//                            }
+//                        }
+//                    }
+//
+//                    state.lastSupport = support;
+//                    /* MCA add end */
+//
+//                    if ((notifyLeave == null || !notifyLeave)
+//                            && state.notifiedForLeave != null && state.notifiedForLeave) {
+//                        plugin.broadcastNotification(ChatColor.GRAY + "WG: "
+//                                + ChatColor.LIGHT_PURPLE + player.getName()
+//                                + ChatColor.GOLD + " left NOTIFY request");
+//                    }
+//
+//                    if (notifyEnter != null && notifyEnter && (state.notifiedForEnter == null
+//                            || !state.notifiedForEnter)) {
+//                        StringBuilder requestList = new StringBuilder();
+//
+//                        for (Request request : set) {
+//                            if (requestList.length() != 0) {
+//                                requestList.append(", ");
+//                            }
+//                            requestList.append(request.getId());
+//                        }
+//
+//                        plugin.broadcastNotification(ChatColor.GRAY + "WG: "
+//                                + ChatColor.LIGHT_PURPLE + player.getName()
+//                                + ChatColor.GOLD + " entered NOTIFY request: "
+//                                + ChatColor.WHITE
+//                                + requestList);
+//                    }
+//
+//                    if (!hasBypass && gameMode != null) {
+//                        if (player.getGameMode() != gameMode) {
+//                            state.lastGameMode = player.getGameMode();
+//                            player.setGameMode(gameMode);
+//                        } else if (state.lastGameMode == null) {
+//                            state.lastGameMode = player.getServer().getDefaultGameMode();
+//                        }
+//                    } else {
+//                        if (state.lastGameMode != null) {
+//                            GameMode mode = state.lastGameMode;
+//                            state.lastGameMode = null;
+//                            player.setGameMode(mode);
+//                        }
+//                    }
+//
+//                    state.lastGreeting = greeting;
+//                    state.lastFarewell = farewell;
+//                    state.notifiedForEnter = notifyEnter;
+//                    state.notifiedForLeave = notifyLeave;
+//                    state.lastExitAllowed = exitAllowed;
                     state.lastWorld = event.getTo().getWorld();
                     state.lastBlockX = event.getTo().getBlockX();
                     state.lastBlockY = event.getTo().getBlockY();
@@ -319,313 +319,313 @@ public class StakeAClaimPlayerListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void onPlayerGameModeChange(PlayerGameModeChangeEvent event) {
-        Player player = event.getPlayer();
-        WorldConfiguration wcfg = plugin.getGlobalStateManager().get(player.getWorld());
-        if (wcfg.useRequests && !plugin.getGlobalRequestManager().hasBypass(player, player.getWorld())) {
-            GameMode gameMode = plugin.getGlobalRequestManager().get(player.getWorld())
-                    .getApplicableRequests(player.getLocation()).getFlag(DefaultFlag.GAME_MODE);
-            if (plugin.getFlagStateManager().getState(player).lastGameMode != null
-                    && gameMode != null && event.getNewGameMode() != gameMode) {
-                event.setCancelled(true);
-            }
-        }
-    }
+//    @EventHandler
+//    public void onPlayerGameModeChange(PlayerGameModeChangeEvent event) {
+//        Player player = event.getPlayer();
+//        WorldConfiguration wcfg = plugin.getGlobalStateManager().get(player.getWorld());
+//        if (wcfg.useRequests && !plugin.getGlobalRequestManager().hasBypass(player, player.getWorld())) {
+//            GameMode gameMode = plugin.getGlobalRequestManager().get(player.getWorld())
+//                    .getApplicableRequests(player.getLocation()).getFlag(DefaultFlag.GAME_MODE);
+//            if (plugin.getFlagStateManager().getState(player).lastGameMode != null
+//                    && gameMode != null && event.getNewGameMode() != gameMode) {
+//                event.setCancelled(true);
+//            }
+//        }
+//    }
 
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        World world = player.getWorld();
+//    @EventHandler
+//    public void onPlayerJoin(PlayerJoinEvent event) {
+//        Player player = event.getPlayer();
+//        World world = player.getWorld();
+//
+//        ConfigurationManager cfg = plugin.getGlobalStateManager();
+//        WorldConfiguration wcfg = cfg.get(world);
+//
+//        if (cfg.activityHaltToggle) {
+//            player.sendMessage(ChatColor.YELLOW
+//                    + "Intensive server activity has been HALTED.");
+//
+//            int removed = 0;
+//
+//            for (Entity entity : world.getEntities()) {
+//                if (BukkitUtil.isIntensiveEntity(entity)) {
+//                    entity.remove();
+//                    removed++;
+//                }
+//            }
+//
+//            if (removed > 10) {
+//                plugin.getLogger().info("Halt-Act: " + removed + " entities (>10) auto-removed from "
+//                        + player.getWorld().toString());
+//            }
+//        }
+//
+//        if (wcfg.fireSpreadDisableToggle) {
+//            player.sendMessage(ChatColor.YELLOW
+//                    + "Fire spread is currently globally disabled for this world.");
+//        }
+//
+//        if (!cfg.hasCommandBookGodMode() && cfg.autoGodMode && (plugin.inGroup(player, "wg-invincible")
+//                || plugin.hasPermission(player, "stakeaclaim.auto-invincible"))) {
+//            cfg.enableGodMode(player);
+//        }
+//
+//        if (plugin.inGroup(player, "wg-amphibious")) {
+//            cfg.enableAmphibiousMode(player);
+//        }
+//
+//        if (wcfg.useRequests) {
+//            PlayerFlagState state = plugin.getFlagStateManager().getState(player);
+//            Location loc = player.getLocation();
+//            state.lastWorld = loc.getWorld();
+//            state.lastBlockX = loc.getBlockX();
+//            state.lastBlockY = loc.getBlockY();
+//            state.lastBlockZ = loc.getBlockZ();
+//        }
+//    }
 
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
-        WorldConfiguration wcfg = cfg.get(world);
+//    @EventHandler(ignoreCancelled = true)
+//    public void onPlayerChat(AsyncPlayerChatEvent event) {
+//        Player player = event.getPlayer();
+//        WorldConfiguration wcfg = plugin.getGlobalStateManager().get(player.getWorld());
+//        if (wcfg.useRequests) {
+//            if (!plugin.getGlobalRequestManager().allows(DefaultFlag.SEND_CHAT, player.getLocation())) {
+//                player.sendMessage(ChatColor.RED + "You don't have permission to chat in this request!");
+//                event.setCancelled(true);
+//                return;
+//            }
+//
+//            for (Iterator<Player> i = event.getRecipients().iterator(); i.hasNext();) {
+//                if (!plugin.getGlobalRequestManager().allows(DefaultFlag.RECEIVE_CHAT, i.next().getLocation())) {
+//                    i.remove();
+//                }
+//            }
+//            if (event.getRecipients().size() == 0) {
+//                event.setCancelled(true);
+//            }
+//        }
+//    }
 
-        if (cfg.activityHaltToggle) {
-            player.sendMessage(ChatColor.YELLOW
-                    + "Intensive server activity has been HALTED.");
+//    @EventHandler(ignoreCancelled = true)
+//    public void onPlayerLogin(PlayerLoginEvent event) {
+//        Player player = event.getPlayer();
+//        ConfigurationManager cfg = plugin.getGlobalStateManager();
+//
+//        String hostKey = cfg.hostKeys.get(player.getName().toLowerCase());
+//        if (hostKey != null) {
+//            String hostname = event.getHostname();
+//            int colonIndex = hostname.indexOf(':');
+//            if (colonIndex != -1) {
+//                hostname = hostname.substring(0, colonIndex);
+//            }
+//
+//            if (!hostname.equals(hostKey)) {
+//                event.disallow(PlayerLoginEvent.Result.KICK_OTHER,
+//                        "You did not join with the valid host key!");
+//                plugin.getLogger().warning("StakeAClaim host key check: " +
+//                        player.getName() + " joined with '" + hostname +
+//                        "' but '" + hostKey + "' was expected. Kicked!");
+//                return;
+//            }
+//        }
+//
+//        if (cfg.deopOnJoin) {
+//            player.setOp(false);
+//        }
+//    }
 
-            int removed = 0;
+//    @EventHandler
+//    public void onPlayerQuit(PlayerQuitEvent event) {
+//        Player player = event.getPlayer();
+//        World world = player.getWorld();
+//
+//        /* MCA add start */
+//        // auto removes keep-out flag(s), if player has perms to do so
+//        
+//        if (plugin.hasPermission(player, "stakeaclaim.plot.public")) {
+//            final LocalPlayer localPlayer2 = plugin.wrapPlayer(player);
+//            final RequestManager mgr2 = plugin.getGlobalRequestManager().get(world);
+//            final Map<String, Request> requests = mgr2.getRequests();
+//
+//            for (Request claim : requests.values()) {
+//                if (claim.isOwner(localPlayer2)) {
+//                    claim.setFlag(DefaultFlag.ENTRY, null);
+//                }
+//            }
+//        }
+//        /* MCA add end */
+//
+//        ConfigurationManager cfg = plugin.getGlobalStateManager();
+//        WorldConfiguration wcfg = cfg.get(world);
+//
+//        // This is to make the enter/exit flags accurate -- move events are not
+//        // sent constantly, so it is possible to move just a little enough to
+//        // not trigger the event and then rejoin so that you are then considered
+//        // outside the border. This should work around that.
+//        if (wcfg.useRequests) {
+//            boolean hasBypass = plugin.getGlobalRequestManager().hasBypass(player, world);
+//            PlayerFlagState state = plugin.getFlagStateManager().getState(player);
+//
+//            if (state.lastWorld != null && !hasBypass) {
+//                LocalPlayer localPlayer = plugin.wrapPlayer(player);
+//                RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+//                Location loc = player.getLocation();
+//                Vector pt = new Vector(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+//                ApplicableRequestSet set = mgr.getApplicableRequests(pt);
+//
+//                if (state.lastExitAllowed == null) {
+//                    state.lastExitAllowed = set.allows(DefaultFlag.EXIT, localPlayer);
+//                }
+//
+//                if (!state.lastExitAllowed || !set.allows(DefaultFlag.ENTRY, localPlayer)) {
+//                    // Only if we have the last location cached
+//                    if (state.lastWorld.equals(world)) {
+//                        Location newLoc = new Location(world, state.lastBlockX + 0.5,
+//                                state.lastBlockY, state.lastBlockZ + 0.5);
+//                        player.teleport(newLoc);
+//                    }
+//                }
+//            }
+//        }
+//
+//        cfg.forgetPlayer(plugin.wrapPlayer(player));
+//        plugin.forgetPlayer(player);
+//    }
 
-            for (Entity entity : world.getEntities()) {
-                if (BukkitUtil.isIntensiveEntity(entity)) {
-                    entity.remove();
-                    removed++;
-                }
-            }
+//    @EventHandler(priority = EventPriority.HIGH)
+//    public void onPlayerInteract(PlayerInteractEvent event) {
+//        Player player = event.getPlayer();
+//        World world = player.getWorld();
+//
+//        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+//            handleBlockRightClick(event);
+//        } else if (event.getAction() == Action.RIGHT_CLICK_AIR) {
+//            handleAirRightClick(event);
+//        } else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+//            handleBlockLeftClick(event);
+//        } else if (event.getAction() == Action.LEFT_CLICK_AIR) {
+//            handleAirLeftClick(event);
+//        } else if (event.getAction() == Action.PHYSICAL) {
+//            handlePhysicalInteract(event);
+//        }
+//
+//        ConfigurationManager cfg = plugin.getGlobalStateManager();
+//        WorldConfiguration wcfg = cfg.get(world);
+//
+//        if (wcfg.removeInfiniteStacks
+//                && !plugin.hasPermission(player, "stakeaclaim.override.infinite-stack")) {
+//            int slot = player.getInventory().getHeldItemSlot();
+//            ItemStack heldItem = player.getInventory().getItem(slot);
+//            if (heldItem != null && heldItem.getAmount() < 0) {
+//                player.getInventory().setItem(slot, null);
+//                player.sendMessage(ChatColor.RED + "Infinite stack removed.");
+//            }
+//        }
+//
+//        if (wcfg.blockPotions.size() > 0) {
+//            ItemStack item = event.getItem();
+//            if (item != null && item.getType() == Material.POTION && !BukkitUtil.isWaterPotion(item)) {
+//                PotionEffect blockedEffect = null;
+//
+//                Potion potion = Potion.fromDamage(BukkitUtil.getPotionEffectBits(item));
+//                for (PotionEffect effect : potion.getEffects()) {
+//                    if (wcfg.blockPotions.contains(effect.getType())) {
+//                        blockedEffect = effect;
+//                        break;
+//                    }
+//                }
+//
+//                if (blockedEffect != null) {
+//                    if (plugin.hasPermission(player, "stakeaclaim.override.potions")) {
+//                        if (potion.isSplash() && wcfg.blockPotionsAlways) {
+//                            player.sendMessage(ChatColor.RED + "Sorry, potions with " +
+//                                    blockedEffect.getType().getName() + " can't be thrown, " +
+//                                    "even if you have a permission to bypass it, " +
+//                                    "due to limitations (and because overly-reliable potion blocking is on).");
+//                            event.setUseItemInHand(Result.DENY);
+//                            return;
+//                        }
+//                    } else {
+//                        player.sendMessage(ChatColor.RED + "Sorry, potions with "
+//                                + blockedEffect.getType().getName() + " are presently disabled.");
+//                        event.setUseItemInHand(Result.DENY);
+//                        return;
+//                    }
+//
+//                }
+//            }
+//        }
+//    }
 
-            if (removed > 10) {
-                plugin.getLogger().info("Halt-Act: " + removed + " entities (>10) auto-removed from "
-                        + player.getWorld().toString());
-            }
-        }
+//    /**
+//     * Called when a player left clicks air.
+//     *
+//     * @param event Thrown event
+//     */
+//    private void handleAirLeftClick(PlayerInteractEvent event) {
+//         // I don't think we have to do anything here yet.
+//         return;
+//    }
 
-        if (wcfg.fireSpreadDisableToggle) {
-            player.sendMessage(ChatColor.YELLOW
-                    + "Fire spread is currently globally disabled for this world.");
-        }
-
-        if (!cfg.hasCommandBookGodMode() && cfg.autoGodMode && (plugin.inGroup(player, "wg-invincible")
-                || plugin.hasPermission(player, "stakeaclaim.auto-invincible"))) {
-            cfg.enableGodMode(player);
-        }
-
-        if (plugin.inGroup(player, "wg-amphibious")) {
-            cfg.enableAmphibiousMode(player);
-        }
-
-        if (wcfg.useRequests) {
-            PlayerFlagState state = plugin.getFlagStateManager().getState(player);
-            Location loc = player.getLocation();
-            state.lastWorld = loc.getWorld();
-            state.lastBlockX = loc.getBlockX();
-            state.lastBlockY = loc.getBlockY();
-            state.lastBlockZ = loc.getBlockZ();
-        }
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onPlayerChat(AsyncPlayerChatEvent event) {
-        Player player = event.getPlayer();
-        WorldConfiguration wcfg = plugin.getGlobalStateManager().get(player.getWorld());
-        if (wcfg.useRequests) {
-            if (!plugin.getGlobalRequestManager().allows(DefaultFlag.SEND_CHAT, player.getLocation())) {
-                player.sendMessage(ChatColor.RED + "You don't have permission to chat in this request!");
-                event.setCancelled(true);
-                return;
-            }
-
-            for (Iterator<Player> i = event.getRecipients().iterator(); i.hasNext();) {
-                if (!plugin.getGlobalRequestManager().allows(DefaultFlag.RECEIVE_CHAT, i.next().getLocation())) {
-                    i.remove();
-                }
-            }
-            if (event.getRecipients().size() == 0) {
-                event.setCancelled(true);
-            }
-        }
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onPlayerLogin(PlayerLoginEvent event) {
-        Player player = event.getPlayer();
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
-
-        String hostKey = cfg.hostKeys.get(player.getName().toLowerCase());
-        if (hostKey != null) {
-            String hostname = event.getHostname();
-            int colonIndex = hostname.indexOf(':');
-            if (colonIndex != -1) {
-                hostname = hostname.substring(0, colonIndex);
-            }
-
-            if (!hostname.equals(hostKey)) {
-                event.disallow(PlayerLoginEvent.Result.KICK_OTHER,
-                        "You did not join with the valid host key!");
-                plugin.getLogger().warning("StakeAClaim host key check: " +
-                        player.getName() + " joined with '" + hostname +
-                        "' but '" + hostKey + "' was expected. Kicked!");
-                return;
-            }
-        }
-
-        if (cfg.deopOnJoin) {
-            player.setOp(false);
-        }
-    }
-
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        Player player = event.getPlayer();
-        World world = player.getWorld();
-
-        /* MCA add start */
-        // auto removes keep-out flag(s), if player has perms to do so
-        
-        if (plugin.hasPermission(player, "stakeaclaim.plot.public")) {
-            final LocalPlayer localPlayer2 = plugin.wrapPlayer(player);
-            final RequestManager mgr2 = plugin.getGlobalRequestManager().get(world);
-            final Map<String, ProtectedRequest> requests = mgr2.getRequests();
-
-            for (ProtectedRequest claim : requests.values()) {
-                if (claim.isOwner(localPlayer2)) {
-                    claim.setFlag(DefaultFlag.ENTRY, null);
-                }
-            }
-        }
-        /* MCA add end */
-
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
-        WorldConfiguration wcfg = cfg.get(world);
-
-        // This is to make the enter/exit flags accurate -- move events are not
-        // sent constantly, so it is possible to move just a little enough to
-        // not trigger the event and then rejoin so that you are then considered
-        // outside the border. This should work around that.
-        if (wcfg.useRequests) {
-            boolean hasBypass = plugin.getGlobalRequestManager().hasBypass(player, world);
-            PlayerFlagState state = plugin.getFlagStateManager().getState(player);
-
-            if (state.lastWorld != null && !hasBypass) {
-                LocalPlayer localPlayer = plugin.wrapPlayer(player);
-                RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-                Location loc = player.getLocation();
-                Vector pt = new Vector(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-                ApplicableRequestSet set = mgr.getApplicableRequests(pt);
-
-                if (state.lastExitAllowed == null) {
-                    state.lastExitAllowed = set.allows(DefaultFlag.EXIT, localPlayer);
-                }
-
-                if (!state.lastExitAllowed || !set.allows(DefaultFlag.ENTRY, localPlayer)) {
-                    // Only if we have the last location cached
-                    if (state.lastWorld.equals(world)) {
-                        Location newLoc = new Location(world, state.lastBlockX + 0.5,
-                                state.lastBlockY, state.lastBlockZ + 0.5);
-                        player.teleport(newLoc);
-                    }
-                }
-            }
-        }
-
-        cfg.forgetPlayer(plugin.wrapPlayer(player));
-        plugin.forgetPlayer(player);
-    }
-
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-        World world = player.getWorld();
-
-        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            handleBlockRightClick(event);
-        } else if (event.getAction() == Action.RIGHT_CLICK_AIR) {
-            handleAirRightClick(event);
-        } else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-            handleBlockLeftClick(event);
-        } else if (event.getAction() == Action.LEFT_CLICK_AIR) {
-            handleAirLeftClick(event);
-        } else if (event.getAction() == Action.PHYSICAL) {
-            handlePhysicalInteract(event);
-        }
-
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
-        WorldConfiguration wcfg = cfg.get(world);
-
-        if (wcfg.removeInfiniteStacks
-                && !plugin.hasPermission(player, "stakeaclaim.override.infinite-stack")) {
-            int slot = player.getInventory().getHeldItemSlot();
-            ItemStack heldItem = player.getInventory().getItem(slot);
-            if (heldItem != null && heldItem.getAmount() < 0) {
-                player.getInventory().setItem(slot, null);
-                player.sendMessage(ChatColor.RED + "Infinite stack removed.");
-            }
-        }
-
-        if (wcfg.blockPotions.size() > 0) {
-            ItemStack item = event.getItem();
-            if (item != null && item.getType() == Material.POTION && !BukkitUtil.isWaterPotion(item)) {
-                PotionEffect blockedEffect = null;
-
-                Potion potion = Potion.fromDamage(BukkitUtil.getPotionEffectBits(item));
-                for (PotionEffect effect : potion.getEffects()) {
-                    if (wcfg.blockPotions.contains(effect.getType())) {
-                        blockedEffect = effect;
-                        break;
-                    }
-                }
-
-                if (blockedEffect != null) {
-                    if (plugin.hasPermission(player, "stakeaclaim.override.potions")) {
-                        if (potion.isSplash() && wcfg.blockPotionsAlways) {
-                            player.sendMessage(ChatColor.RED + "Sorry, potions with " +
-                                    blockedEffect.getType().getName() + " can't be thrown, " +
-                                    "even if you have a permission to bypass it, " +
-                                    "due to limitations (and because overly-reliable potion blocking is on).");
-                            event.setUseItemInHand(Result.DENY);
-                            return;
-                        }
-                    } else {
-                        player.sendMessage(ChatColor.RED + "Sorry, potions with "
-                                + blockedEffect.getType().getName() + " are presently disabled.");
-                        event.setUseItemInHand(Result.DENY);
-                        return;
-                    }
-
-                }
-            }
-        }
-    }
-
-    /**
-     * Called when a player left clicks air.
-     *
-     * @param event Thrown event
-     */
-    private void handleAirLeftClick(PlayerInteractEvent event) {
-         // I don't think we have to do anything here yet.
-         return;
-    }
-
-    /**
-     * Called when a player left clicks a block.
-     *
-     * @param event Thrown event
-     */
-    private void handleBlockLeftClick(PlayerInteractEvent event) {
-        if (event.isCancelled()) return;
-
-        Player player = event.getPlayer();
-        Block block = event.getClickedBlock();
-        int type = block.getTypeId();
-        World world = player.getWorld();
-
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
-        WorldConfiguration wcfg = cfg.get(world);
-
-        if (wcfg.useRequests) {
-            Vector pt = toVector(block);
-            RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
-            LocalPlayer localPlayer = plugin.wrapPlayer(player);
-
-            /*if (type == BlockID.STONE_BUTTON
-                  || type == BlockID.LEVER
-                  || type == BlockID.WOODEN_DOOR
-                  || type == BlockID.TRAP_DOOR
-                  || type == BlockID.NOTE_BLOCK) {
-                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
-                        && !set.allows(DefaultFlag.USE, localPlayer)
-                        && !set.canBuild(localPlayer)) {
-                    player.sendMessage(ChatColor.DARK_RED + "You don't have permission to use that in this area.");
-                    event.setUseInteractedBlock(Result.DENY);
-                    event.setCancelled(true);
-                    return;
-                }
-            }*/
-
-            if (type == BlockID.DRAGON_EGG) {
-                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
-                        && !set.canBuild(localPlayer)) {
-                    player.sendMessage(ChatColor.DARK_RED + "You're not allowed to move dragon eggs here!");
-                    event.setUseInteractedBlock(Result.DENY);
-                    event.setCancelled(true);
-                    return;
-                }
-            }
-
-            if (block.getRelative(event.getBlockFace()).getTypeId() == BlockID.FIRE) {
-                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
-                        && !mgr.getApplicableRequests(block.getRelative(event.getBlockFace())
-                                .getLocation()).canBuild(localPlayer)) {
-                    event.setUseInteractedBlock(Result.DENY);
-                    event.setCancelled(true);
-                    return;
-                }
-            }
-
-        }
-
+//    /**
+//     * Called when a player left clicks a block.
+//     *
+//     * @param event Thrown event
+//     */
+//    private void handleBlockLeftClick(PlayerInteractEvent event) {
+//        if (event.isCancelled()) return;
+//
+//        Player player = event.getPlayer();
+//        Block block = event.getClickedBlock();
+//        int type = block.getTypeId();
+//        World world = player.getWorld();
+//
+//        ConfigurationManager cfg = plugin.getGlobalStateManager();
+//        WorldConfiguration wcfg = cfg.get(world);
+//
+//        if (wcfg.useRequests) {
+//            Vector pt = toVector(block);
+//            RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+//            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
+//            LocalPlayer localPlayer = plugin.wrapPlayer(player);
+//
+//            /*if (type == BlockID.STONE_BUTTON
+//                  || type == BlockID.LEVER
+//                  || type == BlockID.WOODEN_DOOR
+//                  || type == BlockID.TRAP_DOOR
+//                  || type == BlockID.NOTE_BLOCK) {
+//                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
+//                        && !set.allows(DefaultFlag.USE, localPlayer)
+//                        && !set.canBuild(localPlayer)) {
+//                    player.sendMessage(ChatColor.DARK_RED + "You don't have permission to use that in this area.");
+//                    event.setUseInteractedBlock(Result.DENY);
+//                    event.setCancelled(true);
+//                    return;
+//                }
+//            }*/
+//
+//            if (type == BlockID.DRAGON_EGG) {
+//                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
+//                        && !set.canBuild(localPlayer)) {
+//                    player.sendMessage(ChatColor.DARK_RED + "You're not allowed to move dragon eggs here!");
+//                    event.setUseInteractedBlock(Result.DENY);
+//                    event.setCancelled(true);
+//                    return;
+//                }
+//            }
+//
+//            if (block.getRelative(event.getBlockFace()).getTypeId() == BlockID.FIRE) {
+//                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
+//                        && !mgr.getApplicableRequests(block.getRelative(event.getBlockFace())
+//                                .getLocation()).canBuild(localPlayer)) {
+//                    event.setUseInteractedBlock(Result.DENY);
+//                    event.setCancelled(true);
+//                    return;
+//                }
+//            }
+//
+//        }
+//
 //        if (type == BlockID.TNT && player.getItemInHand().getTypeId() == ItemID.FLINT_AND_TINDER) {
 //            if (wcfg.getBlacklist() != null) {
 //                if (!wcfg.getBlacklist().check(
@@ -639,21 +639,21 @@ public class StakeAClaimPlayerListener implements Listener {
 //                }
 //            }
 //        }
-    }
+//    }
 
-    /**
-     * Called when a player right clicks air.
-     *
-     * @param event Thrown event
-     */
-    private void handleAirRightClick(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-        World world = player.getWorld();
-        ItemStack item = player.getItemInHand();
-
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
-        WorldConfiguration wcfg = cfg.get(world);
-
+//    /**
+//     * Called when a player right clicks air.
+//     *
+//     * @param event Thrown event
+//     */
+//    private void handleAirRightClick(PlayerInteractEvent event) {
+//        Player player = event.getPlayer();
+//        World world = player.getWorld();
+//        ItemStack item = player.getItemInHand();
+//
+//        ConfigurationManager cfg = plugin.getGlobalStateManager();
+//        WorldConfiguration wcfg = cfg.get(world);
+//
 //        if (wcfg.getBlacklist() != null) {
 //            if (!wcfg.getBlacklist().check(
 //                    new ItemUseBlacklistEvent(plugin.wrapPlayer(player),
@@ -664,355 +664,355 @@ public class StakeAClaimPlayerListener implements Listener {
 //                return;
 //            }
 //        }
-    }
+//    }
 
-    /**
-     * Called when a player right clicks a block.
-     *
-     * @param event Thrown event
-     */
-    private void handleBlockRightClick(PlayerInteractEvent event) {
-        if (event.isCancelled()) {
-            return;
-        }
-
-        Block block = event.getClickedBlock();
-        World world = block.getWorld();
-        int type = block.getTypeId();
-        Player player = event.getPlayer();
-        ItemStack item = player.getItemInHand();
-
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
-        WorldConfiguration wcfg = cfg.get(world);
-
-        // Infinite stack removal
-        if ((type == BlockID.CHEST
-                || type == BlockID.JUKEBOX
-                || type == BlockID.DISPENSER
-                || type == BlockID.FURNACE
-                || type == BlockID.BURNING_FURNACE
-                || type == BlockID.BREWING_STAND
-                || type == BlockID.ENCHANTMENT_TABLE)
-                && wcfg.removeInfiniteStacks
-                && !plugin.hasPermission(player, "stakeaclaim.override.infinite-stack")) {
-            for (int slot = 0; slot < 40; slot++) {
-                ItemStack heldItem = player.getInventory().getItem(slot);
-                if (heldItem != null && heldItem.getAmount() < 0) {
-                    player.getInventory().setItem(slot, null);
-                    player.sendMessage(ChatColor.RED + "Infinite stack in slot #" + slot + " removed.");
-                }
-            }
-        }
-
-        if (wcfg.useRequests) {
-            Vector pt = toVector(block);
-            RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-            Block placedIn = block.getRelative(event.getBlockFace());
-            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
-            ApplicableRequestSet placedInSet = mgr.getApplicableRequests(placedIn.getLocation());
-            LocalPlayer localPlayer = plugin.wrapPlayer(player);
-
-            if (item.getTypeId() == wcfg.requestWand && plugin.hasPermission(player, "stakeaclaim.request.wand")) {
-                if (set.size() > 0) {
-                    player.sendMessage(ChatColor.YELLOW + "Can you build? "
-                            + (set.canBuild(localPlayer) ? "Yes" : "No"));
-
-                    StringBuilder str = new StringBuilder();
-                    for (Iterator<ProtectedRequest> it = set.iterator(); it.hasNext();) {
-                        str.append(it.next().getId());
-                        if (it.hasNext()) {
-                            str.append(", ");
-                        }
-                    }
-
-                    player.sendMessage(ChatColor.YELLOW + "Applicable requests: " + str.toString());
-                } else {
-                    player.sendMessage(ChatColor.YELLOW + "StakeAClaim: No defined requests here!");
-                }
-
-                event.setCancelled(true);
-                return;
-            }
-
-            if (item.getTypeId() == BlockID.TNT) {
-                // workaround for a bug that allowed tnt to trigger instantly if placed
-                // next to redstone, without plugins getting the block place event
-                // (not sure if this actually still happens)
-                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
-                        && !placedInSet.allows(DefaultFlag.TNT, localPlayer)) {
-                    event.setUseItemInHand(Result.DENY);
-                    event.setCancelled(true);
-                }
-            }
-
-            // hacky workaround for craftbukkit bug
-            // has since been fixed, but leaving for legacy
-            if (item.getTypeId() == BlockID.STEP
-                    || item.getTypeId() == BlockID.WOODEN_STEP) {
-                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world)) {
-                    boolean cancel = false;
-                    if ((block.getTypeId() == item.getTypeId()) 
-                        && !set.canBuild(localPlayer)) {
-                    // if we are on a step already, the new block will end up in the same block as the interact
-                        cancel = true;
-                    } else if (!placedInSet.canBuild(localPlayer)) {
-                    // if we are on another block, the half-slab in hand will be pushed to the adjacent block
-                        cancel = true;
-                    }
-                    if (cancel) {
-                        player.sendMessage(ChatColor.DARK_RED + "You don't have permission for this area.");
-                        event.setCancelled(true);
-                        return;
-                    }
-                }
-            }
-
-            if (item.getTypeId() == ItemID.BED_ITEM) {
-                // this is mojang-level code, it had better give us the right direction
-                double yaw = (player.getLocation().getYaw() * 4.0F / 360.0F) + 0.5D;
-                int i = (int) yaw;
-                int i1 = (yaw < i ? i - 1 : i) & 3;
-                byte b0 = 0;
-                byte b1 = 0;
-                if (i1 == 0) {
-                    b1 = 1;
-                }
-                if (i1 == 1) {
-                    b0 = -1;
-                }
-                if (i1 == 2) {
-                    b1 = -1;
-                }
-                if (i1 == 3) {
-                    b0 = 1;
-                }
-                // end mojang-level code
-                Location headLoc = placedIn.getRelative(b0, 0, b1).getLocation();
-                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world) 
-                        && !mgr.getApplicableRequests(headLoc).canBuild(localPlayer)) {
-                    // note that normal block placement is handled later, this is just a workaround
-                    // for the location of the head block of the bed
-                    player.sendMessage(ChatColor.DARK_RED + "You don't have permission for this area.");
-                    event.setCancelled(true);
-                    return;
-                }
-            }
-
-            if (block.getTypeId() == BlockID.PISTON_MOVING_PIECE) {
-                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
-                        && !set.canBuild(localPlayer)) {
-                    event.setUseInteractedBlock(Result.DENY);
-                }
-            }
-
-            if (item.getTypeId() == ItemID.WOODEN_DOOR_ITEM || item.getTypeId() == ItemID.IRON_DOOR_ITEM) {
-                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world)
-                        && !placedInSet.canBuild(localPlayer)) {
-                    // note that normal block placement is handled later, this is just a workaround
-                    // for the location of the top block of the door
-                    player.sendMessage(ChatColor.DARK_RED + "You don't have permission for this area.");
-                    event.setCancelled(true);
-                    return;
-                }
-            }
-
-            if (item.getTypeId() == ItemID.FIRE_CHARGE || item.getTypeId() == ItemID.FLINT_AND_TINDER) {
-                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world)
-                        && !placedInSet.allows(DefaultFlag.LIGHTER, localPlayer)) {
-                    event.setCancelled(true);
-                    event.setUseItemInHand(Result.DENY);
-                    player.sendMessage(ChatColor.DARK_RED + "You're not allowed to use that here.");
-                    return;
-                }
-            }
-
-            if (item.getTypeId() == ItemID.EYE_OF_ENDER && block.getTypeId() == BlockID.END_PORTAL_FRAME) {
-                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
-                        && !set.canBuild(localPlayer)) {
-                    event.setCancelled(true);
-                    event.setUseItemInHand(Result.DENY);
-                    player.sendMessage(ChatColor.DARK_RED + "You're not allowed to use that here.");
-                    return;
-                }
-            }
-
-            if (item.getTypeId() == ItemID.INK_SACK
-                    && item.getData() != null) {
-                if (item.getData().getData() == 15 // bonemeal
-                        && (type == BlockID.GRASS
-                        || type == BlockID.SAPLING
-                        || type == BlockID.CROPS
-                        || type == BlockID.BROWN_MUSHROOM
-                        || type == BlockID.RED_MUSHROOM
-                        || type == BlockID.PUMPKIN_STEM
-                        || type == BlockID.MELON_STEM
-                        || type == BlockID.POTATOES
-                        || type == BlockID.CARROTS
-                        || type == BlockID.COCOA_PLANT)) {
-                    if (!plugin.getGlobalRequestManager().hasBypass(player, world)
-                            && !set.canBuild(localPlayer)) {
-                        event.setCancelled(true);
-                        event.setUseItemInHand(Result.DENY);
-                        player.sendMessage(ChatColor.DARK_RED + "You're not allowed to use that here.");
-                        return;
-                    }
-                } else if (item.getData().getData() == 3) { // cocoa beans
-                    // craftbukkit doesn't throw a block place for this, so workaround
-                    if (!plugin.getGlobalRequestManager().hasBypass(player, world)
-                            && !set.canBuild(localPlayer)) {
-                        if (!(event.getBlockFace() == BlockFace.DOWN || event.getBlockFace() == BlockFace.UP)) {
-                            event.setCancelled(true);
-                            event.setUseItemInHand(Result.DENY);
-                            player.sendMessage(ChatColor.DARK_RED + "You're not allowed to plant that here.");
-                            return;
-                        }
-                    }
-                }
-            }
-
-            if (type == BlockID.FLOWER_POT) { // no api for this atm
-                if (item.getTypeId() == BlockID.RED_FLOWER
-                        || item.getTypeId() == BlockID.YELLOW_FLOWER
-                        || item.getTypeId() == BlockID.SAPLING
-                        || item.getTypeId() == BlockID.RED_MUSHROOM
-                        || item.getTypeId() == BlockID.BROWN_MUSHROOM
-                        || item.getTypeId() == BlockID.CACTUS
-                        || item.getTypeId() == BlockID.LONG_GRASS
-                        || item.getTypeId() == BlockID.DEAD_BUSH) {
-                    if (!plugin.getGlobalRequestManager().hasBypass(player, world)
-                            && !set.canBuild(localPlayer)) {
-                        event.setUseItemInHand(Result.DENY);
-                        event.setCancelled(true);
-                        player.sendMessage(ChatColor.DARK_RED + "You're not allowed to plant that here.");
-                        return;
-                    }
-                }
-            }
-
-            if (type == BlockID.BED) {
-                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
-                        && !set.allows(DefaultFlag.SLEEP, localPlayer)) {
-                    player.sendMessage(ChatColor.DARK_RED + "You're not allowed to use that bed.");
-                    event.setUseInteractedBlock(Result.DENY);
-                    event.setCancelled(true);
-                    return;
-                }
-            }
-
-            if (type == BlockID.CHEST
-                    || type == BlockID.JUKEBOX //stores the (arguably) most valuable item
-                    || type == BlockID.DISPENSER
-                    || type == BlockID.FURNACE
-                    || type == BlockID.BURNING_FURNACE
-                    || type == BlockID.BREWING_STAND
-                    || type == BlockID.TRAPPED_CHEST
-                    || type == BlockID.HOPPER
-                    || type == BlockID.DROPPER) {
-                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
-                        && !set.canBuild(localPlayer)
-                        && !set.allows(DefaultFlag.CHEST_ACCESS, localPlayer)) {
-                    player.sendMessage(ChatColor.DARK_RED + "You don't have permission to open that in this area.");
-                    event.setUseInteractedBlock(Result.DENY);
-                    event.setCancelled(true);
-                    return;
-                }
-            }
-
-            if (type == BlockID.DRAGON_EGG) {
-                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
-                        && !set.canBuild(localPlayer)) {
-                    player.sendMessage(ChatColor.DARK_RED + "You're not allowed to move dragon eggs here!");
-                    event.setUseInteractedBlock(Result.DENY);
-                    event.setCancelled(true);
-                    return;
-                }
-            }
-
-            if (type == BlockID.LEVER
-                    || type == BlockID.STONE_BUTTON
-                    || type == BlockID.WOODEN_BUTTON
-                    || type == BlockID.NOTE_BLOCK
-                    || type == BlockID.REDSTONE_REPEATER_OFF
-                    || type == BlockID.REDSTONE_REPEATER_ON
-                    || type == BlockID.WOODEN_DOOR
-                    || type == BlockID.TRAP_DOOR
-                    || type == BlockID.FENCE_GATE
-                    || type == BlockID.JUKEBOX //stores the (arguably) most valuable item
-                    || type == BlockID.DISPENSER
-                    || type == BlockID.FURNACE
-                    || type == BlockID.BURNING_FURNACE
-                    || type == BlockID.WORKBENCH
-                    || type == BlockID.BREWING_STAND
-                    || type == BlockID.ENCHANTMENT_TABLE
-                    || type == BlockID.CAULDRON
-                    || type == BlockID.ENDER_CHEST // blah
-                    || type == BlockID.BEACON
-                    || type == BlockID.ANVIL
-                    || type == BlockID.HOPPER
-                    || type == BlockID.DROPPER) {
-                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
-                        && !set.canBuild(localPlayer)
-                        && !set.allows(DefaultFlag.USE, localPlayer)) {
-                    player.sendMessage(ChatColor.DARK_RED + "You don't have permission to use that in this area.");
-                    event.setUseInteractedBlock(Result.DENY);
-                    event.setCancelled(true);
-                    return;
-                }
-            }
-
-            if (type == BlockID.REDSTONE_REPEATER_OFF
-                    || type == BlockID.REDSTONE_REPEATER_ON
-                    || type == BlockID.COMPARATOR_OFF
-                    || type == BlockID.COMPARATOR_ON) {
-                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
-                        && !set.canBuild(localPlayer)) {
-                    // using build and not use because it can potentially damage a circuit and use is more general-purposed
-                    player.sendMessage(ChatColor.DARK_RED + "You don't have permission to use that in this area.");
-                    event.setUseInteractedBlock(Result.DENY);
-                    event.setCancelled(true);
-                    return;
-                }
-            }
-
-            if (type == BlockID.CAKE_BLOCK) {
-                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
-                        && !set.canBuild(localPlayer)
-                        && !set.allows(DefaultFlag.USE, localPlayer)) {
-                    player.sendMessage(ChatColor.DARK_RED + "You're not invited to this tea party!");
-                    event.setUseInteractedBlock(Result.DENY);
-                    event.setCancelled(true);
-                    return;
-                }
-            }
-
-            if (BlockType.isRailBlock(type)
-                    && (item.getTypeId() == ItemID.MINECART
-                    || item.getTypeId() == ItemID.POWERED_MINECART
-                    || item.getTypeId() == ItemID.STORAGE_MINECART
-                    || item.getTypeId() == ItemID.TNT_MINECART
-                    || item.getTypeId() == ItemID.HOPPER_MINECART)) {
-                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
-                        && !placedInSet.canBuild(localPlayer)
-                        && !placedInSet.allows(DefaultFlag.PLACE_VEHICLE, localPlayer)) {
-                    player.sendMessage(ChatColor.DARK_RED + "You don't have permission to place vehicles here.");
-                    event.setUseItemInHand(Result.DENY);
-                    event.setCancelled(true);
-                    return;
-                }
-            }
-
-            if (item.getTypeId() == ItemID.WOOD_BOAT) {
-                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
-                        && !placedInSet.canBuild(localPlayer)
-                        && !placedInSet.allows(DefaultFlag.PLACE_VEHICLE, localPlayer)) {
-                    player.sendMessage(ChatColor.DARK_RED + "You don't have permission to place vehicles here.");
-                    event.setUseItemInHand(Result.DENY);
-                    event.setCancelled(true);
-                    return;
-                }
-            }
-        }
-
+//    /**
+//     * Called when a player right clicks a block.
+//     *
+//     * @param event Thrown event
+//     */
+//    private void handleBlockRightClick(PlayerInteractEvent event) {
+//        if (event.isCancelled()) {
+//            return;
+//        }
+//
+//        Block block = event.getClickedBlock();
+//        World world = block.getWorld();
+//        int type = block.getTypeId();
+//        Player player = event.getPlayer();
+//        ItemStack item = player.getItemInHand();
+//
+//        ConfigurationManager cfg = plugin.getGlobalStateManager();
+//        WorldConfiguration wcfg = cfg.get(world);
+//
+//        // Infinite stack removal
+//        if ((type == BlockID.CHEST
+//                || type == BlockID.JUKEBOX
+//                || type == BlockID.DISPENSER
+//                || type == BlockID.FURNACE
+//                || type == BlockID.BURNING_FURNACE
+//                || type == BlockID.BREWING_STAND
+//                || type == BlockID.ENCHANTMENT_TABLE)
+//                && wcfg.removeInfiniteStacks
+//                && !plugin.hasPermission(player, "stakeaclaim.override.infinite-stack")) {
+//            for (int slot = 0; slot < 40; slot++) {
+//                ItemStack heldItem = player.getInventory().getItem(slot);
+//                if (heldItem != null && heldItem.getAmount() < 0) {
+//                    player.getInventory().setItem(slot, null);
+//                    player.sendMessage(ChatColor.RED + "Infinite stack in slot #" + slot + " removed.");
+//                }
+//            }
+//        }
+//
+//        if (wcfg.useRequests) {
+//            Vector pt = toVector(block);
+//            RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+//            Block placedIn = block.getRelative(event.getBlockFace());
+//            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
+//            ApplicableRequestSet placedInSet = mgr.getApplicableRequests(placedIn.getLocation());
+//            LocalPlayer localPlayer = plugin.wrapPlayer(player);
+//
+//            if (item.getTypeId() == wcfg.requestWand && plugin.hasPermission(player, "stakeaclaim.request.wand")) {
+//                if (set.size() > 0) {
+//                    player.sendMessage(ChatColor.YELLOW + "Can you build? "
+//                            + (set.canBuild(localPlayer) ? "Yes" : "No"));
+//
+//                    StringBuilder str = new StringBuilder();
+//                    for (Iterator<Request> it = set.iterator(); it.hasNext();) {
+//                        str.append(it.next().getId());
+//                        if (it.hasNext()) {
+//                            str.append(", ");
+//                        }
+//                    }
+//
+//                    player.sendMessage(ChatColor.YELLOW + "Applicable requests: " + str.toString());
+//                } else {
+//                    player.sendMessage(ChatColor.YELLOW + "StakeAClaim: No defined requests here!");
+//                }
+//
+//                event.setCancelled(true);
+//                return;
+//            }
+//
+//            if (item.getTypeId() == BlockID.TNT) {
+//                // workaround for a bug that allowed tnt to trigger instantly if placed
+//                // next to redstone, without plugins getting the block place event
+//                // (not sure if this actually still happens)
+//                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
+//                        && !placedInSet.allows(DefaultFlag.TNT, localPlayer)) {
+//                    event.setUseItemInHand(Result.DENY);
+//                    event.setCancelled(true);
+//                }
+//            }
+//
+//            // hacky workaround for craftbukkit bug
+//            // has since been fixed, but leaving for legacy
+//            if (item.getTypeId() == BlockID.STEP
+//                    || item.getTypeId() == BlockID.WOODEN_STEP) {
+//                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world)) {
+//                    boolean cancel = false;
+//                    if ((block.getTypeId() == item.getTypeId()) 
+//                        && !set.canBuild(localPlayer)) {
+//                    // if we are on a step already, the new block will end up in the same block as the interact
+//                        cancel = true;
+//                    } else if (!placedInSet.canBuild(localPlayer)) {
+//                    // if we are on another block, the half-slab in hand will be pushed to the adjacent block
+//                        cancel = true;
+//                    }
+//                    if (cancel) {
+//                        player.sendMessage(ChatColor.DARK_RED + "You don't have permission for this area.");
+//                        event.setCancelled(true);
+//                        return;
+//                    }
+//                }
+//            }
+//
+//            if (item.getTypeId() == ItemID.BED_ITEM) {
+//                // this is mojang-level code, it had better give us the right direction
+//                double yaw = (player.getLocation().getYaw() * 4.0F / 360.0F) + 0.5D;
+//                int i = (int) yaw;
+//                int i1 = (yaw < i ? i - 1 : i) & 3;
+//                byte b0 = 0;
+//                byte b1 = 0;
+//                if (i1 == 0) {
+//                    b1 = 1;
+//                }
+//                if (i1 == 1) {
+//                    b0 = -1;
+//                }
+//                if (i1 == 2) {
+//                    b1 = -1;
+//                }
+//                if (i1 == 3) {
+//                    b0 = 1;
+//                }
+//                // end mojang-level code
+//                Location headLoc = placedIn.getRelative(b0, 0, b1).getLocation();
+//                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world) 
+//                        && !mgr.getApplicableRequests(headLoc).canBuild(localPlayer)) {
+//                    // note that normal block placement is handled later, this is just a workaround
+//                    // for the location of the head block of the bed
+//                    player.sendMessage(ChatColor.DARK_RED + "You don't have permission for this area.");
+//                    event.setCancelled(true);
+//                    return;
+//                }
+//            }
+//
+//            if (block.getTypeId() == BlockID.PISTON_MOVING_PIECE) {
+//                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
+//                        && !set.canBuild(localPlayer)) {
+//                    event.setUseInteractedBlock(Result.DENY);
+//                }
+//            }
+//
+//            if (item.getTypeId() == ItemID.WOODEN_DOOR_ITEM || item.getTypeId() == ItemID.IRON_DOOR_ITEM) {
+//                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world)
+//                        && !placedInSet.canBuild(localPlayer)) {
+//                    // note that normal block placement is handled later, this is just a workaround
+//                    // for the location of the top block of the door
+//                    player.sendMessage(ChatColor.DARK_RED + "You don't have permission for this area.");
+//                    event.setCancelled(true);
+//                    return;
+//                }
+//            }
+//
+//            if (item.getTypeId() == ItemID.FIRE_CHARGE || item.getTypeId() == ItemID.FLINT_AND_TINDER) {
+//                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world)
+//                        && !placedInSet.allows(DefaultFlag.LIGHTER, localPlayer)) {
+//                    event.setCancelled(true);
+//                    event.setUseItemInHand(Result.DENY);
+//                    player.sendMessage(ChatColor.DARK_RED + "You're not allowed to use that here.");
+//                    return;
+//                }
+//            }
+//
+//            if (item.getTypeId() == ItemID.EYE_OF_ENDER && block.getTypeId() == BlockID.END_PORTAL_FRAME) {
+//                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
+//                        && !set.canBuild(localPlayer)) {
+//                    event.setCancelled(true);
+//                    event.setUseItemInHand(Result.DENY);
+//                    player.sendMessage(ChatColor.DARK_RED + "You're not allowed to use that here.");
+//                    return;
+//                }
+//            }
+//
+//            if (item.getTypeId() == ItemID.INK_SACK
+//                    && item.getData() != null) {
+//                if (item.getData().getData() == 15 // bonemeal
+//                        && (type == BlockID.GRASS
+//                        || type == BlockID.SAPLING
+//                        || type == BlockID.CROPS
+//                        || type == BlockID.BROWN_MUSHROOM
+//                        || type == BlockID.RED_MUSHROOM
+//                        || type == BlockID.PUMPKIN_STEM
+//                        || type == BlockID.MELON_STEM
+//                        || type == BlockID.POTATOES
+//                        || type == BlockID.CARROTS
+//                        || type == BlockID.COCOA_PLANT)) {
+//                    if (!plugin.getGlobalRequestManager().hasBypass(player, world)
+//                            && !set.canBuild(localPlayer)) {
+//                        event.setCancelled(true);
+//                        event.setUseItemInHand(Result.DENY);
+//                        player.sendMessage(ChatColor.DARK_RED + "You're not allowed to use that here.");
+//                        return;
+//                    }
+//                } else if (item.getData().getData() == 3) { // cocoa beans
+//                    // craftbukkit doesn't throw a block place for this, so workaround
+//                    if (!plugin.getGlobalRequestManager().hasBypass(player, world)
+//                            && !set.canBuild(localPlayer)) {
+//                        if (!(event.getBlockFace() == BlockFace.DOWN || event.getBlockFace() == BlockFace.UP)) {
+//                            event.setCancelled(true);
+//                            event.setUseItemInHand(Result.DENY);
+//                            player.sendMessage(ChatColor.DARK_RED + "You're not allowed to plant that here.");
+//                            return;
+//                        }
+//                    }
+//                }
+//            }
+//
+//            if (type == BlockID.FLOWER_POT) { // no api for this atm
+//                if (item.getTypeId() == BlockID.RED_FLOWER
+//                        || item.getTypeId() == BlockID.YELLOW_FLOWER
+//                        || item.getTypeId() == BlockID.SAPLING
+//                        || item.getTypeId() == BlockID.RED_MUSHROOM
+//                        || item.getTypeId() == BlockID.BROWN_MUSHROOM
+//                        || item.getTypeId() == BlockID.CACTUS
+//                        || item.getTypeId() == BlockID.LONG_GRASS
+//                        || item.getTypeId() == BlockID.DEAD_BUSH) {
+//                    if (!plugin.getGlobalRequestManager().hasBypass(player, world)
+//                            && !set.canBuild(localPlayer)) {
+//                        event.setUseItemInHand(Result.DENY);
+//                        event.setCancelled(true);
+//                        player.sendMessage(ChatColor.DARK_RED + "You're not allowed to plant that here.");
+//                        return;
+//                    }
+//                }
+//            }
+//
+//            if (type == BlockID.BED) {
+//                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
+//                        && !set.allows(DefaultFlag.SLEEP, localPlayer)) {
+//                    player.sendMessage(ChatColor.DARK_RED + "You're not allowed to use that bed.");
+//                    event.setUseInteractedBlock(Result.DENY);
+//                    event.setCancelled(true);
+//                    return;
+//                }
+//            }
+//
+//            if (type == BlockID.CHEST
+//                    || type == BlockID.JUKEBOX //stores the (arguably) most valuable item
+//                    || type == BlockID.DISPENSER
+//                    || type == BlockID.FURNACE
+//                    || type == BlockID.BURNING_FURNACE
+//                    || type == BlockID.BREWING_STAND
+//                    || type == BlockID.TRAPPED_CHEST
+//                    || type == BlockID.HOPPER
+//                    || type == BlockID.DROPPER) {
+//                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
+//                        && !set.canBuild(localPlayer)
+//                        && !set.allows(DefaultFlag.CHEST_ACCESS, localPlayer)) {
+//                    player.sendMessage(ChatColor.DARK_RED + "You don't have permission to open that in this area.");
+//                    event.setUseInteractedBlock(Result.DENY);
+//                    event.setCancelled(true);
+//                    return;
+//                }
+//            }
+//
+//            if (type == BlockID.DRAGON_EGG) {
+//                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
+//                        && !set.canBuild(localPlayer)) {
+//                    player.sendMessage(ChatColor.DARK_RED + "You're not allowed to move dragon eggs here!");
+//                    event.setUseInteractedBlock(Result.DENY);
+//                    event.setCancelled(true);
+//                    return;
+//                }
+//            }
+//
+//            if (type == BlockID.LEVER
+//                    || type == BlockID.STONE_BUTTON
+//                    || type == BlockID.WOODEN_BUTTON
+//                    || type == BlockID.NOTE_BLOCK
+//                    || type == BlockID.REDSTONE_REPEATER_OFF
+//                    || type == BlockID.REDSTONE_REPEATER_ON
+//                    || type == BlockID.WOODEN_DOOR
+//                    || type == BlockID.TRAP_DOOR
+//                    || type == BlockID.FENCE_GATE
+//                    || type == BlockID.JUKEBOX //stores the (arguably) most valuable item
+//                    || type == BlockID.DISPENSER
+//                    || type == BlockID.FURNACE
+//                    || type == BlockID.BURNING_FURNACE
+//                    || type == BlockID.WORKBENCH
+//                    || type == BlockID.BREWING_STAND
+//                    || type == BlockID.ENCHANTMENT_TABLE
+//                    || type == BlockID.CAULDRON
+//                    || type == BlockID.ENDER_CHEST // blah
+//                    || type == BlockID.BEACON
+//                    || type == BlockID.ANVIL
+//                    || type == BlockID.HOPPER
+//                    || type == BlockID.DROPPER) {
+//                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
+//                        && !set.canBuild(localPlayer)
+//                        && !set.allows(DefaultFlag.USE, localPlayer)) {
+//                    player.sendMessage(ChatColor.DARK_RED + "You don't have permission to use that in this area.");
+//                    event.setUseInteractedBlock(Result.DENY);
+//                    event.setCancelled(true);
+//                    return;
+//                }
+//            }
+//
+//            if (type == BlockID.REDSTONE_REPEATER_OFF
+//                    || type == BlockID.REDSTONE_REPEATER_ON
+//                    || type == BlockID.COMPARATOR_OFF
+//                    || type == BlockID.COMPARATOR_ON) {
+//                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
+//                        && !set.canBuild(localPlayer)) {
+//                    // using build and not use because it can potentially damage a circuit and use is more general-purposed
+//                    player.sendMessage(ChatColor.DARK_RED + "You don't have permission to use that in this area.");
+//                    event.setUseInteractedBlock(Result.DENY);
+//                    event.setCancelled(true);
+//                    return;
+//                }
+//            }
+//
+//            if (type == BlockID.CAKE_BLOCK) {
+//                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
+//                        && !set.canBuild(localPlayer)
+//                        && !set.allows(DefaultFlag.USE, localPlayer)) {
+//                    player.sendMessage(ChatColor.DARK_RED + "You're not invited to this tea party!");
+//                    event.setUseInteractedBlock(Result.DENY);
+//                    event.setCancelled(true);
+//                    return;
+//                }
+//            }
+//
+//            if (BlockType.isRailBlock(type)
+//                    && (item.getTypeId() == ItemID.MINECART
+//                    || item.getTypeId() == ItemID.POWERED_MINECART
+//                    || item.getTypeId() == ItemID.STORAGE_MINECART
+//                    || item.getTypeId() == ItemID.TNT_MINECART
+//                    || item.getTypeId() == ItemID.HOPPER_MINECART)) {
+//                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
+//                        && !placedInSet.canBuild(localPlayer)
+//                        && !placedInSet.allows(DefaultFlag.PLACE_VEHICLE, localPlayer)) {
+//                    player.sendMessage(ChatColor.DARK_RED + "You don't have permission to place vehicles here.");
+//                    event.setUseItemInHand(Result.DENY);
+//                    event.setCancelled(true);
+//                    return;
+//                }
+//            }
+//
+//            if (item.getTypeId() == ItemID.WOOD_BOAT) {
+//                if (!plugin.getGlobalRequestManager().hasBypass(player, world)
+//                        && !placedInSet.canBuild(localPlayer)
+//                        && !placedInSet.allows(DefaultFlag.PLACE_VEHICLE, localPlayer)) {
+//                    player.sendMessage(ChatColor.DARK_RED + "You don't have permission to place vehicles here.");
+//                    event.setUseItemInHand(Result.DENY);
+//                    event.setCancelled(true);
+//                    return;
+//                }
+//            }
+//        }
+//
 //        if (wcfg.getBlacklist() != null) {
 //            if (player.isSneaking() // sneak + right clicking no longer opens guis as of some recent version
 //                    || (type != BlockID.CHEST
@@ -1055,7 +1055,7 @@ public class StakeAClaimPlayerListener implements Listener {
 //                }
 //            }
 //        }
-
+//
 //        if ((type == BlockID.CHEST
 //                || type == BlockID.DISPENSER
 //                || type == BlockID.FURNACE
@@ -1073,97 +1073,97 @@ public class StakeAClaimPlayerListener implements Listener {
 //                return;
 //            }
 //        }
+//
+//        /*if (wcfg.useRequests && wcfg.useiConomy && cfg.getiConomy() != null
+//                    && (type == BlockID.SIGN_POST || type == ItemID.SIGN || type == BlockID.WALL_SIGN)) {
+//            BlockState block = blockClicked.getState();
+//
+//            if (((Sign)block).getLine(0).equalsIgnoreCase("[StakeAClaim]")
+//                    && ((Sign)block).getLine(1).equalsIgnoreCase("For sale")) {
+//                String requestId = ((Sign)block).getLine(2);
+//                //String requestComment = ((Sign)block).getLine(3);
+//
+//                if (requestId != null && requestId != "") {
+//                    RequestManager mgr = cfg.getStakeAClaimPlugin().getGlobalRequestManager().get(player.getWorld().getName());
+//                    Request request = mgr.getRequest(requestId);
+//
+//                    if (request != null) {
+//                        RequestFlags flags = request.getFlags();
+//
+//                        if (flags.getBooleanFlag(DefaultFlag.BUYABLE).getValue(false)) {
+//                            if (iConomy.getBank().hasAccount(player.getName())) {
+//                                Account account = iConomy.getBank().getAccount(player.getName());
+//                                double balance = account.getBalance();
+//                                double requestPrice = flags.getDoubleFlag(DefaultFlag.PRICE).getValue();
+//
+//                                if (balance >= requestPrice) {
+//                                    account.subtract(requestPrice);
+//                                    player.sendMessage(ChatColor.YELLOW + "You have bought the request " + requestId + " for " +
+//                                            iConomy.getBank().format(requestPrice));
+//                                    DefaultDomain owners = request.getOwners();
+//                                    owners.addPlayer(player.getName());
+//                                    request.setOwners(owners);
+//                                    flags.getBooleanFlag(DefaultFlag.BUYABLE).setValue(false);
+//                                    account.save();
+//                                } else {
+//                                    player.sendMessage(ChatColor.YELLOW + "You have not enough money.");
+//                                }
+//                            } else {
+//                                player.sendMessage(ChatColor.YELLOW + "You have not enough money.");
+//                            }
+//                        } else {
+//                            player.sendMessage(ChatColor.RED + "Request: " + requestId + " is not buyable");
+//                        }
+//                    } else {
+//                        player.sendMessage(ChatColor.DARK_RED + "The request " + requestId + " does not exist.");
+//                    }
+//                } else {
+//                    player.sendMessage(ChatColor.DARK_RED + "No request specified.");
+//                }
+//            }
+//        }*/
+//    }
 
-        /*if (wcfg.useRequests && wcfg.useiConomy && cfg.getiConomy() != null
-                    && (type == BlockID.SIGN_POST || type == ItemID.SIGN || type == BlockID.WALL_SIGN)) {
-            BlockState block = blockClicked.getState();
-
-            if (((Sign)block).getLine(0).equalsIgnoreCase("[StakeAClaim]")
-                    && ((Sign)block).getLine(1).equalsIgnoreCase("For sale")) {
-                String requestId = ((Sign)block).getLine(2);
-                //String requestComment = ((Sign)block).getLine(3);
-
-                if (requestId != null && requestId != "") {
-                    RequestManager mgr = cfg.getStakeAClaimPlugin().getGlobalRequestManager().get(player.getWorld().getName());
-                    ProtectedRequest request = mgr.getRequest(requestId);
-
-                    if (request != null) {
-                        RequestFlags flags = request.getFlags();
-
-                        if (flags.getBooleanFlag(DefaultFlag.BUYABLE).getValue(false)) {
-                            if (iConomy.getBank().hasAccount(player.getName())) {
-                                Account account = iConomy.getBank().getAccount(player.getName());
-                                double balance = account.getBalance();
-                                double requestPrice = flags.getDoubleFlag(DefaultFlag.PRICE).getValue();
-
-                                if (balance >= requestPrice) {
-                                    account.subtract(requestPrice);
-                                    player.sendMessage(ChatColor.YELLOW + "You have bought the request " + requestId + " for " +
-                                            iConomy.getBank().format(requestPrice));
-                                    DefaultDomain owners = request.getOwners();
-                                    owners.addPlayer(player.getName());
-                                    request.setOwners(owners);
-                                    flags.getBooleanFlag(DefaultFlag.BUYABLE).setValue(false);
-                                    account.save();
-                                } else {
-                                    player.sendMessage(ChatColor.YELLOW + "You have not enough money.");
-                                }
-                            } else {
-                                player.sendMessage(ChatColor.YELLOW + "You have not enough money.");
-                            }
-                        } else {
-                            player.sendMessage(ChatColor.RED + "Request: " + requestId + " is not buyable");
-                        }
-                    } else {
-                        player.sendMessage(ChatColor.DARK_RED + "The request " + requestId + " does not exist.");
-                    }
-                } else {
-                    player.sendMessage(ChatColor.DARK_RED + "No request specified.");
-                }
-            }
-        }*/
-    }
-
-    /**
-     * Called when a player steps on a pressure plate or tramples crops.
-     *
-     * @param event Thrown event
-     */
-    private void handlePhysicalInteract(PlayerInteractEvent event) {
-        if (event.isCancelled()) return;
-
-        Player player = event.getPlayer();
-        Block block = event.getClickedBlock(); //not actually clicked but whatever
-        int type = block.getTypeId();
-        World world = player.getWorld();
-
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
-        WorldConfiguration wcfg = cfg.get(world);
-
-        if (block.getTypeId() == BlockID.SOIL && wcfg.disablePlayerCropTrampling) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (wcfg.useRequests) {
-            Vector pt = toVector(block);
-            RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
-            LocalPlayer localPlayer = plugin.wrapPlayer(player);
-
-            if (type == BlockID.STONE_PRESSURE_PLATE || type == BlockID.WOODEN_PRESSURE_PLATE
-                    || type == BlockID.TRIPWIRE || type == BlockID.PRESSURE_PLATE_LIGHT
-                    || type == BlockID.PRESSURE_PLATE_HEAVY) {
-               if (!plugin.getGlobalRequestManager().hasBypass(player, world)
-                       && !set.canBuild(localPlayer)
-                       && !set.allows(DefaultFlag.USE, localPlayer)) {
-                   event.setUseInteractedBlock(Result.DENY);
-                   event.setCancelled(true);
-                   return;
-               }
-            }
-        }
-    }
+//    /**
+//     * Called when a player steps on a pressure plate or tramples crops.
+//     *
+//     * @param event Thrown event
+//     */
+//    private void handlePhysicalInteract(PlayerInteractEvent event) {
+//        if (event.isCancelled()) return;
+//
+//        Player player = event.getPlayer();
+//        Block block = event.getClickedBlock(); //not actually clicked but whatever
+//        int type = block.getTypeId();
+//        World world = player.getWorld();
+//
+//        ConfigurationManager cfg = plugin.getGlobalStateManager();
+//        WorldConfiguration wcfg = cfg.get(world);
+//
+//        if (block.getTypeId() == BlockID.SOIL && wcfg.disablePlayerCropTrampling) {
+//            event.setCancelled(true);
+//            return;
+//        }
+//
+//        if (wcfg.useRequests) {
+//            Vector pt = toVector(block);
+//            RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+//            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
+//            LocalPlayer localPlayer = plugin.wrapPlayer(player);
+//
+//            if (type == BlockID.STONE_PRESSURE_PLATE || type == BlockID.WOODEN_PRESSURE_PLATE
+//                    || type == BlockID.TRIPWIRE || type == BlockID.PRESSURE_PLATE_LIGHT
+//                    || type == BlockID.PRESSURE_PLATE_HEAVY) {
+//               if (!plugin.getGlobalRequestManager().hasBypass(player, world)
+//                       && !set.canBuild(localPlayer)
+//                       && !set.allows(DefaultFlag.USE, localPlayer)) {
+//                   event.setUseInteractedBlock(Result.DENY);
+//                   event.setCancelled(true);
+//                   return;
+//               }
+//            }
+//        }
+//    }
 
     /**
      * Called when a player uses an item.
@@ -1232,19 +1232,19 @@ public class StakeAClaimPlayerListener implements Listener {
         }
     }*/
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onPlayerDropItem(PlayerDropItemEvent event) {
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
-        WorldConfiguration wcfg = cfg.get(event.getPlayer().getWorld());
-        Player player = event.getPlayer();
-
-        if (wcfg.useRequests) {
-            if (!plugin.getGlobalRequestManager().allows(DefaultFlag.ITEM_DROP, player.getLocation())) {
-                event.setCancelled(true);
-                player.sendMessage(ChatColor.RED + "You don't have permission to do that in this area.");
-            }
-        }
-
+//    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+//    public void onPlayerDropItem(PlayerDropItemEvent event) {
+//        ConfigurationManager cfg = plugin.getGlobalStateManager();
+//        WorldConfiguration wcfg = cfg.get(event.getPlayer().getWorld());
+//        Player player = event.getPlayer();
+//
+//        if (wcfg.useRequests) {
+//            if (!plugin.getGlobalRequestManager().allows(DefaultFlag.ITEM_DROP, player.getLocation())) {
+//                event.setCancelled(true);
+//                player.sendMessage(ChatColor.RED + "You don't have permission to do that in this area.");
+//            }
+//        }
+//
 //        if (wcfg.getBlacklist() != null) {
 //            Item ci = event.getItemDrop();
 //
@@ -1255,13 +1255,13 @@ public class StakeAClaimPlayerListener implements Listener {
 //                return;
 //            }
 //        }
-    }
+//    }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onPlayerPickupItem(PlayerPickupItemEvent event) {
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
-        WorldConfiguration wcfg = cfg.get(event.getPlayer().getWorld());
-
+//    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+//    public void onPlayerPickupItem(PlayerPickupItemEvent event) {
+//        ConfigurationManager cfg = plugin.getGlobalStateManager();
+//        WorldConfiguration wcfg = cfg.get(event.getPlayer().getWorld());
+//
 //        if (wcfg.getBlacklist() != null) {
 //            Item ci = event.getItem();
 //
@@ -1272,25 +1272,25 @@ public class StakeAClaimPlayerListener implements Listener {
 //                return;
 //            }
 //        }
-    }
+//    }
 
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onPlayerBucketFill(PlayerBucketFillEvent event) {
-        Player player = event.getPlayer();
-        World world = player.getWorld();
-
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
-        WorldConfiguration wcfg = cfg.get(world);
-
-        if (!plugin.getGlobalRequestManager().canBuild(
-                player, event.getBlockClicked().getRelative(event.getBlockFace()))
-                && !(event.getBucket().getId() == ItemID.MILK_BUCKET)) {
-            player.sendMessage(ChatColor.DARK_RED + "You don't have permission for this area.");
-            event.setCancelled(true);
-            return;
-        }
-
+//    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+//    public void onPlayerBucketFill(PlayerBucketFillEvent event) {
+//        Player player = event.getPlayer();
+//        World world = player.getWorld();
+//
+//        ConfigurationManager cfg = plugin.getGlobalStateManager();
+//        WorldConfiguration wcfg = cfg.get(world);
+//
+//        if (!plugin.getGlobalRequestManager().canBuild(
+//                player, event.getBlockClicked().getRelative(event.getBlockFace()))
+//                && !(event.getBucket().getId() == ItemID.MILK_BUCKET)) {
+//            player.sendMessage(ChatColor.DARK_RED + "You don't have permission for this area.");
+//            event.setCancelled(true);
+//            return;
+//        }
+//
 //        if (wcfg.getBlacklist() != null) {
 //            if (!wcfg.getBlacklist().check(
 //                    new ItemUseBlacklistEvent(plugin.wrapPlayer(player),
@@ -1299,33 +1299,33 @@ public class StakeAClaimPlayerListener implements Listener {
 //                return;
 //            }
 //        }
-    }
+//    }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onPlayerFish(PlayerFishEvent event) {
-        WorldConfiguration wcfg = plugin.getGlobalStateManager().get(event.getPlayer().getWorld());
+//    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+//    public void onPlayerFish(PlayerFishEvent event) {
+//        WorldConfiguration wcfg = plugin.getGlobalStateManager().get(event.getPlayer().getWorld());
+//
+//        if (wcfg.disableExpDrops || !plugin.getGlobalRequestManager().allows(DefaultFlag.EXP_DROPS,
+//                event.getPlayer().getLocation())) {
+//            event.setExpToDrop(0);
+//        }
+//    }
 
-        if (wcfg.disableExpDrops || !plugin.getGlobalRequestManager().allows(DefaultFlag.EXP_DROPS,
-                event.getPlayer().getLocation())) {
-            event.setExpToDrop(0);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
-        Player player = event.getPlayer();
-        World world = player.getWorld();
-
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
-        WorldConfiguration wcfg = cfg.get(world);
-
-        if (!plugin.getGlobalRequestManager().canBuild(
-                player, event.getBlockClicked().getRelative(event.getBlockFace()))) {
-            player.sendMessage(ChatColor.DARK_RED + "You don't have permission for this area.");
-            event.setCancelled(true);
-            return;
-        }
-
+//    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+//    public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
+//        Player player = event.getPlayer();
+//        World world = player.getWorld();
+//
+//        ConfigurationManager cfg = plugin.getGlobalStateManager();
+//        WorldConfiguration wcfg = cfg.get(world);
+//
+//        if (!plugin.getGlobalRequestManager().canBuild(
+//                player, event.getBlockClicked().getRelative(event.getBlockFace()))) {
+//            player.sendMessage(ChatColor.DARK_RED + "You don't have permission for this area.");
+//            event.setCancelled(true);
+//            return;
+//        }
+//
 //        if (wcfg.getBlacklist() != null) {
 //            if (!wcfg.getBlacklist().check(
 //                    new ItemUseBlacklistEvent(plugin.wrapPlayer(player),
@@ -1334,153 +1334,153 @@ public class StakeAClaimPlayerListener implements Listener {
 //                return;
 //            }
 //        }
-    }
+//    }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerRespawn(PlayerRespawnEvent event) {
-        Player player = event.getPlayer();
-        Location location = player.getLocation();
+//    @EventHandler(priority = EventPriority.HIGHEST)
+//    public void onPlayerRespawn(PlayerRespawnEvent event) {
+//        Player player = event.getPlayer();
+//        Location location = player.getLocation();
+//
+//        ConfigurationManager cfg = plugin.getGlobalStateManager();
+//        WorldConfiguration wcfg = cfg.get(player.getWorld());
+//
+//        if (wcfg.useRequests) {
+//            Vector pt = toVector(location);
+//            RequestManager mgr = plugin.getGlobalRequestManager().get(player.getWorld());
+//            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
+//
+//            LocalPlayer localPlayer = plugin.wrapPlayer(player);
+//            com.sk89q.worldedit.Location spawn = set.getFlag(DefaultFlag.SPAWN_LOC, localPlayer);
+//
+//            if (spawn != null) {
+//                event.setRespawnLocation(com.sk89q.worldedit.bukkit.BukkitUtil.toLocation(spawn));
+//            }
+//        }
+//    }
 
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
-        WorldConfiguration wcfg = cfg.get(player.getWorld());
+//    @EventHandler(priority = EventPriority.HIGH)
+//    public void onItemHeldChange(PlayerItemHeldEvent event) {
+//        Player player = event.getPlayer();
+//
+//        ConfigurationManager cfg = plugin.getGlobalStateManager();
+//        WorldConfiguration wcfg = cfg.get(player.getWorld());
+//
+//        if (wcfg.removeInfiniteStacks
+//                && !plugin.hasPermission(player, "stakeaclaim.override.infinite-stack")) {
+//            int newSlot = event.getNewSlot();
+//            ItemStack heldItem = player.getInventory().getItem(newSlot);
+//            if (heldItem != null && heldItem.getAmount() < 0) {
+//                player.getInventory().setItem(newSlot, null);
+//                player.sendMessage(ChatColor.RED + "Infinite stack removed.");
+//            }
+//        }
+//    }
 
-        if (wcfg.useRequests) {
-            Vector pt = toVector(location);
-            RequestManager mgr = plugin.getGlobalRequestManager().get(player.getWorld());
-            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
+//    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+//    public void onPlayerBedEnter(PlayerBedEnterEvent event) {
+//        Player player = event.getPlayer();
+//        Location location = player.getLocation();
+//
+//        ConfigurationManager cfg = plugin.getGlobalStateManager();
+//        WorldConfiguration wcfg = cfg.get(player.getWorld());
+//
+//        if (wcfg.useRequests) {
+//            Vector pt = toVector(location);
+//            RequestManager mgr = plugin.getGlobalRequestManager().get(player.getWorld());
+//            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
+//
+//            if (!plugin.getGlobalRequestManager().hasBypass(player, player.getWorld())
+//                && !set.allows(DefaultFlag.SLEEP, plugin.wrapPlayer(player))) {
+//                    event.setCancelled(true);
+//                    player.sendMessage("This bed doesn't belong to you!");
+//                    return;
+//            }
+//        }
+//    }
 
-            LocalPlayer localPlayer = plugin.wrapPlayer(player);
-            com.sk89q.worldedit.Location spawn = set.getFlag(DefaultFlag.SPAWN_LOC, localPlayer);
+//    @EventHandler(priority= EventPriority.LOW, ignoreCancelled = true)
+//    public void onPlayerTeleport(PlayerTeleportEvent event) {
+//        World world = event.getFrom().getWorld();
+//        ConfigurationManager cfg = plugin.getGlobalStateManager();
+//        WorldConfiguration wcfg = cfg.get(world);
+//
+//        if (wcfg.useRequests) {
+//            if (event.getCause() == TeleportCause.ENDER_PEARL) {
+//                RequestManager mgr = plugin.getGlobalRequestManager().get(event.getFrom().getWorld());
+//                Vector pt = new Vector(event.getTo().getBlockX(), event.getTo().getBlockY(), event.getTo().getBlockZ());
+//                Vector ptFrom = new Vector(event.getFrom().getBlockX(), event.getFrom().getBlockY(), event.getFrom().getBlockZ());
+//                ApplicableRequestSet set = mgr.getApplicableRequests(pt);
+//                ApplicableRequestSet setFrom = mgr.getApplicableRequests(ptFrom);
+//                LocalPlayer localPlayer = plugin.wrapPlayer(event.getPlayer());
+//
+//                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world)
+//                        && !(set.allows(DefaultFlag.ENTRY, localPlayer)
+//                                && setFrom.allows(DefaultFlag.EXIT, localPlayer))) {
+//                    event.getPlayer().sendMessage(ChatColor.DARK_RED + "You're not allowed to go there.");
+//                    event.setCancelled(true);
+//                    return;
+//                }
+//                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world)
+//                        && !(set.allows(DefaultFlag.ENDERPEARL, localPlayer)
+//                                && setFrom.allows(DefaultFlag.ENDERPEARL, localPlayer))) {
+//                    event.getPlayer().sendMessage(ChatColor.DARK_RED + "You're not allowed to go there.");
+//                    event.setCancelled(true);
+//                    return;
+//                }
+//            }
+//        }
+//    }
 
-            if (spawn != null) {
-                event.setRespawnLocation(com.sk89q.worldedit.bukkit.BukkitUtil.toLocation(spawn));
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onItemHeldChange(PlayerItemHeldEvent event) {
-        Player player = event.getPlayer();
-
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
-        WorldConfiguration wcfg = cfg.get(player.getWorld());
-
-        if (wcfg.removeInfiniteStacks
-                && !plugin.hasPermission(player, "stakeaclaim.override.infinite-stack")) {
-            int newSlot = event.getNewSlot();
-            ItemStack heldItem = player.getInventory().getItem(newSlot);
-            if (heldItem != null && heldItem.getAmount() < 0) {
-                player.getInventory().setItem(newSlot, null);
-                player.sendMessage(ChatColor.RED + "Infinite stack removed.");
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onPlayerBedEnter(PlayerBedEnterEvent event) {
-        Player player = event.getPlayer();
-        Location location = player.getLocation();
-
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
-        WorldConfiguration wcfg = cfg.get(player.getWorld());
-
-        if (wcfg.useRequests) {
-            Vector pt = toVector(location);
-            RequestManager mgr = plugin.getGlobalRequestManager().get(player.getWorld());
-            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
-
-            if (!plugin.getGlobalRequestManager().hasBypass(player, player.getWorld())
-                && !set.allows(DefaultFlag.SLEEP, plugin.wrapPlayer(player))) {
-                    event.setCancelled(true);
-                    player.sendMessage("This bed doesn't belong to you!");
-                    return;
-            }
-        }
-    }
-
-    @EventHandler(priority= EventPriority.LOW, ignoreCancelled = true)
-    public void onPlayerTeleport(PlayerTeleportEvent event) {
-        World world = event.getFrom().getWorld();
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
-        WorldConfiguration wcfg = cfg.get(world);
-
-        if (wcfg.useRequests) {
-            if (event.getCause() == TeleportCause.ENDER_PEARL) {
-                RequestManager mgr = plugin.getGlobalRequestManager().get(event.getFrom().getWorld());
-                Vector pt = new Vector(event.getTo().getBlockX(), event.getTo().getBlockY(), event.getTo().getBlockZ());
-                Vector ptFrom = new Vector(event.getFrom().getBlockX(), event.getFrom().getBlockY(), event.getFrom().getBlockZ());
-                ApplicableRequestSet set = mgr.getApplicableRequests(pt);
-                ApplicableRequestSet setFrom = mgr.getApplicableRequests(ptFrom);
-                LocalPlayer localPlayer = plugin.wrapPlayer(event.getPlayer());
-
-                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world)
-                        && !(set.allows(DefaultFlag.ENTRY, localPlayer)
-                                && setFrom.allows(DefaultFlag.EXIT, localPlayer))) {
-                    event.getPlayer().sendMessage(ChatColor.DARK_RED + "You're not allowed to go there.");
-                    event.setCancelled(true);
-                    return;
-                }
-                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world)
-                        && !(set.allows(DefaultFlag.ENDERPEARL, localPlayer)
-                                && setFrom.allows(DefaultFlag.ENDERPEARL, localPlayer))) {
-                    event.getPlayer().sendMessage(ChatColor.DARK_RED + "You're not allowed to go there.");
-                    event.setCancelled(true);
-                    return;
-                }
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
-        Player player = event.getPlayer();
-        LocalPlayer localPlayer = plugin.wrapPlayer(player);
-        World world = player.getWorld();
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
-        WorldConfiguration wcfg = cfg.get(world);
-
-        if (wcfg.useRequests && !plugin.getGlobalRequestManager().hasBypass(player, world)) {
-            Vector pt = toVector(player.getLocation());
-            RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
-
-            String lowerCommand = event.getMessage().toLowerCase();
-
-            Set<String> allowedCommands = set.getFlag(DefaultFlag.ALLOWED_CMDS, localPlayer);
-            Set<String> blockedCommands = set.getFlag(DefaultFlag.BLOCKED_CMDS, localPlayer);
-
-            String blockedCommand = "";
-            if (blockedCommands != null){
-                for (String aCommand : blockedCommands) {
-                    if (lowerCommand.startsWith(aCommand)) {
-                        blockedCommand = aCommand;
-                        break;
-                    }
-                }
-            }
-            if (allowedCommands != null) {
-                if (blockedCommand.isEmpty()) blockedCommand = lowerCommand.split(" ")[0];
-                for (String aCommand : allowedCommands) {
-                    if (lowerCommand.startsWith(aCommand)) {
-                        blockedCommand = "";
-                        break;
-                    }
-                }
-            }
-
-            if (!blockedCommand.isEmpty()) {
-                player.sendMessage(ChatColor.RED + blockedCommand + " is not allowed in this area.");
-                event.setCancelled(true);
-                return;
-            }
-        }
-
-        if (cfg.blockInGameOp) {
-            if (opPattern.matcher(event.getMessage()).matches()) {
-                player.sendMessage(ChatColor.RED + "/op can only be used in console (as set by a WG setting).");
-                event.setCancelled(true);
-                return;
-            }
-        }
-    }
+//    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+//    public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
+//        Player player = event.getPlayer();
+//        LocalPlayer localPlayer = plugin.wrapPlayer(player);
+//        World world = player.getWorld();
+//        ConfigurationManager cfg = plugin.getGlobalStateManager();
+//        WorldConfiguration wcfg = cfg.get(world);
+//
+//        if (wcfg.useRequests && !plugin.getGlobalRequestManager().hasBypass(player, world)) {
+//            Vector pt = toVector(player.getLocation());
+//            RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+//            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
+//
+//            String lowerCommand = event.getMessage().toLowerCase();
+//
+//            Set<String> allowedCommands = set.getFlag(DefaultFlag.ALLOWED_CMDS, localPlayer);
+//            Set<String> blockedCommands = set.getFlag(DefaultFlag.BLOCKED_CMDS, localPlayer);
+//
+//            String blockedCommand = "";
+//            if (blockedCommands != null){
+//                for (String aCommand : blockedCommands) {
+//                    if (lowerCommand.startsWith(aCommand)) {
+//                        blockedCommand = aCommand;
+//                        break;
+//                    }
+//                }
+//            }
+//            if (allowedCommands != null) {
+//                if (blockedCommand.isEmpty()) blockedCommand = lowerCommand.split(" ")[0];
+//                for (String aCommand : allowedCommands) {
+//                    if (lowerCommand.startsWith(aCommand)) {
+//                        blockedCommand = "";
+//                        break;
+//                    }
+//                }
+//            }
+//
+//            if (!blockedCommand.isEmpty()) {
+//                player.sendMessage(ChatColor.RED + blockedCommand + " is not allowed in this area.");
+//                event.setCancelled(true);
+//                return;
+//            }
+//        }
+//
+//        if (cfg.blockInGameOp) {
+//            if (opPattern.matcher(event.getMessage()).matches()) {
+//                player.sendMessage(ChatColor.RED + "/op can only be used in console (as set by a WG setting).");
+//                event.setCancelled(true);
+//                return;
+//            }
+//        }
+//    }
 }

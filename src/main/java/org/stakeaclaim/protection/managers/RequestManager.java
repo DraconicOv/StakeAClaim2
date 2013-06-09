@@ -27,7 +27,7 @@ import org.stakeaclaim.LocalPlayer;
 import org.stakeaclaim.protection.ApplicableRequestSet;
 import org.stakeaclaim.protection.databases.ProtectionDatabaseException;
 import org.stakeaclaim.protection.databases.ProtectionDatabase;
-import org.stakeaclaim.protection.requests.ProtectedRequest;
+import org.stakeaclaim.protection.requests.Request;
 
 /**
  * An abstract class for getting, setting, and looking up requests. The most
@@ -75,7 +75,7 @@ public abstract class RequestManager {
      *
      * @return map of requests, with keys being request IDs (lowercase)
      */
-    public abstract Map<String, ProtectedRequest> getRequests();
+    public abstract Map<String, Request> getRequests();
 
     /**
      * Set a list of protected requests. Keys should be lowercase in the given
@@ -83,7 +83,7 @@ public abstract class RequestManager {
      *
      * @param requests map of requests
      */
-    public abstract void setRequests(Map<String, ProtectedRequest> requests);
+    public abstract void setRequests(Map<String, Request> requests);
 
     /**
      * Adds a request. If a request by the given name already exists, then
@@ -91,7 +91,7 @@ public abstract class RequestManager {
      *
      * @param request request to add
      */
-    public abstract void addRequest(ProtectedRequest request);
+    public abstract void addRequest(Request request);
 
     /**
      * Return whether a request exists by an ID.
@@ -107,7 +107,7 @@ public abstract class RequestManager {
      * @param id id of the request, can be mixed-case
      * @return request or null if it doesn't exist
      */
-    public ProtectedRequest getRequest(String id) {
+    public Request getRequest(String id) {
         if (id.startsWith("#")) {
             int index;
             try {
@@ -115,7 +115,7 @@ public abstract class RequestManager {
             } catch (NumberFormatException e) {
                 return null;
             }
-            for (ProtectedRequest request : getRequests().values()) {
+            for (Request request : getRequests().values()) {
                 if (index == 0) {
                     return request;
                 }
@@ -133,7 +133,7 @@ public abstract class RequestManager {
      * @param id id of the request, can be mixed-case
      * @return request or null if it doesn't exist
      */
-    public ProtectedRequest getRequestExact(String id) {
+    public Request getRequestExact(String id) {
         return getRequests().get(id.toLowerCase());
     }
 
@@ -169,10 +169,10 @@ public abstract class RequestManager {
      * a set for the given reason.
      *
      * @param request request
-     * @return regino set
+     * @return request set
      */
     public abstract ApplicableRequestSet getApplicableRequests(
-            ProtectedRequest request);
+            Request request);
 
     /**
      * Get a list of request IDs that contain a point.
@@ -190,7 +190,7 @@ public abstract class RequestManager {
      * @param player player to check against
      * @return whether there is an overlap
      */
-    public abstract boolean overlapsUnownedRequest(ProtectedRequest request,
+    public abstract boolean overlapsUnownedRequest(Request request,
             LocalPlayer player);
 
     /**
