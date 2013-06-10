@@ -30,23 +30,25 @@ public class StakeRequest implements Comparable<StakeRequest> {
     /**
     * Compares to another request.<br>
     *<br>
-    * Orders primarily by the priority, descending<br>
-    * Orders secondarily by the id, ascending
+    * Orders by the id, ascending
     *
     * @param other The request to compare to
     */
    public int compareTo(StakeRequest other) {
        if (requestID < other.requestID) {
            return -1;
+       } else if (requestID > other.requestID) {
+           return 1;
        }
-       return 1;
+       return 0;
    }
 
     public enum Status {
         PENDING,
-        DENIED,
         ACCEPTED,
-        CANCELED
+        DENIED,
+        WITHDRAWN,
+        RECLAIMED
     }
     
     public enum Access {
@@ -88,9 +90,8 @@ public class StakeRequest implements Comparable<StakeRequest> {
      */
     public StakeRequest(String regionID, String playerName) {
         this.requestID = System.currentTimeMillis();
-        this.regionID = regionID;
-        this.playerName = playerName;
-        this.status = Status.PENDING;
+        this.regionID = regionID.toLowerCase();
+        this.playerName = playerName.toLowerCase();
         this.access = null;
     }
 
@@ -103,9 +104,8 @@ public class StakeRequest implements Comparable<StakeRequest> {
      */
     public StakeRequest(String regionID, LocalPlayer player) {
         this.requestID = System.currentTimeMillis();
-        this.regionID = regionID;
-        this.playerName = player.getName();
-        this.status = Status.PENDING;
+        this.regionID = regionID.toLowerCase();
+        this.playerName = player.getName().toLowerCase();
         this.access = null;
     }
 

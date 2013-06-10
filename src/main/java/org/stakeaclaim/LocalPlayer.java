@@ -29,13 +29,13 @@ public abstract class LocalPlayer {
      */
     public abstract String getName();
     
-    /**
-     * Returns true if the player is inside a group.
-     * 
-     * @param group The group to check
-     * @return Whether this player is in {@code group}
-     */
-    public abstract boolean hasGroup(String group);
+//    /**
+//     * Returns true if the player is inside a group.
+//     * 
+//     * @param group The group to check
+//     * @return Whether this player is in {@code group}
+//     */
+//    public abstract boolean hasGroup(String group);
     
     /**
      * Get the player's position.
@@ -44,19 +44,19 @@ public abstract class LocalPlayer {
      */
     public abstract Vector getPosition();
     
-    /**
-     * Kick the player.
-     * 
-     * @param msg The message to kick the player with
-     */
-    public abstract void kick(String msg);
+//    /**
+//     * Kick the player.
+//     * 
+//     * @param msg The message to kick the player with
+//     */
+//    public abstract void kick(String msg);
     
-    /**
-     * Ban the player.
-     * 
-     * @param msg The message to ban the player with
-     */
-    public abstract void ban(String msg);
+//    /**
+//     * Ban the player.
+//     * 
+//     * @param msg The message to ban the player with
+//     */
+//    public abstract void ban(String msg);
     
     /**
      * Send the player a message;
@@ -65,12 +65,12 @@ public abstract class LocalPlayer {
      */
     public abstract void printRaw(String msg);
     
-    /**
-     * Get the player's list of groups.
-     * 
-     * @return The groups this player is in
-     */
-    public abstract String[] getGroups();
+//    /**
+//     * Get the player's list of groups.
+//     * 
+//     * @return The groups this player is in
+//     */
+//    public abstract String[] getGroups();
     
     /**
      * Returns whether a player has permission.

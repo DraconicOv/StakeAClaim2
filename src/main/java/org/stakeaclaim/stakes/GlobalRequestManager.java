@@ -41,7 +41,7 @@ import org.stakeaclaim.stakes.databases.ProtectionDatabase;
 import org.stakeaclaim.stakes.databases.ProtectionDatabaseException;
 import org.stakeaclaim.stakes.databases.YAMLDatabase;
 //import org.stakeaclaim.stakes.flags.StateFlag;
-import org.stakeaclaim.stakes.PRTreeRequestManager;
+//import org.stakeaclaim.stakes.PRTreeRequestManager;
 import org.stakeaclaim.stakes.RequestManager;
 
 /**
@@ -156,7 +156,7 @@ public class GlobalRequestManager {
             }
 
             // Create a manager
-            RequestManager manager = new PRTreeRequestManager(database);
+            RequestManager manager = new RequestManager(database);
             manager.load();
 
             if (plugin.getGlobalStateManager().get(world).summaryOnStart) {

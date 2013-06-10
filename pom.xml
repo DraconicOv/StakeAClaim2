@@ -77,6 +77,14 @@
     </dependency>
     
     <dependency>
+      <groupId>com.sk89q</groupId>
+      <artifactId>worldguard</artifactId>
+      <version>5.7.6-SNAPSHOT</version>
+      <scope>compile</scope>
+      <type>jar</type>
+    </dependency>
+    
+    <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
       <version>1.5-R0.1-SNAPSHOT</version>
@@ -84,7 +92,7 @@
       <type>jar</type>
     </dependency>
     
-    <dependency>
+<!--    <dependency>
       <groupId>com.sk89q</groupId>
       <artifactId>commandbook</artifactId>
       <version>2.1</version>
@@ -119,18 +127,18 @@
     </dependency>
     
     <dependency>
-      <groupId>net.sf.opencsv</groupId>
-      <artifactId>opencsv</artifactId>
-      <version>2.0</version>
-      <scope>compile</scope>
-      <type>jar</type>
-    </dependency>
-    
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.8.1</version>
       <scope>test</scope>
+      <type>jar</type>
+    </dependency> -->
+    
+    <dependency>
+      <groupId>net.sf.opencsv</groupId>
+      <artifactId>opencsv</artifactId>
+      <version>2.0</version>
+      <scope>compile</scope>
       <type>jar</type>
     </dependency>
   </dependencies>
@@ -211,7 +219,6 @@
               <artifactSet>
                 <includes>
                   <include>net.sf.opencsv:opencsv</include>
-                  <include>org.khelekore:prtree</include>
                 </includes>
               </artifactSet>
             </configuration>

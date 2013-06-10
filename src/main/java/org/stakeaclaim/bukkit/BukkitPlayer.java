@@ -39,10 +39,10 @@ public class BukkitPlayer extends LocalPlayer {
         return player.getName();
     }
 
-    @Override
-    public boolean hasGroup(String group) {
-        return plugin.inGroup(player, group);
-    }
+//    @Override
+//    public boolean hasGroup(String group) {
+//        return plugin.inGroup(player, group);
+//    }
 
     @Override
     public Vector getPosition() {
@@ -50,21 +50,21 @@ public class BukkitPlayer extends LocalPlayer {
         return new Vector(loc.getX(), loc.getY(), loc.getZ());
     }
 
-    @Override
-    public void kick(String msg) {
-        player.kickPlayer(msg);
-    }
+//    @Override
+//    public void kick(String msg) {
+//        player.kickPlayer(msg);
+//    }
 
-    @Override
-    public void ban(String msg) {
-        player.setBanned(true);
-        player.kickPlayer(msg);
-    }
+//    @Override
+//    public void ban(String msg) {
+//        player.setBanned(true);
+//        player.kickPlayer(msg);
+//    }
 
-    @Override
-    public String[] getGroups() {
-        return plugin.getGroups(player);
-    }
+//    @Override
+//    public String[] getGroups() {
+//        return plugin.getGroups(player);
+//    }
 
     @Override
     public void printRaw(String msg) {

@@ -19,27 +19,30 @@
 
 package org.stakeaclaim.stakes;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import com.sk89q.worldedit.Vector;
 import org.stakeaclaim.LocalPlayer;
 import org.stakeaclaim.stakes.ApplicableRequestSet;
 import org.stakeaclaim.stakes.databases.ProtectionDatabaseException;
 import org.stakeaclaim.stakes.databases.ProtectionDatabase;
 import org.stakeaclaim.stakes.StakeRequest;
+import org.stakeaclaim.stakes.StakeRequest.Access;
+import org.stakeaclaim.stakes.StakeRequest.Status;
 
 /**
- * An abstract class for getting, setting, and looking up requests. The most
- * simple implementation uses a flat list and iterates through the entire list
- * to look for applicable requests, but a more complicated (and more efficient)
- * implementation may use space partitioning techniques.
- *
- * @author sk89q
+ * An class for getting, setting, and looking up requests.
  */
-public abstract class RequestManager {
+public class RequestManager {
 
+    /**
+     * The request loader to use.
+     */
     protected ProtectionDatabase loader;
+
+    /**
+     * List of stake requests.
+     */
+    private Map<Long, StakeRequest> requests;
 
     /**
      * Construct the object.
@@ -48,6 +51,7 @@ public abstract class RequestManager {
      */
     public RequestManager(ProtectionDatabase loader) {
         this.loader = loader;
+        requests = new TreeMap<Long, StakeRequest>();
     }
 
     /**
@@ -75,56 +79,27 @@ public abstract class RequestManager {
      *
      * @return map of requests, with keys being request ID numbers 
      */
-    public abstract Map<Long, StakeRequest> getRequests();
+    public Map<Long, StakeRequest> getRequests() {
+        return requests;
+    }
 
-//    /**
-//     * Set a list of protected requests. Keys should be lowercase in the given
-//     * map fo requests.
-//     *
-//     * @param requests map of requests
-//     */
-//    public abstract void setRequests(Map<Long, StakeRequest> requests);
+    /**
+     * Set a list of requests. Keys should be request IDs
+     *
+     * @param requests map of requests
+     */
+     public void setRequests(Map<Long, StakeRequest> requests) {
+         this.requests = new TreeMap<Long, StakeRequest>(requests);
+     }
 
     /**
      * Adds a request.
      *
      * @param request request to add
      */
-    public abstract void addRequest(StakeRequest request);
-
-//    /**
-//     * Return whether a request exists by an ID.
-//     *
-//     * @param id id of the request, can be mixed-case
-//     * @return whether the request exists
-//     */
-//    public abstract boolean hasRequest(String id);
-
-//    /**
-//     * Get a request by its ID. Includes symbolic names like #&lt;index&gt;
-//     *
-//     * @param id id of the request, can be mixed-case
-//     * @return request or null if it doesn't exist
-//     */
-//    public StakeRequest getRequest(String id) {
-//        if (id.startsWith("#")) {
-//            int index;
-//            try {
-//                index = Integer.parseInt(id.substring(1)) - 1;
-//            } catch (NumberFormatException e) {
-//                return null;
-//            }
-//            for (StakeRequest request : getRequests().values()) {
-//                if (index == 0) {
-//                    return request;
-//                }
-//                --index;
-//            }
-//            return null;
-//        }
-//
-//        return getRequestExact(id);
-//    }
+     public void addRequest(StakeRequest request) {
+         requests.put(request.getRequestID(), request);
+     }
 
     /**
      * Get a request by its ID number.
@@ -141,69 +116,95 @@ public abstract class RequestManager {
      *
      * @param requestID id number of the request
      */
-    public abstract void removeRequest(long requestID);
+    public void removeRequest(long requestID) {
+        requests.remove(requestID);
+    }
 
-//    /**
-//     * Get an object for a point for rules to be applied with. Use this in order
-//     * to query for flag data or membership data for a given point.
-//     *
-//     * @param loc Bukkit location
-//     * @return applicable request set
-//     */
-//    public ApplicableRequestSet getApplicableRequests(org.bukkit.Location loc) {
-//        return getApplicableRequests(com.sk89q.worldedit.bukkit.BukkitUtil.toVector(loc));
-//    }
+    /**
+     * Get a set of requests for region {@code name) isRegion == true
+     * Get a set of requests requested by player {@code name) isRegion == false
+     *
+     * @param name the name of the player or region whose requests to get
+     * @return request set
+     */
+    public ApplicableRequestSet getApplicableRequests(String name, boolean isRegion) {
+        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
 
-//    /**
-//     * Get an object for a point for rules to be applied with. Use this in order
-//     * to query for flag data or membership data for a given point.
-//     *
-//     * @param pt point
-//     * @return applicable request set
-//     */
-//    public abstract ApplicableRequestSet getApplicableRequests(Vector pt);
+        for (StakeRequest request : requests.values()) {
+            if (isRegion) {
+                if (request.getRegionID() == name.toLowerCase()) {
+                    appRequests.add(request);
+                }
+            } else {
+                if (request.getPlayerName() == name.toLowerCase()) {
+                    appRequests.add(request);
+                }
+            }
+        }
 
-//    /**
-//     * Get an object for a point for rules to be applied with. This gets
-//     * a set for the given reason.
-//     *
-//     * @param request request
-//     * @return request set
-//     */
-//    public abstract ApplicableRequestSet getApplicableRequests(
-//            StakeRequest request);
+        return new ApplicableRequestSet(appRequests);
+    }
 
-//    /**
-//     * Get a list of request IDs that contain a point.
-//     *
-//     * @param pt point
-//     * @return list of request Ids
-//     */
-//    public abstract List<String> getApplicableRequestsIDs(Vector pt);
+    /**
+     * Get a set of requests requested by {@code player)
+     *
+     * @param player the player whose requests to get
+     * @return request set
+     */
+    public ApplicableRequestSet getApplicableRequests(LocalPlayer player) {
+        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
 
-//    /**
-//     * Returns true if the provided request overlaps with any other request that
-//     * is not owned by the player.
-//     *
-//     * @param request request to check
-//     * @param player player to check against
-//     * @return whether there is an overlap
-//     */
-//    public abstract boolean overlapsUnownedRequest(StakeRequest request,
-//            LocalPlayer player);
+        for (StakeRequest request : requests.values()) {
+            if (request.getPlayerName() == player.getName().toLowerCase()) {
+                appRequests.add(request);
+            }
+        }
+
+        return new ApplicableRequestSet(appRequests);
+    }
+
+    /**
+     * Get a set of requests with status {@code status)
+     *
+     * @param status the status to get requests with
+     * @return request set
+     */
+    public ApplicableRequestSet getApplicableRequests(Status status) {
+        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
+
+        for (StakeRequest request : requests.values()) {
+            if (request.getStatus() == status) {
+                appRequests.add(request);
+            }
+        }
+
+        return new ApplicableRequestSet(appRequests);
+    }
+
+    /**
+     * Get a set of requests with access state of {@code status)
+     *
+     * @param status the access state to get requests with
+     * @return request set
+     */
+    public ApplicableRequestSet getApplicableRequests(Access access) {
+        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
+
+        for (StakeRequest request : requests.values()) {
+            if (request.getAccess() == access) {
+                appRequests.add(request);
+            }
+        }
+
+        return new ApplicableRequestSet(appRequests);
+    }
 
     /**
      * Get the number of requests.
      *
      * @return number of requests
      */
-    public abstract int size();
-
-    /**
-     * Get the number of requests for a player.
-     *
-     * @param player player
-     * @return count number of requests that a player owns
-     */
-    public abstract int getRequestCountOfPlayer(LocalPlayer player);
+    public int size() {
+        return requests.size();
+    }
 }

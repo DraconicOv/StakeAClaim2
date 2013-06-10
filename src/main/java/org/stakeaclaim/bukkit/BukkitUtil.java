@@ -80,88 +80,88 @@ public class BukkitUtil {
         return new Location(world, vec.getX(), vec.getY(), vec.getZ());
     }
 
-    /**
-     * Matches one player based on name.
-     *
-     * @param server The server to check
-     * @param name The name to attempt to match
-     * @deprecated see {@link StakeAClaimPlugin#matchSinglePlayer(org.bukkit.command.CommandSender, String)}
-     * @return The matched player if any, otherwise null
-     */
-    @Deprecated
-    public static Player matchSinglePlayer(Server server, String name) {
-        List<Player> players = server.matchPlayer(name);
-        if (players.size() == 0) {
-            return null;
-        }
-        return players.get(0);
-    }
+//    /**
+//     * Matches one player based on name.
+//     *
+//     * @param server The server to check
+//     * @param name The name to attempt to match
+//     * @deprecated see {@link StakeAClaimPlugin#matchSinglePlayer(org.bukkit.command.CommandSender, String)}
+//     * @return The matched player if any, otherwise null
+//     */
+//    @Deprecated
+//    public static Player matchSinglePlayer(Server server, String name) {
+//        List<Player> players = server.matchPlayer(name);
+//        if (players.size() == 0) {
+//            return null;
+//        }
+//        return players.get(0);
+//    }
 
-    /**
-     * Drops a sign item and removes a sign.
-     *
-     * @param block The block
-     * @deprecated see {@link org.bukkit.block.Block#breakNaturally()}
-     */
-    @Deprecated
-    public static void dropSign(Block block) {
-        block.setTypeId(0);
-        block.getWorld().dropItemNaturally(block.getLocation(),
-                new ItemStack(ItemID.SIGN, 1));
-    }
+//    /**
+//     * Drops a sign item and removes a sign.
+//     *
+//     * @param block The block
+//     * @deprecated see {@link org.bukkit.block.Block#breakNaturally()}
+//     */
+//    @Deprecated
+//    public static void dropSign(Block block) {
+//        block.setTypeId(0);
+//        block.getWorld().dropItemNaturally(block.getLocation(),
+//                new ItemStack(ItemID.SIGN, 1));
+//    }
 
-    /**
-     * Sets the given block to fluid water.
-     * Used by addSpongeWater()
-     *
-     * @param world
-     * @param ox
-     * @param oy
-     * @param oz
-     */
-    public static void setBlockToWater(World world, int ox, int oy, int oz) {
-        Block block = world.getBlockAt(ox, oy, oz);
-        int id = block.getTypeId();
-        if (id == 0) {
-            block.setTypeId(8);
-        }
-    }
+//    /**
+//     * Sets the given block to fluid water.
+//     * Used by addSpongeWater()
+//     *
+//     * @param world
+//     * @param ox
+//     * @param oy
+//     * @param oz
+//     */
+//    public static void setBlockToWater(World world, int ox, int oy, int oz) {
+//        Block block = world.getBlockAt(ox, oy, oz);
+//        int id = block.getTypeId();
+//        if (id == 0) {
+//            block.setTypeId(8);
+//        }
+//    }
 
-    /**
-     * Checks if the given block is water
-     *
-     * @param world the world
-     * @param ox x
-     * @param oy y
-     * @param oz z
-     * @return true if it's water
-     */
-    public static boolean isBlockWater(World world, int ox, int oy, int oz) {
-        Block block = world.getBlockAt(ox, oy, oz);
-        int id = block.getTypeId();
-        return id == 8 || id == 9;
-    }
+//    /**
+//     * Checks if the given block is water
+//     *
+//     * @param world the world
+//     * @param ox x
+//     * @param oy y
+//     * @param oz z
+//     * @return true if it's water
+//     */
+//    public static boolean isBlockWater(World world, int ox, int oy, int oz) {
+//        Block block = world.getBlockAt(ox, oy, oz);
+//        int id = block.getTypeId();
+//        return id == 8 || id == 9;
+//    }
 
-    /**
-     * Checks if the given potion is a vial of water.
-     *
-     * @param item the item to check
-     * @return true if it's a water vial
-     */
-    public static boolean isWaterPotion(ItemStack item) {
-        return (item.getDurability() & 0x3F) == 0;
-    }
+//    /**
+//     * Checks if the given potion is a vial of water.
+//     *
+//     * @param item the item to check
+//     * @return true if it's a water vial
+//     */
+//    public static boolean isWaterPotion(ItemStack item) {
+//        return (item.getDurability() & 0x3F) == 0;
+//    }
 
-    /**
-     * Get just the potion effect bits. This is to work around bugs with potion
-     * parsing.
-     *
-     * @param item item
-     * @return new bits
-     */
-    public static int getPotionEffectBits(ItemStack item) {
-        return item.getDurability() & 0x3F;
-    }
+//    /**
+//     * Get just the potion effect bits. This is to work around bugs with potion
+//     * parsing.
+//     *
+//     * @param item item
+//     * @return new bits
+//     */
+//    public static int getPotionEffectBits(ItemStack item) {
+//        return item.getDurability() & 0x3F;
+//    }
 
     /**
      * Find a position for the player to stand that is not inside a block.
@@ -245,52 +245,52 @@ public class BukkitUtil {
         return str;
     }
 
-    /**
-     * Returns whether an entity should be removed for the halt activity mode.
-     *
-     * @param entity
-     * @return true if it's to be removed
-     */
-    public static boolean isIntensiveEntity(Entity entity) {
-        return entity instanceof Item
-                || entity instanceof TNTPrimed
-                || entity instanceof ExperienceOrb
-                || entity instanceof FallingSand
-                || (entity instanceof LivingEntity
-                    && !(entity instanceof Tameable)
-                    && !(entity instanceof Player));
-    }
+//    /**
+//     * Returns whether an entity should be removed for the halt activity mode.
+//     *
+//     * @param entity
+//     * @return true if it's to be removed
+//     */
+//    public static boolean isIntensiveEntity(Entity entity) {
+//        return entity instanceof Item
+//                || entity instanceof TNTPrimed
+//                || entity instanceof ExperienceOrb
+//                || entity instanceof FallingSand
+//                || (entity instanceof LivingEntity
+//                    && !(entity instanceof Tameable)
+//                    && !(entity instanceof Player));
+//    }
 
-    /**
-     * Returns whether our running CraftBukkit already supports
-     * the HangingEvent instead of the PaintingEvent
-     *
-     * @return true if the hanging event is supported
-     */
-    public static boolean hasHangingEvent() {
-        Class<?> tmp = null;
-        try {
-            tmp = Class.forName("org.bukkit.event.hanging.HangingEvent");
-        } catch (ClassNotFoundException ignored) { }
-        return (tmp != null);
-    }
+//    /**
+//     * Returns whether our running CraftBukkit already supports
+//     * the HangingEvent instead of the PaintingEvent
+//     *
+//     * @return true if the hanging event is supported
+//     */
+//    public static boolean hasHangingEvent() {
+//        Class<?> tmp = null;
+//        try {
+//            tmp = Class.forName("org.bukkit.event.hanging.HangingEvent");
+//        } catch (ClassNotFoundException ignored) { }
+//        return (tmp != null);
+//    }
 
-    /**
-     * Search an enum for a value, and return the first one found. Return null if the
-     * enum entry is not found.
-     *
-     * @param enumType enum class
-     * @param values values to test
-     * @return a value in the enum or null
-     */
-    public static <T extends Enum<T>> T tryEnum(Class<T> enumType, String ... values) {
-        for (String val : values) {
-            try {
-                return Enum.valueOf(enumType, val);
-            } catch (IllegalArgumentException e) {
-            }
-        }
-
-        return null;
-    }
+//    /**
+//     * Search an enum for a value, and return the first one found. Return null if the
+//     * enum entry is not found.
+//     *
+//     * @param enumType enum class
+//     * @param values values to test
+//     * @return a value in the enum or null
+//     */
+//    public static <T extends Enum<T>> T tryEnum(Class<T> enumType, String ... values) {
+//        for (String val : values) {
+//            try {
+//                return Enum.valueOf(enumType, val);
+//            } catch (IllegalArgumentException e) {
+//            }
+//        }
+//
+//        return null;
+//    }
 }

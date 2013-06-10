@@ -40,7 +40,7 @@ import org.stakeaclaim.domains.DefaultDomain;
 //import org.stakeaclaim.stakes.requests.ProtectedCuboidRequest;
 import org.stakeaclaim.stakes.StakeRequest;
 //import org.stakeaclaim.stakes.requests.Request.CircularInheritanceException;
-import org.stakeaclaim.util.ArrayReader;
+//import org.stakeaclaim.util.ArrayReader;
 
 /**
  * Represents a protected area database that uses CSV files.

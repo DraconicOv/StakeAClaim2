@@ -76,11 +76,11 @@ public class DefaultDomain implements Domain {
             return true;
         }
 
-        for (String group : groups) {
-            if (player.hasGroup(group)) {
-                return true;
-            }
-        }
+//        for (String group : groups) {
+//            if (player.hasGroup(group)) {
+//                return true;
+//            }
+//        }
 
         return false;
     }

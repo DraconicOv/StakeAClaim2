@@ -19,8 +19,6 @@
 
 package org.stakeaclaim.bukkit;
 
-import static org.stakeaclaim.bukkit.BukkitUtil.hasHangingEvent;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -57,10 +55,10 @@ import com.sk89q.minecraft.util.commands.SimpleInjector;
 import com.sk89q.minecraft.util.commands.WrappedCommandException;
 import com.sk89q.wepif.PermissionsResolverManager;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+
 import org.stakeaclaim.LocalPlayer;
-//import org.stakeaclaim.bukkit.commands.GeneralCommands;
-import org.stakeaclaim.bukkit.commands.ProtectionCommands;
-//import org.stakeaclaim.bukkit.commands.ToggleCommands;
+import org.stakeaclaim.bukkit.commands.AllCommands;
 import org.stakeaclaim.stakes.GlobalRequestManager;
 import org.stakeaclaim.stakes.RequestManager;
 import org.stakeaclaim.util.FatalConfigurationLoadingException;
@@ -128,8 +126,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
 
         // Register command classes
         final CommandsManagerRegistration reg = new CommandsManagerRegistration(this, commands);
-//        reg.register(ToggleCommands.class);
-        reg.register(ProtectionCommands.class);
+        reg.register(AllCommands.class);
 
 //        getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 //            @Override
@@ -676,6 +673,25 @@ public class StakeAClaimPlugin extends JavaPlugin {
         }
 
         throw new CommandException("No world by that exact name found.");
+    }
+
+    /**
+     * Gets a copy of the WorldGuard plugin.
+     *
+     * @return The WorldGuardPlugin instance
+     * @throws CommandException If there is no WorldGuardPlugin available
+     */
+    public WorldGuardPlugin getWorldGuard() throws CommandException {
+        Plugin worldGuard = getServer().getPluginManager().getPlugin("WorldGuard");
+        if (worldGuard == null) {
+            throw new CommandException("WorldGuard does not appear to be installed.");
+        }
+
+        if (worldGuard instanceof WorldGuardPlugin) {
+            return (WorldGuardPlugin) worldGuard;
+        } else {
+            throw new CommandException("WorldGuard detection failed (report error).");
+        }
     }
 
     /**

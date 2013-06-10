@@ -26,11 +26,11 @@ import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.NestedCommand;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 
-public class ProtectionCommands {
+public class AllCommands {
     @SuppressWarnings("unused")
     private final StakeAClaimPlugin plugin;
 
-    public ProtectionCommands(StakeAClaimPlugin plugin) {
+    public AllCommands(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
     }
 
