@@ -1,7 +1,7 @@
 // $Id$
 /*
  * StakeAClaim
- * Copyright (C) 2010 sk89q <http://www.sk89q.com>
+ * Copyright (C) 2013 NineteenGiraffes <http://www.NineteenGiraffes.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,8 @@ package org.stakeaclaim.bukkit;
 
 import com.sk89q.worldedit.Vector;
 import org.stakeaclaim.stakes.ApplicableRequestSet;
-import org.stakeaclaim.stakes.flags.DefaultFlag;
-import org.stakeaclaim.stakes.managers.RequestManager;
+//import org.stakeaclaim.stakes.flags.DefaultFlag;
+import org.stakeaclaim.stakes.RequestManager;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;

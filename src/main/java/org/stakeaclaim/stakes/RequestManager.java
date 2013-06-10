@@ -1,7 +1,7 @@
 // $Id$
 /*
  * StakeAClaim
- * Copyright (C) 2010 sk89q <http://www.sk89q.com>
+ * Copyright (C) 2013 NineteenGiraffes <http://www.NineteenGiraffes.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.stakeaclaim.stakes.managers;
+package org.stakeaclaim.stakes;
 
 import java.util.List;
 import java.util.Map;
@@ -75,7 +75,7 @@ public abstract class RequestManager {
      *
      * @return map of requests, with keys being request ID numbers 
      */
-    public abstract Map<long, StakeRequest> getRequests();
+    public abstract Map<Long, StakeRequest> getRequests();
 
 //    /**
 //     * Set a list of protected requests. Keys should be lowercase in the given
@@ -83,7 +83,7 @@ public abstract class RequestManager {
 //     *
 //     * @param requests map of requests
 //     */
-//    public abstract void setRequests(Map<long, StakeRequest> requests);
+//    public abstract void setRequests(Map<Long, StakeRequest> requests);
 
     /**
      * Adds a request.

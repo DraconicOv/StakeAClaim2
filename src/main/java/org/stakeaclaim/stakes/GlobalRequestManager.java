@@ -1,7 +1,7 @@
 // $Id$
 /*
  * StakeAClaim
- * Copyright (C) 2010 sk89q <http://www.sk89q.com>
+ * Copyright (C) 2013 NineteenGiraffes <http://www.NineteenGiraffes.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,9 +40,9 @@ import org.stakeaclaim.stakes.databases.MySQLDatabase;
 import org.stakeaclaim.stakes.databases.ProtectionDatabase;
 import org.stakeaclaim.stakes.databases.ProtectionDatabaseException;
 import org.stakeaclaim.stakes.databases.YAMLDatabase;
-import org.stakeaclaim.stakes.flags.StateFlag;
-import org.stakeaclaim.stakes.managers.PRTreeRequestManager;
-import org.stakeaclaim.stakes.managers.RequestManager;
+//import org.stakeaclaim.stakes.flags.StateFlag;
+import org.stakeaclaim.stakes.PRTreeRequestManager;
+import org.stakeaclaim.stakes.RequestManager;
 
 /**
  * This class keeps track of request information for every world. It loads
@@ -269,104 +269,104 @@ public class GlobalRequestManager {
                 + world.getName());
     }
 
-    /**
-     * Check if a player has permission to build at a block.
-     *
-     * @param player The player to check
-     * @param block The block to check at
-     * @return Whether {@code player} can build at {@code block}'s location
-     */
-    public boolean canBuild(Player player, Block block) {
-        return canBuild(player, block.getLocation());
-    }
+//    /**
+//     * Check if a player has permission to build at a block.
+//     *
+//     * @param player The player to check
+//     * @param block The block to check at
+//     * @return Whether {@code player} can build at {@code block}'s location
+//     */
+//    public boolean canBuild(Player player, Block block) {
+//        return canBuild(player, block.getLocation());
+//    }
 
-    /**
-     * Check if a player has permission to build at a location.
-     *
-     * @param player The player to check
-     * @param loc The location to check
-     * @return Whether {@code player} can build at {@code loc}
-     */
-    public boolean canBuild(Player player, Location loc) {
-        World world = loc.getWorld();
-        WorldConfiguration worldConfig = config.get(world);
+//    /**
+//     * Check if a player has permission to build at a location.
+//     *
+//     * @param player The player to check
+//     * @param loc The location to check
+//     * @return Whether {@code player} can build at {@code loc}
+//     */
+//    public boolean canBuild(Player player, Location loc) {
+//        World world = loc.getWorld();
+//        WorldConfiguration worldConfig = config.get(world);
+//
+//        if (!worldConfig.useRequests) {
+//            return true;
+//        }
+//
+//        LocalPlayer localPlayer = plugin.wrapPlayer(player);
+//
+//        if (!hasBypass(player, world)) {
+//            RequestManager mgr = get(world);
+//
+//            if (!mgr.getApplicableRequests(BukkitUtil.toVector(loc))
+//                    .canBuild(localPlayer)) {
+//                return false;
+//            }
+//        }
+//
+//        return true;
+//    }
 
-        if (!worldConfig.useRequests) {
-            return true;
-        }
+//    public boolean canConstruct(Player player, Block block) {
+//        return canConstruct(player, block.getLocation());
+//    }
 
-        LocalPlayer localPlayer = plugin.wrapPlayer(player);
+//    public boolean canConstruct(Player player, Location loc) {
+//        World world = loc.getWorld();
+//        WorldConfiguration worldConfig = config.get(world);
+//
+//        if (!worldConfig.useRequests) {
+//            return true;
+//        }
+//
+//        LocalPlayer localPlayer = plugin.wrapPlayer(player);
+//
+//        if (!hasBypass(player, world)) {
+//            RequestManager mgr = get(world);
+//
+//            final ApplicableRequestSet applicableRequests = mgr.getApplicableRequests(BukkitUtil.toVector(loc));
+//            if (!applicableRequests.canBuild(localPlayer)) {
+//                return false;
+//            }
+//            if (!applicableRequests.canConstruct(localPlayer)) {
+//                return false;
+//            }
+//        }
+//
+//        return true;
+//    }
 
-        if (!hasBypass(player, world)) {
-            RequestManager mgr = get(world);
+//    /**
+//     * Checks to see whether a flag is allowed.
+//     *
+//     * @see #allows(org.stakeaclaim.stakes.flags.StateFlag, org.bukkit.Location, org.stakeaclaim.LocalPlayer)
+//     * @param flag The flag to check
+//     * @param loc The location to check the flag at
+//     * @return Whether the flag is allowed
+//     */
+//    public boolean allows(StateFlag flag, Location loc) {
+//        return allows(flag, loc, null);
+//    }
 
-            if (!mgr.getApplicableRequests(BukkitUtil.toVector(loc))
-                    .canBuild(localPlayer)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public boolean canConstruct(Player player, Block block) {
-        return canConstruct(player, block.getLocation());
-    }
-
-    public boolean canConstruct(Player player, Location loc) {
-        World world = loc.getWorld();
-        WorldConfiguration worldConfig = config.get(world);
-
-        if (!worldConfig.useRequests) {
-            return true;
-        }
-
-        LocalPlayer localPlayer = plugin.wrapPlayer(player);
-
-        if (!hasBypass(player, world)) {
-            RequestManager mgr = get(world);
-
-            final ApplicableRequestSet applicableRequests = mgr.getApplicableRequests(BukkitUtil.toVector(loc));
-            if (!applicableRequests.canBuild(localPlayer)) {
-                return false;
-            }
-            if (!applicableRequests.canConstruct(localPlayer)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Checks to see whether a flag is allowed.
-     *
-     * @see #allows(org.stakeaclaim.stakes.flags.StateFlag, org.bukkit.Location, org.stakeaclaim.LocalPlayer)
-     * @param flag The flag to check
-     * @param loc The location to check the flag at
-     * @return Whether the flag is allowed
-     */
-    public boolean allows(StateFlag flag, Location loc) {
-        return allows(flag, loc, null);
-    }
-
-    /**
-     * Checks to see whether a flag is allowed.
-     *
-     * @param flag The flag to check
-     * @param loc The location to check the flag at
-     * @param player The player to check for the flag's {@link org.stakeaclaim.stakes.flags.RequestGroup}
-     * @return Whether the flag is allowed
-     */
-    public boolean allows(StateFlag flag, Location loc, LocalPlayer player) {
-        World world = loc.getWorld();
-        WorldConfiguration worldConfig = config.get(world);
-
-        if (!worldConfig.useRequests) {
-            return true;
-        }
-
-        RequestManager mgr = get(world);
-        return mgr.getApplicableRequests(toVector(loc)).allows(flag, player);
-    }
+//    /**
+//     * Checks to see whether a flag is allowed.
+//     *
+//     * @param flag The flag to check
+//     * @param loc The location to check the flag at
+//     * @param player The player to check for the flag's {@link org.stakeaclaim.stakes.flags.RequestGroup}
+//     * @return Whether the flag is allowed
+//     */
+//    public boolean allows(StateFlag flag, Location loc, LocalPlayer player) {
+//        World world = loc.getWorld();
+//        WorldConfiguration worldConfig = config.get(world);
+//
+//        if (!worldConfig.useRequests) {
+//            return true;
+//        }
+//
+//        RequestManager mgr = get(world);
+//        return mgr.getApplicableRequests(toVector(loc)).allows(flag, player);
+//    }
 }

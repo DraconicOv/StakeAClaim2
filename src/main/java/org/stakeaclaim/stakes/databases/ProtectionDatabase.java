@@ -1,7 +1,7 @@
 // $Id$
 /*
  * StakeAClaim
- * Copyright (C) 2010 sk89q <http://www.sk89q.com>
+ * Copyright (C) 2013 NineteenGiraffes <http://www.NineteenGiraffes.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ package org.stakeaclaim.stakes.databases;
 
 import java.util.Map;
 
-import org.stakeaclaim.stakes.managers.RequestManager;
+import org.stakeaclaim.stakes.RequestManager;
 import org.stakeaclaim.stakes.StakeRequest;
 
 /**
@@ -62,11 +62,11 @@ public interface ProtectionDatabase {
      *
      * @return the requests loaded by this ProtectionDatabase
      */
-    public Map<String,StakeRequest> getRequests();
+    public Map<Long, StakeRequest> getRequests();
     /**
      * Set the list of requests.
      *
      * @param requests The requests to be applied to this ProtectionDatabase
      */
-    public void setRequests(Map<String,StakeRequest> requests);
+    public void setRequests(Map<Long, StakeRequest> requests);
 }

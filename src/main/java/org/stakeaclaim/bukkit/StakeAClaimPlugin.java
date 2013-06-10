@@ -1,7 +1,7 @@
 // $Id$
 /*
  * StakeAClaim
- * Copyright (C) 2010 sk89q <http://www.sk89q.com>
+ * Copyright (C) 2013 NineteenGiraffes <http://www.NineteenGiraffes.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,7 +62,7 @@ import org.stakeaclaim.LocalPlayer;
 import org.stakeaclaim.bukkit.commands.ProtectionCommands;
 //import org.stakeaclaim.bukkit.commands.ToggleCommands;
 import org.stakeaclaim.stakes.GlobalRequestManager;
-import org.stakeaclaim.stakes.managers.RequestManager;
+import org.stakeaclaim.stakes.RequestManager;
 import org.stakeaclaim.util.FatalConfigurationLoadingException;
 
 /**
@@ -93,6 +93,11 @@ public class StakeAClaimPlugin extends JavaPlugin {
      * Used for scheduling flags.
      */
     private FlagStateManager flagStateManager;
+
+    /**
+     * Used to avoid duplicate request IDs.
+     */
+    private long lastRequestID;
 
     /**
      * Construct objects. Actual loading occurs when the plugin is enabled, so
@@ -183,9 +188,9 @@ public class StakeAClaimPlugin extends JavaPlugin {
 
         // handle worlds separately to initialize already loaded worlds
         StakeAClaimWorldListener worldListener = (new StakeAClaimWorldListener(this));
-        for (World world : getServer().getWorlds()) {
-            worldListener.initWorld(world);
-        }
+//        for (World world : getServer().getWorlds()) {
+//            worldListener.initWorld(world);
+//        }
         worldListener.registerEvents();
 
 //        if (!configuration.hasCommandBookGodMode()) {
@@ -197,6 +202,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
 //                }
 //            }
 //        }
+        lastRequestID = 0;
     }
 
     /**

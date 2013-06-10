@@ -1,7 +1,7 @@
 // $Id$
 /*
  * StakeAClaim
- * Copyright (C) 2010 sk89q <http://www.sk89q.com>
+ * Copyright (C) 2013 NineteenGiraffes <http://www.NineteenGiraffes.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,7 +75,7 @@ public class WorldConfiguration {
 //    private ChestProtection chestProtection = new SignChestProtection();
 
     /* Configuration data start */
-//    public boolean summaryOnStart;
+    public boolean summaryOnStart;
     public boolean opPermissions;
 //    public boolean fireSpreadDisableToggle;
 //    public boolean itemDurability;
@@ -191,9 +191,9 @@ public class WorldConfiguration {
         config = new YAMLProcessor(configFile, true, YAMLFormat.EXTENDED);
         loadConfiguration();
 
-//        if (summaryOnStart) {
-//            plugin.getLogger().info("Loaded configuration for world '" + worldName + "'");
-//        }
+        if (summaryOnStart) {
+            plugin.getLogger().info("Loaded configuration for world '" + worldName + "'");
+        }
     }
 
     private boolean getBoolean(String node, boolean def) {
@@ -299,7 +299,7 @@ public class WorldConfiguration {
             e.printStackTrace();
         }
 
-//        summaryOnStart = getBoolean("summary-on-start", true);
+        summaryOnStart = getBoolean("summary-on-start", true);
         opPermissions = getBoolean("op-permissions", true);
 
 //        itemDurability = getBoolean("protection.item-durability", true);

@@ -1,7 +1,7 @@
 // $Id$
 /*
  * StakeAClaim
- * Copyright (C) 2010 sk89q <http://www.sk89q.com>
+ * Copyright (C) 2013 NineteenGiraffes <http://www.NineteenGiraffes.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,14 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.stakeaclaim.stakes.managers;
+package org.stakeaclaim.stakes;
 
 import com.sk89q.worldedit.Vector;
 import org.stakeaclaim.LocalPlayer;
 import org.stakeaclaim.stakes.ApplicableRequestSet;
 import org.stakeaclaim.stakes.databases.ProtectionDatabase;
 import org.stakeaclaim.stakes.StakeRequest;
-import org.stakeaclaim.stakes.RequestMBRConverter;
+//import org.stakeaclaim.stakes.RequestMBRConverter;
 import org.khelekore.prtree.MBR;
 import org.khelekore.prtree.MBRConverter;
 import org.khelekore.prtree.PRTree;
@@ -38,17 +38,17 @@ public class PRTreeRequestManager extends RequestManager {
     /**
      * List of stake requests.
      */
-        private Map<long, StakeRequest> requests;
+        private Map<Long, StakeRequest> requests;
     
-    /**
-     * Converter to get coordinates of the tree.
-     */
-    private MBRConverter<StakeRequest> converter = new RequestMBRConverter();
+//    /**
+//     * Converter to get coordinates of the tree.
+//     */
+//    private MBRConverter<StakeRequest> converter = new RequestMBRConverter();
     
-    /**
-     * Priority R-tree.
-     */
-    private PRTree<StakeRequest> tree;
+//    /**
+//     * Priority R-tree.
+//     */
+//    private PRTree<StakeRequest> tree;
 
     /**
      * Construct the manager.
@@ -57,21 +57,21 @@ public class PRTreeRequestManager extends RequestManager {
      */
     public PRTreeRequestManager(ProtectionDatabase requestLoader) {
         super(requestLoader);
-        requests = new TreeMap<long, StakeRequest>();
-        tree = new PRTree<StakeRequest>(converter, BRANCH_FACTOR);
+        requests = new TreeMap<Long, StakeRequest>();
+//        tree = new PRTree<StakeRequest>(converter, BRANCH_FACTOR);
     }
 
     @Override
-    public Map<long, StakeRequest> getRequests() {
+    public Map<Long, StakeRequest> getRequests() {
         return requests;
     }
 
-    @Override
-    public void setRequests(Map<long, StakeRequest> requests) {
-//        this.requests = new TreeMap<long, StakeRequest>(requests);
+//    @Override
+//    public void setRequests(Map<Long, StakeRequest> requests) {
+//        this.requests = new TreeMap<Long, StakeRequest>(requests);
 //        tree = new PRTree<StakeRequest>(converter, BRANCH_FACTOR);
 //        tree.load(requests.values());
-    }
+//    }
 
     @Override
     public void addRequest(StakeRequest request) {
@@ -80,13 +80,13 @@ public class PRTreeRequestManager extends RequestManager {
 //        tree.load(requests.values());
     }
 
-    @Override
-    public boolean hasRequest(String id) {
-        return requests.containsKey(id.toLowerCase());
-    }
+//    @Override
+//    public boolean hasRequest(String id) {
+//        return requests.containsKey(id.toLowerCase());
+//    }
 
     @Override
-    public void removeRequest(String id) {
+    public void removeRequest(long id) {
 //        StakeRequest request = requests.get(id.toLowerCase());
 //
 //        requests.remove(id.toLowerCase());
@@ -108,13 +108,13 @@ public class PRTreeRequestManager extends RequestManager {
 //        tree.load(requests.values());
     }
 
-    @Override
-    public ApplicableRequestSet getApplicableRequests(Vector pt) {
+//    @Override
+//    public ApplicableRequestSet getApplicableRequests(Vector pt) {
 //
 //        // Floor the vector to ensure we get accurate points
 //        pt = pt.floor();
 //
-        List<StakeRequest> appRequests = new ArrayList<StakeRequest>();
+//        List<StakeRequest> appRequests = new ArrayList<StakeRequest>();
 //        MBR pointMBR = new SimpleMBR(pt.getX(), pt.getX(), pt.getY(), pt.getY(), pt.getZ(), pt.getZ());
 //
 //        for (StakeRequest request : tree.find(pointMBR)) {
@@ -135,32 +135,31 @@ public class PRTreeRequestManager extends RequestManager {
 //
 //        Collections.sort(appRequests);
 //
-        return new ApplicableRequestSet(appRequests, requests.get("__global__"));
-    }
+//        return new ApplicableRequestSet(appRequests, requests.get("__global__"));
+//    }
 
-    @Override
-    public ApplicableRequestSet getApplicableRequests(StakeRequest checkRequest) {
+//    @Override
+//    public ApplicableRequestSet getApplicableRequests(StakeRequest checkRequest) {
 //        List<StakeRequest> appRequests = new ArrayList<StakeRequest>();
 //        appRequests.addAll(requests.values());
 //
 //        List<StakeRequest> intersectRequests;
-        List<StakeRequest> intersectRequests = null;
 //        try {
 //            intersectRequests = checkRequest.getIntersectingRequests(appRequests);
 //        } catch (Exception e) {
 //            intersectRequests = new ArrayList<StakeRequest>();
 //        }
 //
-        return new ApplicableRequestSet(intersectRequests, requests.get("__global__"));
-    }
+//        return new ApplicableRequestSet(intersectRequests, requests.get("__global__"));
+//    }
 
-    @Override
-    public List<String> getApplicableRequestsIDs(Vector pt) {
+//    @Override
+//    public List<String> getApplicableRequestsIDs(Vector pt) {
 //
 //        // Floor the vector to ensure we get accurate points
 //        pt = pt.floor();
 //
-        List<String> applicable = new ArrayList<String>();
+//        List<String> applicable = new ArrayList<String>();
 //        MBR pointMBR = new SimpleMBR(pt.getX(), pt.getX(), pt.getY(), pt.getY(), pt.getZ(), pt.getZ());
 //
 //        for (StakeRequest request : tree.find(pointMBR)) {
@@ -179,11 +178,11 @@ public class PRTreeRequestManager extends RequestManager {
 //            }
 //        }
 //
-        return applicable;
-    }
+//        return applicable;
+//    }
 
-    @Override
-    public boolean overlapsUnownedRequest(StakeRequest checkRequest, LocalPlayer player) {
+//    @Override
+//    public boolean overlapsUnownedRequest(StakeRequest checkRequest, LocalPlayer player) {
 //        List<StakeRequest> appRequests = new ArrayList<StakeRequest>();
 //
 //        for (StakeRequest other : requests.values()) {
@@ -195,7 +194,7 @@ public class PRTreeRequestManager extends RequestManager {
 //        }
 //
 //      List<StakeRequest> intersectRequests;
-      List<StakeRequest> intersectRequests = null;
+//      List<StakeRequest> intersectRequests = null;
 //      
 //        try {
 //            intersectRequests = checkRequest.getIntersectingRequests(appRequests);
@@ -203,8 +202,8 @@ public class PRTreeRequestManager extends RequestManager {
 //            intersectRequests = new ArrayList<StakeRequest>();
 //        }
 //
-        return intersectRequests.size() > 0;
-    }
+//        return intersectRequests.size() > 0;
+//    }
 
     @Override
     public int size() {
@@ -215,10 +214,10 @@ public class PRTreeRequestManager extends RequestManager {
     public int getRequestCountOfPlayer(LocalPlayer player) {
         int count = 0;
 
-        for (Map.Entry<long, StakeRequest> entry : requests.entrySet()) {
-            if (entry.getValue().getOwners().contains(player)) {
-                count++;
-            }
+        for (Map.Entry<Long, StakeRequest> entry : requests.entrySet()) {
+//            if (entry.getValue().getOwners().contains(player)) {
+//                count++;
+//            }
         }
 
         return count;

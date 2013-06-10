@@ -1,7 +1,7 @@
 // $Id$
 /*
- * MySQL WordGuard Request Database
- * Copyright (C) 2011 Nicholas Steicke <http://narthollis.net>
+ * StakeAClaim
+ * Copyright (C) 2013 NineteenGiraffes <http://www.NineteenGiraffes.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,9 +25,9 @@ import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.Vector;
 import org.stakeaclaim.bukkit.ConfigurationManager;
 import org.stakeaclaim.domains.DefaultDomain;
-import org.stakeaclaim.stakes.flags.DefaultFlag;
-import org.stakeaclaim.stakes.flags.Flag;
-import org.stakeaclaim.stakes.requests.GlobalRequest;
+//import org.stakeaclaim.stakes.flags.DefaultFlag;
+//import org.stakeaclaim.stakes.flags.Flag;
+//import org.stakeaclaim.stakes.requests.GlobalRequest;
 //import org.stakeaclaim.stakes.requests.ProtectedCuboidRequest;
 //import org.stakeaclaim.stakes.requests.ProtectedPolygonalRequest;
 import org.stakeaclaim.stakes.StakeRequest;
@@ -49,11 +49,11 @@ public class MySQLDatabase extends AbstractProtectionDatabase {
 
     private Yaml yaml;
 
-    private Map<long, StakeRequest> requests;
+    private Map<Long, StakeRequest> requests;
 
-    private Map<long, StakeRequest> cuboidRequests;
-    private Map<long, StakeRequest> poly2dRequests;
-    private Map<long, StakeRequest> globalRequests;
+    private Map<Long, StakeRequest> cuboidRequests;
+    private Map<Long, StakeRequest> poly2dRequests;
+    private Map<Long, StakeRequest> globalRequests;
 //    private Map<StakeRequest, String> parentSets;
 
     private final ConfigurationManager config;
@@ -260,8 +260,8 @@ public class MySQLDatabase extends AbstractProtectionDatabase {
 //    }
 //
 //    private void loadGlobal() {
-//        Map<String,StakeRequest> requests =
-//                new HashMap<String,StakeRequest>();
+//        Map<Long, StakeRequest> requests =
+//                new HashMap<Long, StakeRequest>();
 //
 //        try {
 //            PreparedStatement globalRequestStatement = this.conn.prepareStatement(
@@ -309,8 +309,8 @@ public class MySQLDatabase extends AbstractProtectionDatabase {
 //    }
 //
 //    private void loadCuboid() {
-//        Map<String,StakeRequest> requests =
-//                new HashMap<String,StakeRequest>();
+//        Map<Long, StakeRequest> requests =
+//                new HashMap<Long, StakeRequest>();
 //
 //        try {
 //            PreparedStatement cuboidRequestStatement = this.conn.prepareStatement(
@@ -384,8 +384,8 @@ public class MySQLDatabase extends AbstractProtectionDatabase {
 //    }
 //
 //    private void loadPoly2d() {
-//        Map<String,StakeRequest> requests =
-//                new HashMap<String,StakeRequest>();
+//        Map<Long, StakeRequest> requests =
+//                new HashMap<Long, StakeRequest>();
 //
 //        try {
 //            PreparedStatement poly2dRequestStatement = this.conn.prepareStatement(
@@ -473,7 +473,7 @@ public class MySQLDatabase extends AbstractProtectionDatabase {
 //        // We load the cuboid requests first, as this is likely to be the
 //        // largest dataset. This should save time in regards to the putAll()s
 //        this.loadCuboid();
-//        Map<String,StakeRequest> requests = this.cuboidRequests;
+//        Map<Long, StakeRequest> requests = this.cuboidRequests;
 //        this.cuboidRequests = null;
 //
 //        this.loadPoly2d();
@@ -1016,12 +1016,12 @@ public class MySQLDatabase extends AbstractProtectionDatabase {
 //    }
 //
     @Override
-    public Map<long, StakeRequest> getRequests() {
+    public Map<Long, StakeRequest> getRequests() {
         return requests;
     }
 
     @Override
-    public void setRequests(Map<long, StakeRequest> requests) {
+    public void setRequests(Map<Long, StakeRequest> requests) {
         this.requests = requests;
     }
     

@@ -1,7 +1,7 @@
 // $Id$
 /*
  * StakeAClaim
- * Copyright (C) 2010 sk89q <http://www.sk89q.com>
+ * Copyright (C) 2013 NineteenGiraffes <http://www.NineteenGiraffes.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,8 +77,8 @@ import org.stakeaclaim.LocalPlayer;
 import org.stakeaclaim.bukkit.FlagStateManager.PlayerFlagState;
 import org.stakeaclaim.domains.DefaultDomain; /* MCA add */
 import org.stakeaclaim.stakes.ApplicableRequestSet;
-import org.stakeaclaim.stakes.flags.DefaultFlag;
-import org.stakeaclaim.stakes.managers.RequestManager;
+//import org.stakeaclaim.stakes.flags.DefaultFlag;
+import org.stakeaclaim.stakes.RequestManager;
 import org.stakeaclaim.stakes.StakeRequest;
 
 /**
@@ -140,7 +140,7 @@ public class StakeAClaimPlayerListener implements Listener {
 
                     RequestManager mgr = plugin.getGlobalRequestManager().get(world);
                     Vector pt = new Vector(event.getTo().getBlockX(), event.getTo().getBlockY(), event.getTo().getBlockZ());
-                    ApplicableRequestSet set = mgr.getApplicableRequests(pt);
+//                    ApplicableRequestSet set = mgr.getApplicableRequests(pt);
 
                     /*
                     // check if request is full
@@ -180,19 +180,19 @@ public class StakeAClaimPlayerListener implements Listener {
                     }
                     */
 
-                    boolean entryAllowed = set.allows(DefaultFlag.ENTRY, localPlayer);
-                    if (!hasBypass && (!entryAllowed /*|| requestFull*/)) {
-                        String message = /*maxPlayerMessage != null ? maxPlayerMessage :*/ "You are not permitted to enter this area.";
-
-                        player.sendMessage(ChatColor.DARK_RED + message);
-
-                        Location newLoc = event.getFrom();
-                        newLoc.setX(newLoc.getBlockX() + 0.5);
-                        newLoc.setY(newLoc.getBlockY());
-                        newLoc.setZ(newLoc.getBlockZ() + 0.5);
-                        event.setTo(newLoc);
-                        return;
-                    }
+//                    boolean entryAllowed = set.allows(DefaultFlag.ENTRY, localPlayer);
+//                    if (!hasBypass && (!entryAllowed /*|| requestFull*/)) {
+//                        String message = /*maxPlayerMessage != null ? maxPlayerMessage :*/ "You are not permitted to enter this area.";
+//
+//                        player.sendMessage(ChatColor.DARK_RED + message);
+//
+//                        Location newLoc = event.getFrom();
+//                        newLoc.setX(newLoc.getBlockX() + 0.5);
+//                        newLoc.setY(newLoc.getBlockY());
+//                        newLoc.setZ(newLoc.getBlockZ() + 0.5);
+//                        event.setTo(newLoc);
+//                        return;
+//                    }
 
 //                    // Have to set this state
 //                    if (state.lastExitAllowed == null) {
@@ -212,11 +212,11 @@ public class StakeAClaimPlayerListener implements Listener {
 //                        return;
 //                    }
 
-                    String greeting = set.getFlag(DefaultFlag.GREET_MESSAGE);//, localPlayer);
-                    String farewell = set.getFlag(DefaultFlag.FAREWELL_MESSAGE);//, localPlayer);
-                    Boolean notifyEnter = set.getFlag(DefaultFlag.NOTIFY_ENTER);//, localPlayer);
-                    Boolean notifyLeave = set.getFlag(DefaultFlag.NOTIFY_LEAVE);//, localPlayer);
-                    GameMode gameMode = set.getFlag(DefaultFlag.GAME_MODE);
+//                    String greeting = set.getFlag(DefaultFlag.GREET_MESSAGE);//, localPlayer);
+//                    String farewell = set.getFlag(DefaultFlag.FAREWELL_MESSAGE);//, localPlayer);
+//                    Boolean notifyEnter = set.getFlag(DefaultFlag.NOTIFY_ENTER);//, localPlayer);
+//                    Boolean notifyLeave = set.getFlag(DefaultFlag.NOTIFY_LEAVE);//, localPlayer);
+//                    GameMode gameMode = set.getFlag(DefaultFlag.GAME_MODE);
 
 //                    if (state.lastFarewell != null && (farewell == null
 //                            || !state.lastFarewell.equals(farewell))) {
@@ -445,7 +445,7 @@ public class StakeAClaimPlayerListener implements Listener {
 //        if (plugin.hasPermission(player, "stakeaclaim.plot.public")) {
 //            final LocalPlayer localPlayer2 = plugin.wrapPlayer(player);
 //            final RequestManager mgr2 = plugin.getGlobalRequestManager().get(world);
-//            final Map<long, StakeRequest> requests = mgr2.getRequests();
+//            final Map<Long, StakeRequest> requests = mgr2.getRequests();
 //
 //            for (StakeRequest claim : requests.values()) {
 //                if (claim.isOwner(localPlayer2)) {

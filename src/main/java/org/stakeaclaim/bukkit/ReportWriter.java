@@ -1,7 +1,7 @@
 // $Id$
 /*
  * StakeAClaim
- * Copyright (C) 2010 sk89q <http://www.sk89q.com>
+ * Copyright (C) 2013 NineteenGiraffes <http://www.NineteenGiraffes.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,10 +36,10 @@ import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 
 import org.stakeaclaim.stakes.GlobalRequestManager;
-import org.stakeaclaim.stakes.flags.DefaultFlag;
-import org.stakeaclaim.stakes.flags.Flag;
-import org.stakeaclaim.stakes.flags.StateFlag;
-import org.stakeaclaim.stakes.managers.RequestManager;
+//import org.stakeaclaim.stakes.flags.DefaultFlag;
+//import org.stakeaclaim.stakes.flags.Flag;
+//import org.stakeaclaim.stakes.flags.StateFlag;
+import org.stakeaclaim.stakes.RequestManager;
 import org.stakeaclaim.stakes.StakeRequest;
 import org.stakeaclaim.util.LogListBlock;
 
@@ -294,7 +294,7 @@ public class ReportWriter {
             requestsLog.put("Number of requests", worldRequests.getRequests().size());
             LogListBlock globalRequestLog = requestsLog.putChild("Global request");
             
-            StakeRequest globalRequest = worldRequests.getRequest("__global__");
+//            StakeRequest globalRequest = worldRequests.getRequest("__global__");
 //            if (globalRequest == null) {
 //                globalRequestLog.put("Status", "UNDEFINED");
 //            } else {

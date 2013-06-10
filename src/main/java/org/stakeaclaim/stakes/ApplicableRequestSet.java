@@ -1,7 +1,7 @@
 // $Id$
 /*
  * StakeAClaim
- * Copyright (C) 2010 sk89q <http://www.sk89q.com>
+ * Copyright (C) 2013 NineteenGiraffes <http://www.NineteenGiraffes.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@
 package org.stakeaclaim.stakes;
 
 import org.stakeaclaim.LocalPlayer;
-import org.stakeaclaim.stakes.flags.*;
-import org.stakeaclaim.stakes.flags.StateFlag.State;
+//import org.stakeaclaim.stakes.flags.*;
+//import org.stakeaclaim.stakes.flags.StateFlag.State;
 import org.stakeaclaim.stakes.StakeRequest;
 
 import java.util.*;
@@ -105,34 +105,34 @@ public class ApplicableRequestSet implements Iterable<StakeRequest> {
 //                && !canBuild(player);
 //    }
 
-    /**
-     * Gets the state of a state flag. This cannot be used for the build flag.
-     *
-     * @param flag flag to check
-     * @return whether it is allowed
-     * @throws IllegalArgumentException if the build flag is given
-     */
-    public boolean allows(StateFlag flag) {
-        if (flag == DefaultFlag.BUILD) {
-            throw new IllegalArgumentException("Can't use build flag with allows()");
-        }
-        return internalGetState(flag, null, null);
-    }
-    
-    /**
-     * Gets the state of a state flag. This cannot be used for the build flag.
-     * 
-     * @param flag flag to check
-     * @param player player (used by some flags)
-     * @return whether the state is allows for it
-     * @throws IllegalArgumentException if the build flag is given
-     */
-    public boolean allows(StateFlag flag, LocalPlayer player) {
-        if (flag == DefaultFlag.BUILD) {
-            throw new IllegalArgumentException("Can't use build flag with allows()");
-        }
-        return internalGetState(flag, null, player);
-    }
+//    /**
+//     * Gets the state of a state flag. This cannot be used for the build flag.
+//     *
+//     * @param flag flag to check
+//     * @return whether it is allowed
+//     * @throws IllegalArgumentException if the build flag is given
+//     */
+//    public boolean allows(StateFlag flag) {
+//        if (flag == DefaultFlag.BUILD) {
+//            throw new IllegalArgumentException("Can't use build flag with allows()");
+//        }
+//        return internalGetState(flag, null, null);
+//    }
+//    
+//    /**
+//     * Gets the state of a state flag. This cannot be used for the build flag.
+//     * 
+//     * @param flag flag to check
+//     * @param player player (used by some flags)
+//     * @return whether the state is allows for it
+//     * @throws IllegalArgumentException if the build flag is given
+//     */
+//    public boolean allows(StateFlag flag, LocalPlayer player) {
+//        if (flag == DefaultFlag.BUILD) {
+//            throw new IllegalArgumentException("Can't use build flag with allows()");
+//        }
+//        return internalGetState(flag, null, player);
+//    }
     
 //    /**
 //     * Indicates whether a player is an owner of all requests in this set.
@@ -167,20 +167,20 @@ public class ApplicableRequestSet implements Iterable<StakeRequest> {
 //        return true;
 //    }
 
-    /**
-     * Checks to see if a flag is permitted.
-     * 
-     * @param flag flag to check
-     * @param player null to not check owners and members
-     * @param groupPlayer player to use for the group flag check
-     * @return the allow/deny state for the flag
-     */
-    private boolean internalGetState(StateFlag flag, LocalPlayer player,
-                                     LocalPlayer groupPlayer) {
-        boolean found = false;
+//    /**
+//     * Checks to see if a flag is permitted.
+//     * 
+//     * @param flag flag to check
+//     * @param player null to not check owners and members
+//     * @param groupPlayer player to use for the group flag check
+//     * @return the allow/deny state for the flag
+//     */
+//    private boolean internalGetState(StateFlag flag, LocalPlayer player,
+//                                     LocalPlayer groupPlayer) {
+//        boolean found = false;
 //        boolean hasFlagDefined = false;
-        boolean allowed = false; // Used for ALLOW override
-        boolean def = flag.getDefault();
+//        boolean allowed = false; // Used for ALLOW override
+//        boolean def = flag.getDefault();
 //        
 //        // Handle defaults
 //        if (globalRequest != null) {
@@ -228,7 +228,7 @@ public class ApplicableRequestSet implements Iterable<StakeRequest> {
 //        // and one child does not allow permissions, then it will be placed into
 //        // needsClear just like as if was a parent.
 //
-        Set<StakeRequest> needsClear = new HashSet<StakeRequest>();
+//        Set<StakeRequest> needsClear = new HashSet<StakeRequest>();
 //        Set<StakeRequest> hasCleared = new HashSet<StakeRequest>();
 //
 //        for (StakeRequest request : applicable) {
@@ -293,9 +293,9 @@ public class ApplicableRequestSet implements Iterable<StakeRequest> {
 //            found = true;
 //        }
 //
-        return !found ? def :
-                (allowed || (player != null && needsClear.size() == 0));
-    }
+//        return !found ? def :
+//                (allowed || (player != null && needsClear.size() == 0));
+//    }
 
 //    /**
 //     * Clear a request's parents for isFlagAllowed().
@@ -317,15 +317,14 @@ public class ApplicableRequestSet implements Iterable<StakeRequest> {
 //        }
 //    }
 
-    /**
-     * @see #getFlag(org.stakeaclaim.stakes.flags.Flag, org.stakeaclaim.LocalPlayer)
-     * @param flag flag to check
-     * @return value of the flag
-     */
-    public <T extends Flag<V>, V> V getFlag(T flag) {
+//    /**
+//     * @see #getFlag(org.stakeaclaim.stakes.flags.Flag, org.stakeaclaim.LocalPlayer)
+//     * @param flag flag to check
+//     * @return value of the flag
+//     */
+//    public <T extends Flag<V>, V> V getFlag(T flag) {
 //        return getFlag(flag, null);
-        return null;
-    }
+//    }
 
 //    /**
 //     * Gets the value of a flag. Do not use this for state flags

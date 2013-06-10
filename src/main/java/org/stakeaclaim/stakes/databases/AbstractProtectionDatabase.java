@@ -1,7 +1,7 @@
 // $Id$
 /*
  * StakeAClaim
- * Copyright (C) 2010 sk89q <http://www.sk89q.com>
+ * Copyright (C) 2013 NineteenGiraffes <http://www.NineteenGiraffes.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 package org.stakeaclaim.stakes.databases;
 
-import org.stakeaclaim.stakes.managers.RequestManager;
+import org.stakeaclaim.stakes.RequestManager;
 
 public abstract class AbstractProtectionDatabase implements ProtectionDatabase {
 
@@ -30,7 +30,7 @@ public abstract class AbstractProtectionDatabase implements ProtectionDatabase {
      */
     public void load(RequestManager manager) throws ProtectionDatabaseException {
         load();
-        manager.setRequests(getRequests());
+//        manager.setRequests(getRequests());
     }
     
     /**

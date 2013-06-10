@@ -1,7 +1,7 @@
 // $Id$
 /*
  * StakeAClaim
- * Copyright (C) 2010 sk89q <http://www.sk89q.com>
+ * Copyright (C) 2013 NineteenGiraffes <http://www.NineteenGiraffes.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,9 +34,9 @@ import au.com.bytecode.opencsv.CSVReader;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.Vector;
 import org.stakeaclaim.domains.DefaultDomain;
-import org.stakeaclaim.stakes.flags.DefaultFlag;
-import org.stakeaclaim.stakes.flags.StateFlag;
-import org.stakeaclaim.stakes.flags.StateFlag.State;
+//import org.stakeaclaim.stakes.flags.DefaultFlag;
+//import org.stakeaclaim.stakes.flags.StateFlag;
+//import org.stakeaclaim.stakes.flags.StateFlag.State;
 //import org.stakeaclaim.stakes.requests.ProtectedCuboidRequest;
 import org.stakeaclaim.stakes.StakeRequest;
 //import org.stakeaclaim.stakes.requests.Request.CircularInheritanceException;
@@ -49,19 +49,19 @@ import org.stakeaclaim.util.ArrayReader;
  */
 public class CSVDatabase extends AbstractProtectionDatabase {
     
-    private static final Map<String, StateFlag> legacyFlagCodes = new HashMap<String, StateFlag>();
-    static {
-        legacyFlagCodes.put("z", DefaultFlag.PASSTHROUGH);
-        legacyFlagCodes.put("b", DefaultFlag.BUILD);
-        legacyFlagCodes.put("p", DefaultFlag.PVP);
-        legacyFlagCodes.put("m", DefaultFlag.MOB_DAMAGE);
-        legacyFlagCodes.put("c", DefaultFlag.CREEPER_EXPLOSION);
-        legacyFlagCodes.put("t", DefaultFlag.TNT);
-        legacyFlagCodes.put("l", DefaultFlag.LIGHTER);
-        legacyFlagCodes.put("f", DefaultFlag.FIRE_SPREAD);
-        legacyFlagCodes.put("F", DefaultFlag.LAVA_FIRE);
-        legacyFlagCodes.put("C", DefaultFlag.CHEST_ACCESS);
-    }
+//    private static final Map<String, StateFlag> legacyFlagCodes = new HashMap<String, StateFlag>();
+//    static {
+//        legacyFlagCodes.put("z", DefaultFlag.PASSTHROUGH);
+//        legacyFlagCodes.put("b", DefaultFlag.BUILD);
+//        legacyFlagCodes.put("p", DefaultFlag.PVP);
+//        legacyFlagCodes.put("m", DefaultFlag.MOB_DAMAGE);
+//        legacyFlagCodes.put("c", DefaultFlag.CREEPER_EXPLOSION);
+//        legacyFlagCodes.put("t", DefaultFlag.TNT);
+//        legacyFlagCodes.put("l", DefaultFlag.LIGHTER);
+//        legacyFlagCodes.put("f", DefaultFlag.FIRE_SPREAD);
+//        legacyFlagCodes.put("F", DefaultFlag.LAVA_FIRE);
+//        legacyFlagCodes.put("C", DefaultFlag.CHEST_ACCESS);
+//    }
 
     private final Logger logger;
 
@@ -69,10 +69,11 @@ public class CSVDatabase extends AbstractProtectionDatabase {
      * References the CSV file.
      */
     private final File file;
+    
     /**
      * Holds the list of requests.
      */
-    private Map<String,StakeRequest> requests;
+    private Map<Long, StakeRequest> requests;
 
     /**
      * Construct the database with a path to a file. No file is read or
@@ -94,8 +95,8 @@ public class CSVDatabase extends AbstractProtectionDatabase {
     }
 
     public void load() throws ProtectionDatabaseException {
-//        Map<String,StakeRequest> requests =
-//                new HashMap<String,StakeRequest>();
+//        Map<Long, StakeRequest> requests =
+//                new HashMap<Long, StakeRequest>();
 //        Map<StakeRequest,String> parentSets =
 //                new LinkedHashMap<StakeRequest, String>();
 //
@@ -246,16 +247,16 @@ public class CSVDatabase extends AbstractProtectionDatabase {
         return domain;
     }
 
-    /**
-     * Used to parse the list of flags.
-     *
-     * @param data The flag data in string format
-     */
-    private void parseFlags(StakeRequest request, String data) {
-        if (data == null) {
-            return;
-        }
-
+//    /**
+//     * Used to parse the list of flags.
+//     *
+//     * @param data The flag data in string format
+//     */
+//    private void parseFlags(StakeRequest request, String data) {
+//        if (data == null) {
+//            return;
+//        }
+//
 //        State curState = State.ALLOW;
 //
 //        for (int i = 0; i < data.length(); i++) {
@@ -288,7 +289,7 @@ public class CSVDatabase extends AbstractProtectionDatabase {
 //                }
 //            }
 //        }
-    }
+//    }
 
     /**
      * Used to write the list of domains.
@@ -347,11 +348,11 @@ public class CSVDatabase extends AbstractProtectionDatabase {
         }
     }
 
-    public Map<String,StakeRequest> getRequests() {
+    public Map<Long, StakeRequest> getRequests() {
         return requests;
     }
 
-    public void setRequests(Map<String,StakeRequest> requests) {
+    public void setRequests(Map<Long, StakeRequest> requests) {
         this.requests = requests;
     }
 }

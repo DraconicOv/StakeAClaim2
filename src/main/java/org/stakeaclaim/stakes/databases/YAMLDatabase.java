@@ -1,7 +1,7 @@
 // $Id$
 /*
  * StakeAClaim
- * Copyright (C) 2010 sk89q <http://www.sk89q.com>
+ * Copyright (C) 2013 NineteenGiraffes <http://www.NineteenGiraffes.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,10 +36,11 @@ import com.sk89q.util.yaml.YAMLProcessor;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.Vector;
+
 import org.stakeaclaim.domains.DefaultDomain;
-import org.stakeaclaim.stakes.flags.DefaultFlag;
-import org.stakeaclaim.stakes.flags.Flag;
-import org.stakeaclaim.stakes.requests.GlobalRequest;
+//import org.stakeaclaim.stakes.flags.DefaultFlag;
+//import org.stakeaclaim.stakes.flags.Flag;
+//import org.stakeaclaim.stakes.requests.GlobalRequest;
 //import org.stakeaclaim.stakes.requests.ProtectedCuboidRequest;
 //import org.stakeaclaim.stakes.requests.ProtectedPolygonalRequest;
 import org.stakeaclaim.stakes.StakeRequest;
@@ -48,7 +49,7 @@ import org.stakeaclaim.stakes.StakeRequest;
 public class YAMLDatabase extends AbstractProtectionDatabase {
     
     private YAMLProcessor config;
-    private Map<long, StakeRequest> requests;
+    private Map<Long, StakeRequest> requests;
     private final Logger logger;
     
     public YAMLDatabase(File file, Logger logger) throws ProtectionDatabaseException, FileNotFoundException {
@@ -74,12 +75,12 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
         
         // No requests are even configured
         if (requestData == null) {
-            this.requests = new HashMap<long, StakeRequest>();
+            this.requests = new HashMap<Long, StakeRequest>();
             return;
         }
 
-        Map<String,StakeRequest> requests =
-            new HashMap<String,StakeRequest>();
+        Map<Long, StakeRequest> requests =
+            new HashMap<Long, StakeRequest>();
         Map<StakeRequest,String> parentSets =
             new LinkedHashMap<StakeRequest, String>();
         
@@ -154,36 +155,36 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
         return val;
     }
     
-    private void setFlags(StakeRequest request, YAMLNode flagsData) {
-        if (flagsData == null) {
-            return;
-        }
-        
-        // @TODO: Make this better
-        for (Flag<?> flag : DefaultFlag.getFlags()) {
-            Object o = flagsData.getProperty(flag.getName());
-            if (o != null) {
-                setFlag(request, flag, o);
-            }
-            
-            if (flag.getRequestGroupFlag() != null) {
-            Object o2 = flagsData.getProperty(flag.getRequestGroupFlag().getName());
-                if (o2 != null) {
-                    setFlag(request, flag.getRequestGroupFlag(), o2);
-                }
-            }
-        }
-    }
+//    private void setFlags(StakeRequest request, YAMLNode flagsData) {
+//        if (flagsData == null) {
+//            return;
+//        }
+//        
+//        // @TODO: Make this better
+//        for (Flag<?> flag : DefaultFlag.getFlags()) {
+//            Object o = flagsData.getProperty(flag.getName());
+//            if (o != null) {
+//                setFlag(request, flag, o);
+//            }
+//            
+//            if (flag.getRequestGroupFlag() != null) {
+//            Object o2 = flagsData.getProperty(flag.getRequestGroupFlag().getName());
+//                if (o2 != null) {
+//                    setFlag(request, flag.getRequestGroupFlag(), o2);
+//                }
+//            }
+//        }
+//    }
     
-    private <T> void setFlag(StakeRequest request, Flag<T> flag, Object rawValue) {
-        T val = flag.unmarshal(rawValue);
-        if (val == null) {
-            logger.warning("Failed to parse flag '" + flag.getName()
-                    + "' with value '" + rawValue.toString() + "'");
-            return;
-        }
+//    private <T> void setFlag(StakeRequest request, Flag<T> flag, Object rawValue) {
+//        T val = flag.unmarshal(rawValue);
+//        if (val == null) {
+//            logger.warning("Failed to parse flag '" + flag.getName()
+//                    + "' with value '" + rawValue.toString() + "'");
+//            return;
+//        }
 //        request.setFlag(flag, val);
-    }
+//    }
     
     private DefaultDomain parseDomain(YAMLNode node) {
         if (node == null) {
@@ -206,7 +207,7 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
     public void save() throws ProtectionDatabaseException {
         config.clear();
         
-        for (Map.Entry<long, StakeRequest> entry : requests.entrySet()) {
+        for (Map.Entry<Long, StakeRequest> entry : requests.entrySet()) {
             StakeRequest request = entry.getValue();
             YAMLNode node = config.addNode("requests." + entry.getKey());
             
@@ -271,23 +272,23 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
         return flagData;
     }
     
-    @SuppressWarnings("unchecked")
-    private <V> void addMarshalledFlag(Map<String, Object> flagData,
-            Flag<V> flag, Object val) {
-        if (val == null) {
-            return;
-        }
-        flagData.put(flag.getName(), flag.marshal((V) val));
-    }
+//    @SuppressWarnings("unchecked")
+//    private <V> void addMarshalledFlag(Map<String, Object> flagData,
+//            Flag<V> flag, Object val) {
+//        if (val == null) {
+//            return;
+//        }
+//        flagData.put(flag.getName(), flag.marshal((V) val));
+//    }
     
-    private Map<String, Object> getDomainData(DefaultDomain domain) {
-        Map<String, Object> domainData = new HashMap<String, Object>();
-
-        setDomainData(domainData, "players", domain.getPlayers());
-        setDomainData(domainData, "groups", domain.getGroups());
-        
-        return domainData;
-    }
+//    private Map<String, Object> getDomainData(DefaultDomain domain) {
+//        Map<String, Object> domainData = new HashMap<String, Object>();
+//
+//        setDomainData(domainData, "players", domain.getPlayers());
+//        setDomainData(domainData, "groups", domain.getGroups());
+//        
+//        return domainData;
+//    }
     
     private void setDomainData(Map<String, Object> domainData,
             String key, Set<String> domain) {
@@ -304,11 +305,11 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
         domainData.put(key, list);
     }
 
-    public Map<long, StakeRequest> getRequests() {
+    public Map<Long, StakeRequest> getRequests() {
         return requests;
     }
 
-    public void setRequests(Map<long, StakeRequest> requests) {
+    public void setRequests(Map<Long, StakeRequest> requests) {
         this.requests = requests;
     }
     

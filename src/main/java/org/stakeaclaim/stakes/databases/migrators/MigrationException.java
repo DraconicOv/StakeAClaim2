@@ -1,7 +1,7 @@
 // $Id$
 /*
- * MySQL WordGuard Request Database
- * Copyright (C) 2011 Nicholas Steicke <http://narthollis.net>
+ * StakeAClaim
+ * Copyright (C) 2013 NineteenGiraffes <http://www.NineteenGiraffes.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
