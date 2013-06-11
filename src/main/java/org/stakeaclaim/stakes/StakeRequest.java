@@ -83,6 +83,20 @@ public class StakeRequest implements Comparable<StakeRequest> {
 
     /**
      * Construct a new instance of this request.
+     * used by database
+     *
+     * @param requestID the ID number of the request.
+     * @param regionID The ID of the region being requested.
+     * @param playerName The requester's name.
+     */
+    public StakeRequest(long requestID, String regionID, String playerName) {
+        this.requestID = requestID;
+        this.regionID = regionID.toLowerCase();
+        this.playerName = playerName.toLowerCase();
+    }
+
+    /**
+     * Construct a new instance of this request.
      * playerName is a String
      *
      * @param regionID The ID of the region being requested.

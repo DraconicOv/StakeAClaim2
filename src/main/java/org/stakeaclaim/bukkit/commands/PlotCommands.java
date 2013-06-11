@@ -89,7 +89,7 @@ public class PlotCommands {
 //            );
 //
 //    }
-
+//
 //    @Command(aliases = {"add", "addmember", "addmembers", "ad", "a"},
 //            usage = "<members...>",
 //            desc = "Add a member to a claim",
@@ -109,7 +109,7 @@ public class PlotCommands {
 //
 //        saveRequests(world);
 //    }
-
+//
 //    @Command(aliases = {"remove", "removemember", "removemembers", "r"},
 //            usage = "<members...>",
 //            desc = "Remove a member from a claim",
@@ -129,7 +129,7 @@ public class PlotCommands {
 //
 //        saveRequests(world);
 //    }
-
+//
 //    @Command(aliases = {"keepout", "out"},
 //            usage = "",
 //            desc = "Mark a claim as a private plot",
@@ -149,7 +149,7 @@ public class PlotCommands {
 //
 //        saveRequests(world);
 //    }
-
+//
 //    @Command(aliases = {"letin", "in"},
 //            usage = "",
 //            desc = "Unmark a claim as a private plot",
@@ -169,24 +169,23 @@ public class PlotCommands {
 //
 //        saveRequests(world);
 //    }
-
-    public StakeRequest claimPlayerIsIn(Player player) throws CommandException {
-
+//
+//    public StakeRequest claimPlayerIsIn(Player player) throws CommandException {
+//
 //        final LocalPlayer localPlayer = plugin.wrapPlayer(player);
 //        final World world = player.getWorld();
 //        final RequestManager mgr = plugin.getGlobalRequestManager().get(world);
 //        final Vector pt = localPlayer.getPosition();
 //        final ApplicableRequestSet set = mgr.getApplicableRequests(pt);
 //        final StakeRequest claim = set.getClaim();
-        final StakeRequest claim = null;
 //
 //        if (claim == null) {
 //            throw new CommandException("You are not in a valid claim!");
 //        }
 //
-        return claim;
-    }
-
+//        return claim;
+//    }
+//
 //    public void checkPerm(Player player, String command, StakeRequest claim) throws CommandPermissionsException {
 //
 //        final LocalPlayer localPlayer = plugin.wrapPlayer(player);
@@ -200,16 +199,16 @@ public class PlotCommands {
 //            plugin.checkPermission(player, "stakeaclaim.plot." + command + "." + id.toLowerCase());
 //        }
 //    }
-
-    public void saveRequests(World world) throws CommandException {
-
-        final RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-
-        try {
-            mgr.save();
-        } catch (StakeDatabaseException e) {
-            throw new CommandException("Failed to write requests: "
-                    + e.getMessage());
-        }
-    }
+//
+//    public void saveRequests(World world) throws CommandException {
+//
+//        final RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+//
+//        try {
+//            mgr.save();
+//        } catch (StakeDatabaseException e) {
+//            throw new CommandException("Failed to write requests: "
+//                    + e.getMessage());
+//        }
+//    }
 }

@@ -35,12 +35,14 @@ public interface StakeDatabase {
      * @throws StakeDatabaseException when an error occurs
      */
     public void load() throws StakeDatabaseException;
+    
     /**
      * Save the list of requests.
      *
      * @throws StakeDatabaseException when an error occurs
      */
     public void save() throws StakeDatabaseException;
+    
     /**
      * Load the list of requests into a request manager.
      *
@@ -48,6 +50,7 @@ public interface StakeDatabase {
      * @throws StakeDatabaseException when an error occurs
      */
     public void load(RequestManager manager) throws StakeDatabaseException;
+    
     /**
      * Save the list of requests from a request manager.
      *
@@ -55,12 +58,14 @@ public interface StakeDatabase {
      * @throws StakeDatabaseException when an error occurs
      */
     public void save(RequestManager manager) throws StakeDatabaseException;
+    
     /**
      * Get a list of requests.
      *
      * @return the requests loaded by this StakeDatabase
      */
     public Map<Long, StakeRequest> getRequests();
+    
     /**
      * Set the list of requests.
      *

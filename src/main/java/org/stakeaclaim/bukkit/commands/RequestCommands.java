@@ -138,7 +138,7 @@ public class RequestCommands {
 //                    + e.getMessage());
 //        }
 //    }
-
+//
 //    @Command(aliases = {"redefine", "update", "move"}, usage = "<id>",
 //            desc = "Re-defines the shape of a request", min = 1, max = 1)
 //    public void redefine(CommandContext args, CommandSender sender) throws CommandException {
@@ -212,7 +212,7 @@ public class RequestCommands {
 //                    + e.getMessage());
 //        }
 //    }
-
+//
 //    @Command(aliases = {"claim"}, usage = "<id> [<owner1> [<owner2> [<owners...>]]]",
 //            desc = "Claim a request", min = 1)
 //    @CommandPermissions({"stakeaclaim.request.claim"})
@@ -343,7 +343,7 @@ public class RequestCommands {
 //                    + e.getMessage());
 //        }
 //    }
-
+//
 //    @Command(aliases = {"select", "sel", "s"}, usage = "[id]",
 //            desc = "Load a request as a WorldEdit selection", min = 0, max = 1)
 //    public void select(CommandContext args, CommandSender sender) throws CommandException {
@@ -376,7 +376,7 @@ public class RequestCommands {
 //
 //        selectRequest(player, localPlayer, request);
 //    }
-
+//
 //    public void selectRequest(Player player, LocalPlayer localPlayer, StakeRequest request) throws CommandException, CommandPermissionsException {
 //        final WorldEditPlugin worldEdit = plugin.getWorldEdit();
 //        final String id = request.getId();
@@ -412,7 +412,7 @@ public class RequestCommands {
 //            throw new CommandException("Unknown request type: " + request.getClass().getCanonicalName());
 //        }
 //    }
-
+//
 //    @Command(aliases = {"info", "i"}, usage = "[world] [id]", flags = "s",
 //            desc = "Get information about a request", min = 0, max = 2)
 //    public void info(CommandContext args, CommandSender sender) throws CommandException {
@@ -473,7 +473,7 @@ public class RequestCommands {
 //            selectRequest(plugin.checkPlayer(sender), localPlayer, request);
 //        }
 //    }
-
+//
 //    public void displayRequestInfo(CommandSender sender, final LocalPlayer localPlayer, StakeRequest request) throws CommandPermissionsException {
 //        if (localPlayer == null) {
 //            plugin.checkPermission(sender, "stakeaclaim.request.info");
@@ -540,7 +540,7 @@ public class RequestCommands {
 //                + " (" + max.getBlockX() + "," + max.getBlockY() + "," + max.getBlockZ() + ")"
 //                );
 //    }
-
+//
 //    public class RequestEntry implements Comparable<RequestEntry>{
 //        private final String id;
 //        private final int index;
@@ -574,7 +574,7 @@ public class RequestCommands {
 //            }
 //        }
 //    }
-
+//
 //    @Command(aliases = {"list"}, usage = "[.player] [page] [world]",
 //            desc = "Get a list of requests", max = 3)
 //    //@CommandPermissions({"stakeaclaim.request.list"})
@@ -662,7 +662,7 @@ public class RequestCommands {
 //            }
 //        }
 //    }
-
+//
 //    @Command(aliases = {"flag", "f"}, usage = "<id> <flag> [-g group] [value]", flags = "g:w:",
 //            desc = "Set flags", min = 2)
 //    public void flag(CommandContext args, CommandSender sender) throws CommandException {
@@ -846,13 +846,13 @@ public class RequestCommands {
 //                    + e.getMessage());
 //        }
 //    }
-
+//
 //    public <V> void setFlag(StakeRequest request,
 //            Flag<V> flag, CommandSender sender, String value)
 //                    throws InvalidFlagFormat {
 //        request.setFlag(flag, flag.parseInput(plugin, sender, value));
 //    }
-
+//
 //    @Command(aliases = {"setpriority", "priority", "pri"},
 //            usage = "<id> <priority>",
 //            flags = "w:",
@@ -908,7 +908,7 @@ public class RequestCommands {
 //                    + e.getMessage());
 //        }
 //    }
-
+//
 //    @Command(aliases = {"setparent", "parent", "par"}, 
 //            usage = "<id> [parent-id]",
 //            flags = "w:",
@@ -991,7 +991,7 @@ public class RequestCommands {
 //                    + e.getMessage());
 //        }
 //    }
-
+//
 //    @Command(aliases = {"remove", "delete", "del", "rem"},
 //            usage = "<id>",
 //            flags = "w:",
@@ -1040,85 +1040,85 @@ public class RequestCommands {
 //                    + e.getMessage());
 //        }
 //    }
-
-    @Command(aliases = {"load", "reload"}, usage = "[world]",
-            desc = "Reload requests from file", max = 1)
-    @CommandPermissions({"stakeaclaim.request.load"})
-    public void load(CommandContext args, CommandSender sender) throws CommandException {
-
-        World world = null;
-
-        if (args.argsLength() > 0) {
-            world = plugin.matchWorld(sender, args.getString(0));
-        }
-
-        if (world != null) {
-            RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-
-            try {
-                mgr.load();
-                sender.sendMessage(ChatColor.YELLOW
-                        + "Requests for '" + world.getName() + "' load.");
-            } catch (StakeDatabaseException e) {
-                throw new CommandException("Failed to read requests: "
-                        + e.getMessage());
-            }
-        } else {
-            for (World w : plugin.getServer().getWorlds()) {
-                RequestManager mgr = plugin.getGlobalRequestManager().get(w);
-
-                try {
-                    mgr.load();
-                } catch (StakeDatabaseException e) {
-                    throw new CommandException("Failed to read requests: "
-                            + e.getMessage());
-                }
-            }
-
-            sender.sendMessage(ChatColor.YELLOW
-                    + "Request databases loaded.");
-        }
-    }
-
-    @Command(aliases = {"save", "write"}, usage = "[world]",
-            desc = "Re-save requests to file", max = 1)
-    @CommandPermissions({"stakeaclaim.request.save"})
-    public void save(CommandContext args, CommandSender sender) throws CommandException {
-
-        World world = null;
-
-        if (args.argsLength() > 0) {
-            world = plugin.matchWorld(sender, args.getString(0));
-        }
-
-        if (world != null) {
-            RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-
-            try {
-                mgr.save();
-                sender.sendMessage(ChatColor.YELLOW
-                        + "Requests for '" + world.getName() + "' saved.");
-            } catch (StakeDatabaseException e) {
-                throw new CommandException("Failed to write requests: "
-                        + e.getMessage());
-            }
-        } else {
-            for (World w : plugin.getServer().getWorlds()) {
-                RequestManager mgr = plugin.getGlobalRequestManager().get(w);
-
-                try {
-                    mgr.save();
-                } catch (StakeDatabaseException e) {
-                    throw new CommandException("Failed to write requests: "
-                            + e.getMessage());
-                }
-            }
-
-            sender.sendMessage(ChatColor.YELLOW
-                    + "Request databases saved.");
-        }
-    }
-
+//
+//    @Command(aliases = {"load", "reload"}, usage = "[world]",
+//            desc = "Reload requests from file", max = 1)
+//    @CommandPermissions({"stakeaclaim.request.load"})
+//    public void load(CommandContext args, CommandSender sender) throws CommandException {
+//
+//        World world = null;
+//
+//        if (args.argsLength() > 0) {
+//            world = plugin.matchWorld(sender, args.getString(0));
+//        }
+//
+//        if (world != null) {
+//            RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+//
+//            try {
+//                mgr.load();
+//                sender.sendMessage(ChatColor.YELLOW
+//                        + "Requests for '" + world.getName() + "' load.");
+//            } catch (StakeDatabaseException e) {
+//                throw new CommandException("Failed to read requests: "
+//                        + e.getMessage());
+//            }
+//        } else {
+//            for (World w : plugin.getServer().getWorlds()) {
+//                RequestManager mgr = plugin.getGlobalRequestManager().get(w);
+//
+//                try {
+//                    mgr.load();
+//                } catch (StakeDatabaseException e) {
+//                    throw new CommandException("Failed to read requests: "
+//                            + e.getMessage());
+//                }
+//            }
+//
+//            sender.sendMessage(ChatColor.YELLOW
+//                    + "Request databases loaded.");
+//        }
+//    }
+//
+//    @Command(aliases = {"save", "write"}, usage = "[world]",
+//            desc = "Re-save requests to file", max = 1)
+//    @CommandPermissions({"stakeaclaim.request.save"})
+//    public void save(CommandContext args, CommandSender sender) throws CommandException {
+//
+//        World world = null;
+//
+//        if (args.argsLength() > 0) {
+//            world = plugin.matchWorld(sender, args.getString(0));
+//        }
+//
+//        if (world != null) {
+//            RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+//
+//            try {
+//                mgr.save();
+//                sender.sendMessage(ChatColor.YELLOW
+//                        + "Requests for '" + world.getName() + "' saved.");
+//            } catch (StakeDatabaseException e) {
+//                throw new CommandException("Failed to write requests: "
+//                        + e.getMessage());
+//            }
+//        } else {
+//            for (World w : plugin.getServer().getWorlds()) {
+//                RequestManager mgr = plugin.getGlobalRequestManager().get(w);
+//
+//                try {
+//                    mgr.save();
+//                } catch (StakeDatabaseException e) {
+//                    throw new CommandException("Failed to write requests: "
+//                            + e.getMessage());
+//                }
+//            }
+//
+//            sender.sendMessage(ChatColor.YELLOW
+//                    + "Request databases saved.");
+//        }
+//    }
+//
 //    @Command(aliases = {"migratedb"}, usage = "<from> <to>",
 //            desc = "Migrate from one Protection Database to another.", min = 1)
 //    @CommandPermissions({"stakeaclaim.request.migratedb"})
@@ -1168,7 +1168,7 @@ public class RequestCommands {
 //        sender.sendMessage(ChatColor.YELLOW + "Requests have been migrated successfully.\n" +
 //                "If you wish to use the destination format as your new backend, please update your config and reload StakeAClaim.");
 //    }
-
+//
 //    @Command(aliases = {"teleport", "tp"}, usage = "<id>", flags = "s",
 //            desc = "Teleports you to the location associated with the request.", min = 1, max = 1)
 //    public void teleport(CommandContext args, CommandSender sender) throws CommandException {
