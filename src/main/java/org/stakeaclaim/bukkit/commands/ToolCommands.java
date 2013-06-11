@@ -67,13 +67,13 @@ import org.stakeaclaim.stakes.RequestManager;
 import org.stakeaclaim.stakes.StakeRequest;
 //import org.stakeaclaim.stakes.requests.Request.CircularInheritanceException;
 
-public class RequestCommands {
+public class ToolCommands {
     private final StakeAClaimPlugin plugin;
 
     private MigratorKey migrateDBRequest;
     private Date migrateDBRequestDate;
 
-    public RequestCommands(StakeAClaimPlugin plugin) {
+    public ToolCommands(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
     }
 

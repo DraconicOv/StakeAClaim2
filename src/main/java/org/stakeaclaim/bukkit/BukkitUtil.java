@@ -39,17 +39,17 @@ public class BukkitUtil {
     private BukkitUtil()  {
 
     }
-
-    /**
-     * Converts the location of a Bukkit block to a WorldEdit vector.
-     *
-     * @param block The block to convert
-     * @return The block's location as a BlockVector
-     */
-    public static BlockVector toVector(Block block) {
-        return new BlockVector(block.getX(), block.getY(), block.getZ());
-    }
-
+//
+//    /**
+//     * Converts the location of a Bukkit block to a WorldEdit vector.
+//     *
+//     * @param block The block to convert
+//     * @return The block's location as a BlockVector
+//     */
+//    public static BlockVector toVector(Block block) {
+//        return new BlockVector(block.getX(), block.getY(), block.getZ());
+//    }
+//
 //    /**
 //     * Converts a Bukkit location to a WorldEdit vector.
 //     *
@@ -59,7 +59,7 @@ public class BukkitUtil {
 //    public static Vector toVector(Location loc) {
 //        return new Vector(loc.getX(), loc.getY(), loc.getZ());
 //    }
-
+//
 //    /**
 //     * Converts a Bukkit vector to a WorldEdit vector.
 //     *
@@ -69,7 +69,7 @@ public class BukkitUtil {
 //    public static Vector toVector(org.bukkit.util.Vector vector) {
 //        return new Vector(vector.getX(), vector.getY(), vector.getZ());
 //    }
-
+//
 //    /**
 //     * Converts a WorldEdit vector to a Bukkit location.
 //     *
@@ -80,7 +80,7 @@ public class BukkitUtil {
 //    public static Location toLocation(World world, Vector vec) {
 //        return new Location(world, vec.getX(), vec.getY(), vec.getZ());
 //    }
-
+//
 //    /**
 //     * Matches one player based on name.
 //     *
@@ -97,7 +97,7 @@ public class BukkitUtil {
 //        }
 //        return players.get(0);
 //    }
-
+//
 //    /**
 //     * Drops a sign item and removes a sign.
 //     *
@@ -110,7 +110,7 @@ public class BukkitUtil {
 //        block.getWorld().dropItemNaturally(block.getLocation(),
 //                new ItemStack(ItemID.SIGN, 1));
 //    }
-
+//
 //    /**
 //     * Sets the given block to fluid water.
 //     * Used by addSpongeWater()
@@ -127,7 +127,7 @@ public class BukkitUtil {
 //            block.setTypeId(8);
 //        }
 //    }
-
+//
 //    /**
 //     * Checks if the given block is water
 //     *
@@ -142,7 +142,7 @@ public class BukkitUtil {
 //        int id = block.getTypeId();
 //        return id == 8 || id == 9;
 //    }
-
+//
 //    /**
 //     * Checks if the given potion is a vial of water.
 //     *
@@ -152,7 +152,7 @@ public class BukkitUtil {
 //    public static boolean isWaterPotion(ItemStack item) {
 //        return (item.getDurability() & 0x3F) == 0;
 //    }
-
+//
 //    /**
 //     * Get just the potion effect bits. This is to work around bugs with potion
 //     * parsing.
@@ -163,89 +163,89 @@ public class BukkitUtil {
 //    public static int getPotionEffectBits(ItemStack item) {
 //        return item.getDurability() & 0x3F;
 //    }
+//
+//    /**
+//     * Find a position for the player to stand that is not inside a block.
+//     * Blocks above the player will be iteratively tested until there is
+//     * a series of two free blocks. The player will be teleported to
+//     * that free position.
+//     *
+//     * @param player
+//     */
+//    public static void findFreePosition(Player player) {
+//        Location loc = player.getLocation();
+//        int x = loc.getBlockX();
+//        int y = Math.max(0, loc.getBlockY());
+//        int origY = y;
+//        int z = loc.getBlockZ();
+//        World world = player.getWorld();
+//
+//        byte free = 0;
+//
+//        while (y <= world.getMaxHeight() + 1) {
+//            if (BlockType.canPassThrough(world.getBlockTypeIdAt(x, y, z))) {
+//                free++;
+//            } else {
+//                free = 0;
+//            }
+//
+//            if (free == 2) {
+//                if (y - 1 != origY || y == 1) {
+//                    loc.setX(x + 0.5);
+//                    loc.setY(y);
+//                    loc.setZ(z + 0.5);
+//                    if (y <= 2 && world.getBlockAt(x,0,z).getTypeId() == BlockID.AIR) {
+//                        world.getBlockAt(x,0,z).setTypeId(20);
+//                        loc.setY(2);
+//                    }
+//                    player.setFallDistance(0F);
+//                    player.teleport(loc);
+//                }
+//                return;
+//            }
+//
+//            y++;
+//        }
+//    }
 
-    /**
-     * Find a position for the player to stand that is not inside a block.
-     * Blocks above the player will be iteratively tested until there is
-     * a series of two free blocks. The player will be teleported to
-     * that free position.
-     *
-     * @param player
-     */
-    public static void findFreePosition(Player player) {
-        Location loc = player.getLocation();
-        int x = loc.getBlockX();
-        int y = Math.max(0, loc.getBlockY());
-        int origY = y;
-        int z = loc.getBlockZ();
-        World world = player.getWorld();
-
-        byte free = 0;
-
-        while (y <= world.getMaxHeight() + 1) {
-            if (BlockType.canPassThrough(world.getBlockTypeIdAt(x, y, z))) {
-                free++;
-            } else {
-                free = 0;
-            }
-
-            if (free == 2) {
-                if (y - 1 != origY || y == 1) {
-                    loc.setX(x + 0.5);
-                    loc.setY(y);
-                    loc.setZ(z + 0.5);
-                    if (y <= 2 && world.getBlockAt(x,0,z).getTypeId() == BlockID.AIR) {
-                        world.getBlockAt(x,0,z).setTypeId(20);
-                        loc.setY(2);
-                    }
-                    player.setFallDistance(0F);
-                    player.teleport(loc);
-                }
-                return;
-            }
-
-            y++;
-        }
-    }
-
-    /**
-     * Replace color macros in a string. The macros are in the form of `[char]
-     * where char represents the color. R is for red, Y is for yellow,
-     * G is for green, C is for cyan, B is for blue, and P is for purple.
-     * The uppercase versions of those are the darker shades, while the
-     * lowercase versions are the lighter shades. For white, it's 'w', and
-     * 0-2 are black, dark grey, and grey, respectively.
-     *
-     * @param str
-     * @return color-coded string
-     */
-    public static String replaceColorMacros(String str) {
-        str = str.replace("&r", ChatColor.RED.toString());
-        str = str.replace("&R", ChatColor.DARK_RED.toString());
-
-        str = str.replace("&y", ChatColor.YELLOW.toString());
-        str = str.replace("&Y", ChatColor.GOLD.toString());
-
-        str = str.replace("&g", ChatColor.GREEN.toString());
-        str = str.replace("&G", ChatColor.DARK_GREEN.toString());
-
-        str = str.replace("&c", ChatColor.AQUA.toString());
-        str = str.replace("&C", ChatColor.DARK_AQUA.toString());
-
-        str = str.replace("&b", ChatColor.BLUE.toString());
-        str = str.replace("&B", ChatColor.DARK_BLUE.toString());
-
-        str = str.replace("&p", ChatColor.LIGHT_PURPLE.toString());
-        str = str.replace("&P", ChatColor.DARK_PURPLE.toString());
-
-        str = str.replace("&0", ChatColor.BLACK.toString());
-        str = str.replace("&1", ChatColor.DARK_GRAY.toString());
-        str = str.replace("&2", ChatColor.GRAY.toString());
-        str = str.replace("&w", ChatColor.WHITE.toString());
-
-        return str;
-    }
-
+//    /**
+//     * Replace color macros in a string. The macros are in the form of `[char]
+//     * where char represents the color. R is for red, Y is for yellow,
+//     * G is for green, C is for cyan, B is for blue, and P is for purple.
+//     * The uppercase versions of those are the darker shades, while the
+//     * lowercase versions are the lighter shades. For white, it's 'w', and
+//     * 0-2 are black, dark grey, and grey, respectively.
+//     *
+//     * @param str
+//     * @return color-coded string
+//     */
+//    public static String replaceColorMacros(String str) {
+//        str = str.replace("&r", ChatColor.RED.toString());
+//        str = str.replace("&R", ChatColor.DARK_RED.toString());
+//
+//        str = str.replace("&y", ChatColor.YELLOW.toString());
+//        str = str.replace("&Y", ChatColor.GOLD.toString());
+//
+//        str = str.replace("&g", ChatColor.GREEN.toString());
+//        str = str.replace("&G", ChatColor.DARK_GREEN.toString());
+//
+//        str = str.replace("&c", ChatColor.AQUA.toString());
+//        str = str.replace("&C", ChatColor.DARK_AQUA.toString());
+//
+//        str = str.replace("&b", ChatColor.BLUE.toString());
+//        str = str.replace("&B", ChatColor.DARK_BLUE.toString());
+//
+//        str = str.replace("&p", ChatColor.LIGHT_PURPLE.toString());
+//        str = str.replace("&P", ChatColor.DARK_PURPLE.toString());
+//
+//        str = str.replace("&0", ChatColor.BLACK.toString());
+//        str = str.replace("&1", ChatColor.DARK_GRAY.toString());
+//        str = str.replace("&2", ChatColor.GRAY.toString());
+//        str = str.replace("&w", ChatColor.WHITE.toString());
+//
+//        return str;
+//    }
+//
 //    /**
 //     * Returns whether an entity should be removed for the halt activity mode.
 //     *
@@ -261,7 +261,7 @@ public class BukkitUtil {
 //                    && !(entity instanceof Tameable)
 //                    && !(entity instanceof Player));
 //    }
-
+//
 //    /**
 //     * Returns whether our running CraftBukkit already supports
 //     * the HangingEvent instead of the PaintingEvent
@@ -275,7 +275,7 @@ public class BukkitUtil {
 //        } catch (ClassNotFoundException ignored) { }
 //        return (tmp != null);
 //    }
-
+//
 //    /**
 //     * Search an enum for a value, and return the first one found. Return null if the
 //     * enum entry is not found.

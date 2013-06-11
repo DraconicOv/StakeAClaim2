@@ -30,6 +30,7 @@ import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissionsException;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.Vector;
+
 //import org.stakeaclaim.LocalPlayer;
 //import org.stakeaclaim.bukkit.commands.RequestCommands;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
@@ -42,19 +43,19 @@ import org.stakeaclaim.stakes.databases.StakeDatabaseException;
 import org.stakeaclaim.stakes.RequestManager;
 import org.stakeaclaim.stakes.StakeRequest;
 
-public class PlotCommands {
+public class ClaimCommands {
     private final StakeAClaimPlugin plugin;
 
-    public PlotCommands(StakeAClaimPlugin plugin) {
+    public ClaimCommands(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
     }
 
-//    @Command(aliases = {"info", "i"},
-//            usage = "",
-//            desc = "Get information about a claim",
-//            min = 0, max = 0)
-//    public void info(CommandContext args, CommandSender sender) throws CommandException {
-//
+    @Command(aliases = {"info", "i"},
+            usage = "",
+            desc = "Get information about a claim",
+            min = 0, max = 0)
+    public void info(CommandContext args, CommandSender sender) throws CommandException {
+
 //        final Player player = plugin.checkPlayer(sender);
 //        final StakeRequest claim = claimPlayerIsIn(player);
 //        final String id = claim.getId();
@@ -87,15 +88,15 @@ public class PlotCommands {
 //            + " (" + min.getBlockX() + "," + min.getBlockY() + "," + min.getBlockZ() + ")"
 //            + " (" + max.getBlockX() + "," + max.getBlockY() + "," + max.getBlockZ() + ")"
 //            );
-//
-//    }
-//
-//    @Command(aliases = {"add", "addmember", "addmembers", "ad", "a"},
-//            usage = "<members...>",
-//            desc = "Add a member to a claim",
-//            min = 1)
-//    public void add(CommandContext args, CommandSender sender) throws CommandException {
-//
+
+    }
+
+    @Command(aliases = {"add", "addmember", "addmembers", "ad", "a"},
+            usage = "<members...>",
+            desc = "Add a member to a claim",
+            min = 1)
+    public void add(CommandContext args, CommandSender sender) throws CommandException {
+
 //        final Player player = plugin.checkPlayer(sender);
 //        final StakeRequest claim = claimPlayerIsIn(player);
 //        final String id = claim.getId();
@@ -108,14 +109,14 @@ public class PlotCommands {
 //        sender.sendMessage(ChatColor.YELLOW + "Added " + ChatColor.GREEN + args.getJoinedStrings(0) + ChatColor.YELLOW + " to claim: " + ChatColor.WHITE + id);
 //
 //        saveRequests(world);
-//    }
-//
-//    @Command(aliases = {"remove", "removemember", "removemembers", "r"},
-//            usage = "<members...>",
-//            desc = "Remove a member from a claim",
-//            min = 1)
-//    public void remove(CommandContext args, CommandSender sender) throws CommandException {
-//
+    }
+
+    @Command(aliases = {"remove", "removemember", "removemembers", "r"},
+            usage = "<members...>",
+            desc = "Remove a member from a claim",
+            min = 1)
+    public void remove(CommandContext args, CommandSender sender) throws CommandException {
+
 //        final Player player = plugin.checkPlayer(sender);
 //        final StakeRequest claim = claimPlayerIsIn(player);
 //        final String id = claim.getId();
@@ -128,14 +129,14 @@ public class PlotCommands {
 //        sender.sendMessage(ChatColor.YELLOW + "Removed " + ChatColor.GREEN + args.getJoinedStrings(0) + ChatColor.YELLOW + " from claim: " + ChatColor.WHITE + id);
 //
 //        saveRequests(world);
-//    }
-//
-//    @Command(aliases = {"keepout", "out"},
-//            usage = "",
-//            desc = "Mark a claim as a private plot",
-//            min = 0, max = 0)
-//    public void keepout(CommandContext args, CommandSender sender) throws CommandException {
-//
+    }
+
+    @Command(aliases = {"keepout", "out"},
+            usage = "",
+            desc = "Mark a claim as a private plot",
+            min = 0, max = 0)
+    public void keepout(CommandContext args, CommandSender sender) throws CommandException {
+
 //        final Player player = plugin.checkPlayer(sender);
 //        final StakeRequest claim = claimPlayerIsIn(player);
 //        final String id = claim.getId();
@@ -148,14 +149,14 @@ public class PlotCommands {
 //        sender.sendMessage(ChatColor.WHITE + id + ChatColor.YELLOW + " set as private plot");
 //
 //        saveRequests(world);
-//    }
-//
-//    @Command(aliases = {"letin", "in"},
-//            usage = "",
-//            desc = "Unmark a claim as a private plot",
-//            min = 0, max = 0)
-//    public void letin(CommandContext args, CommandSender sender) throws CommandException {
-//
+    }
+
+    @Command(aliases = {"letin", "in"},
+            usage = "",
+            desc = "Unmark a claim as a private plot",
+            min = 0, max = 0)
+    public void letin(CommandContext args, CommandSender sender) throws CommandException {
+
 //        final Player player = plugin.checkPlayer(sender);
 //        final StakeRequest claim = claimPlayerIsIn(player);
 //        final String id = claim.getId();
@@ -168,10 +169,10 @@ public class PlotCommands {
 //        sender.sendMessage(ChatColor.WHITE + id + ChatColor.YELLOW + " set as open access");
 //
 //        saveRequests(world);
-//    }
-//
+    }
+
 //    public StakeRequest claimPlayerIsIn(Player player) throws CommandException {
-//
+
 //        final LocalPlayer localPlayer = plugin.wrapPlayer(player);
 //        final World world = player.getWorld();
 //        final RequestManager mgr = plugin.getGlobalRequestManager().get(world);
@@ -185,9 +186,9 @@ public class PlotCommands {
 //
 //        return claim;
 //    }
-//
-//    public void checkPerm(Player player, String command, StakeRequest claim) throws CommandPermissionsException {
-//
+
+    public void checkPerm(Player player, String command, StakeRequest claim) throws CommandPermissionsException {
+
 //        final LocalPlayer localPlayer = plugin.wrapPlayer(player);
 //        final String id = claim.getId();
 //
@@ -198,17 +199,41 @@ public class PlotCommands {
 //        } else {
 //            plugin.checkPermission(player, "stakeaclaim.plot." + command + "." + id.toLowerCase());
 //        }
-//    }
-//
-//    public void saveRequests(World world) throws CommandException {
-//
-//        final RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-//
-//        try {
-//            mgr.save();
-//        } catch (StakeDatabaseException e) {
-//            throw new CommandException("Failed to write requests: "
-//                    + e.getMessage());
-//        }
-//    }
+    }
+
+    public void saveRequests(World world) throws CommandException {
+
+        final RequestManager mgr = plugin.getGlobalRequestManager().get(world);
+
+        try {
+            mgr.save();
+        } catch (StakeDatabaseException e) {
+            throw new CommandException("Failed to write requests: "
+                    + e.getMessage());
+        }
+    }
+    
+    /**
+     * Gets the world from the given flag, or falling back to the the current player
+     * if the sender is a player, otherwise reporting an error.
+     * 
+     * @param args the arguments
+     * @param sender the sender
+     * @param flag the flag (such as 'w')
+     * @return a world
+     * @throws CommandException on error
+     */
+    private static World getWorld(CommandContext args, CommandSender sender, char flag)
+            throws CommandException {
+        if (args.hasFlag(flag)) {
+            return StakeAClaimPlugin.inst().matchWorld(sender, args.getFlag(flag));
+        } else {
+            if (sender instanceof Player) {
+                return StakeAClaimPlugin.inst().checkPlayer(sender).getWorld();
+            } else {
+                throw new CommandException("Please specify " +
+                        "the world with -" + flag + " world_name.");
+            }
+        }
+    }
 }

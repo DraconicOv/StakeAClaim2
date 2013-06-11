@@ -27,28 +27,22 @@ import com.sk89q.minecraft.util.commands.NestedCommand;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 
 public class AllCommands {
-    @SuppressWarnings("unused")
+//    @SuppressWarnings("unused")
     private final StakeAClaimPlugin plugin;
 
     public AllCommands(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
     }
 
-    @Command(aliases = {"request", "requests", "rg"}, desc = "Request management commands")
-    @NestedCommand({RequestCommands.class, RequestMemberCommands.class})
-    public void request(CommandContext args, CommandSender sender) {}
+//    @Command(aliases = {"request", "requests", "rg"}, desc = "Request management commands")
+//    @NestedCommand({RequestCommands.class, RequestMemberCommands.class})
+//    public void request(CommandContext args, CommandSender sender) {}
 
-//    @Command(aliases = {"worldguard", "wg"}, desc = "StakeAClaim commands")
-//    @NestedCommand({StakeAClaimCommands.class})
-//    public void worldGuard(CommandContext args, CommandSender sender) {}
-    
-    /* MCA add start */
-    @Command(aliases = {"plot", "p"}, desc = "Plot commands")
-    @NestedCommand({PlotCommands.class})
+    @Command(aliases = {"claimtools", "claimtool", "tools", "tool", "ct", "t"}, desc = "Claim tools commands")
+    @NestedCommand({ToolCommands.class})
     public void plot(CommandContext args, CommandSender sender) {}
     
-//    @Command(aliases = {"claim", "c"}, desc = "Claim tool commands")
-//    @NestedCommand({ClaimCommands.class})
-//    public void claim(CommandContext args, CommandSender sender) {}
-    /* MCA add end */
+    @Command(aliases = {"claim", "c"}, desc = "Claim commands")
+    @NestedCommand({ClaimCommands.class})
+    public void claim(CommandContext args, CommandSender sender) {}
 }

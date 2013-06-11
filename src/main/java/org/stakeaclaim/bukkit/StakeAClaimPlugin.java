@@ -71,6 +71,11 @@ import org.stakeaclaim.stakes.RequestManager;
 public class StakeAClaimPlugin extends JavaPlugin {
 
     /**
+     * Current instance of this plugin.
+     */
+    private static StakeAClaimPlugin inst;
+
+    /**
      * Manager for commands. This automatically handles nested commands,
      * permissions checking, and a number of other fancy command things.
      * We just set it up and register commands against it.
@@ -105,7 +110,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
         configuration = new ConfigurationManager(this);
         globalRequestManager = new GlobalRequestManager(this);
 
-        final StakeAClaimPlugin plugin = this;
+        final StakeAClaimPlugin plugin = inst = this;
         commands = new CommandsManager<CommandSender>() {
             @Override
             public boolean hasPermission(CommandSender player, String perm) {
@@ -113,7 +118,15 @@ public class StakeAClaimPlugin extends JavaPlugin {
             }
         };
     }
-
+    
+    /**
+     * Get the current instance of StakeAClaim
+     * @return StakeAClaimPlugin instance
+     */
+    public static StakeAClaimPlugin inst() {
+        return inst;
+    }
+    
     /**
      * Called on plugin enable.
      */
@@ -325,21 +338,21 @@ public class StakeAClaimPlugin extends JavaPlugin {
         }
     }
 
-//    /**
-//     * Checks to see if the sender is a player, otherwise throw an exception.
-//     *
-//     * @param sender The {@link CommandSender} to check
-//     * @return {@code sender} casted to a player
-//     * @throws CommandException if {@code sender} isn't a {@link Player}
-//     */
-//    public Player checkPlayer(CommandSender sender)
-//            throws CommandException {
-//        if (sender instanceof Player) {
-//            return (Player) sender;
-//        } else {
-//            throw new CommandException("A player is expected.");
-//        }
-//    }
+    /**
+     * Checks to see if the sender is a player, otherwise throw an exception.
+     *
+     * @param sender The {@link CommandSender} to check
+     * @return {@code sender} casted to a player
+     * @throws CommandException if {@code sender} isn't a {@link Player}
+     */
+    public Player checkPlayer(CommandSender sender)
+            throws CommandException {
+        if (sender instanceof Player) {
+            return (Player) sender;
+        } else {
+            throw new CommandException("A player is expected.");
+        }
+    }
 
     /**
      * Match a world.
