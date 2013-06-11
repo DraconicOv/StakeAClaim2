@@ -35,13 +35,14 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 
+import com.sk89q.worldguard.util.LogListBlock;
+
 import org.stakeaclaim.stakes.GlobalRequestManager;
 //import org.stakeaclaim.stakes.flags.DefaultFlag;
 //import org.stakeaclaim.stakes.flags.Flag;
 //import org.stakeaclaim.stakes.flags.StateFlag;
 import org.stakeaclaim.stakes.RequestManager;
-import org.stakeaclaim.stakes.StakeRequest;
-import org.stakeaclaim.util.LogListBlock;
+//import org.stakeaclaim.stakes.StakeRequest;
 
 public class ReportWriter {
 

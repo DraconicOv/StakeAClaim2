@@ -19,7 +19,7 @@
 
 package org.stakeaclaim.stakes;
 
-import org.stakeaclaim.LocalPlayer;
+import org.bukkit.entity.Player;
 
 /**
  * Represents a stake request.
@@ -97,12 +97,12 @@ public class StakeRequest implements Comparable<StakeRequest> {
 
     /**
      * Construct a new instance of this request.
-     * player is a LocalPlayer
+     * player is a Player
      *
      * @param regionID The ID of the region being requested.
      * @param playerName The requester's name.
      */
-    public StakeRequest(String regionID, LocalPlayer player) {
+    public StakeRequest(String regionID, Player player) {
         this.requestID = System.currentTimeMillis();
         this.regionID = regionID.toLowerCase();
         this.playerName = player.getName().toLowerCase();

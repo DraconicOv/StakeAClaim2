@@ -18,9 +18,10 @@
  */
 package org.stakeaclaim.stakes;
 
-import org.stakeaclaim.stakes.StakeRequest;
+import java.util.Collection;
+import java.util.Iterator;
 
-import java.util.*;
+import org.stakeaclaim.stakes.StakeRequest;
 
 /**
  * Represents a set of requests

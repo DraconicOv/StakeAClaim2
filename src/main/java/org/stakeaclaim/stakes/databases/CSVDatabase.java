@@ -33,7 +33,7 @@ import au.com.bytecode.opencsv.CSVReader;
 
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.Vector;
-import org.stakeaclaim.domains.DefaultDomain;
+//import org.stakeaclaim.domains.DefaultDomain;
 //import org.stakeaclaim.stakes.flags.DefaultFlag;
 //import org.stakeaclaim.stakes.flags.StateFlag;
 //import org.stakeaclaim.stakes.flags.StateFlag.State;
@@ -204,48 +204,48 @@ public class CSVDatabase extends AbstractProtectionDatabase {
 //        this.requests = requests;
     }
 
-    /**
-     * Used to parse the specified domain in the CSV file.
-     *
-     * @param data The domain data as a string
-     * @return The domain data as a DefaultDomain
-     */
-    private DefaultDomain parseDomains(String data) {
-        if (data == null) {
-            return new DefaultDomain();
-        }
-
-        DefaultDomain domain = new DefaultDomain();
-        Pattern pattern = Pattern.compile("^([A-Za-z]):(.*)$");
-
-        String[] parts = data.split(",");
-
-        for (String part : parts) {
-            if (part.trim().length() == 0) {
-                continue;
-            }
-
-            Matcher matcher = pattern.matcher(part);
-
-            if (!matcher.matches()) {
-                logger.warning("Invalid owner specification: " + part);
-                continue;
-            }
-
-            String type = matcher.group(1);
-            String id = matcher.group(2);
-
-            if (type.equals("u")) {
-                domain.addPlayer(id);
-            } else if (type.equals("g")) {
-                domain.addGroup(id);
-            } else {
-                logger.warning("Unknown owner specification: " + type);
-            }
-        }
-
-        return domain;
-    }
+//    /**
+//     * Used to parse the specified domain in the CSV file.
+//     *
+//     * @param data The domain data as a string
+//     * @return The domain data as a DefaultDomain
+//     */
+//    private DefaultDomain parseDomains(String data) {
+//        if (data == null) {
+//            return new DefaultDomain();
+//        }
+//
+//        DefaultDomain domain = new DefaultDomain();
+//        Pattern pattern = Pattern.compile("^([A-Za-z]):(.*)$");
+//
+//        String[] parts = data.split(",");
+//
+//        for (String part : parts) {
+//            if (part.trim().length() == 0) {
+//                continue;
+//            }
+//
+//            Matcher matcher = pattern.matcher(part);
+//
+//            if (!matcher.matches()) {
+//                logger.warning("Invalid owner specification: " + part);
+//                continue;
+//            }
+//
+//            String type = matcher.group(1);
+//            String id = matcher.group(2);
+//
+//            if (type.equals("u")) {
+//                domain.addPlayer(id);
+//            } else if (type.equals("g")) {
+//                domain.addGroup(id);
+//            } else {
+//                logger.warning("Unknown owner specification: " + type);
+//            }
+//        }
+//
+//        return domain;
+//    }
 
 //    /**
 //     * Used to parse the list of flags.

@@ -19,13 +19,17 @@
 
 package org.stakeaclaim.stakes;
 
-import java.util.*;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
-import org.stakeaclaim.LocalPlayer;
-import org.stakeaclaim.stakes.ApplicableRequestSet;
+import org.bukkit.entity.Player;
+
+//import org.stakeaclaim.LocalPlayer;
+//import org.stakeaclaim.stakes.ApplicableRequestSet;
 import org.stakeaclaim.stakes.databases.ProtectionDatabaseException;
 import org.stakeaclaim.stakes.databases.ProtectionDatabase;
-import org.stakeaclaim.stakes.StakeRequest;
+//import org.stakeaclaim.stakes.StakeRequest;
 import org.stakeaclaim.stakes.StakeRequest.Access;
 import org.stakeaclaim.stakes.StakeRequest.Status;
 
@@ -151,7 +155,7 @@ public class RequestManager {
      * @param player the player whose requests to get
      * @return request set
      */
-    public ApplicableRequestSet getApplicableRequests(LocalPlayer player) {
+    public ApplicableRequestSet getApplicableRequests(Player player) {
         TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
 
         for (StakeRequest request : requests.values()) {

@@ -37,7 +37,7 @@ import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.Vector;
 
-import org.stakeaclaim.domains.DefaultDomain;
+//import org.stakeaclaim.domains.DefaultDomain;
 //import org.stakeaclaim.stakes.flags.DefaultFlag;
 //import org.stakeaclaim.stakes.flags.Flag;
 //import org.stakeaclaim.stakes.requests.GlobalRequest;
@@ -186,23 +186,23 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
 //        request.setFlag(flag, val);
 //    }
     
-    private DefaultDomain parseDomain(YAMLNode node) {
-        if (node == null) {
-            return new DefaultDomain();
-        }
-        
-        DefaultDomain domain = new DefaultDomain();
-        
-        for (String name : node.getStringList("players", null)) {
-            domain.addPlayer(name);
-        }
-        
-        for (String name : node.getStringList("groups", null)) {
-            domain.addGroup(name);
-        }
-        
-        return domain;
-    }
+//    private DefaultDomain parseDomain(YAMLNode node) {
+//        if (node == null) {
+//            return new DefaultDomain();
+//        }
+//        
+//        DefaultDomain domain = new DefaultDomain();
+//        
+//        for (String name : node.getStringList("players", null)) {
+//            domain.addPlayer(name);
+//        }
+//        
+//        for (String name : node.getStringList("groups", null)) {
+//            domain.addGroup(name);
+//        }
+//        
+//        return domain;
+//    }
 
     public void save() throws ProtectionDatabaseException {
         config.clear();

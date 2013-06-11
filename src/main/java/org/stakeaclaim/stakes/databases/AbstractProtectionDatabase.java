@@ -30,7 +30,7 @@ public abstract class AbstractProtectionDatabase implements ProtectionDatabase {
      */
     public void load(RequestManager manager) throws ProtectionDatabaseException {
         load();
-//        manager.setRequests(getRequests());
+        manager.setRequests(getRequests());
     }
     
     /**

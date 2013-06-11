@@ -24,7 +24,7 @@ import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.Vector;
 import org.stakeaclaim.bukkit.ConfigurationManager;
-import org.stakeaclaim.domains.DefaultDomain;
+//import org.stakeaclaim.domains.DefaultDomain;
 //import org.stakeaclaim.stakes.flags.DefaultFlag;
 //import org.stakeaclaim.stakes.flags.Flag;
 //import org.stakeaclaim.stakes.requests.GlobalRequest;
