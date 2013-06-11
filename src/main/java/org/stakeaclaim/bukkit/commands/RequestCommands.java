@@ -45,7 +45,7 @@ import com.sk89q.worldedit.bukkit.selections.CuboidSelection;
 import com.sk89q.worldedit.bukkit.selections.Polygonal2DSelection;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 
-import org.stakeaclaim.LocalPlayer;
+//import org.stakeaclaim.LocalPlayer;
 import org.stakeaclaim.bukkit.WorldConfiguration;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 import org.stakeaclaim.domains.DefaultDomain;

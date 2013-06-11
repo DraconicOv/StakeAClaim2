@@ -19,24 +19,15 @@
 
 package org.stakeaclaim.bukkit;
 
-import com.sk89q.worldedit.Vector;
-import org.stakeaclaim.stakes.ApplicableRequestSet;
-//import org.stakeaclaim.stakes.flags.DefaultFlag;
-import org.stakeaclaim.stakes.RequestManager;
-import org.bukkit.GameMode;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.stakeaclaim.bukkit.BukkitUtil.toVector;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 /**
  * This processes per-player state information and is also meant to be used
  * as a scheduled task.
- *
- * @author sk89q
  */
 public class FlagStateManager implements Runnable {
 
@@ -80,105 +71,8 @@ public class FlagStateManager implements Runnable {
                     states.put(player.getName(), state);
                 }
             }
-
-//            Vector playerLocation = toVector(player.getLocation());
-//            RequestManager requestManager = plugin.getGlobalRequestManager().get(player.getWorld());
-//            ApplicableRequestSet applicable = requestManager.getApplicableRequests(playerLocation);
-//
-//            if (!RequestQueryUtil.isInvincible(plugin, player, applicable)
-//                    && !plugin.getGlobalStateManager().hasGodMode(player)
-//                    && !(player.getGameMode() == GameMode.CREATIVE)) {
-//                processHeal(applicable, player, state);
-//                processFeed(applicable, player, state);
-//            }
         }
     }
-
-//    /**
-//     * Process healing for a player.
-//     *
-//     * @param applicable The set of applicable requests
-//     * @param player The player to process healing flags on
-//     * @param state The player's state
-//     */
-//    private void processHeal(ApplicableRequestSet applicable, Player player,
-//            PlayerFlagState state) {
-//
-//        if (player.getHealth() <= 0) {
-//            return;
-//        }
-//
-//        long now = System.currentTimeMillis();
-//
-//        Integer healAmount = applicable.getFlag(DefaultFlag.HEAL_AMOUNT);
-//        Integer healDelay = applicable.getFlag(DefaultFlag.HEAL_DELAY);
-//        Integer minHealth = applicable.getFlag(DefaultFlag.MIN_HEAL);
-//        Integer maxHealth = applicable.getFlag(DefaultFlag.MAX_HEAL);
-//
-//        if (healAmount == null || healDelay == null || healAmount == 0 || healDelay < 0) {
-//            return;
-//        }
-//        if (minHealth == null) minHealth = 0;
-//        if (maxHealth == null) maxHealth = player.getMaxHealth();
-//
-//        // Apply a cap to prevent possible exceptions
-//        minHealth = Math.min(player.getMaxHealth(), minHealth);
-//        maxHealth = Math.min(player.getMaxHealth(), maxHealth);
-//
-//        if (player.getHealth() >= maxHealth && healAmount > 0) {
-//            return;
-//        }
-//
-//        if (healDelay <= 0) {
-//            player.setHealth(healAmount > 0 ? maxHealth : minHealth); // this will insta-kill if the flag is unset
-//            state.lastHeal = now;
-//        } else if (now - state.lastHeal > healDelay * 1000) {
-//            // clamp health between minimum and maximum
-//            player.setHealth(Math.min(maxHealth, Math.max(minHealth, player.getHealth() + healAmount)));
-//            state.lastHeal = now;
-//        }
-//    }
-
-//    /**
-//     * Process restoring hunger for a player.
-//     *
-//     * @param applicable The set of applicable requests
-//     * @param player The player to process hunger flags on
-//     * @param state The player's state
-//     */
-//    private void processFeed(ApplicableRequestSet applicable, Player player,
-//            PlayerFlagState state) {
-//
-//        long now = System.currentTimeMillis();
-//
-//        Integer feedAmount = applicable.getFlag(DefaultFlag.FEED_AMOUNT);
-//        Integer feedDelay = applicable.getFlag(DefaultFlag.FEED_DELAY);
-//        Integer minHunger = applicable.getFlag(DefaultFlag.MIN_FOOD);
-//        Integer maxHunger = applicable.getFlag(DefaultFlag.MAX_FOOD);
-//
-//        if (feedAmount == null || feedDelay == null || feedAmount == 0 || feedDelay < 0) {
-//            return;
-//        }
-//        if (minHunger == null) minHunger = 0;
-//        if (maxHunger == null) maxHunger = 20;
-//
-//        // Apply a cap to prevent possible exceptions
-//        minHunger = Math.min(20, minHunger);
-//        maxHunger = Math.min(20, maxHunger);
-//
-//        if (player.getFoodLevel() >= maxHunger && feedAmount > 0) {
-//            return;
-//        }
-//
-//        if (feedDelay <= 0) {
-//            player.setFoodLevel(feedAmount > 0 ? maxHunger : minHunger);
-//            state.lastFeed = now;
-//        } else if (now - state.lastFeed > feedDelay * 1000) {
-//            // clamp health between minimum and maximum
-//            player.setFoodLevel(Math.min(maxHunger, Math.max(minHunger, player.getFoodLevel() + feedAmount)));
-//            state.lastFeed = now;
-//        }
-//    }
 
     /**
      * Forget a player.
@@ -218,25 +112,10 @@ public class FlagStateManager implements Runnable {
      * Keeps state per player.
      */
     public static class PlayerFlagState {
-//        public long lastHeal;
-//        public long lastFeed;
-//        public String lastGreeting;
-//        public String lastFarewell;
-        public String lastSupport; /* MCA add */
-//        public Boolean lastExitAllowed = null;
-//        public Boolean notifiedForLeave = false;
-//        public Boolean notifiedForEnter = false;
-//        public GameMode lastGameMode;
         public World lastWorld;
         public int lastBlockX;
         public int lastBlockY;
         public int lastBlockZ;
-
-//        /* Used to cache invincibility status */
-//        public World lastInvincibleWorld;
-//        public int lastInvincibleX;
-//        public int lastInvincibleY;
-//        public int lastInvincibleZ;
-//        public boolean wasInvincible;
+        public String lastSupport;
     }
 }

@@ -30,7 +30,7 @@ import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissionsException;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.Vector;
-import org.stakeaclaim.LocalPlayer;
+//import org.stakeaclaim.LocalPlayer;
 //import org.stakeaclaim.bukkit.commands.RequestCommands;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 import org.stakeaclaim.domains.DefaultDomain;

@@ -18,8 +18,6 @@
  */
 package org.stakeaclaim.stakes;
 
-import static org.stakeaclaim.bukkit.BukkitUtil.toVector;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
@@ -40,8 +38,6 @@ import org.stakeaclaim.stakes.databases.MySQLDatabase;
 import org.stakeaclaim.stakes.databases.ProtectionDatabase;
 import org.stakeaclaim.stakes.databases.ProtectionDatabaseException;
 import org.stakeaclaim.stakes.databases.YAMLDatabase;
-//import org.stakeaclaim.stakes.flags.StateFlag;
-//import org.stakeaclaim.stakes.PRTreeRequestManager;
 import org.stakeaclaim.stakes.RequestManager;
 
 /**
@@ -245,30 +241,30 @@ public class GlobalRequestManager {
         return manager;
     }
 
-    /**
-     * Returns whether the player can bypass.
-     *
-     * @param player The player to check
-     * @param world The world to check for
-     * @return Whether {@code player} has bypass permission for {@code world}
-     */
-    public boolean hasBypass(LocalPlayer player, World world) {
-        return player.hasPermission("stakeaclaim.request.bypass."
-                        + world.getName());
-    }
-
-    /**
-     * Returns whether the player can bypass.
-     *
-     * @param player The player to check
-     * @param world The world to check
-     * @return Whether {@code player} has bypass permission for {@code world}
-     */
-    public boolean hasBypass(Player player, World world) {
-        return plugin.hasPermission(player, "stakeaclaim.request.bypass."
-                + world.getName());
-    }
-
+//    /**
+//     * Returns whether the player can bypass.
+//     *
+//     * @param player The player to check
+//     * @param world The world to check for
+//     * @return Whether {@code player} has bypass permission for {@code world}
+//     */
+//    public boolean hasBypass(LocalPlayer player, World world) {
+//        return player.hasPermission("stakeaclaim.request.bypass."
+//                        + world.getName());
+//    }
+//
+//    /**
+//     * Returns whether the player can bypass.
+//     *
+//     * @param player The player to check
+//     * @param world The world to check
+//     * @return Whether {@code player} has bypass permission for {@code world}
+//     */
+//    public boolean hasBypass(Player player, World world) {
+//        return plugin.hasPermission(player, "stakeaclaim.request.bypass."
+//                + world.getName());
+//    }
+//
 //    /**
 //     * Check if a player has permission to build at a block.
 //     *
@@ -279,7 +275,7 @@ public class GlobalRequestManager {
 //    public boolean canBuild(Player player, Block block) {
 //        return canBuild(player, block.getLocation());
 //    }
-
+//
 //    /**
 //     * Check if a player has permission to build at a location.
 //     *
@@ -308,11 +304,11 @@ public class GlobalRequestManager {
 //
 //        return true;
 //    }
-
+//
 //    public boolean canConstruct(Player player, Block block) {
 //        return canConstruct(player, block.getLocation());
 //    }
-
+//
 //    public boolean canConstruct(Player player, Location loc) {
 //        World world = loc.getWorld();
 //        WorldConfiguration worldConfig = config.get(world);
@@ -337,7 +333,7 @@ public class GlobalRequestManager {
 //
 //        return true;
 //    }
-
+//
 //    /**
 //     * Checks to see whether a flag is allowed.
 //     *
@@ -349,7 +345,7 @@ public class GlobalRequestManager {
 //    public boolean allows(StateFlag flag, Location loc) {
 //        return allows(flag, loc, null);
 //    }
-
+//
 //    /**
 //     * Checks to see whether a flag is allowed.
 //     *

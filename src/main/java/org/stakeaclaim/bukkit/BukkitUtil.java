@@ -20,18 +20,19 @@
 package org.stakeaclaim.bukkit;
 
 import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldedit.Vector;
+//import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.blocks.BlockID;
 import com.sk89q.worldedit.blocks.BlockType;
-import com.sk89q.worldedit.blocks.ItemID;
+//import com.sk89q.worldedit.blocks.ItemID;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Server;
+//import org.bukkit.Server;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.block.Block;
-import org.bukkit.entity.*;
-import org.bukkit.inventory.ItemStack;
-import java.util.List;
+//import org.bukkit.entity.*;
+//import org.bukkit.inventory.ItemStack;
+//import java.util.List;
 
 public class BukkitUtil {
 
@@ -49,36 +50,36 @@ public class BukkitUtil {
         return new BlockVector(block.getX(), block.getY(), block.getZ());
     }
 
-    /**
-     * Converts a Bukkit location to a WorldEdit vector.
-     *
-     * @param loc A Bukkit Location
-     * @return A Vector with the location's x, y, and z values
-     */
-    public static Vector toVector(Location loc) {
-        return new Vector(loc.getX(), loc.getY(), loc.getZ());
-    }
+//    /**
+//     * Converts a Bukkit location to a WorldEdit vector.
+//     *
+//     * @param loc A Bukkit Location
+//     * @return A Vector with the location's x, y, and z values
+//     */
+//    public static Vector toVector(Location loc) {
+//        return new Vector(loc.getX(), loc.getY(), loc.getZ());
+//    }
 
-    /**
-     * Converts a Bukkit vector to a WorldEdit vector.
-     *
-     * @param vector The Bukkit vector
-     * @return A WorldEdit vector with the same values as the Bukkit vector.
-     */
-    public static Vector toVector(org.bukkit.util.Vector vector) {
-        return new Vector(vector.getX(), vector.getY(), vector.getZ());
-    }
+//    /**
+//     * Converts a Bukkit vector to a WorldEdit vector.
+//     *
+//     * @param vector The Bukkit vector
+//     * @return A WorldEdit vector with the same values as the Bukkit vector.
+//     */
+//    public static Vector toVector(org.bukkit.util.Vector vector) {
+//        return new Vector(vector.getX(), vector.getY(), vector.getZ());
+//    }
 
-    /**
-     * Converts a WorldEdit vector to a Bukkit location.
-     *
-     * @param world The World to create the new Location with
-     * @param vec The vector to use for coordinates
-     * @return The Vector as a location with a World of world
-     */
-    public static Location toLocation(World world, Vector vec) {
-        return new Location(world, vec.getX(), vec.getY(), vec.getZ());
-    }
+//    /**
+//     * Converts a WorldEdit vector to a Bukkit location.
+//     *
+//     * @param world The World to create the new Location with
+//     * @param vec The vector to use for coordinates
+//     * @return The Vector as a location with a World of world
+//     */
+//    public static Location toLocation(World world, Vector vec) {
+//        return new Location(world, vec.getX(), vec.getY(), vec.getZ());
+//    }
 
 //    /**
 //     * Matches one player based on name.
