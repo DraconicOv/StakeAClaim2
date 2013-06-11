@@ -88,7 +88,7 @@ import org.stakeaclaim.bukkit.FlagStateManager.PlayerFlagState;
 /**
  * Handles all events thrown in relation to a player.
  */
-public class StakeAClaimPlayerListener implements Listener {
+public class PlayerListener implements Listener {
 
 //    private Pattern opPattern = Pattern.compile("^/op(?:\\s.*)?$", Pattern.CASE_INSENSITIVE);
     private StakeAClaimPlugin plugin;
@@ -98,7 +98,7 @@ public class StakeAClaimPlayerListener implements Listener {
      *
      * @param plugin
      */
-    public StakeAClaimPlayerListener(StakeAClaimPlugin plugin) {
+    public PlayerListener(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
     }
 

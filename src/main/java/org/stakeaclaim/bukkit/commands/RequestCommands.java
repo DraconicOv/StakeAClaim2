@@ -50,7 +50,7 @@ import org.stakeaclaim.bukkit.WorldConfiguration;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 //import org.stakeaclaim.domains.DefaultDomain;
 import org.stakeaclaim.stakes.ApplicableRequestSet;
-import org.stakeaclaim.stakes.databases.ProtectionDatabaseException;
+import org.stakeaclaim.stakes.databases.StakeDatabaseException;
 //import org.stakeaclaim.stakes.databases.RequestDBUtil;
 import org.stakeaclaim.stakes.databases.migrators.AbstractDatabaseMigrator;
 //import org.stakeaclaim.stakes.databases.migrators.MigrationException;
@@ -133,7 +133,7 @@ public class RequestCommands {
 //        try {
 //            mgr.save();
 //            sender.sendMessage(ChatColor.YELLOW + "Request saved as " + id + ".");
-//        } catch (ProtectionDatabaseException e) {
+//        } catch (StakeDatabaseException e) {
 //            throw new CommandException("Failed to write requests: "
 //                    + e.getMessage());
 //        }
@@ -207,7 +207,7 @@ public class RequestCommands {
 //
 //        try {
 //            mgr.save();
-//        } catch (ProtectionDatabaseException e) {
+//        } catch (StakeDatabaseException e) {
 //            throw new CommandException("Failed to write requests: "
 //                    + e.getMessage());
 //        }
@@ -338,7 +338,7 @@ public class RequestCommands {
 //        try {
 //            mgr.save();
 //            sender.sendMessage(ChatColor.YELLOW + "Request saved as " + id + ".");
-//        } catch (ProtectionDatabaseException e) {
+//        } catch (StakeDatabaseException e) {
 //            throw new CommandException("Failed to write requests: "
 //                    + e.getMessage());
 //        }
@@ -841,7 +841,7 @@ public class RequestCommands {
 //
 //        try {
 //            mgr.save();
-//        } catch (ProtectionDatabaseException e) {
+//        } catch (StakeDatabaseException e) {
 //            throw new CommandException("Failed to write requests: "
 //                    + e.getMessage());
 //        }
@@ -903,7 +903,7 @@ public class RequestCommands {
 //
 //        try {
 //            mgr.save();
-//        } catch (ProtectionDatabaseException e) {
+//        } catch (StakeDatabaseException e) {
 //            throw new CommandException("Failed to write requests: "
 //                    + e.getMessage());
 //        }
@@ -986,7 +986,7 @@ public class RequestCommands {
 //
 //        try {
 //            mgr.save();
-//        } catch (ProtectionDatabaseException e) {
+//        } catch (StakeDatabaseException e) {
 //            throw new CommandException("Failed to write requests: "
 //                    + e.getMessage());
 //        }
@@ -1035,7 +1035,7 @@ public class RequestCommands {
 //
 //        try {
 //            mgr.save();
-//        } catch (ProtectionDatabaseException e) {
+//        } catch (StakeDatabaseException e) {
 //            throw new CommandException("Failed to write requests: "
 //                    + e.getMessage());
 //        }
@@ -1059,7 +1059,7 @@ public class RequestCommands {
                 mgr.load();
                 sender.sendMessage(ChatColor.YELLOW
                         + "Requests for '" + world.getName() + "' load.");
-            } catch (ProtectionDatabaseException e) {
+            } catch (StakeDatabaseException e) {
                 throw new CommandException("Failed to read requests: "
                         + e.getMessage());
             }
@@ -1069,7 +1069,7 @@ public class RequestCommands {
 
                 try {
                     mgr.load();
-                } catch (ProtectionDatabaseException e) {
+                } catch (StakeDatabaseException e) {
                     throw new CommandException("Failed to read requests: "
                             + e.getMessage());
                 }
@@ -1098,7 +1098,7 @@ public class RequestCommands {
                 mgr.save();
                 sender.sendMessage(ChatColor.YELLOW
                         + "Requests for '" + world.getName() + "' saved.");
-            } catch (ProtectionDatabaseException e) {
+            } catch (StakeDatabaseException e) {
                 throw new CommandException("Failed to write requests: "
                         + e.getMessage());
             }
@@ -1108,7 +1108,7 @@ public class RequestCommands {
 
                 try {
                     mgr.save();
-                } catch (ProtectionDatabaseException e) {
+                } catch (StakeDatabaseException e) {
                     throw new CommandException("Failed to write requests: "
                             + e.getMessage());
                 }

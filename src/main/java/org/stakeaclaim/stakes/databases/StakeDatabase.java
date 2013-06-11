@@ -26,47 +26,45 @@ import org.stakeaclaim.stakes.StakeRequest;
 
 /**
  * Represents a database to read and write lists of requests from and to.
- *
- * @author sk89q
  */
-public interface ProtectionDatabase {
+public interface StakeDatabase {
     /**
      * Load the list of requests. The method should not modify the list returned
      * by getRequests() unless the load finishes successfully.
      *
-     * @throws ProtectionDatabaseException when an error occurs
+     * @throws StakeDatabaseException when an error occurs
      */
-    public void load() throws ProtectionDatabaseException;
+    public void load() throws StakeDatabaseException;
     /**
      * Save the list of requests.
      *
-     * @throws ProtectionDatabaseException when an error occurs
+     * @throws StakeDatabaseException when an error occurs
      */
-    public void save() throws ProtectionDatabaseException;
+    public void save() throws StakeDatabaseException;
     /**
      * Load the list of requests into a request manager.
      *
      * @param manager The manager to load requests into
-     * @throws ProtectionDatabaseException when an error occurs
+     * @throws StakeDatabaseException when an error occurs
      */
-    public void load(RequestManager manager) throws ProtectionDatabaseException;
+    public void load(RequestManager manager) throws StakeDatabaseException;
     /**
      * Save the list of requests from a request manager.
      *
      * @param manager The manager to load requests into
-     * @throws ProtectionDatabaseException when an error occurs
+     * @throws StakeDatabaseException when an error occurs
      */
-    public void save(RequestManager manager) throws ProtectionDatabaseException;
+    public void save(RequestManager manager) throws StakeDatabaseException;
     /**
      * Get a list of requests.
      *
-     * @return the requests loaded by this ProtectionDatabase
+     * @return the requests loaded by this StakeDatabase
      */
     public Map<Long, StakeRequest> getRequests();
     /**
      * Set the list of requests.
      *
-     * @param requests The requests to be applied to this ProtectionDatabase
+     * @param requests The requests to be applied to this StakeDatabase
      */
     public void setRequests(Map<Long, StakeRequest> requests);
 }

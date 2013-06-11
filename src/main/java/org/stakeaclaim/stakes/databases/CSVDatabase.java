@@ -47,7 +47,7 @@ import org.stakeaclaim.stakes.StakeRequest;
  *
  * @author sk89q
  */
-public class CSVDatabase extends AbstractProtectionDatabase {
+public class CSVDatabase extends AbstractStakeDatabase {
     
 //    private static final Map<String, StateFlag> legacyFlagCodes = new HashMap<String, StateFlag>();
 //    static {
@@ -90,11 +90,11 @@ public class CSVDatabase extends AbstractProtectionDatabase {
     /**
      * Saves the database.
      */
-    public void save() throws ProtectionDatabaseException {
+    public void save() throws StakeDatabaseException {
         throw new UnsupportedOperationException("CSV format is no longer implemented");
     }
 
-    public void load() throws ProtectionDatabaseException {
+    public void load() throws StakeDatabaseException {
 //        Map<Long, StakeRequest> requests =
 //                new HashMap<Long, StakeRequest>();
 //        Map<StakeRequest,String> parentSets =
@@ -179,7 +179,7 @@ public class CSVDatabase extends AbstractProtectionDatabase {
 //                }
 //            }
 //        } catch (IOException e) {
-//            throw new ProtectionDatabaseException(e);
+//            throw new StakeDatabaseException(e);
 //        } finally {
 //            try {
 //                reader.close();

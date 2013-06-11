@@ -150,7 +150,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
         }
 
         // Register events
-        (new StakeAClaimPlayerListener(this)).registerEvents();
+        (new PlayerListener(this)).registerEvents();
         
 //        lastRequestID = 0;
     }

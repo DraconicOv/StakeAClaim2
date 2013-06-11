@@ -21,22 +21,22 @@ package org.stakeaclaim.stakes.databases;
 
 import java.lang.Exception;
 
-public class ProtectionDatabaseException extends Exception {
+public class StakeDatabaseException extends Exception {
     private static final long serialVersionUID = 1L;
 
-    public ProtectionDatabaseException() {
+    public StakeDatabaseException() {
         super();
     }
 
-    public ProtectionDatabaseException(String message) {
+    public StakeDatabaseException(String message) {
         super(message);
     }
 
-    public ProtectionDatabaseException(String message, Throwable cause) {
+    public StakeDatabaseException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public ProtectionDatabaseException(Throwable cause) {
+    public StakeDatabaseException(Throwable cause) {
         super(cause);
     }
 }

@@ -46,13 +46,13 @@ import com.sk89q.worldedit.Vector;
 import org.stakeaclaim.stakes.StakeRequest;
 //import org.stakeaclaim.stakes.requests.Request.CircularInheritanceException;
 
-public class YAMLDatabase extends AbstractProtectionDatabase {
+public class YAMLDatabase extends AbstractStakeDatabase {
     
     private YAMLProcessor config;
     private Map<Long, StakeRequest> requests;
     private final Logger logger;
     
-    public YAMLDatabase(File file, Logger logger) throws ProtectionDatabaseException, FileNotFoundException {
+    public YAMLDatabase(File file, Logger logger) throws StakeDatabaseException, FileNotFoundException {
         this.logger = logger;
         if (!file.exists()) { // shouldn't be necessary, but check anyways
             try {
@@ -64,11 +64,11 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
         config = new YAMLProcessor(file, false, YAMLFormat.COMPACT);
     }
 
-    public void load() throws ProtectionDatabaseException {
+    public void load() throws StakeDatabaseException {
         try {
             config.load();
         } catch (IOException e) {
-            throw new ProtectionDatabaseException(e);
+            throw new StakeDatabaseException(e);
         }
         
         Map<String, YAMLNode> requestData = config.getNodes("requests");
@@ -204,7 +204,7 @@ public class YAMLDatabase extends AbstractProtectionDatabase {
 //        return domain;
 //    }
 
-    public void save() throws ProtectionDatabaseException {
+    public void save() throws StakeDatabaseException {
         config.clear();
         
         for (Map.Entry<Long, StakeRequest> entry : requests.entrySet()) {

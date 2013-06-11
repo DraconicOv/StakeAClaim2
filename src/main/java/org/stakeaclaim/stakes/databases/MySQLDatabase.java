@@ -44,7 +44,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MySQLDatabase extends AbstractProtectionDatabase {
+public class MySQLDatabase extends AbstractStakeDatabase {
     private final Logger logger;
 
     private Yaml yaml;
@@ -61,7 +61,7 @@ public class MySQLDatabase extends AbstractProtectionDatabase {
     private Connection conn;
     private int worldDbId = -1; // The database will never have an id of -1;
 
-    public MySQLDatabase(ConfigurationManager config, String world, Logger logger) throws ProtectionDatabaseException {
+    public MySQLDatabase(ConfigurationManager config, String world, Logger logger) throws StakeDatabaseException {
         this.config = config;
 //        String world1 = world;
         this.logger = logger;
@@ -461,11 +461,11 @@ public class MySQLDatabase extends AbstractProtectionDatabase {
 //    }
 //
     @Override
-    public void load() throws ProtectionDatabaseException {
+    public void load() throws StakeDatabaseException {
 //        try {
 //            connect();
 //        } catch (SQLException ex) {
-//            throw new ProtectionDatabaseException(ex);
+//            throw new StakeDatabaseException(ex);
 //        }
 //
 //        parentSets = new HashMap<StakeRequest,String>();
@@ -636,14 +636,14 @@ public class MySQLDatabase extends AbstractProtectionDatabase {
 //     * TODO: Look at adding/removing/updating the database when the in
 //     *       memory request is created/remove/updated
 //     *
-//     * @see org.stakeaclaim.stakes.databases.ProtectionDatabase#save()
+//     * @see org.stakeaclaim.stakes.databases.StakeDatabase#save()
 //     */
     @Override
-    public void save() throws ProtectionDatabaseException {
+    public void save() throws StakeDatabaseException {
 //        try {
 //            connect();
 //        } catch (SQLException ex) {
-//            throw new ProtectionDatabaseException(ex);
+//            throw new StakeDatabaseException(ex);
 //        }
 //
 //        List<String> requestsInDatabase = new ArrayList<String>();
@@ -695,7 +695,7 @@ public class MySQLDatabase extends AbstractProtectionDatabase {
 //                }
 //            } catch (SQLException ex) {
 //                logger.warning("Could not save request " + request.getId().toLowerCase() + ": " + ex.getMessage());
-//                throw new ProtectionDatabaseException(ex);
+//                throw new StakeDatabaseException(ex);
 //            }
 //        }
 //
@@ -715,7 +715,7 @@ public class MySQLDatabase extends AbstractProtectionDatabase {
 //                setParentStatement.execute();
 //            } catch (SQLException ex) {
 //                logger.warning("Could not save request parents " + entry.getValue().getId().toLowerCase() + ": " + ex.getMessage());
-//                throw new ProtectionDatabaseException(ex);
+//                throw new StakeDatabaseException(ex);
 //            }
 //        }
 //

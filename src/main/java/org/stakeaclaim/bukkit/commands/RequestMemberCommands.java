@@ -31,7 +31,7 @@ import com.sk89q.minecraft.util.commands.CommandException;
 //import org.stakeaclaim.LocalPlayer;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 //import org.stakeaclaim.domains.DefaultDomain;
-import org.stakeaclaim.stakes.databases.ProtectionDatabaseException;
+import org.stakeaclaim.stakes.databases.StakeDatabaseException;
 //import org.stakeaclaim.stakes.databases.RequestDBUtil;
 //import org.stakeaclaim.stakes.flags.DefaultFlag;
 import org.stakeaclaim.stakes.RequestManager;
@@ -91,7 +91,7 @@ public class RequestMemberCommands {
 //
 //        try {
 //            mgr.save();
-//        } catch (ProtectionDatabaseException e) {
+//        } catch (StakeDatabaseException e) {
 //            throw new CommandException("Failed to write requests: "
 //                    + e.getMessage());
 //        }
@@ -155,7 +155,7 @@ public class RequestMemberCommands {
 //
 //        try {
 //            mgr.save();
-//        } catch (ProtectionDatabaseException e) {
+//        } catch (StakeDatabaseException e) {
 //            throw new CommandException("Failed to write requests: "
 //                    + e.getMessage());
 //        }
@@ -206,7 +206,7 @@ public class RequestMemberCommands {
 //
 //        try {
 //            mgr.save();
-//        } catch (ProtectionDatabaseException e) {
+//        } catch (StakeDatabaseException e) {
 //            throw new CommandException("Failed to write requests: "
 //                    + e.getMessage());
 //        }
@@ -258,7 +258,7 @@ public class RequestMemberCommands {
 //
 //        try {
 //            mgr.save();
-//        } catch (ProtectionDatabaseException e) {
+//        } catch (StakeDatabaseException e) {
 //            throw new CommandException("Failed to write requests: "
 //                    + e.getMessage());
 //        }

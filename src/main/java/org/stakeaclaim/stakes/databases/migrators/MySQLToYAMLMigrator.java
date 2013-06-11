@@ -22,8 +22,8 @@ package org.stakeaclaim.stakes.databases.migrators;
 import org.stakeaclaim.bukkit.ConfigurationManager;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 import org.stakeaclaim.stakes.databases.MySQLDatabase;
-import org.stakeaclaim.stakes.databases.ProtectionDatabase;
-import org.stakeaclaim.stakes.databases.ProtectionDatabaseException;
+import org.stakeaclaim.stakes.databases.StakeDatabase;
+import org.stakeaclaim.stakes.databases.StakeDatabaseException;
 import org.stakeaclaim.stakes.databases.YAMLDatabase;
 import org.stakeaclaim.stakes.StakeRequest;
 
@@ -70,11 +70,11 @@ public class MySQLToYAMLMigrator extends AbstractDatabaseMigrator {
 
     @Override
     protected Map<Long, StakeRequest> getRequestsForWorldFromOld(String world) throws MigrationException {
-        ProtectionDatabase oldDatabase;
+        StakeDatabase oldDatabase;
         try {
             oldDatabase = new MySQLDatabase(plugin.getGlobalStateManager(), world, plugin.getLogger());
             oldDatabase.load();
-        } catch (ProtectionDatabaseException e) {
+        } catch (StakeDatabaseException e) {
             throw new MigrationException(e);
         }
 
@@ -82,7 +82,7 @@ public class MySQLToYAMLMigrator extends AbstractDatabaseMigrator {
     }
 
     @Override
-    protected ProtectionDatabase getNewWorldStorage(String world) throws MigrationException {
+    protected StakeDatabase getNewWorldStorage(String world) throws MigrationException {
         try {
             File file = new File(plugin.getDataFolder(),
                     "worlds" + File.separator + world + File.separator + "requests.yml");
@@ -90,7 +90,7 @@ public class MySQLToYAMLMigrator extends AbstractDatabaseMigrator {
             return new YAMLDatabase(file, plugin.getLogger());
         } catch (FileNotFoundException e) {
             throw new MigrationException(e);
-        } catch (ProtectionDatabaseException e) {
+        } catch (StakeDatabaseException e) {
             throw new MigrationException(e);
         }
     }

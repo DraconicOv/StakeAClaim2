@@ -27,8 +27,8 @@ import org.bukkit.entity.Player;
 
 //import org.stakeaclaim.LocalPlayer;
 //import org.stakeaclaim.stakes.ApplicableRequestSet;
-import org.stakeaclaim.stakes.databases.ProtectionDatabaseException;
-import org.stakeaclaim.stakes.databases.ProtectionDatabase;
+import org.stakeaclaim.stakes.databases.StakeDatabaseException;
+import org.stakeaclaim.stakes.databases.StakeDatabase;
 //import org.stakeaclaim.stakes.StakeRequest;
 import org.stakeaclaim.stakes.StakeRequest.Access;
 import org.stakeaclaim.stakes.StakeRequest.Status;
@@ -41,7 +41,7 @@ public class RequestManager {
     /**
      * The request loader to use.
      */
-    protected ProtectionDatabase loader;
+    protected StakeDatabase loader;
 
     /**
      * List of stake requests.
@@ -53,7 +53,7 @@ public class RequestManager {
      *
      * @param loader The loader for this request
      */
-    public RequestManager(ProtectionDatabase loader) {
+    public RequestManager(StakeDatabase loader) {
         this.loader = loader;
         requests = new TreeMap<Long, StakeRequest>();
     }
@@ -62,18 +62,18 @@ public class RequestManager {
      * Load the list of requests. If the requests do not load properly, then
      * the existing list should be used (as stored previously).
      *
-     * @throws ProtectionDatabaseException when an error occurs
+     * @throws StakeDatabaseException when an error occurs
      */
-    public void load() throws ProtectionDatabaseException {
+    public void load() throws StakeDatabaseException {
         loader.load(this);
     }
 
     /**
      * Save the list of requests.
      *
-     * @throws ProtectionDatabaseException when an error occurs while saving
+     * @throws StakeDatabaseException when an error occurs while saving
      */
-    public void save() throws ProtectionDatabaseException {
+    public void save() throws StakeDatabaseException {
         loader.save(this);
     }
 

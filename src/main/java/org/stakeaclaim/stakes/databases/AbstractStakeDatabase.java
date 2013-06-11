@@ -21,14 +21,14 @@ package org.stakeaclaim.stakes.databases;
 
 import org.stakeaclaim.stakes.RequestManager;
 
-public abstract class AbstractProtectionDatabase implements ProtectionDatabase {
+public abstract class AbstractStakeDatabase implements StakeDatabase {
 
     /**
      * Load the list of requests into a request manager.
      * 
-     * @throws ProtectionDatabaseException
+     * @throws StakeDatabaseException
      */
-    public void load(RequestManager manager) throws ProtectionDatabaseException {
+    public void load(RequestManager manager) throws StakeDatabaseException {
         load();
         manager.setRequests(getRequests());
     }
@@ -36,9 +36,9 @@ public abstract class AbstractProtectionDatabase implements ProtectionDatabase {
     /**
      * Save the list of requests from a request manager.
      * 
-     * @throws ProtectionDatabaseException
+     * @throws StakeDatabaseException
      */
-    public void save(RequestManager manager) throws ProtectionDatabaseException {
+    public void save(RequestManager manager) throws StakeDatabaseException {
         setRequests(manager.getRequests());
         save();
     }

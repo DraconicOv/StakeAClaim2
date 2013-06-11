@@ -35,8 +35,8 @@ import org.stakeaclaim.bukkit.ConfigurationManager;
 //import org.stakeaclaim.bukkit.WorldConfiguration;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 import org.stakeaclaim.stakes.databases.MySQLDatabase;
-import org.stakeaclaim.stakes.databases.ProtectionDatabase;
-import org.stakeaclaim.stakes.databases.ProtectionDatabaseException;
+import org.stakeaclaim.stakes.databases.StakeDatabase;
+import org.stakeaclaim.stakes.databases.StakeDatabaseException;
 import org.stakeaclaim.stakes.databases.YAMLDatabase;
 //import org.stakeaclaim.stakes.RequestManager;
 
@@ -137,7 +137,7 @@ public class GlobalRequestManager {
     public RequestManager create(World world) {
         String name = world.getName();
         boolean sql = config.useSqlDatabase;
-        ProtectionDatabase database;
+        StakeDatabase database;
         File file = null;
 
         try {
@@ -161,7 +161,7 @@ public class GlobalRequestManager {
             }
 
             return manager;
-        } catch (ProtectionDatabaseException e) {
+        } catch (StakeDatabaseException e) {
             String logStr = "Failed to load requests from ";
             if (sql) {
                 logStr += "SQL Database <" + config.sqlDsn + "> ";

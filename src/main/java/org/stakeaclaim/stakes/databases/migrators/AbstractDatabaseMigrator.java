@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.stakeaclaim.stakes.databases.ProtectionDatabase;
-import org.stakeaclaim.stakes.databases.ProtectionDatabaseException;
+import org.stakeaclaim.stakes.databases.StakeDatabase;
+import org.stakeaclaim.stakes.databases.StakeDatabaseException;
 import org.stakeaclaim.stakes.StakeRequest;
 
 public abstract class AbstractDatabaseMigrator implements DatabaseMigrator {
@@ -45,16 +45,16 @@ public abstract class AbstractDatabaseMigrator implements DatabaseMigrator {
 
     protected abstract Map<Long, StakeRequest> getRequestsForWorldFromOld(String world) throws MigrationException;
 
-    protected abstract ProtectionDatabase getNewWorldStorage(String world) throws MigrationException;
+    protected abstract StakeDatabase getNewWorldStorage(String world) throws MigrationException;
 
     public void migrate() throws MigrationException {
         for (String world : this.getWorldsFromOld()) {
-            ProtectionDatabase database = this.getNewWorldStorage(world);
+            StakeDatabase database = this.getNewWorldStorage(world);
             database.setRequests(this.getRequestsForWorldFromOld(world));
 
             try {
                 database.save();
-            } catch (ProtectionDatabaseException e) {
+            } catch (StakeDatabaseException e) {
                 throw new MigrationException(e);
             }
         }
