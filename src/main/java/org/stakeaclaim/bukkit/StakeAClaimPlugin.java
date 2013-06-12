@@ -55,6 +55,8 @@ import com.sk89q.minecraft.util.commands.SimpleInjector;
 import com.sk89q.minecraft.util.commands.WrappedCommandException;
 import com.sk89q.wepif.PermissionsResolverManager;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+//import com.sk89q.worldguard.LocalPlayer;
+//import com.sk89q.worldguard.bukkit.BukkitPlayer;
 //import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.util.FatalConfigurationLoadingException;
 
@@ -69,11 +71,6 @@ import org.stakeaclaim.stakes.RequestManager;
  * @author sk89q
  */
 public class StakeAClaimPlugin extends JavaPlugin {
-
-    /**
-     * Current instance of this plugin.
-     */
-    private static StakeAClaimPlugin inst;
 
     /**
      * Manager for commands. This automatically handles nested commands,
@@ -110,7 +107,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
         configuration = new ConfigurationManager(this);
         globalRequestManager = new GlobalRequestManager(this);
 
-        final StakeAClaimPlugin plugin = inst = this;
+        final StakeAClaimPlugin plugin = this;
         commands = new CommandsManager<CommandSender>() {
             @Override
             public boolean hasPermission(CommandSender player, String perm) {
@@ -118,15 +115,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
             }
         };
     }
-    
-    /**
-     * Get the current instance of StakeAClaim
-     * @return StakeAClaimPlugin instance
-     */
-    public static StakeAClaimPlugin inst() {
-        return inst;
-    }
-    
+
     /**
      * Called on plugin enable.
      */
@@ -411,7 +400,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
             throw new CommandException("WorldEdit detection failed (report error).");
         }
     }
-
+//
 //    /**
 //     * Wrap a player as a LocalPlayer.
 //     *

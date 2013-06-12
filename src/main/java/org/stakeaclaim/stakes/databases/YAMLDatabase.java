@@ -96,8 +96,8 @@ public class YAMLDatabase extends AbstractStakeDatabase {
 
                 request = new StakeRequest(requestID, regionID, playerName);
 
-                request.setStatus(unmarshalStatus(checkNonNull(node.getNode("status"))));
-                request.setAccess(unmarshalAccess(node.getNode("access")));
+                request.setStatus(unmarshalStatus(checkNonNull(node.getString("status"))));
+                request.setAccess(unmarshalAccess(node.getString("access")));
 
                 requests.put(requestID, request);
                 
@@ -117,20 +117,20 @@ public class YAMLDatabase extends AbstractStakeDatabase {
         return val;
     }
 
-    private Status unmarshalStatus(YAMLNode status) {
+    private Status unmarshalStatus(String status) {
         try {
-            return Status.valueOf(status.toString().toUpperCase());
+            return Status.valueOf(status.toUpperCase());
         } catch (IllegalArgumentException e) {
             return null;
         }
     }
 
-    private Access unmarshalAccess(YAMLNode access) {
+    private Access unmarshalAccess(String access) {
         if (access == null) {
             return null;
         }
         try {
-            return Access.valueOf(access.toString().toUpperCase());
+            return Access.valueOf(access.toUpperCase());
         } catch (IllegalArgumentException e) {
             return null;
         }

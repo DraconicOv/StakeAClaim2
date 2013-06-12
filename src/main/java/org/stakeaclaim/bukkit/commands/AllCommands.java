@@ -19,10 +19,12 @@
 
 package org.stakeaclaim.bukkit.commands;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
+import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.NestedCommand;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 
@@ -34,15 +36,17 @@ public class AllCommands {
         this.plugin = plugin;
     }
 
-//    @Command(aliases = {"request", "requests", "rg"}, desc = "Request management commands")
-//    @NestedCommand({RequestCommands.class, RequestMemberCommands.class})
-//    public void request(CommandContext args, CommandSender sender) {}
+    @Command(aliases = {"claimtools", "claimtool", "tools", "tool", "ct", "t"},
+        desc = "Claim tools commands")
+    @NestedCommand(ToolCommands.class)
+    public void tools(CommandContext args, CommandSender sender) {}
 
-    @Command(aliases = {"claimtools", "claimtool", "tools", "tool", "ct", "t"}, desc = "Claim tools commands")
-    @NestedCommand({ToolCommands.class})
-    public void plot(CommandContext args, CommandSender sender) {}
-    
-    @Command(aliases = {"claim", "c"}, desc = "Claim commands")
-    @NestedCommand({ClaimCommands.class})
-    public void claim(CommandContext args, CommandSender sender) {}
+    @Command(aliases = {"claim", "c"},
+            desc = "Claim commands")
+    @NestedCommand(value=ClaimCommands.class, executeBody=true)
+    public void claim(CommandContext args, CommandSender sender) throws CommandException {
+
+        sender.sendMessage(ChatColor.YELLOW + "Test " + ChatColor.GREEN +"is " + ChatColor.WHITE + "pending");
+
+    }
 }

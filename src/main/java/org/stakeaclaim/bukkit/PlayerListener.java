@@ -23,9 +23,10 @@ package org.stakeaclaim.bukkit;
 //import java.util.Iterator;
 //import java.util.Map; /* MCA add */
 //import java.util.Set;
-//import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-//import org.bukkit.ChatColor;
+import org.bukkit.ChatColor;
 //import org.bukkit.GameMode;
 import org.bukkit.Location;
 //import org.bukkit.Material;
@@ -68,8 +69,10 @@ import com.sk89q.worldedit.Vector;
 //import com.sk89q.worldedit.blocks.BlockType;
 //import com.sk89q.worldedit.blocks.ItemID;
 import com.sk89q.worldguard.bukkit.WGBukkit;
+import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 //import org.stakeaclaim.LocalPlayer;
 //import org.stakeaclaim.blacklist.events.BlockBreakBlacklistEvent;
@@ -126,6 +129,7 @@ public class PlayerListener implements Listener {
             if (player.getVehicle() != null) {
                 return; // handled in vehicle listener
             }
+
             if (wcfg.useRequests) {
                 // Did we move a block?
                 if (event.getFrom().getBlockX() != event.getTo().getBlockX()
@@ -139,34 +143,52 @@ public class PlayerListener implements Listener {
                         state = plugin.getFlagStateManager().getState(player);
                     }
 
-                    RegionManager mgr = WGBukkit.getRegionManager(world);
-                    Vector pt = new Vector(event.getTo().getBlockX(), event.getTo().getBlockY(), event.getTo().getBlockZ());
-                    ApplicableRegionSet set = mgr.getApplicableRegions(pt);
-
                     // If wand is in hand, displays claim name and owner(s) as you enter
                     final ItemStack item = player.getItemInHand();
                     String support = null;
 
                     if (item.getTypeId() == wcfg.requestWand && plugin.hasPermission(player, "stakeaclaim.request.wand")) {
 
-//                        final StakeRequest claim = set.getClaim();
-//                        if (claim != null) {
-//                            StringBuilder message = new StringBuilder(ChatColor.YELLOW + "Location: " + ChatColor.WHITE + claim.getId());
-//                            final DefaultDomain owners = claim.getOwners();
-//                            if (owners.size() == 0) {
-//                                message.append(ChatColor.GRAY + " Unclaimed");
-//                            } else {
-//                                message.append(" " + ChatColor.GREEN + owners.toUserFriendlyString());
-//                            }
-//
-//                            support = message.toString();
-//                            if (support != null && (state.lastSupport == null
-//                                    || !state.lastSupport.equals(support))) {
-//                                player.sendMessage(support);
-//                            }
-//                        }
+                        // Get a single valid claim.
+                        final RegionManager rgMgr = WGBukkit.getRegionManager(world); // need to make sure it is not null
+                        final Vector pt = new Vector(event.getTo().getBlockX(), event.getTo().getBlockY(), event.getTo().getBlockZ());
+                        final ApplicableRegionSet rgSet = rgMgr.getApplicableRegions(pt);
+                        
+                        ProtectedRegion claim = null;
+                        final Pattern regxPat = Pattern.compile("^[ns]\\d\\d?[ew]\\d\\d?$"); // matches n1w23 or s51e2 etc.
+                        Matcher regxMat;
+
+                        for (ProtectedRegion region : rgSet) {
+                            regxMat = regxPat.matcher(region.getId());
+                            if (regxMat.find()) {
+                                if (claim == null) {
+                                    claim = region;
+                                } else {
+                                    claim = null;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (claim != null) {
+                            // Display info for claim.
+                            StringBuilder message = new StringBuilder(ChatColor.YELLOW + "Location: " + ChatColor.WHITE + claim.getId());
+                            final DefaultDomain owners = claim.getOwners();
+                            if (owners.size() == 0) {
+                                message.append(ChatColor.GRAY + " Unclaimed");
+                            } else {
+                                message.append(" " + ChatColor.GREEN + owners.toUserFriendlyString());
+                            }
+
+                            support = message.toString();
+                            if (support != null && (state.lastSupport == null
+                                    || !state.lastSupport.equals(support))) {
+                                player.sendMessage(support);
+                            }
+                        }
                     }
 
+                    // save state
                     state.lastWorld = event.getTo().getWorld();
                     state.lastBlockX = event.getTo().getBlockX();
                     state.lastBlockY = event.getTo().getBlockY();
