@@ -242,35 +242,6 @@ public class PlayerListener implements Listener {
 //        ConfigurationManager cfg = plugin.getGlobalStateManager();
 //        WorldConfiguration wcfg = cfg.get(world);
 //
-//        // This is to make the enter/exit flags accurate -- move events are not
-//        // sent constantly, so it is possible to move just a little enough to
-//        // not trigger the event and then rejoin so that you are then considered
-//        // outside the border. This should work around that.
-//        if (wcfg.useRequests) {
-//            boolean hasBypass = plugin.getGlobalRequestManager().hasBypass(player, world);
-//            PlayerFlagState state = plugin.getFlagStateManager().getState(player);
-//
-//            if (state.lastWorld != null && !hasBypass) {
-//                LocalPlayer localPlayer = plugin.wrapPlayer(player);
-//                RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-//                Location loc = player.getLocation();
-//                Vector pt = new Vector(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-//                ApplicableRequestSet set = mgr.getApplicableRequests(pt);
-//
-//                if (state.lastExitAllowed == null) {
-//                    state.lastExitAllowed = set.allows(DefaultFlag.EXIT, localPlayer);
-//                }
-//
-//                if (!state.lastExitAllowed || !set.allows(DefaultFlag.ENTRY, localPlayer)) {
-//                    // Only if we have the last location cached
-//                    if (state.lastWorld.equals(world)) {
-//                        Location newLoc = new Location(world, state.lastBlockX + 0.5,
-//                                state.lastBlockY, state.lastBlockZ + 0.5);
-//                        player.teleport(newLoc);
-//                    }
-//                }
-//            }
-//        }
 //
 //        //cfg.forgetPlayer(plugin.wrapPlayer(player));
 //        plugin.forgetPlayer(player);

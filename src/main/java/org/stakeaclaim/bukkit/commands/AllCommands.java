@@ -46,7 +46,8 @@ public class AllCommands {
     @NestedCommand(value=ClaimCommands.class, executeBody=true)
     public void claim(CommandContext args, CommandSender sender) throws CommandException {
 
-        sender.sendMessage(ChatColor.YELLOW + "Test " + ChatColor.GREEN +"is " + ChatColor.WHITE + "pending");
+        sender.sendMessage(ChatColor.YELLOW + "This will display the " + ChatColor.GREEN + 
+                "player's " + ChatColor.AQUA +"requests " + ChatColor.YELLOW +"and " + ChatColor.WHITE + "claims.");
 
     }
 }

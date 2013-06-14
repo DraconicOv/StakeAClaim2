@@ -125,6 +125,44 @@ public class RequestManager {
     }
 
     /**
+     * Get a set of requests by {@code player) that are (@code status)
+     * 
+     * @param player the player whose requests to get
+     * @param status the status of the requests
+     * @return request set
+     */
+    public ApplicableRequestSet getApplicableRequests(Player player, Status status) {
+        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
+
+        for (StakeRequest request : requests.values()) {
+            if (request.getPlayerName().equals(player.getName().toLowerCase()) && request.getStatus() == status) {
+                appRequests.add(request);
+            }
+        }
+
+        return new ApplicableRequestSet(appRequests);
+    }
+
+    /**
+     * Get a set of requests for {@code regionID) that are (@code status)
+     * 
+     * @param regionID the name of the region whose requests to get
+     * @param status the status of the requests
+     * @return request set
+     */
+    public ApplicableRequestSet getApplicableRequests(String regionID, Status status) {
+        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
+
+        for (StakeRequest request : requests.values()) {
+            if (request.getRegionID().equals(regionID.toLowerCase()) && request.getStatus() == status) {
+                appRequests.add(request);
+            }
+        }
+
+        return new ApplicableRequestSet(appRequests);
+    }
+
+    /**
      * Get a set of requests for region {@code name) isRegion == true
      * Get a set of requests requested by player {@code name) isRegion == false
      *
@@ -136,11 +174,11 @@ public class RequestManager {
 
         for (StakeRequest request : requests.values()) {
             if (isRegion) {
-                if (request.getRegionID() == name.toLowerCase()) {
+                if (request.getRegionID().equals(name.toLowerCase())) {
                     appRequests.add(request);
                 }
             } else {
-                if (request.getPlayerName() == name.toLowerCase()) {
+                if (request.getPlayerName().equals(name.toLowerCase())) {
                     appRequests.add(request);
                 }
             }
@@ -159,7 +197,7 @@ public class RequestManager {
         TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
 
         for (StakeRequest request : requests.values()) {
-            if (request.getPlayerName() == player.getName().toLowerCase()) {
+            if (request.getPlayerName().equals(player.getName().toLowerCase())) {
                 appRequests.add(request);
             }
         }

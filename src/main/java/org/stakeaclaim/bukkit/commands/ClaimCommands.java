@@ -48,7 +48,7 @@ import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
-//import org.stakeaclaim.stakes.ApplicableRequestSet;
+import org.stakeaclaim.stakes.ApplicableRequestSet;
 import org.stakeaclaim.stakes.databases.StakeDatabaseException;
 import org.stakeaclaim.stakes.RequestManager;
 import org.stakeaclaim.stakes.StakeRequest;
@@ -62,6 +62,7 @@ public class ClaimCommands {
         this.plugin = plugin;
     }
 
+    // Commands
     @Command(aliases = {"info", "i"},
             usage = "",
             desc = "Get information about a claim",
@@ -81,7 +82,7 @@ public class ClaimCommands {
         }
 
         if (claim.getParent() != null) {
-            sender.sendMessage(ChatColor.BLUE + "Request: " + ChatColor.WHITE + claim.getParent().getId());
+            sender.sendMessage(ChatColor.BLUE + "Region: " + ChatColor.WHITE + claim.getParent().getId());
         }
 
         final DefaultDomain owners = claim.getOwners();
@@ -115,13 +116,107 @@ public class ClaimCommands {
 
         checkPerm(player, "stake", claim);
 
-        StakeRequest request = new StakeRequest(regionID, player);
-        request.setStatus(Status.PENDING);
+        final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
+        ApplicableRequestSet rqSet;
 
-        RequestManager rqmgr = plugin.getGlobalRequestManager().get(world);
-        rqmgr.addRequest(request);
+        // Check if there are any pending requests for this claim
+        rqSet = rqMgr.getApplicableRequests(regionID, Status.PENDING);
+        if (rqSet.size() > 0) {
+            // Set all but the oldest pending request to withdrawn
+            StakeRequest oldestRequest = null;
+            for (StakeRequest request : rqSet) {
+                if (oldestRequest == null) {
+                    oldestRequest = request;
+                } else if (oldestRequest.getRequestID() > request.getRequestID()) {
+                    oldestRequest.setStatus(Status.WITHDRAWN);
+                    oldestRequest = request;
+                } else {
+                    request.setStatus(Status.WITHDRAWN);
+                }
+            }
+            // If the pending request is not by the player, throw an exception
+            if (!oldestRequest.getPlayerName().equals(player.getName().toLowerCase())) {
+                throw new CommandException(ChatColor.YELLOW + "This claim is already requested by " +
+                        ChatColor.GREEN + oldestRequest.getPlayerName() + ".");
+            }
+        }
 
-        sender.sendMessage(ChatColor.YELLOW + "Claim request for " + ChatColor.GREEN + regionID + ChatColor.YELLOW + " is " + ChatColor.WHITE + "pending.");
+        // Check if there are any accepted requests for this claim
+        rqSet = rqMgr.getApplicableRequests(regionID, Status.ACCEPTED);
+        if (rqSet.size() > 0) {
+            // If there is more than one accepted request, throw an exception
+            if (rqSet.size() > 1) {
+                throw new CommandException(ChatColor.RED + "Error! This claim has already been claimed more than once!");
+            }
+            // Throw an exception fot a pre-owned claim
+            for (StakeRequest request : rqSet) {
+                if (request.getPlayerName().equals(player.getName().toLowerCase())) {
+                    throw new CommandException(ChatColor.YELLOW + "You already own this claim.");
+                }
+                throw new CommandException(ChatColor.YELLOW + "This claim is already owned by " + 
+                        ChatColor.GREEN + request.getPlayerName() + ".");
+            }
+        }
+
+        // Check if this would be over the claimMax
+        rqSet = rqMgr.getApplicableRequests(player, Status.ACCEPTED);
+        boolean selfClaimActive = false;
+        
+        boolean twoStepSelfClaim = false; // delete after testing, this is in place of config value
+        boolean claimLimitIsArea = true; // delete after testing, this is in place of config value
+        double selfClaimMax = 16; // delete after testing, this is in place of config value
+        double claimMax = 36; // delete after testing, this is in place of config value
+        
+        if (claimLimitIsArea) {
+            double area = getArea(claim);
+            ProtectedRegion region;
+            final RegionManager rgMgr = WGBukkit.getRegionManager(world); // need to make sure it is not null
+            for (StakeRequest request : rqSet) {
+                region = rgMgr.getRegion(request.getRegionID());
+                area = area + getArea(region);
+            }
+            if (area <= selfClaimMax) {
+                selfClaimActive = true;
+            }
+            if (area > claimMax) {
+                throw new CommandException(ChatColor.YELLOW + "This claim would put you over the maximum claim area.");
+            }
+        } else {
+            if (rqSet.size() < selfClaimMax) {
+                selfClaimActive = true;
+            }
+            if (rqSet.size() + 1 > claimMax) {
+                throw new CommandException(ChatColor.YELLOW + "You have already claimed the maximum number of claims.");
+            }
+        }
+        
+        // Set all old pending requests for this player to withdrawn
+        rqSet = rqMgr.getApplicableRequests(player, Status.PENDING);
+        for (StakeRequest request : rqSet) {
+            request.setStatus(Status.WITHDRAWN);
+        }
+
+        // Submit request
+        final StakeRequest newRequest = new StakeRequest(regionID, player);
+        newRequest.setStatus(Status.PENDING);
+        rqMgr.addRequest(newRequest);
+
+        // Do we use self claim?
+        if (selfClaimActive && !twoStepSelfClaim) {
+            final RegionManager rgMgr = WGBukkit.getRegionManager(world); // need to make sure it is not null
+            final ProtectedRegion region = rgMgr.getRegion(newRequest.getRegionID());
+            final String[] owners = new String[1];
+            owners[0] = newRequest.getPlayerName();
+            RegionDBUtil.addToDomain(region.getOwners(), owners, 0);
+            newRequest.setStatus(Status.ACCEPTED);
+
+            sender.sendMessage(ChatColor.YELLOW + "You have staked your claim in " + ChatColor.WHITE + newRequest.getRegionID() + "!");
+
+            saveRegions(world);
+        } else {
+            sender.sendMessage(ChatColor.YELLOW + "Your stake request for " + ChatColor.WHITE + regionID + 
+                    ChatColor.YELLOW + " is pending.");
+        }
 
         saveRequests(world);
     }
@@ -148,8 +243,9 @@ public class ClaimCommands {
 
     @Command(aliases = {"remove", "removemember", "removemembers", "r"},
             usage = "<members...>",
+            flags = "a:",
             desc = "Remove a member from a claim",
-            min = 1)
+            min = 0)
     public void remove(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
@@ -158,8 +254,15 @@ public class ClaimCommands {
         final String regionID = claim.getId();
 
         checkPerm(player, "remove", claim);
-
-        RegionDBUtil.removeFromDomain(claim.getMembers(), args.getPaddedSlice(1, 0), 0);
+        
+        if (args.hasFlag('a')) {
+            claim.getMembers().removaAll();
+        } else {
+            if (args.argsLength() < 1) {
+                throw new CommandException("List some names to remove, or use -a to remove all.");
+            }
+            RegionDBUtil.removeFromDomain(claim.getMembers(), args.getPaddedSlice(1, 0), 0);
+        }
 
         sender.sendMessage(ChatColor.YELLOW + "Removed " + ChatColor.GREEN + args.getJoinedStrings(0) + ChatColor.YELLOW + " from claim: " + ChatColor.WHITE + regionID + ".");
 
@@ -206,6 +309,7 @@ public class ClaimCommands {
         saveRegions(world);
     }
 
+    // Other methods
     public ProtectedRegion getClaimStandingIn(Player player) throws CommandException {
 
         final World world = player.getWorld();
@@ -236,6 +340,28 @@ public class ClaimCommands {
         return claim;
     }
 
+    public double getArea(ProtectedRegion region) throws CommandException {
+        final BlockVector min = region.getMinimumPoint();
+        final BlockVector max = region.getMaximumPoint();
+
+        return (max.getBlockZ() - min.getBlockZ() + 1) * (max.getBlockX() - min.getBlockX() + 1);
+    }
+
+//    public void accept(ProtectedRegion region, StakeRequest request) {
+//        RegionDBUtil.addToDomain(region.getOwners(), request.getPlayerName(), 0);
+//        request.setStatus(Status.ACCEPTED);
+//    }
+    
+//    public void withdrawAllPending(Player player) {
+//        final World world = player.getWorld();
+//        final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
+//        final ApplicableRequestSet rqSet = rqMgr.getApplicableRequests(player, Status.PENDING);
+//
+//        for (StakeRequest request : rqSet) {
+//            request.setStatus(Status.WITHDRAWN);
+//        }
+//    }
+
     public void checkPerm(Player player, String command, ProtectedRegion claim) throws CommandPermissionsException {
 
         final String playerName = player.getName();
@@ -257,8 +383,7 @@ public class ClaimCommands {
         try {
             rgMgr.save();
         } catch (ProtectionDatabaseException e) {
-            throw new CommandException("Failed to write regionss: "
-                    + e.getMessage());
+            throw new CommandException("Failed to write regionss: " + e.getMessage());
         }
     }
 
@@ -267,34 +392,34 @@ public class ClaimCommands {
         final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
 
         try {
-        	rqMgr.save();
+            rqMgr.save();
         } catch (StakeDatabaseException e) {
-            throw new CommandException("Failed to write requests: "
-                    + e.getMessage());
+            throw new CommandException("Failed to write requests: " + e.getMessage());
         }
     }
     
-    /**
-     * Gets the world from the given flag, or falling back to the the current player
-     * if the sender is a player, otherwise reporting an error.
-     * 
-     * @param args the arguments
-     * @param sender the sender
-     * @param flag the flag (such as 'w')
-     * @return a world
-     * @throws CommandException on error
-     */
-    private World getWorld(CommandContext args, CommandSender sender, char flag)
-            throws CommandException {
-        if (args.hasFlag(flag)) {
-            return plugin.matchWorld(sender, args.getFlag(flag));
-        } else {
-            if (sender instanceof Player) {
-                return plugin.checkPlayer(sender).getWorld();
-            } else {
-                throw new CommandException("Please specify " +
-                        "the world with -" + flag + " world_name.");
-            }
-        }
+    {//    /**
+//     * Gets the world from the given flag, or falling back to the the current player
+//     * if the sender is a player, otherwise reporting an error.
+//     * 
+//     * @param args the arguments
+//     * @param sender the sender
+//     * @param flag the flag (such as 'w')
+//     * @return a world
+//     * @throws CommandException on error
+//     */
+//    private World getWorld(CommandContext args, CommandSender sender, char flag)
+//            throws CommandException {
+//        if (args.hasFlag(flag)) {
+//            return plugin.matchWorld(sender, args.getFlag(flag));
+//        } else {
+//            if (sender instanceof Player) {
+//                return plugin.checkPlayer(sender).getWorld();
+//            } else {
+//                throw new CommandException("Please specify " +
+//                        "the world with -" + flag + " world_name.");
+//            }
+//        }
+//    }
     }
 }
