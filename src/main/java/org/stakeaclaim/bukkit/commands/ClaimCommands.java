@@ -122,16 +122,16 @@ public class ClaimCommands {
         // Check if there are any pending requests for this claim
         rqSet = rqMgr.getApplicableRequests(regionID, Status.PENDING);
         if (rqSet.size() > 0) {
-            // Set all but the oldest pending request to withdrawn
+            // Set all but the oldest pending request to unstaked
             StakeRequest oldestRequest = null;
             for (StakeRequest request : rqSet) {
                 if (oldestRequest == null) {
                     oldestRequest = request;
                 } else if (oldestRequest.getRequestID() > request.getRequestID()) {
-                    oldestRequest.setStatus(Status.WITHDRAWN);
+                    oldestRequest.setStatus(Status.UNSTAKED);
                     oldestRequest = request;
                 } else {
-                    request.setStatus(Status.WITHDRAWN);
+                    request.setStatus(Status.UNSTAKED);
                 }
             }
             // If the pending request is not by the player, throw an exception
@@ -175,25 +175,25 @@ public class ClaimCommands {
                 region = rgMgr.getRegion(request.getRegionID());
                 area = area + getArea(region);
             }
-            if (area <= selfClaimMax) {
+            if (area <= selfClaimMax || selfClaimMax == -1) {
                 selfClaimActive = true;
             }
-            if (area > claimMax) {
+            if (area > claimMax && claimMax != -1) {
                 throw new CommandException(ChatColor.YELLOW + "This claim would put you over the maximum claim area.");
             }
         } else {
-            if (rqSet.size() < selfClaimMax) {
+            if (rqSet.size() < selfClaimMax || selfClaimMax == -1) {
                 selfClaimActive = true;
             }
-            if (rqSet.size() + 1 > claimMax) {
+            if (rqSet.size() + 1 > claimMax && claimMax != -1) {
                 throw new CommandException(ChatColor.YELLOW + "You have already claimed the maximum number of claims.");
             }
         }
         
-        // Set all old pending requests for this player to withdrawn
+        // Set all old pending requests for this player to unstaked
         rqSet = rqMgr.getApplicableRequests(player, Status.PENDING);
         for (StakeRequest request : rqSet) {
-            request.setStatus(Status.WITHDRAWN);
+            request.setStatus(Status.UNSTAKED);
         }
 
         // Submit request
@@ -358,7 +358,7 @@ public class ClaimCommands {
 //        final ApplicableRequestSet rqSet = rqMgr.getApplicableRequests(player, Status.PENDING);
 //
 //        for (StakeRequest request : rqSet) {
-//            request.setStatus(Status.WITHDRAWN);
+//            request.setStatus(Status.UNSTAKED);
 //        }
 //    }
 

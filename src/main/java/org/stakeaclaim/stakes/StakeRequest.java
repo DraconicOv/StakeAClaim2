@@ -47,7 +47,7 @@ public class StakeRequest implements Comparable<StakeRequest> {
         PENDING,
         ACCEPTED,
         DENIED,
-        WITHDRAWN,
+        UNSTAKED,
         RECLAIMED
     }
     
