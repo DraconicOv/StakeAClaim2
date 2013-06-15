@@ -243,9 +243,10 @@ public class ClaimCommands {
 
     @Command(aliases = {"remove", "removemember", "removemembers", "r"},
             usage = "<members...>",
-            flags = "a:",
+//            flags = "a:",
             desc = "Remove a member from a claim",
-            min = 0)
+//            min = 0)
+            min = 1)
     public void remove(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
@@ -255,14 +256,14 @@ public class ClaimCommands {
 
         checkPerm(player, "remove", claim);
         
-        if (args.hasFlag('a')) {
-            claim.getMembers().removaAll();
-        } else {
-            if (args.argsLength() < 1) {
-                throw new CommandException("List some names to remove, or use -a to remove all.");
-            }
+//        if (args.hasFlag('a')) {
+//            claim.getMembers().removeAll();
+//        } else {
+//            if (args.argsLength() < 1) {
+//                throw new CommandException("List some names to remove, or use -a to remove all.");
+//            }
             RegionDBUtil.removeFromDomain(claim.getMembers(), args.getPaddedSlice(1, 0), 0);
-        }
+//        }
 
         sender.sendMessage(ChatColor.YELLOW + "Removed " + ChatColor.GREEN + args.getJoinedStrings(0) + ChatColor.YELLOW + " from claim: " + ChatColor.WHITE + regionID + ".");
 
