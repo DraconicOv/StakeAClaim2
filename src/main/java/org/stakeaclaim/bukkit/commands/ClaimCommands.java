@@ -31,6 +31,7 @@ import org.bukkit.entity.Player;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
+import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.CommandPermissionsException;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.Vector;
@@ -118,44 +119,32 @@ public class ClaimCommands {
 
         final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
         ApplicableRequestSet rqSet;
+        final RegionManager rgMgr = WGBukkit.getRegionManager(world); // need to make sure it is not null
+        ProtectedRegion region;
 
         // Check if there are any pending requests for this claim
         rqSet = rqMgr.getApplicableRequests(regionID, Status.PENDING);
-        if (rqSet.size() > 0) {
-            // Set all but the oldest pending request to unstaked
-            StakeRequest oldestRequest = null;
-            for (StakeRequest request : rqSet) {
-                if (oldestRequest == null) {
-                    oldestRequest = request;
-                } else if (oldestRequest.getRequestID() > request.getRequestID()) {
-                    oldestRequest.setStatus(Status.UNSTAKED);
-                    oldestRequest = request;
-                } else {
-                    request.setStatus(Status.UNSTAKED);
-                }
-            }
-            // If the pending request is not by the player, throw an exception
-            if (!oldestRequest.getPlayerName().equals(player.getName().toLowerCase())) {
+        final StakeRequest pendingRequest = rqSet.getPendingRequest();
+        
+        // Throw an exception for a pending claim by another player
+        if (pendingRequest != null) {
+            if (!pendingRequest.getPlayerName().equals(player.getName().toLowerCase())) {
                 throw new CommandException(ChatColor.YELLOW + "This claim is already requested by " +
-                        ChatColor.GREEN + oldestRequest.getPlayerName() + ".");
+                        ChatColor.GREEN + pendingRequest.getPlayerName() + ".");
             }
         }
 
         // Check if there are any accepted requests for this claim
         rqSet = rqMgr.getApplicableRequests(regionID, Status.ACCEPTED);
-        if (rqSet.size() > 0) {
-            // If there is more than one accepted request, throw an exception
-            if (rqSet.size() > 1) {
-                throw new CommandException(ChatColor.RED + "Error! This claim has already been claimed more than once!");
+        final StakeRequest acceptedRequest = rqSet.getAcceptedRequest(rgMgr);
+
+        // Throw an exception for a pre-owned claim
+        if (acceptedRequest != null) {
+            if (acceptedRequest.getPlayerName().equals(player.getName().toLowerCase())) {
+                throw new CommandException(ChatColor.YELLOW + "You already own this claim.");
             }
-            // Throw an exception fot a pre-owned claim
-            for (StakeRequest request : rqSet) {
-                if (request.getPlayerName().equals(player.getName().toLowerCase())) {
-                    throw new CommandException(ChatColor.YELLOW + "You already own this claim.");
-                }
-                throw new CommandException(ChatColor.YELLOW + "This claim is already owned by " + 
-                        ChatColor.GREEN + request.getPlayerName() + ".");
-            }
+            throw new CommandException(ChatColor.YELLOW + "This claim is already owned by " + 
+                    ChatColor.GREEN + acceptedRequest.getPlayerName() + ".");
         }
 
         // Check if this would be over the claimMax
@@ -169,8 +158,6 @@ public class ClaimCommands {
         
         if (claimLimitIsArea) {
             double area = getArea(claim);
-            ProtectedRegion region;
-            final RegionManager rgMgr = WGBukkit.getRegionManager(world); // need to make sure it is not null
             for (StakeRequest request : rqSet) {
                 region = rgMgr.getRegion(request.getRegionID());
                 area = area + getArea(region);
@@ -203,22 +190,95 @@ public class ClaimCommands {
 
         // Do we use self claim?
         if (selfClaimActive && !twoStepSelfClaim) {
-            final RegionManager rgMgr = WGBukkit.getRegionManager(world); // need to make sure it is not null
-            final ProtectedRegion region = rgMgr.getRegion(newRequest.getRegionID());
             final String[] owners = new String[1];
+            region = rgMgr.getRegion(newRequest.getRegionID());
             owners[0] = newRequest.getPlayerName();
+
             RegionDBUtil.addToDomain(region.getOwners(), owners, 0);
             newRequest.setStatus(Status.ACCEPTED);
 
             sender.sendMessage(ChatColor.YELLOW + "You have staked your claim in " + ChatColor.WHITE + newRequest.getRegionID() + "!");
-
-            saveRegions(world);
         } else {
             sender.sendMessage(ChatColor.YELLOW + "Your stake request for " + ChatColor.WHITE + regionID + 
                     ChatColor.YELLOW + " is pending.");
         }
 
         saveRequests(world);
+        saveRegions(world);
+    }
+
+    @Command(aliases = {"confirm", "c"},
+            usage = "",
+            desc = "Confirm your claim request",
+            min = 0, max = 0)
+    @CommandPermissions("stakeaclaim.claim.confirm")
+    public void confirm(CommandContext args, CommandSender sender) throws CommandException {
+        
+        final Player player = plugin.checkPlayer(sender);
+        final World world = player.getWorld();
+        
+        final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
+        ApplicableRequestSet rqSet;
+        final RegionManager rgMgr = WGBukkit.getRegionManager(world); // need to make sure it is not null
+        ProtectedRegion region;
+        StakeRequest requestToConfirm = null;
+        
+        boolean twoStepSelfClaim = false; // delete after testing, this is in place of config value
+        boolean claimLimitIsArea = true; // delete after testing, this is in place of config value
+        double selfClaimMax = 16; // delete after testing, this is in place of config value
+
+        // Check if two step self claim is active
+        if (!twoStepSelfClaim) {
+            throw new CommandException(ChatColor.YELLOW + " This command is disabled! You can't confirm your own pending requests.");
+        }
+
+        // Get the request the player will confirm
+        rqSet = rqMgr.getApplicableRequests(player, Status.PENDING);
+        if (rqSet.size() > 0) {
+            for (StakeRequest request : rqSet) {
+                requestToConfirm = request;
+                break;  // this will get the first in the set and ignore any others, '/claim stake' deals with duplicates
+            }
+        } else {
+            throw new CommandException(ChatColor.YELLOW + "There are no pending request for you to confirm.");
+        }
+        final ProtectedRegion claim = rgMgr.getRegion(requestToConfirm.getRegionID());
+
+        checkPerm(player, "confirm", claim);
+
+        // Check if this would be over the selfClaimMax
+        rqSet = rqMgr.getApplicableRequests(player, Status.ACCEPTED);
+        boolean selfClaimActive = false;
+        if (claimLimitIsArea) {
+            double area = getArea(claim);
+            for (StakeRequest request : rqSet) {
+                region = rgMgr.getRegion(request.getRegionID());
+                area = area + getArea(region);
+            }
+            if (area <= selfClaimMax || selfClaimMax == -1) {
+                selfClaimActive = true;
+            }
+        } else {
+            if (rqSet.size() < selfClaimMax || selfClaimMax == -1) {
+                selfClaimActive = true;
+            }
+        }
+
+        // Do we use self claim?
+        if (selfClaimActive) {
+            final String[] owners = new String[1];
+            owners[0] = requestToConfirm.getPlayerName();
+
+            RegionDBUtil.addToDomain(claim.getOwners(), owners, 0);
+            requestToConfirm.setStatus(Status.ACCEPTED);
+
+            sender.sendMessage(ChatColor.YELLOW + "You have staked your claim in " + ChatColor.WHITE + requestToConfirm.getRegionID() + "!");
+        } else {
+            throw new CommandException(ChatColor.YELLOW + "Limit reached! You can't confirm your own pending requests.");
+        }
+
+        saveRequests(world);
+        saveRegions(world);
     }
 
     @Command(aliases = {"add", "addmember", "addmembers", "ad", "a"},
@@ -347,21 +407,6 @@ public class ClaimCommands {
 
         return (max.getBlockZ() - min.getBlockZ() + 1) * (max.getBlockX() - min.getBlockX() + 1);
     }
-
-//    public void accept(ProtectedRegion region, StakeRequest request) {
-//        RegionDBUtil.addToDomain(region.getOwners(), request.getPlayerName(), 0);
-//        request.setStatus(Status.ACCEPTED);
-//    }
-    
-//    public void withdrawAllPending(Player player) {
-//        final World world = player.getWorld();
-//        final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
-//        final ApplicableRequestSet rqSet = rqMgr.getApplicableRequests(player, Status.PENDING);
-//
-//        for (StakeRequest request : rqSet) {
-//            request.setStatus(Status.UNSTAKED);
-//        }
-//    }
 
     public void checkPerm(Player player, String command, ProtectedRegion claim) throws CommandPermissionsException {
 

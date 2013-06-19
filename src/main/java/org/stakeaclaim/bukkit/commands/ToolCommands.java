@@ -77,68 +77,25 @@ public class ToolCommands {
         this.plugin = plugin;
     }
 
-//    @Command(aliases = {"define", "def", "d"}, usage = "<id> [<owner1> [<owner2> [<owners...>]]]",
-//            desc = "Defines a request", min = 1)
-//    @CommandPermissions({"stakeaclaim.request.define"})
-//    public void define(CommandContext args, CommandSender sender) throws CommandException {
+    @Command(aliases = {"accept", "a"}, usage = "<id> [<owner1> [<owner2> [<owners...>]]]",
+            desc = "Defines a request", min = 1)
+    @CommandPermissions("stakeaclaim.tools.accept")
+    public void accept(CommandContext args, CommandSender sender) throws CommandException {
+
+//        final RegionManager rgMgr = WGBukkit.getRegionManager(world); // need to make sure it is not null
+//        final ProtectedRegion region = rgMgr.getRegion(newRequest.getRegionID());
+//        final String[] owners = new String[1];
+//        owners[0] = newRequest.getPlayerName();
+//        RegionDBUtil.addToDomain(region.getOwners(), owners, 0);
+//        newRequest.setStatus(Status.ACCEPTED);
 //
-//        Player player = plugin.checkPlayer(sender);
-//        WorldEditPlugin worldEdit = plugin.getWorldEdit();
-//        String id = args.getString(0);
+//        sender.sendMessage(ChatColor.YELLOW + "You have staked your claim in " + ChatColor.WHITE + newRequest.getRegionID() + "!");
 //
-//        if (!StakeRequest.isValidId(id)) {
-//            throw new CommandException("Invalid request ID specified!");
-//        }
-//
-//        if (id.equalsIgnoreCase("__global__")) {
-//            throw new CommandException("A request cannot be named __global__");
-//        }
-//
-//        // Attempt to get the player's selection from WorldEdit
-//        Selection sel = worldEdit.getSelection(player);
-//
-//        if (sel == null) {
-//            throw new CommandException("Select a request with WorldEdit first.");
-//        }
-//
-//        RequestManager mgr = plugin.getGlobalRequestManager().get(sel.getWorld());
-//        if (mgr.hasRequest(id)) {
-//            throw new CommandException("That request is already defined. Use redefine instead.");
-//        }
-//
-//        StakeRequest request;
-//
-//        // Detect the type of request from WorldEdit
-//        if (sel instanceof Polygonal2DSelection) {
-//            Polygonal2DSelection polySel = (Polygonal2DSelection) sel;
-//            int minY = polySel.getNativeMinimumPoint().getBlockY();
-//            int maxY = polySel.getNativeMaximumPoint().getBlockY();
-//            request = new ProtectedPolygonalRequest(id, polySel.getNativePoints(), minY, maxY);
-//        } else if (sel instanceof CuboidSelection) {
-//            BlockVector min = sel.getNativeMinimumPoint().toBlockVector();
-//            BlockVector max = sel.getNativeMaximumPoint().toBlockVector();
-//            request = new ProtectedCuboidRequest(id, min, max);
-//        } else {
-//            throw new CommandException(
-//                    "The type of request selected in WorldEdit is unsupported in StakeAClaim!");
-//        }
-//
-//        // Get the list of request owners
-//        if (args.argsLength() > 1) {
-//            request.setOwners(RequestDBUtil.parseDomainString(args.getSlice(1), 1));
-//        }
-//
-//        mgr.addRequest(request);
-//
-//        try {
-//            mgr.save();
-//            sender.sendMessage(ChatColor.YELLOW + "Request saved as " + id + ".");
-//        } catch (StakeDatabaseException e) {
-//            throw new CommandException("Failed to write requests: "
-//                    + e.getMessage());
-//        }
-//    }
-//
+//        saveRegions(world);
+        
+    }
+
+
 //    @Command(aliases = {"redefine", "update", "move"}, usage = "<id>",
 //            desc = "Re-defines the shape of a request", min = 1, max = 1)
 //    public void redefine(CommandContext args, CommandSender sender) throws CommandException {

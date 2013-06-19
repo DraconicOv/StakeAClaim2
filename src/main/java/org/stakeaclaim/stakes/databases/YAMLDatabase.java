@@ -105,6 +105,8 @@ public class YAMLDatabase extends AbstractStakeDatabase {
                 logger.warning("Missing data for request '" + entry.getKey() + '"');
             } catch (NumberFormatException e) {
                 logger.warning("'" + entry.getKey() + "' is not a valid request ID.");
+            } catch (IllegalArgumentException e) {
+                logger.warning("Invalid status for request '" + entry.getKey() + '"');
             }
         }
         this.requests = requests;
@@ -118,11 +120,7 @@ public class YAMLDatabase extends AbstractStakeDatabase {
     }
 
     private Status unmarshalStatus(String status) {
-        try {
             return Status.valueOf(status.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
     }
 
     private Access unmarshalAccess(String access) {

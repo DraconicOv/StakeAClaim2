@@ -21,7 +21,11 @@ package org.stakeaclaim.stakes;
 import java.util.Collection;
 import java.util.Iterator;
 
+import com.sk89q.worldguard.domains.DefaultDomain;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+
 import org.stakeaclaim.stakes.StakeRequest;
+import org.stakeaclaim.stakes.StakeRequest.Status;
 
 /**
  * Represents a set of requests
@@ -47,11 +51,113 @@ public class ApplicableRequestSet implements Iterable<StakeRequest> {
     public int size() {
         return applicable.size();
     }
-    
+
     /**
      * Get an iterator of affected requests.
      */
     public Iterator<StakeRequest> iterator() {
         return applicable.iterator();
+    }
+
+    /**
+     * Get a single request, this is for sets containing pending requests for one region
+     * This will mark all but the oldest request unstaked, leaving one valid request
+     * The changes are done to the requests not to the set
+     * 
+     * this will return null if:
+     *      the set is empty
+     *      all request are not pending and for the same region
+     *      
+     * @return the one valid request, or null
+     */
+    public StakeRequest getPendingRequest() {
+        if (applicable.isEmpty()) {
+            return null;
+        }
+
+        StakeRequest oldestRequest = null;
+
+        for (StakeRequest request : applicable) {
+            if (oldestRequest == null) {
+                oldestRequest = request;
+            } else {
+                // Error check
+                if (!oldestRequest.getRegionID().equals(request.getRegionID())
+                        || oldestRequest.getStatus() != Status.PENDING
+                        || request.getStatus() != Status.PENDING) {
+                    return null;
+                }
+
+                // Keep the oldest request, set the other request to unstaked
+                if (oldestRequest.getRequestID() > request.getRequestID()) {
+                    oldestRequest.setStatus(Status.UNSTAKED);
+                    oldestRequest = request;
+                } else {
+                    request.setStatus(Status.UNSTAKED);
+                }
+            }
+        }
+
+        return oldestRequest;
+    }
+
+    /**
+     * Get a single request, this is for sets containing accepted requests for one region
+     * This will fix all requests of the set based on date and owners, leaving one valid request
+     * The changes are done to the requests not to the set
+     * 
+     * this will return null if:
+     *      the set is empty
+     *      all request are not accepted and for the same region
+     *      the set can't fixed down to one valid request
+     *      
+     * @param rgMgr the WG RegionManager that has the region(s) the requests in the set pair up to
+     * @return the one valid request, or null
+     */
+    public StakeRequest getAcceptedRequest(RegionManager rgMgr) {
+        if (applicable.isEmpty()) {
+            return null;
+        }
+
+        StakeRequest otherRequest = null;
+        DefaultDomain owners;
+
+        for (StakeRequest request : applicable) {
+            owners = rgMgr.getRegion(request.getRegionID()).getOwners();
+            if (otherRequest == null) {
+                otherRequest = request;
+            } else {
+                // Error check
+                if (!otherRequest.getRegionID().equals(request.getRegionID())
+                        || otherRequest.getStatus() != Status.ACCEPTED
+                        || request.getStatus() != Status.ACCEPTED 
+                        || owners.size() != 1) {
+                    return null;
+                }
+
+                // Both requesters and the region owner match, save the older request
+                if (otherRequest.getPlayerName().equals(request.getPlayerName()) &&
+                        owners.contains(request.getPlayerName())) {
+                    if (otherRequest.getRequestID() > request.getRequestID()) {
+                        otherRequest.setStatus(Status.RECLAIMED);
+                        otherRequest = request;
+                    } else {
+                        request.setStatus(Status.RECLAIMED);
+                    }
+                // request matches the region owner, keep it and remove otherRequest
+                } else if (owners.contains(request.getPlayerName())) {
+                        otherRequest.setStatus(Status.RECLAIMED);
+                        otherRequest = request;
+                // otherRequest matches the region owner, keep it and remove request
+                } else if (owners.contains(otherRequest.getPlayerName())) {
+                        request.setStatus(Status.RECLAIMED);
+                } else {
+                    // Neither requester matches the region owner, can't fix
+                    return null;
+                }
+            }
+        }
+
+        return otherRequest;
     }
 }
