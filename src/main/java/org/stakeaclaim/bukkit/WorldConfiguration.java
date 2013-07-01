@@ -60,12 +60,18 @@ public class WorldConfiguration {
     /* Configuration data start */
     public boolean summaryOnStart;
     public boolean opPermissions;
+    public boolean useSAC;
     public boolean useRequests;
     public int requestWand;
-//    public int maxClaimVolume;
-    public int maxRequestCountPerPlayer;
-    private Map<String, Integer> maxRequestCounts;
-
+    public String claimNameFilter;
+    public boolean useReclaimed;
+    public double selfClaimMax;
+    public double claimMax;
+    public boolean claimLimitsAreArea;
+    public boolean showReclaimOnStake;
+    public boolean twoStepSelfClaim;
+    public boolean createRequest;
+    public boolean addOwner;
     /* Configuration data end */
 
     /**
@@ -123,7 +129,7 @@ public class WorldConfiguration {
         }
     }
 
-    @SuppressWarnings("unused")
+//    @SuppressWarnings("unused")
     private double getDouble(String node, double def) {
         double val = parentConfig.getDouble(node, def);
 
@@ -198,21 +204,18 @@ public class WorldConfiguration {
 
         summaryOnStart = getBoolean("summary-on-start", true);
         opPermissions = getBoolean("op-permissions", true);
-        useRequests = getBoolean("requests.enable", true);
-        requestWand = getInt("requests.wand", 334);
-
-        maxRequestCountPerPlayer = getInt("requests.max-request-count-per-player.default", 7);
-        maxRequestCounts = new HashMap<String, Integer>();
-        maxRequestCounts.put(null, maxRequestCountPerPlayer);
-
-        for (String key : getKeys("requests.max-request-count-per-player")) {
-            if (!key.equalsIgnoreCase("default")) {
-                Object val = getProperty("requests.max-request-count-per-player." + key);
-                if (val != null && val instanceof Number) {
-                    maxRequestCounts.put(key, ((Number) val).intValue());
-                }
-            }
-        }
+        useSAC = getBoolean("master-enable", true);
+        useRequests = getBoolean("disable-requests", false);
+        requestWand = getInt("wand", 288); // Feather
+        claimNameFilter = getString("claim-name-regex-filter-string", "^[NSns]\\d\\d?[EWew]\\d\\d?$");
+        useReclaimed = getBoolean("set-status-to-reclaimed-on-reclaim", true);
+        selfClaimMax = getDouble("claiming.max-claims-a-player-can-stake-on-their-own", 1);
+        claimMax = getDouble("claiming.max-claims-a-player-can-own", -1);
+        claimLimitsAreArea = getBoolean("claiming.claim-max-is-in-area-of-claims", false);
+        showReclaimOnStake = getBoolean("claiming.summary-on-start", true);
+        twoStepSelfClaim = getBoolean("claiming.players-need-to-confirm-when-self-accepting", true);
+        createRequest = getBoolean("error-handling.create-request-for-claims-with-an-owner", true);
+        addOwner = getBoolean("error-handling.add-owner-to-claims-with-an-accepted-request", true);
 
         config.setHeader(CONFIG_HEADER);
 

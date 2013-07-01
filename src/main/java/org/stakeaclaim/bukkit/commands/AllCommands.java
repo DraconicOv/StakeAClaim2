@@ -25,6 +25,7 @@ import org.bukkit.command.CommandSender;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
+import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 
@@ -36,14 +37,16 @@ public class AllCommands {
         this.plugin = plugin;
     }
 
-    @Command(aliases = {"claimtools", "claimtool", "tools", "tool", "ct", "t"},
+    @Command(aliases = {"tools", "t"},
         desc = "Claim tools commands")
-    @NestedCommand(ToolCommands.class)
+    @NestedCommand(ToolsCommands.class)
+    @CommandPermissions("stakeaclaim.tools")
     public void tools(CommandContext args, CommandSender sender) {}
 
     @Command(aliases = {"claim", "c"},
             desc = "Claim commands")
     @NestedCommand(value=ClaimCommands.class, executeBody=true)
+    @CommandPermissions("stakeaclaim.claim")
     public void claim(CommandContext args, CommandSender sender) throws CommandException {
 
         sender.sendMessage(ChatColor.YELLOW + "This will display the " + ChatColor.GREEN + 

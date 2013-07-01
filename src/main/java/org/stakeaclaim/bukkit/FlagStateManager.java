@@ -19,6 +19,7 @@
 
 package org.stakeaclaim.bukkit;
 
+import java.util.LinkedHashMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -117,5 +118,7 @@ public class FlagStateManager implements Runnable {
         public int lastBlockY;
         public int lastBlockZ;
         public String lastSupport;
+        public LinkedHashMap<Integer, Long> requestList;
+        public LinkedHashMap<Integer, String> regionList;
     }
 }

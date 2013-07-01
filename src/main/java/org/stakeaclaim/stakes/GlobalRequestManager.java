@@ -34,7 +34,7 @@ import org.bukkit.World;
 import org.stakeaclaim.bukkit.ConfigurationManager;
 //import org.stakeaclaim.bukkit.WorldConfiguration;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
-import org.stakeaclaim.stakes.databases.MySQLDatabase;
+//import org.stakeaclaim.stakes.databases.MySQLDatabase;
 import org.stakeaclaim.stakes.databases.StakeDatabase;
 import org.stakeaclaim.stakes.databases.StakeDatabaseException;
 import org.stakeaclaim.stakes.databases.YAMLDatabase;
@@ -136,20 +136,20 @@ public class GlobalRequestManager {
      */
     public RequestManager create(World world) {
         String name = world.getName();
-        boolean sql = config.useSqlDatabase;
+//        boolean sql = config.useSqlDatabase;
         StakeDatabase database;
         File file = null;
 
         try {
-            if (!sql) {
+//            if (!sql) {
                 file = getPath(name);
                 database = new YAMLDatabase(file, plugin.getLogger());
 
                 // Store the last modification date so we can track changes
                 lastModified.put(name, file.lastModified());
-            } else {
-                database = new MySQLDatabase(config, name, plugin.getLogger());
-            }
+//            } else {
+//                database = new MySQLDatabase(config, name, plugin.getLogger());
+//            }
 
             // Create a manager
             RequestManager manager = new RequestManager(database);
@@ -163,11 +163,11 @@ public class GlobalRequestManager {
             return manager;
         } catch (StakeDatabaseException e) {
             String logStr = "Failed to load requests from ";
-            if (sql) {
-                logStr += "SQL Database <" + config.sqlDsn + "> ";
-            } else {
+//            if (sql) {
+//                logStr += "SQL Database <" + config.sqlDsn + "> ";
+//            } else {
                 logStr += "file \"" + file + "\" ";
-            }
+//            }
 
             plugin.getLogger().log(Level.SEVERE, logStr + " : " + e.getMessage());
             e.printStackTrace();
@@ -196,7 +196,7 @@ public class GlobalRequestManager {
      * have changed.
      */
     public void reloadChanged() {
-        if (config.useSqlDatabase) return;
+//        if (config.useSqlDatabase) return;
 
         for (String name : managers.keySet()) {
             File file = getPath(name);

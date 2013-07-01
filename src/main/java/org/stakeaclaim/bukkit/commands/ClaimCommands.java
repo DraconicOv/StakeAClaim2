@@ -35,15 +35,12 @@ import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.CommandPermissionsException;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.Vector;
-//import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.bukkit.WGBukkit;
-//import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.databases.ProtectionDatabaseException;
 import com.sk89q.worldguard.protection.databases.RegionDBUtil;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
-//import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -53,7 +50,6 @@ import org.stakeaclaim.stakes.ApplicableRequestSet;
 import org.stakeaclaim.stakes.databases.StakeDatabaseException;
 import org.stakeaclaim.stakes.RequestManager;
 import org.stakeaclaim.stakes.StakeRequest;
-//import org.stakeaclaim.stakes.StakeRequest.Access;
 import org.stakeaclaim.stakes.StakeRequest.Status;
 
 public class ClaimCommands {
@@ -68,6 +64,7 @@ public class ClaimCommands {
             usage = "",
             desc = "Get information about a claim",
             min = 0, max = 0)
+    @CommandPermissions("stakeaclaim.claim.info")
     public void info(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
@@ -108,14 +105,13 @@ public class ClaimCommands {
             usage = "",
             desc = "Stake your claim",
             min = 0, max = 0)
+    @CommandPermissions("stakeaclaim.claim.stake")
     public void stake(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
         final World world = player.getWorld();
         final ProtectedRegion claim = getClaimStandingIn(player);
         final String regionID = claim.getId();
-
-        checkPerm(player, "stake", claim);
 
         final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
         ApplicableRequestSet rqSet;
@@ -129,6 +125,7 @@ public class ClaimCommands {
         // Throw an exception for a pending claim by another player
         if (pendingRequest != null) {
             if (!pendingRequest.getPlayerName().equals(player.getName().toLowerCase())) {
+                saveRequests(world);
                 throw new CommandException(ChatColor.YELLOW + "This claim is already requested by " +
                         ChatColor.GREEN + pendingRequest.getPlayerName() + ".");
             }
@@ -140,6 +137,7 @@ public class ClaimCommands {
 
         // Throw an exception for a pre-owned claim
         if (acceptedRequest != null) {
+            saveRequests(world);
             if (acceptedRequest.getPlayerName().equals(player.getName().toLowerCase())) {
                 throw new CommandException(ChatColor.YELLOW + "You already own this claim.");
             }
@@ -151,10 +149,10 @@ public class ClaimCommands {
         rqSet = rqMgr.getApplicableRequests(player, Status.ACCEPTED);
         boolean selfClaimActive = false;
         
-        boolean twoStepSelfClaim = false; // delete after testing, this is in place of config value
+        boolean twoStepSelfClaim = true; // delete after testing, this is in place of config value
         boolean claimLimitIsArea = true; // delete after testing, this is in place of config value
-        double selfClaimMax = 16; // delete after testing, this is in place of config value
-        double claimMax = 36; // delete after testing, this is in place of config value
+        double selfClaimMax = 12544; // delete after testing, this is in place of config value
+        double claimMax = 62720; // delete after testing, this is in place of config value
         
         if (claimLimitIsArea) {
             double area = getArea(claim);
@@ -223,9 +221,9 @@ public class ClaimCommands {
         ProtectedRegion region;
         StakeRequest requestToConfirm = null;
         
-        boolean twoStepSelfClaim = false; // delete after testing, this is in place of config value
+        boolean twoStepSelfClaim = true; // delete after testing, this is in place of config value
         boolean claimLimitIsArea = true; // delete after testing, this is in place of config value
-        double selfClaimMax = 16; // delete after testing, this is in place of config value
+        double selfClaimMax = 12544; // delete after testing, this is in place of config value
 
         // Check if two step self claim is active
         if (!twoStepSelfClaim) {
@@ -243,8 +241,6 @@ public class ClaimCommands {
             throw new CommandException(ChatColor.YELLOW + "There are no pending request for you to confirm.");
         }
         final ProtectedRegion claim = rgMgr.getRegion(requestToConfirm.getRegionID());
-
-        checkPerm(player, "confirm", claim);
 
         // Check if this would be over the selfClaimMax
         rqSet = rqMgr.getApplicableRequests(player, Status.ACCEPTED);
@@ -285,6 +281,7 @@ public class ClaimCommands {
             usage = "<members...>",
             desc = "Add a member to a claim",
             min = 1)
+    @CommandPermissions("stakeaclaim.claim.add")
     public void add(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
@@ -307,6 +304,7 @@ public class ClaimCommands {
             desc = "Remove a member from a claim",
 //            min = 0)
             min = 1)
+    @CommandPermissions("stakeaclaim.claim.remove")
     public void remove(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
@@ -334,6 +332,7 @@ public class ClaimCommands {
             usage = "",
             desc = "Set a claim to private",
             min = 0, max = 0)
+    @CommandPermissions("stakeaclaim.claim.private")
     public void setprivate(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
@@ -354,6 +353,7 @@ public class ClaimCommands {
             usage = "",
             desc = "Set a claim to open",
             min = 0, max = 0)
+    @CommandPermissions("stakeaclaim.claim.open")
     public void open(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
@@ -442,30 +442,5 @@ public class ClaimCommands {
         } catch (StakeDatabaseException e) {
             throw new CommandException("Failed to write requests: " + e.getMessage());
         }
-    }
-    
-    {//    /**
-//     * Gets the world from the given flag, or falling back to the the current player
-//     * if the sender is a player, otherwise reporting an error.
-//     * 
-//     * @param args the arguments
-//     * @param sender the sender
-//     * @param flag the flag (such as 'w')
-//     * @return a world
-//     * @throws CommandException on error
-//     */
-//    private World getWorld(CommandContext args, CommandSender sender, char flag)
-//            throws CommandException {
-//        if (args.hasFlag(flag)) {
-//            return plugin.matchWorld(sender, args.getFlag(flag));
-//        } else {
-//            if (sender instanceof Player) {
-//                return plugin.checkPlayer(sender).getWorld();
-//            } else {
-//                throw new CommandException("Please specify " +
-//                        "the world with -" + flag + " world_name.");
-//            }
-//        }
-//    }
     }
 }

@@ -215,6 +215,8 @@ public class PlayerListener implements Listener {
             state.lastBlockY = loc.getBlockY();
             state.lastBlockZ = loc.getBlockZ();
             state.lastSupport = null;
+            state.requestList = null;
+            state.regionList = null;
         }
     }
 

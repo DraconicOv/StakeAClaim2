@@ -80,16 +80,10 @@ public class ConfigurationManager {
      */
     private YAMLProcessor config;
 
+    /* Configuration data start */
     public boolean useRequestsScheduler;
     public boolean usePlayerMove;
-
-    /**
-     * Request Storage Configuration method, and config values
-     */
-    public boolean useSqlDatabase = false;
-    public String sqlDsn;
-    public String sqlUsername;
-    public String sqlPassword;
+    /* Configuration data end */
 
     /**
      * Construct the object.
@@ -104,7 +98,7 @@ public class ConfigurationManager {
     /**
      * Load the configuration.
      */
-    @SuppressWarnings("unchecked")
+//    @SuppressWarnings("unchecked")
     public void load() {
         // Create the default configuration file
         plugin.createDefaultConfiguration(
@@ -118,15 +112,8 @@ public class ConfigurationManager {
             e.printStackTrace();
         }
 
-        useRequestsScheduler = config.getBoolean("requests.use-scheduler", true);
-        usePlayerMove = config.getBoolean("use-player-move-event", true);
-
-        useSqlDatabase = config.getBoolean(
-                "requests.sql.use", false);
-
-        sqlDsn = config.getString("requests.sql.dsn", "jdbc:mysql://localhost/stakeaclaim");
-        sqlUsername = config.getString("requests.sql.username", "stakeaclaim");
-        sqlPassword = config.getString("requests.sql.password", "stakeaclaim");
+        useRequestsScheduler = config.getBoolean("sac.use-scheduler", true);
+        usePlayerMove = config.getBoolean("sac.use-player-move-event", true);
 
         // Load configurations for each world
         for (World world : plugin.getServer().getWorlds()) {
