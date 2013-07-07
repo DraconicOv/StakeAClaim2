@@ -21,8 +21,11 @@ package org.stakeaclaim.bukkit.commands;
 
 import java.lang.Integer;
 import java.util.LinkedHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -31,13 +34,17 @@ import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
+import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.bukkit.WGBukkit;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.databases.ProtectionDatabaseException;
 import com.sk89q.worldguard.protection.databases.RegionDBUtil;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
+import org.stakeaclaim.bukkit.ConfigurationManager;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
+import org.stakeaclaim.bukkit.WorldConfiguration;
 import org.stakeaclaim.bukkit.FlagStateManager.PlayerFlagState;
 import org.stakeaclaim.stakes.ApplicableRequestSet;
 import org.stakeaclaim.stakes.databases.StakeDatabaseException;
@@ -62,9 +69,15 @@ public class ToolsCommands {
         final Player player = plugin.checkPlayer(sender);
         final World world = player.getWorld();
 
+        final ConfigurationManager cfg = plugin.getGlobalStateManager();
+        final WorldConfiguration wcfg = cfg.get(world);
+        if (!wcfg.useRequests) {
+            throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
+        }
+
         final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
         ApplicableRequestSet rqSet;
-        rqSet = rqMgr.getApplicableRequests(Status.PENDING);
+        rqSet = rqMgr.getStatusRequests(Status.PENDING);
         LinkedHashMap<Integer, Long> requests = new LinkedHashMap<Integer, Long>();
         PlayerFlagState state = plugin.getFlagStateManager().getState(player);
 
@@ -76,7 +89,6 @@ public class ToolsCommands {
 
         final int totalSize = requests.size();
         
-        state.regionList = null;
         if (totalSize < 1) {
             state.requestList = null;
             throw new CommandException(ChatColor.YELLOW + "There are no pending requests.");
@@ -102,9 +114,64 @@ public class ToolsCommands {
                     break;
                 }
                 request = rqMgr.getRequest(requests.get(i));
-                sender.sendMessage(ChatColor.YELLOW.toString() + "# " + (i + 1) + ": " + ChatColor.WHITE + request.getRegionID() +
+                sender.sendMessage(ChatColor.YELLOW + "# " + (i + 1) + ": " + ChatColor.WHITE + request.getRegionID() +
                         ", " + ChatColor.GREEN + request.getPlayerName());
             }
+        }
+    }
+
+    @Command(aliases = {"claim", "l"},
+            usage = "",
+            desc = "Populates a list with one claim",
+            min = 0, max = 0)
+    @CommandPermissions("stakeaclaim.tools.claim")
+    public void claim(CommandContext args, CommandSender sender) throws CommandException {
+
+        final Player player = plugin.checkPlayer(sender);
+        final World world = player.getWorld();
+
+        final ConfigurationManager cfg = plugin.getGlobalStateManager();
+        final WorldConfiguration wcfg = cfg.get(world);
+        if (!wcfg.useRequests) {
+            throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
+        }
+
+        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        if (rgMgr == null) {
+            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
+        }
+
+        final ProtectedRegion claim = getClaimStandingIn(player);
+        final String regionID = claim.getId();
+        final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
+        final PlayerFlagState state = plugin.getFlagStateManager().getState(player);
+
+        LinkedHashMap<Integer, Long> requests = new LinkedHashMap<Integer, Long>();
+        state.requestList = null;
+        
+        ApplicableRequestSet rqSet = rqMgr.getRegionStatusRequests(regionID, Status.PENDING);
+        final StakeRequest pendingRequest = rqSet.getPendingRegionRequest();
+        rqSet = rqMgr.getRegionStatusRequests(regionID, Status.ACCEPTED);
+        final StakeRequest acceptedRequest = rqSet.getAcceptedRequest(rgMgr);
+
+        if (acceptedRequest != null) {
+            requests.put(0, acceptedRequest.getRequestID());
+            state.requestList = requests;
+            sender.sendMessage(ChatColor.RED + "Owned claim: ");
+            sender.sendMessage(ChatColor.YELLOW + "# " + 1 + ": " + ChatColor.WHITE + regionID +
+                    ", " + ChatColor.GREEN + acceptedRequest.getPlayerName());
+        } else if (pendingRequest != null) {
+            requests.put(0, pendingRequest.getRequestID());
+            state.requestList = requests;
+            sender.sendMessage(ChatColor.RED + "Pending request: ");
+            sender.sendMessage(ChatColor.YELLOW + "# " + 1 + ": " + ChatColor.WHITE + regionID +
+                    ", " + ChatColor.GREEN + pendingRequest.getPlayerName());
+        } else if (rgMgr.hasRegion(regionID)) {
+            sender.sendMessage(ChatColor.RED + "Open claim: ");
+            sender.sendMessage(ChatColor.YELLOW + "# " + 1 + ": " + ChatColor.WHITE + regionID +
+                    ", " + ChatColor.GRAY + "Unclaimed");
+        } else {
+            throw new CommandException(ChatColor.RED + "Invalid claim ID!");
         }
     }
 
@@ -117,36 +184,21 @@ public class ToolsCommands {
         
         final Player player = plugin.checkPlayer(sender);
         final World world = player.getWorld();
-        
-        final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
-        ApplicableRequestSet rqSet;
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world); // need to make sure it is not null
-        ProtectedRegion region;
-        StakeRequest requestToAccept = null;
-        LinkedHashMap<Integer, Long> requests = new LinkedHashMap<Integer, Long>();
-        PlayerFlagState state = plugin.getFlagStateManager().getState(player);
 
-
-        // Get the request to accept
-        if (state.requestList != null) {
-            
-            requests = state.requestList;
-            int listNumber = 0;
-            if (args.argsLength() == 1) {
-                listNumber = args.getInteger(0) - 1;
-                if (!requests.containsKey(listNumber)) {
-                    throw new CommandException(ChatColor.YELLOW + "That is not a valid list entry number.");
-                }
-            } else {
-                throw new CommandException(ChatColor.YELLOW + "Please include the list entry number.");
-            }
-            requestToAccept = rqMgr.getRequest(requests.get(listNumber));
-        } else {
-            throw new CommandException(ChatColor.YELLOW + "The request list is empty. First do /tool pending");
+        final ConfigurationManager cfg = plugin.getGlobalStateManager();
+        final WorldConfiguration wcfg = cfg.get(world);
+        if (!wcfg.useRequests) {
+            throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
         }
-        
+
+        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        if (rgMgr == null) {
+            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
+        }
+        StakeRequest requestToAccept = getRequestListItem(args, sender);
+
         if (requestToAccept.getStatus() != Status.PENDING) {
-            throw new CommandException(ChatColor.YELLOW + "Sorry, this request is no longer pending.");
+            throw new CommandException(ChatColor.YELLOW + "Sorry, this request is not pending.");
         }
         
         // Get the region requested
@@ -166,6 +218,112 @@ public class ToolsCommands {
         saveRegions(world);
     }
 
+    @Command(aliases = {"deny", "d"},
+            usage = "<list entry #>",
+            desc = "Deny a pending request",
+            min = 1, max = 1)
+    @CommandPermissions("stakeaclaim.tools.deny")
+    public void deny(CommandContext args, CommandSender sender) throws CommandException {
+        
+        final Player player = plugin.checkPlayer(sender);
+        final World world = player.getWorld();
+
+        final ConfigurationManager cfg = plugin.getGlobalStateManager();
+        final WorldConfiguration wcfg = cfg.get(world);
+        if (!wcfg.useRequests) {
+            throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
+        }
+
+        StakeRequest requestToDeny = getRequestListItem(args, sender);
+
+        if (requestToDeny.getStatus() != Status.PENDING) {
+            throw new CommandException(ChatColor.YELLOW + "Sorry, this request is not pending.");
+        }
+        
+
+        // Deny the request
+        requestToDeny.setStatus(Status.DENIED);
+
+        sender.sendMessage(ChatColor.YELLOW + "You have denied " + ChatColor.GREEN + requestToDeny.getPlayerName() +
+                ChatColor.YELLOW + "'s request for " + ChatColor.WHITE + requestToDeny.getRegionID() + "!");
+
+        saveRequests(world);
+    }
+
+    @Command(aliases = {"cancel", "c"},
+            usage = "<list entry #>",
+            desc = "Cancel a pending request",
+            min = 1, max = 1)
+    @CommandPermissions("stakeaclaim.tools.cancel")
+    public void cancel(CommandContext args, CommandSender sender) throws CommandException {
+        
+        final Player player = plugin.checkPlayer(sender);
+        final World world = player.getWorld();
+
+        final ConfigurationManager cfg = plugin.getGlobalStateManager();
+        final WorldConfiguration wcfg = cfg.get(world);
+        if (!wcfg.useRequests) {
+            throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
+        }
+
+        StakeRequest requestToCancel = getRequestListItem(args, sender);
+
+        if (requestToCancel.getStatus() != Status.PENDING) {
+            throw new CommandException(ChatColor.YELLOW + "Sorry, this request is not pending.");
+        }
+
+        // Cancel the request
+        requestToCancel.setStatus(Status.UNSTAKED);
+
+        sender.sendMessage(ChatColor.YELLOW + "You have canceled " + ChatColor.GREEN + requestToCancel.getPlayerName() +
+                ChatColor.YELLOW + "'s request for " + ChatColor.WHITE + requestToCancel.getRegionID() + "!");
+
+        saveRequests(world);
+    }
+
+    @Command(aliases = {"reclaim", "r"},
+            usage = "<list entry #>",
+            desc = "Reclaim a claim",
+            min = 1, max = 1)
+    @CommandPermissions("stakeaclaim.tools.reclaim")
+    public void reclaim(CommandContext args, CommandSender sender) throws CommandException {
+        
+        final Player player = plugin.checkPlayer(sender);
+        final World world = player.getWorld();
+
+        final ConfigurationManager cfg = plugin.getGlobalStateManager();
+        final WorldConfiguration wcfg = cfg.get(world);
+        if (!wcfg.useRequests) {
+            throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
+        }
+
+        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        if (rgMgr == null) {
+            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
+        }
+        StakeRequest requestToReclaim = getRequestListItem(args, sender);
+
+        if (requestToReclaim.getStatus() != Status.ACCEPTED) {
+            throw new CommandException(ChatColor.YELLOW + "Sorry, this request is not accepted.");
+        }
+        
+        // Get the region requested
+        final ProtectedRegion claim = rgMgr.getRegion(requestToReclaim.getRegionID());
+
+        // Reclaim the request
+        claim.getOwners().getPlayers().clear();
+        claim.getOwners().getGroups().clear();
+        claim.getMembers().getPlayers().clear();
+        claim.getMembers().getGroups().clear();
+        requestToReclaim.setStatus(Status.RECLAIMED);
+
+        sender.sendMessage(ChatColor.YELLOW + "You have reclaimed " + ChatColor.WHITE + requestToReclaim.getRegionID() +
+                ChatColor.YELLOW + " from " + ChatColor.GREEN + requestToReclaim.getPlayerName() + ChatColor.YELLOW + "!");
+
+        saveRequests(world);
+        saveRegions(world);
+    }
+
     @Command(aliases = {"load", "reload", "l"},
             usage = "",
             desc = "Reload requests from file",
@@ -175,6 +333,13 @@ public class ToolsCommands {
         
         final Player player = plugin.checkPlayer(sender);
         final World world = player.getWorld();
+
+        final ConfigurationManager cfg = plugin.getGlobalStateManager();
+        final WorldConfiguration wcfg = cfg.get(world);
+        if (!wcfg.useRequests) {
+            throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
+        }
+        
         RequestManager mgr = plugin.getGlobalRequestManager().get(world);
 
         try {
@@ -196,22 +361,89 @@ public class ToolsCommands {
         
         final Player player = plugin.checkPlayer(sender);
         final World world = player.getWorld();
-        RequestManager mgr = plugin.getGlobalRequestManager().get(world);
 
-        try {
-            mgr.save();
-            sender.sendMessage(ChatColor.YELLOW
-                    + "Requests for '" + world.getName() + "' saved.");
-        } catch (StakeDatabaseException e) {
-            throw new CommandException("Failed to write requests: "
-                    + e.getMessage());
+        final ConfigurationManager cfg = plugin.getGlobalStateManager();
+        final WorldConfiguration wcfg = cfg.get(world);
+        if (!wcfg.useRequests) {
+            throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
         }
+        
+        saveRequests(world);
+        sender.sendMessage(ChatColor.YELLOW + "Requests for '" + world.getName() + "' saved.");
     }
 
     // Other methods
+    public ProtectedRegion getClaimStandingIn(Player player) throws CommandException {
+
+        final World world = player.getWorld();
+        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        if (rgMgr == null) {
+            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
+        }
+        final Location loc = player.getLocation();
+        final Vector pt = new Vector(loc.getX(), loc.getY(), loc.getZ());
+        final ApplicableRegionSet rgSet = rgMgr.getApplicableRegions(pt);
+        final ConfigurationManager cfg = plugin.getGlobalStateManager();
+        final WorldConfiguration wcfg = cfg.get(world);
+        final Pattern regexPat = Pattern.compile(wcfg.claimNameFilter);
+        Matcher regexMat;
+        ProtectedRegion claim = null;
+
+        for (ProtectedRegion region : rgSet) {
+            regexMat = regexPat.matcher(region.getId());
+            if (regexMat.find()) {
+                if (claim == null) {
+                    claim = region;
+                } else {
+                    claim = null;
+                    break;
+                }
+            }
+        }
+
+        if (claim == null) {
+            throw new CommandException("You are not in a single valid claim!");
+        }
+        return claim;
+    }
+
+    public StakeRequest getRequestListItem(CommandContext args, CommandSender sender) throws CommandException {
+        
+        final Player player = plugin.checkPlayer(sender);
+        final World world = player.getWorld();
+
+        StakeRequest requestListItem = null;
+        
+        final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
+        LinkedHashMap<Integer, Long> requests = new LinkedHashMap<Integer, Long>();
+        PlayerFlagState state = plugin.getFlagStateManager().getState(player);
+
+        if (state.requestList != null) {
+
+            requests = state.requestList;
+            int listNumber = 0;
+            if (args.argsLength() == 1) {
+                listNumber = args.getInteger(0) - 1;
+                if (!requests.containsKey(listNumber)) {
+                    throw new CommandException(ChatColor.YELLOW + "That is not a valid list entry number.");
+                }
+            } else {
+                throw new CommandException(ChatColor.YELLOW + "Please include the list entry number.");
+            }
+            requestListItem = rqMgr.getRequest(requests.get(listNumber));
+        } else {
+            throw new CommandException(ChatColor.YELLOW + "The request list is empty.");
+        }
+
+        return requestListItem;
+    }
+
     public void saveRegions(World world) throws CommandException {
 
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world); // need to make sure it is not null
+        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        if (rgMgr == null) {
+            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
+        }
 
         try {
             rgMgr.save();

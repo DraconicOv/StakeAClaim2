@@ -22,14 +22,12 @@ package org.stakeaclaim.bukkit;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-//import org.bukkit.entity.Player;
 
 import com.sk89q.util.yaml.YAMLFormat;
 import com.sk89q.util.yaml.YAMLProcessor;
+
+import com.sk89q.worldguard.bukkit.WGBukkit;
 
 /**
  * Holds the configuration for individual worlds.
@@ -62,7 +60,8 @@ public class WorldConfiguration {
     public boolean opPermissions;
     public boolean useSAC;
     public boolean useRequests;
-    public int requestWand;
+    public boolean useRegions;
+    public int sacWand;
     public String claimNameFilter;
     public boolean useReclaimed;
     public double selfClaimMax;
@@ -205,17 +204,23 @@ public class WorldConfiguration {
         summaryOnStart = getBoolean("summary-on-start", true);
         opPermissions = getBoolean("op-permissions", true);
         useSAC = getBoolean("master-enable", true);
-        useRequests = getBoolean("disable-requests", false);
-        requestWand = getInt("wand", 288); // Feather
-        claimNameFilter = getString("claim-name-regex-filter-string", "^[NSns]\\d\\d?[EWew]\\d\\d?$");
+        useRequests = getBoolean("requests-enable", true);
+        sacWand = getInt("wand", 288); // Feather
+        claimNameFilter = getString("claim-name-regex-filter-string", "^[NSns]\\d\\d?[EWew]\\d\\d?$"); // match eg. s2w45
         useReclaimed = getBoolean("set-status-to-reclaimed-on-reclaim", true);
         selfClaimMax = getDouble("claiming.max-claims-a-player-can-stake-on-their-own", 1);
         claimMax = getDouble("claiming.max-claims-a-player-can-own", -1);
         claimLimitsAreArea = getBoolean("claiming.claim-max-is-in-area-of-claims", false);
-        showReclaimOnStake = getBoolean("claiming.summary-on-start", true);
+        showReclaimOnStake = getBoolean("claiming.show-past-reclaimed-note", true);
         twoStepSelfClaim = getBoolean("claiming.players-need-to-confirm-when-self-accepting", true);
         createRequest = getBoolean("error-handling.create-request-for-claims-with-an-owner", true);
         addOwner = getBoolean("error-handling.add-owner-to-claims-with-an-accepted-request", true);
+        
+        useRegions = WGBukkit.getPlugin().getGlobalStateManager().get(plugin.getServer().getWorld(worldName)).useRegions;
+        
+        if (!useRegions || !useSAC) {
+            useRequests = false;
+        }
 
         config.setHeader(CONFIG_HEADER);
 

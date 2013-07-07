@@ -60,7 +60,7 @@ public class ApplicableRequestSet implements Iterable<StakeRequest> {
     }
 
     /**
-     * Get a single request, this is for sets containing pending requests for one region
+     * Get a single request, this is for sets made with getRegionStatusRequests(<regionID>, Status.PENDING)
      * This will mark all but the oldest request unstaked, leaving one valid request
      * The changes are done to the requests not to the set
      * 
@@ -70,7 +70,7 @@ public class ApplicableRequestSet implements Iterable<StakeRequest> {
      *      
      * @return the one valid request, or null
      */
-    public StakeRequest getPendingRequest() {
+    public StakeRequest getPendingRegionRequest() {
         if (applicable.isEmpty()) {
             return null;
         }
@@ -102,7 +102,49 @@ public class ApplicableRequestSet implements Iterable<StakeRequest> {
     }
 
     /**
-     * Get a single request, this is for sets containing accepted requests for one region
+     * Get a single request, this is for sets made with getPlayerStatusRequests(<player>, Status.PENDING)
+     * This will mark all but the newest request unstaked, leaving one valid request
+     * The changes are done to the requests not to the set
+     * 
+     * this will return null if:
+     *      the set is empty
+     *      all request are not pending and by the same player
+     *      
+     * @return the one valid request, or null
+     */
+    public StakeRequest getPendingPlayerRequest() {
+        if (applicable.isEmpty()) {
+            return null;
+        }
+
+        StakeRequest newestRequest = null;
+
+        for (StakeRequest request : applicable) {
+            if (newestRequest == null) {
+                newestRequest = request;
+            } else {
+                // Error check
+                if (!newestRequest.getRegionID().equals(request.getRegionID())
+                        || newestRequest.getStatus() != Status.PENDING
+                        || request.getStatus() != Status.PENDING) {
+                    return null;
+                }
+
+                // Keep the oldest request, set the other request to unstaked
+                if (newestRequest.getRequestID() < request.getRequestID()) {
+                    newestRequest.setStatus(Status.UNSTAKED);
+                    newestRequest = request;
+                } else {
+                    request.setStatus(Status.UNSTAKED);
+                }
+            }
+        }
+
+        return newestRequest;
+    }
+
+    /**
+     * Get a single request, this is for sets made with getRegionStatusRequests(<regionID>, Status.ACCEPTED)
      * This will fix all requests of the set based on date and owners, leaving one valid request
      * The changes are done to the requests not to the set
      * 

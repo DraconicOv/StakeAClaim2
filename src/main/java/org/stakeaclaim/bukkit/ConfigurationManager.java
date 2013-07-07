@@ -20,20 +20,13 @@ package org.stakeaclaim.bukkit;
 
 import java.io.File;
 import java.io.IOException;
-//import java.util.HashMap;
-//import java.util.HashSet;
-//import java.util.Map;
-//import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.bukkit.World;
-//import org.bukkit.entity.Player;
 
 import com.sk89q.util.yaml.YAMLFormat;
 import com.sk89q.util.yaml.YAMLProcessor;
-
-//import org.stakeaclaim.LocalPlayer;
 
 /**
  * Represents the global configuration and also delegates configuration

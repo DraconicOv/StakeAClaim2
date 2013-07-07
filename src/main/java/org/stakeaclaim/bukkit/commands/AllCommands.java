@@ -37,7 +37,7 @@ public class AllCommands {
         this.plugin = plugin;
     }
 
-    @Command(aliases = {"tools", "t"},
+    @Command(aliases = {"tools", "o"},
         desc = "Claim tools commands")
     @NestedCommand(ToolsCommands.class)
     @CommandPermissions("stakeaclaim.tools")
@@ -45,12 +45,13 @@ public class AllCommands {
 
     @Command(aliases = {"claim", "c"},
             desc = "Claim commands")
-    @NestedCommand(value=ClaimCommands.class, executeBody=true)
+//    @NestedCommand(value=ClaimCommands.class, executeBody=true)
+    @NestedCommand(value=ClaimCommands.class)
     @CommandPermissions("stakeaclaim.claim")
     public void claim(CommandContext args, CommandSender sender) throws CommandException {
 
-        sender.sendMessage(ChatColor.YELLOW + "This will display the " + ChatColor.GREEN + 
-                "player's " + ChatColor.AQUA +"requests " + ChatColor.YELLOW +"and " + ChatColor.WHITE + "claims.");
+//        sender.sendMessage(ChatColor.YELLOW + "This will display the " + ChatColor.GREEN + 
+//                "player's " + ChatColor.AQUA +"requests " + ChatColor.YELLOW +"and " + ChatColor.WHITE + "claims.");
 
     }
 }

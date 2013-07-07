@@ -26,6 +26,8 @@ import java.util.Map;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import org.stakeaclaim.stakes.StakeRequest;
+
 /**
  * This processes per-player state information and is also meant to be used
  * as a scheduled task.
@@ -58,7 +60,7 @@ public class FlagStateManager implements Runnable {
         for (Player player : players) {
             WorldConfiguration worldConfig = config.get(player.getWorld());
 
-            if (!worldConfig.useRequests) {
+            if (!worldConfig.useSAC) {
                 continue;
             }
 
@@ -119,6 +121,6 @@ public class FlagStateManager implements Runnable {
         public int lastBlockZ;
         public String lastSupport;
         public LinkedHashMap<Integer, Long> requestList;
-        public LinkedHashMap<Integer, String> regionList;
+        public StakeRequest unsubmittedRequest;
     }
 }

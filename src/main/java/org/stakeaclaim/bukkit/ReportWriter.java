@@ -255,14 +255,14 @@ public class ReportWriter {
             LogListBlock worldLog = log.putChild(world.getName() + " (" +  i + ")");
             LogListBlock infoLog = worldLog.putChild("Information");
             LogListBlock configLog = worldLog.putChild("Configuration");
-            LogListBlock blacklistLog = worldLog.putChild("Blacklist");
+//            LogListBlock blacklistLog = worldLog.putChild("Blacklist");
             LogListBlock requestsLog = worldLog.putChild("Request manager");
 
             infoLog.put("Configuration file", (new File(plugin.getDataFolder(), "worlds/"
                     + world.getName() + "/config.yml")).getAbsoluteFile());
 
-            infoLog.put("Blacklist file", (new File(plugin.getDataFolder(), "worlds/"
-                    + world.getName() + "/blacklist.txt")).getAbsoluteFile());
+//            infoLog.put("Blacklist file", (new File(plugin.getDataFolder(), "worlds/"
+//                    + world.getName() + "/blacklist.txt")).getAbsoluteFile());
             infoLog.put("Requests file", (new File(plugin.getDataFolder(), "worlds/"
                     + world.getName() + "/requests.yml")).getAbsoluteFile());
             

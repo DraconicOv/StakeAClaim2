@@ -287,7 +287,7 @@ public class GlobalRequestManager {
 //        World world = loc.getWorld();
 //        WorldConfiguration worldConfig = config.get(world);
 //
-//        if (!worldConfig.useRequests) {
+//        if (!worldConfig.useSAC) {
 //            return true;
 //        }
 //
@@ -313,7 +313,7 @@ public class GlobalRequestManager {
 //        World world = loc.getWorld();
 //        WorldConfiguration worldConfig = config.get(world);
 //
-//        if (!worldConfig.useRequests) {
+//        if (!worldConfig.useSAC) {
 //            return true;
 //        }
 //
@@ -358,7 +358,7 @@ public class GlobalRequestManager {
 //        World world = loc.getWorld();
 //        WorldConfiguration worldConfig = config.get(world);
 //
-//        if (!worldConfig.useRequests) {
+//        if (!worldConfig.useSAC) {
 //            return true;
 //        }
 //

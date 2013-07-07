@@ -25,11 +25,8 @@ import java.util.TreeSet;
 
 import org.bukkit.entity.Player;
 
-//import org.stakeaclaim.LocalPlayer;
-//import org.stakeaclaim.stakes.ApplicableRequestSet;
 import org.stakeaclaim.stakes.databases.StakeDatabaseException;
 import org.stakeaclaim.stakes.databases.StakeDatabase;
-//import org.stakeaclaim.stakes.StakeRequest;
 import org.stakeaclaim.stakes.StakeRequest.Access;
 import org.stakeaclaim.stakes.StakeRequest.Status;
 
@@ -125,32 +122,13 @@ public class RequestManager {
     }
 
     /**
-     * Get a set of requests by {@code player) that are (@code status)
-     * 
-     * @param player the player whose requests to get
-     * @param status the status of the requests
-     * @return request set
-     */
-    public ApplicableRequestSet getApplicableRequests(Player player, Status status) {
-        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
-
-        for (StakeRequest request : requests.values()) {
-            if (request.getPlayerName().equals(player.getName().toLowerCase()) && request.getStatus() == status) {
-                appRequests.add(request);
-            }
-        }
-
-        return new ApplicableRequestSet(appRequests);
-    }
-
-    /**
      * Get a set of requests for {@code regionID) that are (@code status)
      * 
      * @param regionID the name of the region whose requests to get
      * @param status the status of the requests
      * @return request set
      */
-    public ApplicableRequestSet getApplicableRequests(String regionID, Status status) {
+    public ApplicableRequestSet getRegionStatusRequests(String regionID, Status status) {
         TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
 
         for (StakeRequest request : requests.values()) {
@@ -163,24 +141,93 @@ public class RequestManager {
     }
 
     /**
-     * Get a set of requests for region {@code name) isRegion == true
-     * Get a set of requests requested by player {@code name) isRegion == false
-     *
-     * @param name the name of the player or region whose requests to get
+     * Get a set of requests by {@code player) that are (@code status)
+     * 
+     * @param player the player whose requests to get
+     * @param status the status of the requests
      * @return request set
      */
-    public ApplicableRequestSet getApplicableRequests(String name, boolean isRegion) {
+    public ApplicableRequestSet getPlayerStatusRequests(Player player, Status status) {
         TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
 
         for (StakeRequest request : requests.values()) {
-            if (isRegion) {
-                if (request.getRegionID().equals(name.toLowerCase())) {
-                    appRequests.add(request);
-                }
-            } else {
-                if (request.getPlayerName().equals(name.toLowerCase())) {
-                    appRequests.add(request);
-                }
+            if (request.getPlayerName().equals(player.getName().toLowerCase()) && request.getStatus() == status) {
+                appRequests.add(request);
+            }
+        }
+
+        return new ApplicableRequestSet(appRequests);
+    }
+
+    /**
+     * Get a set of accepted requests by {@code player) that are (@code access)
+     * 
+     * @param player the player whose requests to get
+     * @param access the access of the requests
+     * @return request set
+     */
+    public ApplicableRequestSet getPlayerAccessRequests(Player player, Access access) {
+        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
+
+        for (StakeRequest request : requests.values()) {
+            if (request.getPlayerName().equals(player.getName().toLowerCase()) && request.getAccess() == access) {
+                appRequests.add(request);
+            }
+        }
+
+        return new ApplicableRequestSet(appRequests);
+    }
+
+    /**
+     * Get a set of accepted requests by {@code player) that have an access node
+     * 
+     * @param player the player whose requests to get
+     * @return request set
+     */
+    public ApplicableRequestSet getPlayerAccessRequests(Player player) {
+        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
+
+        for (StakeRequest request : requests.values()) {
+            if (request.getPlayerName().equals(player.getName().toLowerCase()) && 
+                    request.getStatus() == Status.ACCEPTED &&
+                    request.getAccess() != null) {
+                appRequests.add(request);
+            }
+        }
+
+        return new ApplicableRequestSet(appRequests);
+    }
+
+    /**
+     * Get a set of requests for region {@code name)
+     *
+     * @param name the name of the region whose requests to get
+     * @return request set
+     */
+    public ApplicableRequestSet getRegionRequests(String regionID) {
+        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
+
+        for (StakeRequest request : requests.values()) {
+            if (request.getRegionID().equals(regionID.toLowerCase())) {
+                appRequests.add(request);
+            }
+        }
+
+        return new ApplicableRequestSet(appRequests);
+    }
+
+    /**
+     * Get a set of requests requested by player
+     *
+     * @param name the name of the player whose requests to get
+     * @return request set
+     */
+    public ApplicableRequestSet getPlayerRequests(String playerName) {
+        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
+
+        for (StakeRequest request : requests.values()) {
+            if (request.getPlayerName().equals(playerName.toLowerCase())) {
+                appRequests.add(request);
             }
         }
 
@@ -193,7 +240,7 @@ public class RequestManager {
      * @param player the player whose requests to get
      * @return request set
      */
-    public ApplicableRequestSet getApplicableRequests(Player player) {
+    public ApplicableRequestSet getPlayerRequests(Player player) {
         TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
 
         for (StakeRequest request : requests.values()) {
@@ -211,7 +258,7 @@ public class RequestManager {
      * @param status the status to get requests with
      * @return request set
      */
-    public ApplicableRequestSet getApplicableRequests(Status status) {
+    public ApplicableRequestSet getStatusRequests(Status status) {
         TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
 
         for (StakeRequest request : requests.values()) {
@@ -229,7 +276,7 @@ public class RequestManager {
      * @param status the access state to get requests with
      * @return request set
      */
-    public ApplicableRequestSet getApplicableRequests(Access access) {
+    public ApplicableRequestSet getAccessRequests(Access access) {
         TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
 
         for (StakeRequest request : requests.values()) {

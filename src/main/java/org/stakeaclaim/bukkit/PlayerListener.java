@@ -18,82 +18,53 @@
  */
 package org.stakeaclaim.bukkit;
 
-//import static org.stakeaclaim.bukkit.BukkitUtil.toVector;
-
-//import java.util.Iterator;
-//import java.util.Map; /* MCA add */
-//import java.util.Set;
+import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
-//import org.bukkit.GameMode;
 import org.bukkit.Location;
-//import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.block.Block;
-//import org.bukkit.block.BlockFace;
-//import org.bukkit.entity.Entity;
-//import org.bukkit.entity.Item;
+////import org.bukkit.block.BlockFace;
+////import org.bukkit.entity.Entity;
+////import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
-//import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-//import org.bukkit.event.block.Action;
-//import org.bukkit.event.player.AsyncPlayerChatEvent;
-//import org.bukkit.event.player.PlayerBedEnterEvent;
-//import org.bukkit.event.player.PlayerBucketEmptyEvent;
-//import org.bukkit.event.player.PlayerBucketFillEvent;
-//import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-//import org.bukkit.event.player.PlayerDropItemEvent;
-//import org.bukkit.event.player.PlayerFishEvent;
-//import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-//import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-//import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-//import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-//import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
-//import org.bukkit.potion.Potion;
-//import org.bukkit.potion.PotionEffect;
 
 import com.sk89q.worldedit.Vector;
-//import com.sk89q.worldedit.blocks.BlockID;
-//import com.sk89q.worldedit.blocks.BlockType;
-//import com.sk89q.worldedit.blocks.ItemID;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.flags.DefaultFlag;
+import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
-//import org.stakeaclaim.LocalPlayer;
-//import org.stakeaclaim.blacklist.events.BlockBreakBlacklistEvent;
-//import org.stakeaclaim.blacklist.events.BlockInteractBlacklistEvent;
-//import org.stakeaclaim.blacklist.events.BlockPlaceBlacklistEvent;
-//import org.stakeaclaim.blacklist.events.ItemAcquireBlacklistEvent;
-//import org.stakeaclaim.blacklist.events.ItemDropBlacklistEvent;
-//import org.stakeaclaim.blacklist.events.ItemUseBlacklistEvent;
 import org.stakeaclaim.bukkit.FlagStateManager.PlayerFlagState;
-//import org.stakeaclaim.domains.DefaultDomain; /* MCA add */
-//import org.stakeaclaim.stakes.ApplicableRequestSet;
-//import org.stakeaclaim.stakes.flags.DefaultFlag;
-//import org.stakeaclaim.stakes.RequestManager;
-//import org.stakeaclaim.stakes.StakeRequest;
+import org.stakeaclaim.stakes.ApplicableRequestSet;
+import org.stakeaclaim.stakes.RequestManager;
+import org.stakeaclaim.stakes.StakeRequest;
+import org.stakeaclaim.stakes.StakeRequest.Access;
+import org.stakeaclaim.stakes.StakeRequest.Status;
 
 /**
  * Handles all events thrown in relation to a player.
  */
 public class PlayerListener implements Listener {
 
-//    private Pattern opPattern = Pattern.compile("^/op(?:\\s.*)?$", Pattern.CASE_INSENSITIVE);
     private StakeAClaimPlugin plugin;
 
     /**
@@ -130,7 +101,7 @@ public class PlayerListener implements Listener {
                 return; // handled in vehicle listener
             }
 
-            if (wcfg.useRequests) {
+            if (wcfg.useRegions && wcfg.useSAC) {
                 // Did we move a block?
                 if (event.getFrom().getBlockX() != event.getTo().getBlockX()
                         || event.getFrom().getBlockY() != event.getTo().getBlockY()
@@ -147,20 +118,23 @@ public class PlayerListener implements Listener {
                     final ItemStack item = player.getItemInHand();
                     String support = null;
 
-                    if (item.getTypeId() == wcfg.requestWand && plugin.hasPermission(player, "stakeaclaim.request.wand")) {
+                    if (item.getTypeId() == wcfg.sacWand && plugin.hasPermission(player, "stakeaclaim.events.wand")) {
 
                         // Get a single valid claim.
-                        final RegionManager rgMgr = WGBukkit.getRegionManager(world); // need to make sure it is not null
+                        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+                        if (rgMgr == null) {
+                            return;
+                        }
+
                         final Vector pt = new Vector(event.getTo().getBlockX(), event.getTo().getBlockY(), event.getTo().getBlockZ());
                         final ApplicableRegionSet rgSet = rgMgr.getApplicableRegions(pt);
-                        
+                        final Pattern regexPat = Pattern.compile(wcfg.claimNameFilter);
+                        Matcher regexMat;
                         ProtectedRegion claim = null;
-                        final Pattern regxPat = Pattern.compile("^[ns]\\d\\d?[ew]\\d\\d?$"); // matches n1w23 or s51e2 etc.
-                        Matcher regxMat;
 
                         for (ProtectedRegion region : rgSet) {
-                            regxMat = regxPat.matcher(region.getId());
-                            if (regxMat.find()) {
+                            regexMat = regexPat.matcher(region.getId());
+                            if (regexMat.find()) {
                                 if (claim == null) {
                                     claim = region;
                                 } else {
@@ -189,11 +163,116 @@ public class PlayerListener implements Listener {
                     }
 
                     // save state
-                    state.lastWorld = event.getTo().getWorld();
+                    if (state.lastWorld != event.getTo().getWorld()) {
+                        state.requestList = null;
+                        state.unsubmittedRequest = null;
+                        state.lastWorld = event.getTo().getWorld();
+                    }
                     state.lastBlockX = event.getTo().getBlockX();
                     state.lastBlockY = event.getTo().getBlockY();
                     state.lastBlockZ = event.getTo().getBlockZ();
                     state.lastSupport = support;
+                }
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+
+        Entity thingClicked = event.getRightClicked();
+        Player activePlayer = event.getPlayer();
+
+        if (thingClicked instanceof Player) {
+            Player passivePlayer = (Player) thingClicked;
+            World world = passivePlayer.getWorld();
+
+            ConfigurationManager cfg = plugin.getGlobalStateManager();
+            WorldConfiguration wcfg = cfg.get(world);
+
+            ItemStack held = activePlayer.getItemInHand();
+
+            if (held.getTypeId() == wcfg.sacWand && plugin.hasPermission(activePlayer, "stakeaclaim.events.wand.player")) {
+
+                if (!wcfg.useRequests) {
+                    activePlayer.sendMessage(ChatColor.YELLOW + "Requests are disabled in this world.");
+                    return;
+                }
+
+                final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+                if (rgMgr == null) {
+                    activePlayer.sendMessage(ChatColor.YELLOW + "Regions are disabled in this world.");
+                    return;
+                }
+
+                final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
+                final PlayerFlagState state = plugin.getFlagStateManager().getState(activePlayer);
+                final Location loc = passivePlayer.getLocation();
+                final Vector pt = new Vector(loc.getX(), loc.getY(), loc.getZ());
+                final ApplicableRegionSet rgSet = rgMgr.getApplicableRegions(pt);
+                final Pattern regexPat = Pattern.compile(wcfg.claimNameFilter);
+                Matcher regexMat;
+
+                ProtectedRegion claim = null;
+                for (ProtectedRegion region : rgSet) {
+                    regexMat = regexPat.matcher(region.getId());
+                    if (regexMat.find()) {
+                        if (claim == null) {
+                            claim = region;
+                        } else {
+                            claim = null;
+                            break;
+                        }
+                    }
+                }
+
+                if (claim != null) {
+                    final String regionID = claim.getId();
+                    activePlayer.sendMessage(ChatColor.GREEN + passivePlayer.getName().toLowerCase() + 
+                            ChatColor.YELLOW + " is in " + ChatColor.WHITE + regionID + ".");
+                    activePlayer.sendMessage(ChatColor.YELLOW + "Do " + ChatColor.WHITE + "/tools proxy" + 
+                            ChatColor.YELLOW + " to stake that claim for them.");
+                    state.unsubmittedRequest = new StakeRequest(regionID, passivePlayer);
+                } else {
+                    state.unsubmittedRequest = null;
+                }
+
+                LinkedHashMap<Integer, Long> requests = new LinkedHashMap<Integer, Long>();
+                state.requestList = null;
+
+                ApplicableRequestSet rqSet = rqMgr.getPlayerStatusRequests(passivePlayer, Status.PENDING);
+                final StakeRequest pendingRequest = rqSet.getPendingPlayerRequest();
+                rqSet = rqMgr.getPlayerStatusRequests(passivePlayer, Status.ACCEPTED);
+
+                int index = 0;
+                if (pendingRequest != null) {
+                    requests.put(index, pendingRequest.getRequestID());
+                    index = 1;
+                }
+
+                for (StakeRequest request : rqSet) {
+                    requests.put(index, request.getRequestID());
+                    index++;
+                }
+
+                final int totalSize = requests.size();
+                if (totalSize < 1) {
+                    state.requestList = null;
+                    activePlayer.sendMessage(ChatColor.YELLOW + "This player has no requests.");
+                    return;
+                }
+                state.requestList = requests;
+
+                // Display the list
+                activePlayer.sendMessage(ChatColor.GREEN + passivePlayer.getName().toLowerCase() +
+                        ChatColor.RED + "'s request list:");
+
+                StakeRequest request;
+                for (int i = 0; i < totalSize; i++) {
+                    request = rqMgr.getRequest(requests.get(i));
+                    activePlayer.sendMessage(ChatColor.YELLOW + "# " + (i + 1) + ": " + ChatColor.WHITE + request.getRegionID() +
+                            ", " + ChatColor.GREEN + request.getPlayerName() +
+                            ", " + ChatColor.YELLOW + request.getStatus().name().toLowerCase());
                 }
             }
         }
@@ -207,7 +286,7 @@ public class PlayerListener implements Listener {
         ConfigurationManager cfg = plugin.getGlobalStateManager();
         WorldConfiguration wcfg = cfg.get(world);
 
-        if (wcfg.useRequests) {
+        if (wcfg.useSAC) {
             PlayerFlagState state = plugin.getFlagStateManager().getState(player);
             Location loc = player.getLocation();
             state.lastWorld = loc.getWorld();
@@ -216,37 +295,41 @@ public class PlayerListener implements Listener {
             state.lastBlockZ = loc.getBlockZ();
             state.lastSupport = null;
             state.requestList = null;
-            state.regionList = null;
+            state.unsubmittedRequest = null;
         }
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-//        Player player = event.getPlayer();
-//        World world = player.getWorld();
-//
-//        /* MCA add start */
-//        // auto removes keep-out flag(s), if player has perms to do so
-//        
-//        if (plugin.hasPermission(player, "stakeaclaim.plot.public")) {
-//            final LocalPlayer localPlayer2 = plugin.wrapPlayer(player);
-//            final RequestManager mgr2 = plugin.getGlobalRequestManager().get(world);
-//            final Map<Long, StakeRequest> requests = mgr2.getRequests();
-//
-//            for (StakeRequest claim : requests.values()) {
-//                if (claim.isOwner(localPlayer2)) {
-//                    claim.setFlag(DefaultFlag.ENTRY, null);
-//                }
-//            }
-//        }
-//        /* MCA add end */
-//
-//        ConfigurationManager cfg = plugin.getGlobalStateManager();
-//        WorldConfiguration wcfg = cfg.get(world);
-//
-//
-//        //cfg.forgetPlayer(plugin.wrapPlayer(player));
-//        plugin.forgetPlayer(player);
+        Player player = event.getPlayer();
+
+        if (plugin.hasPermission(player, "stakeaclaim.events.access")) {
+            RequestManager rqMgr;
+            ApplicableRequestSet rqSet;
+            RegionManager rgMgr;
+            ProtectedRegion claim;
+            
+            for (World world : plugin.getServer().getWorlds()) {
+                rqMgr = plugin.getGlobalRequestManager().get(world);
+                rqSet = rqMgr.getPlayerAccessRequests(player);
+
+                rgMgr = WGBukkit.getRegionManager(world);
+                if (rgMgr == null) {
+                    continue;
+                }
+
+                for (StakeRequest request : rqSet) {
+                    claim = rgMgr.getRegion(request.getRegionID());
+                    if (request.getAccess() == Access.ALLOW) {
+                        claim.setFlag(DefaultFlag.ENTRY, State.ALLOW);
+                    } else if (request.getAccess() == Access.DENY) {
+                        claim.setFlag(DefaultFlag.ENTRY, State.DENY);
+                    }
+                }
+            }
+        }
+
+        plugin.forgetPlayer(player);
     }
 
     /**
@@ -268,7 +351,7 @@ public class PlayerListener implements Listener {
         ConfigurationManager cfg = plugin.getGlobalStateManager();
         WorldConfiguration wcfg = cfg.get(world);
 
-//        if (wcfg.useRequests) {
+//        if (wcfg.useSAC) {
 //            Vector pt = toVector(block);
 //            RequestManager mgr = plugin.getGlobalRequestManager().get(world);
 //            Block placedIn = block.getRelative(event.getBlockFace());
@@ -276,7 +359,7 @@ public class PlayerListener implements Listener {
 //            ApplicableRequestSet placedInSet = mgr.getApplicableRequests(placedIn.getLocation());
 //            LocalPlayer localPlayer = plugin.wrapPlayer(player);
 //
-//            if (item.getTypeId() == wcfg.requestWand && plugin.hasPermission(player, "stakeaclaim.request.wand")) {
+//            if (item.getTypeId() == wcfg.sacWand && plugin.hasPermission(player, "stakeaclaim.events.wand")) {
 //                if (set.size() > 0) {
 //                    player.sendMessage(ChatColor.YELLOW + "Can you build? "
 //                            + (set.canBuild(localPlayer) ? "Yes" : "No"));
@@ -308,7 +391,7 @@ public class PlayerListener implements Listener {
 //        ConfigurationManager cfg = plugin.getGlobalStateManager();
 //        WorldConfiguration wcfg = cfg.get(player.getWorld());
 //
-//        if (wcfg.useRequests) {
+//        if (wcfg.useSAC) {
 //            Vector pt = toVector(location);
 //            RequestManager mgr = plugin.getGlobalRequestManager().get(player.getWorld());
 //            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
@@ -322,14 +405,13 @@ public class PlayerListener implements Listener {
 //        }
     }
 
-
     @EventHandler(priority= EventPriority.LOW, ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
 //        World world = event.getFrom().getWorld();
 //        ConfigurationManager cfg = plugin.getGlobalStateManager();
 //        WorldConfiguration wcfg = cfg.get(world);
 //
-//        if (wcfg.useRequests) {
+//        if (wcfg.useSAC) {
 //            if (event.getCause() == TeleportCause.ENDER_PEARL) {
 //                RequestManager mgr = plugin.getGlobalRequestManager().get(event.getFrom().getWorld());
 //                Vector pt = new Vector(event.getTo().getBlockX(), event.getTo().getBlockY(), event.getTo().getBlockZ());

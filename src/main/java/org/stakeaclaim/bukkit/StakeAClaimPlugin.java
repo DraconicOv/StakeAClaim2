@@ -153,8 +153,6 @@ public class StakeAClaimPlugin extends JavaPlugin {
 
         // Register events
         (new PlayerListener(this)).registerEvents();
-        
-//        lastRequestID = 0;
     }
 
     /**
@@ -222,69 +220,6 @@ public class StakeAClaimPlugin extends JavaPlugin {
     public ConfigurationManager getGlobalStateManager() {
         return configuration;
     }
-
-//    /**
-//     * Check whether a player is in a group.
-//     * This calls the corresponding method in PermissionsResolverManager
-//     *
-//     * @param player The player to check
-//     * @param group The group
-//     * @return whether {@code player} is in {@code group}
-//     */
-//    public boolean inGroup(Player player, String group) {
-//        try {
-//            return PermissionsResolverManager.getInstance().inGroup(player, group);
-//        } catch (Throwable t) {
-//            t.printStackTrace();
-//            return false;
-//        }
-//    }
-
-//    /**
-//     * Get the groups of a player.
-//     * This calls the corresponding method in PermissionsResolverManager.
-//     * @param player The player to check
-//     * @return The names of each group the player is in.
-//     */
-//    public String[] getGroups(Player player) {
-//        try {
-//            return PermissionsResolverManager.getInstance().getGroups(player);
-//        } catch (Throwable t) {
-//            t.printStackTrace();
-//            return new String[0];
-//        }
-//    }
-
-//    /**
-//     * Gets the name of a command sender. This is a unique name and this
-//     * method should never return a "display name".
-//     *
-//     * @param sender The sender to get the name of
-//     * @return The unique name of the sender.
-//     */
-//    public String toUniqueName(CommandSender sender) {
-//        if (sender instanceof ConsoleCommandSender) {
-//            return "*Console*";
-//        } else {
-//            return sender.getName();
-//        }
-//    }
-
-//    /**
-//     * Gets the name of a command sender. This may be a display name.
-//     *
-//     * @param sender The CommandSender to get the name of.
-//     * @return The name of the given sender
-//     */
-//    public String toName(CommandSender sender) {
-//        if (sender instanceof ConsoleCommandSender) {
-//            return "*Console*";
-//        } else if (sender instanceof Player) {
-//            return ((Player) sender).getDisplayName();
-//        } else {
-//            return sender.getName();
-//        }
-//    }
 
     /**
      * Checks permissions.
@@ -363,25 +298,6 @@ public class StakeAClaimPlugin extends JavaPlugin {
         throw new CommandException("No world by that exact name found.");
     }
 
-//    /**
-//     * Gets a copy of the WorldGuard plugin.
-//     *
-//     * @return The WorldGuardPlugin instance
-//     * @throws CommandException If there is no WorldGuardPlugin available
-//     */
-//    public WorldGuardPlugin getWorldGuard() throws CommandException {
-//        Plugin worldGuard = getServer().getPluginManager().getPlugin("WorldGuard");
-//        if (worldGuard == null) {
-//            throw new CommandException("WorldGuard does not appear to be installed.");
-//        }
-//
-//        if (worldGuard instanceof WorldGuardPlugin) {
-//            return (WorldGuardPlugin) worldGuard;
-//        } else {
-//            throw new CommandException("WorldGuard detection failed (report error).");
-//        }
-//    }
-
     /**
      * Gets a copy of the WorldEdit plugin.
      *
@@ -400,16 +316,6 @@ public class StakeAClaimPlugin extends JavaPlugin {
             throw new CommandException("WorldEdit detection failed (report error).");
         }
     }
-//
-//    /**
-//     * Wrap a player as a LocalPlayer.
-//     *
-//     * @param player The player to wrap
-//     * @return The wrapped player
-//     */
-//    public LocalPlayer wrapPlayer(Player player) {
-//        return new BukkitPlayer(this, player);
-//    }
 
     /**
      * Create a default configuration file from the .jar.
@@ -483,50 +389,18 @@ public class StakeAClaimPlugin extends JavaPlugin {
         flagStateManager.forget(player);
     }
 
-    /**
-     * Gets the request manager for a world.
-     *
-     * @param world world to get the request manager for
-     * @return the request manager or null if requests are not enabled
-     */
-    public RequestManager getRequestManager(World world) {
-        if (!getGlobalStateManager().get(world).useRequests) {
-            return null;
-        }
+//    /**
+//     * Gets the request manager for a world.
+//     *
+//     * @param world world to get the request manager for
+//     * @return the request manager or null if requests are not enabled
+//     */
+//    public RequestManager getRequestManager(World world) {
+//        if (!getGlobalStateManager().get(world).useRequests) {
+//            return null;
+//        }
+//
+//        return getGlobalRequestManager().get(world);
+//    }
 
-        return getGlobalRequestManager().get(world);
-    }
-
-    /**
-     * Replace macros in the text.
-     *
-     * The macros replaced are as follows:
-     * %name%: The name of {@code sender}. See {@link #toName(org.bukkit.command.CommandSender)}
-     * %id%: The unique name of the sender. See {@link #toUniqueName(org.bukkit.command.CommandSender)}
-     * %online%: The number of players currently online on the server
-     * If {@code sender} is a Player:
-     * %world%: The name of the world {@code sender} is located in
-     * %health%: The health of {@code sender}. See {@link org.bukkit.entity.Player#getHealth()}
-     *
-     * @param sender The sender to check
-     * @param message The message to replace macros in
-     * @return The message with macros replaced
-     */
-    public String replaceMacros(CommandSender sender, String message) {
-        Player[] online = getServer().getOnlinePlayers();
-
-//        message = message.replace("%name%", toName(sender));
-//        message = message.replace("%id%", toUniqueName(sender));
-        message = message.replace("%online%", String.valueOf(online.length));
-
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            World world = player.getWorld();
-
-            message = message.replace("%world%", world.getName());
-            message = message.replace("%health%", String.valueOf(player.getHealth()));
-        }
-
-        return message;
-    }
 }
