@@ -31,9 +31,6 @@ import com.sk89q.worldguard.bukkit.WGBukkit;
 
 /**
  * Holds the configuration for individual worlds.
- *
- * @author sk89q
- * @author Michael
  */
 public class WorldConfiguration {
 
@@ -53,7 +50,6 @@ public class WorldConfiguration {
     private String worldName;
     private YAMLProcessor parentConfig;
     private YAMLProcessor config;
-
 
     /* Configuration data start */
     public boolean summaryOnStart;
@@ -128,7 +124,6 @@ public class WorldConfiguration {
         }
     }
 
-//    @SuppressWarnings("unused")
     private double getDouble(String node, double def) {
         double val = parentConfig.getDouble(node, def);
 
@@ -137,47 +132,6 @@ public class WorldConfiguration {
         } else {
             return val;
         }
-    }
-
-    private List<Integer> getIntList(String node, List<Integer> def) {
-        List<Integer> res = parentConfig.getIntList(node, def);
-
-        if (res == null || res.size() == 0) {
-            parentConfig.setProperty(node, new ArrayList<Integer>());
-        }
-
-        if (config.getProperty(node) != null) {
-            res = config.getIntList(node, def);
-        }
-
-        return res;
-    }
-
-    private List<String> getStringList(String node, List<String> def) {
-        List<String> res = parentConfig.getStringList(node, def);
-
-        if (res == null || res.size() == 0) {
-            parentConfig.setProperty(node, new ArrayList<String>());
-        }
-
-        if (config.getProperty(node) != null) {
-            res = config.getStringList(node, def);
-        }
-
-        return res;
-    }
-
-    private List<String> getKeys(String node) {
-        List<String> res = parentConfig.getKeys(node);
-
-        if (res == null || res.size() == 0) {
-            res = config.getKeys(node);
-        }
-        if (res == null) {
-            res = new ArrayList<String>();
-        }
-
-        return res;
     }
 
     private Object getProperty(String node) {
@@ -215,9 +169,9 @@ public class WorldConfiguration {
         twoStepSelfClaim = getBoolean("claiming.players-need-to-confirm-when-self-accepting", true);
         createRequest = getBoolean("error-handling.create-request-for-claims-with-an-owner", true);
         addOwner = getBoolean("error-handling.add-owner-to-claims-with-an-accepted-request", true);
-        
+
         useRegions = WGBukkit.getPlugin().getGlobalStateManager().get(plugin.getServer().getWorld(worldName)).useRegions;
-        
+
         if (!useRegions || !useSAC) {
             useRequests = false;
         }
@@ -230,5 +184,4 @@ public class WorldConfiguration {
     public String getWorldName() {
         return this.worldName;
     }
-
 }

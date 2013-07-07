@@ -27,20 +27,14 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.block.Block;
-////import org.bukkit.block.BlockFace;
-////import org.bukkit.entity.Entity;
-////import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 
@@ -96,10 +90,6 @@ public class PlayerListener implements Listener {
 
             ConfigurationManager cfg = plugin.getGlobalStateManager();
             WorldConfiguration wcfg = cfg.get(world);
-
-            if (player.getVehicle() != null) {
-                return; // handled in vehicle listener
-            }
 
             if (wcfg.useRegions && wcfg.useSAC) {
                 // Did we move a block?
@@ -308,7 +298,7 @@ public class PlayerListener implements Listener {
             ApplicableRequestSet rqSet;
             RegionManager rgMgr;
             ProtectedRegion claim;
-            
+
             for (World world : plugin.getServer().getWorlds()) {
                 rqMgr = plugin.getGlobalRequestManager().get(world);
                 rqSet = rqMgr.getPlayerAccessRequests(player);
@@ -330,111 +320,5 @@ public class PlayerListener implements Listener {
         }
 
         plugin.forgetPlayer(player);
-    }
-
-    /**
-     * Called when a player right clicks a block.
-     *
-     * @param event Thrown event
-     */
-    private void handleBlockRightClick(PlayerInteractEvent event) {
-        if (event.isCancelled()) {
-            return;
-        }
-
-        Block block = event.getClickedBlock();
-        World world = block.getWorld();
-        int type = block.getTypeId();
-        Player player = event.getPlayer();
-        ItemStack item = player.getItemInHand();
-
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
-        WorldConfiguration wcfg = cfg.get(world);
-
-//        if (wcfg.useSAC) {
-//            Vector pt = toVector(block);
-//            RequestManager mgr = plugin.getGlobalRequestManager().get(world);
-//            Block placedIn = block.getRelative(event.getBlockFace());
-//            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
-//            ApplicableRequestSet placedInSet = mgr.getApplicableRequests(placedIn.getLocation());
-//            LocalPlayer localPlayer = plugin.wrapPlayer(player);
-//
-//            if (item.getTypeId() == wcfg.sacWand && plugin.hasPermission(player, "stakeaclaim.events.wand")) {
-//                if (set.size() > 0) {
-//                    player.sendMessage(ChatColor.YELLOW + "Can you build? "
-//                            + (set.canBuild(localPlayer) ? "Yes" : "No"));
-//
-//                    StringBuilder str = new StringBuilder();
-//                    for (Iterator<StakeRequest> it = set.iterator(); it.hasNext();) {
-//                        str.append(it.next().getId());
-//                        if (it.hasNext()) {
-//                            str.append(", ");
-//                        }
-//                    }
-//
-//                    player.sendMessage(ChatColor.YELLOW + "Applicable requests: " + str.toString());
-//                } else {
-//                    player.sendMessage(ChatColor.YELLOW + "StakeAClaim: No defined requests here!");
-//                }
-//
-//                event.setCancelled(true);
-//                return;
-//            }
-//        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerRespawn(PlayerRespawnEvent event) {
-//        Player player = event.getPlayer();
-//        Location location = player.getLocation();
-//
-//        ConfigurationManager cfg = plugin.getGlobalStateManager();
-//        WorldConfiguration wcfg = cfg.get(player.getWorld());
-//
-//        if (wcfg.useSAC) {
-//            Vector pt = toVector(location);
-//            RequestManager mgr = plugin.getGlobalRequestManager().get(player.getWorld());
-//            ApplicableRequestSet set = mgr.getApplicableRequests(pt);
-//
-//            LocalPlayer localPlayer = plugin.wrapPlayer(player);
-//            com.sk89q.worldedit.Location spawn = set.getFlag(DefaultFlag.SPAWN_LOC, localPlayer);
-//
-//            if (spawn != null) {
-//                event.setRespawnLocation(com.sk89q.worldedit.bukkit.BukkitUtil.toLocation(spawn));
-//            }
-//        }
-    }
-
-    @EventHandler(priority= EventPriority.LOW, ignoreCancelled = true)
-    public void onPlayerTeleport(PlayerTeleportEvent event) {
-//        World world = event.getFrom().getWorld();
-//        ConfigurationManager cfg = plugin.getGlobalStateManager();
-//        WorldConfiguration wcfg = cfg.get(world);
-//
-//        if (wcfg.useSAC) {
-//            if (event.getCause() == TeleportCause.ENDER_PEARL) {
-//                RequestManager mgr = plugin.getGlobalRequestManager().get(event.getFrom().getWorld());
-//                Vector pt = new Vector(event.getTo().getBlockX(), event.getTo().getBlockY(), event.getTo().getBlockZ());
-//                Vector ptFrom = new Vector(event.getFrom().getBlockX(), event.getFrom().getBlockY(), event.getFrom().getBlockZ());
-//                ApplicableRequestSet set = mgr.getApplicableRequests(pt);
-//                ApplicableRequestSet setFrom = mgr.getApplicableRequests(ptFrom);
-//                LocalPlayer localPlayer = plugin.wrapPlayer(event.getPlayer());
-//
-//                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world)
-//                        && !(set.allows(DefaultFlag.ENTRY, localPlayer)
-//                                && setFrom.allows(DefaultFlag.EXIT, localPlayer))) {
-//                    event.getPlayer().sendMessage(ChatColor.DARK_RED + "You're not allowed to go there.");
-//                    event.setCancelled(true);
-//                    return;
-//                }
-//                if (!plugin.getGlobalRequestManager().hasBypass(localPlayer, world)
-//                        && !(set.allows(DefaultFlag.ENDERPEARL, localPlayer)
-//                                && setFrom.allows(DefaultFlag.ENDERPEARL, localPlayer))) {
-//                    event.getPlayer().sendMessage(ChatColor.DARK_RED + "You're not allowed to go there.");
-//                    event.setCancelled(true);
-//                    return;
-//                }
-//            }
-//        }
     }
 }

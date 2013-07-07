@@ -50,7 +50,7 @@ public class StakeRequest implements Comparable<StakeRequest> {
         UNSTAKED,
         RECLAIMED
     }
-    
+
     public enum Access {
         ALLOW,
         DENY

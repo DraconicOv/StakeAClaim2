@@ -24,24 +24,15 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-//import java.util.ArrayList;
-//import java.util.Arrays;
-//import java.util.Iterator;
 import java.util.List;
-//import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 import org.bukkit.ChatColor;
-//import org.bukkit.Location;
 import org.bukkit.World;
-//import org.bukkit.World.Environment;
-//import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-//import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
-//import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -55,12 +46,8 @@ import com.sk89q.minecraft.util.commands.SimpleInjector;
 import com.sk89q.minecraft.util.commands.WrappedCommandException;
 import com.sk89q.wepif.PermissionsResolverManager;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-//import com.sk89q.worldguard.LocalPlayer;
-//import com.sk89q.worldguard.bukkit.BukkitPlayer;
-//import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.util.FatalConfigurationLoadingException;
 
-//import org.stakeaclaim.LocalPlayer;
 import org.stakeaclaim.bukkit.commands.AllCommands;
 import org.stakeaclaim.stakes.GlobalRequestManager;
 import org.stakeaclaim.stakes.RequestManager;
@@ -94,11 +81,6 @@ public class StakeAClaimPlugin extends JavaPlugin {
      */
     private FlagStateManager flagStateManager;
 
-//    /**
-//     * Used to avoid duplicate request IDs.
-//     */
-//    private long lastRequestID;
-
     /**
      * Construct objects. Actual loading occurs when the plugin is enabled, so
      * this merely instantiates the objects.
@@ -120,7 +102,6 @@ public class StakeAClaimPlugin extends JavaPlugin {
      * Called on plugin enable.
      */
     @Override
-//    @SuppressWarnings("deprecation")
     public void onEnable() {
 
         // Set the proper command injector
@@ -388,19 +369,4 @@ public class StakeAClaimPlugin extends JavaPlugin {
     public void forgetPlayer(Player player) {
         flagStateManager.forget(player);
     }
-
-//    /**
-//     * Gets the request manager for a world.
-//     *
-//     * @param world world to get the request manager for
-//     * @return the request manager or null if requests are not enabled
-//     */
-//    public RequestManager getRequestManager(World world) {
-//        if (!getGlobalStateManager().get(world).useRequests) {
-//            return null;
-//        }
-//
-//        return getGlobalRequestManager().get(world);
-//    }
-
 }

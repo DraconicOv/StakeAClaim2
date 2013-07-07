@@ -88,7 +88,7 @@ public class ApplicableRequestSet implements Iterable<StakeRequest> {
                     return null;
                 }
 
-                // Keep the oldest request, set the other request to unstaked
+                // Keep the oldest request, set the other requests to unstaked
                 if (oldestRequest.getRequestID() > request.getRequestID()) {
                     oldestRequest.setStatus(Status.UNSTAKED);
                     oldestRequest = request;
@@ -130,7 +130,7 @@ public class ApplicableRequestSet implements Iterable<StakeRequest> {
                     return null;
                 }
 
-                // Keep the oldest request, set the other request to unstaked
+                // Keep the newest request, set the other requests to unstaked
                 if (newestRequest.getRequestID() < request.getRequestID()) {
                     newestRequest.setStatus(Status.UNSTAKED);
                     newestRequest = request;

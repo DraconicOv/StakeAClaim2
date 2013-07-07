@@ -32,7 +32,7 @@ public abstract class AbstractStakeDatabase implements StakeDatabase {
         load();
         manager.setRequests(getRequests());
     }
-    
+
     /**
      * Save the list of requests from a request manager.
      * 
@@ -42,5 +42,4 @@ public abstract class AbstractStakeDatabase implements StakeDatabase {
         setRequests(manager.getRequests());
         save();
     }
-    
 }

@@ -148,7 +148,7 @@ public class ToolsCommands {
 
         LinkedHashMap<Integer, Long> requests = new LinkedHashMap<Integer, Long>();
         state.requestList = null;
-        
+
         ApplicableRequestSet rqSet = rqMgr.getRegionStatusRequests(regionID, Status.PENDING);
         final StakeRequest pendingRequest = rqSet.getPendingRegionRequest();
         rqSet = rqMgr.getRegionStatusRequests(regionID, Status.ACCEPTED);
@@ -181,7 +181,7 @@ public class ToolsCommands {
             min = 1, max = 1)
     @CommandPermissions("stakeaclaim.tools.accept")
     public void accept(CommandContext args, CommandSender sender) throws CommandException {
-        
+
         final Player player = plugin.checkPlayer(sender);
         final World world = player.getWorld();
 
@@ -200,7 +200,7 @@ public class ToolsCommands {
         if (requestToAccept.getStatus() != Status.PENDING) {
             throw new CommandException(ChatColor.YELLOW + "Sorry, this request is not pending.");
         }
-        
+
         // Get the region requested
         final ProtectedRegion claim = rgMgr.getRegion(requestToAccept.getRegionID());
 
@@ -224,7 +224,7 @@ public class ToolsCommands {
             min = 1, max = 1)
     @CommandPermissions("stakeaclaim.tools.deny")
     public void deny(CommandContext args, CommandSender sender) throws CommandException {
-        
+
         final Player player = plugin.checkPlayer(sender);
         final World world = player.getWorld();
 
@@ -239,7 +239,6 @@ public class ToolsCommands {
         if (requestToDeny.getStatus() != Status.PENDING) {
             throw new CommandException(ChatColor.YELLOW + "Sorry, this request is not pending.");
         }
-        
 
         // Deny the request
         requestToDeny.setStatus(Status.DENIED);
@@ -256,7 +255,7 @@ public class ToolsCommands {
             min = 1, max = 1)
     @CommandPermissions("stakeaclaim.tools.cancel")
     public void cancel(CommandContext args, CommandSender sender) throws CommandException {
-        
+
         final Player player = plugin.checkPlayer(sender);
         final World world = player.getWorld();
 
@@ -287,7 +286,7 @@ public class ToolsCommands {
             min = 1, max = 1)
     @CommandPermissions("stakeaclaim.tools.reclaim")
     public void reclaim(CommandContext args, CommandSender sender) throws CommandException {
-        
+
         final Player player = plugin.checkPlayer(sender);
         final World world = player.getWorld();
 
@@ -306,7 +305,7 @@ public class ToolsCommands {
         if (requestToReclaim.getStatus() != Status.ACCEPTED) {
             throw new CommandException(ChatColor.YELLOW + "Sorry, this request is not accepted.");
         }
-        
+
         // Get the region requested
         final ProtectedRegion claim = rgMgr.getRegion(requestToReclaim.getRegionID());
 
@@ -330,7 +329,7 @@ public class ToolsCommands {
             min = 0, max = 0)
     @CommandPermissions("stakeaclaim.tools.load")
     public void load(CommandContext args, CommandSender sender) throws CommandException {
-        
+
         final Player player = plugin.checkPlayer(sender);
         final World world = player.getWorld();
 
@@ -339,7 +338,7 @@ public class ToolsCommands {
         if (!wcfg.useRequests) {
             throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
         }
-        
+
         RequestManager mgr = plugin.getGlobalRequestManager().get(world);
 
         try {
@@ -358,7 +357,7 @@ public class ToolsCommands {
             min = 0, max = 0)
     @CommandPermissions("stakeaclaim.tools.save")
     public void save(CommandContext args, CommandSender sender) throws CommandException {
-        
+
         final Player player = plugin.checkPlayer(sender);
         final World world = player.getWorld();
 
@@ -367,7 +366,7 @@ public class ToolsCommands {
         if (!wcfg.useRequests) {
             throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
         }
-        
+
         saveRequests(world);
         sender.sendMessage(ChatColor.YELLOW + "Requests for '" + world.getName() + "' saved.");
     }
@@ -408,7 +407,7 @@ public class ToolsCommands {
     }
 
     public StakeRequest getRequestListItem(CommandContext args, CommandSender sender) throws CommandException {
-        
+
         final Player player = plugin.checkPlayer(sender);
         final World world = player.getWorld();
 

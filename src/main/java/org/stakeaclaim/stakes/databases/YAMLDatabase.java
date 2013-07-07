@@ -22,7 +22,6 @@ package org.stakeaclaim.stakes.databases;
 import java.io.File;
 import java.io.IOException;
 import java.io.FileNotFoundException;
-//import java.lang.NumberFormatException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -38,12 +37,6 @@ import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.Vector;
 
-//import org.stakeaclaim.domains.DefaultDomain;
-//import org.stakeaclaim.stakes.flags.DefaultFlag;
-//import org.stakeaclaim.stakes.flags.Flag;
-//import org.stakeaclaim.stakes.requests.GlobalRequest;
-//import org.stakeaclaim.stakes.requests.ProtectedCuboidRequest;
-//import org.stakeaclaim.stakes.requests.ProtectedPolygonalRequest;
 import org.stakeaclaim.stakes.StakeRequest;
 import org.stakeaclaim.stakes.StakeRequest.Access;
 import org.stakeaclaim.stakes.StakeRequest.Status;
@@ -170,5 +163,4 @@ public class YAMLDatabase extends AbstractStakeDatabase {
     public void setRequests(Map<Long, StakeRequest> requests) {
         this.requests = requests;
     }
-    
 }

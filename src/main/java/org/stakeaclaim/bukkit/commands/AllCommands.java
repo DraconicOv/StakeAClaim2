@@ -19,7 +19,7 @@
 
 package org.stakeaclaim.bukkit.commands;
 
-import org.bukkit.ChatColor;
+//import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import com.sk89q.minecraft.util.commands.Command;
@@ -30,7 +30,6 @@ import com.sk89q.minecraft.util.commands.NestedCommand;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 
 public class AllCommands {
-//    @SuppressWarnings("unused")
     private final StakeAClaimPlugin plugin;
 
     public AllCommands(StakeAClaimPlugin plugin) {

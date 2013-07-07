@@ -91,11 +91,9 @@ public class ConfigurationManager {
     /**
      * Load the configuration.
      */
-//    @SuppressWarnings("unchecked")
     public void load() {
         // Create the default configuration file
-        plugin.createDefaultConfiguration(
-                new File(plugin.getDataFolder(), "config.yml"), "config.yml");
+        plugin.createDefaultConfiguration(new File(plugin.getDataFolder(), "config.yml"), "config.yml");
 
         config = new YAMLProcessor(new File(plugin.getDataFolder(), "config.yml"), true, YAMLFormat.EXTENDED);
         try {

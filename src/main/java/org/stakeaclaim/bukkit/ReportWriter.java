@@ -38,20 +38,16 @@ import org.bukkit.plugin.Plugin;
 import com.sk89q.worldguard.util.LogListBlock;
 
 import org.stakeaclaim.stakes.GlobalRequestManager;
-//import org.stakeaclaim.stakes.flags.DefaultFlag;
-//import org.stakeaclaim.stakes.flags.Flag;
-//import org.stakeaclaim.stakes.flags.StateFlag;
 import org.stakeaclaim.stakes.RequestManager;
-//import org.stakeaclaim.stakes.StakeRequest;
 
 public class ReportWriter {
 
     private static final SimpleDateFormat dateFmt =
-        new SimpleDateFormat("yyyy-MM-dd kk:mm Z");
-    
+            new SimpleDateFormat("yyyy-MM-dd kk:mm Z");
+
     private Date date = new Date();
     private StringBuilder output = new StringBuilder();
-    
+
     public ReportWriter(StakeAClaimPlugin plugin) {
         appendReportHeader(plugin);
         appendServerInformation(plugin.getServer());
@@ -64,38 +60,38 @@ public class ReportWriter {
         appendln("END OF REPORT");
         appendln();
     }
-    
+
     protected static String repeat(String str, int n) {
         if(str == null) {
             return null;
         }
-        
+
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < n; i++) {
             sb.append(str);
         }
-        
+
         return sb.toString();
     }
-    
+
     protected void appendln(String text) {
         output.append(text);
         output.append("\r\n");
     }
-    
+
     protected void appendln(String text, Object ... args) {
         output.append(String.format(text, args));
         output.append("\r\n");
     }
-    
+
     protected void append(LogListBlock log) {
         output.append(log.toString());
     }
-    
+
     protected void appendln() {
         output.append("\r\n");
     }
-    
+
     protected void appendHeader(String text) {
         String rule = repeat("-", text.length());
         output.append(rule);
@@ -105,7 +101,7 @@ public class ReportWriter {
         output.append("\r\n");
         appendln();
     }
-    
+
     private void appendReportHeader(StakeAClaimPlugin plugin) {
         appendln("StakeAClaim Configuration Report");
         appendln("Generated " + dateFmt.format(date));
@@ -113,13 +109,13 @@ public class ReportWriter {
         appendln("Version: " + plugin.getDescription().getVersion());
         appendln();
     }
-    
+
     private void appendGlobalConfiguration(ConfigurationManager config) {
         appendHeader("Global Configuration");
-        
+
         LogListBlock log = new LogListBlock();
         LogListBlock configLog = log.putChild("Configuration");
-        
+
         Class<? extends ConfigurationManager> cls = config.getClass();
         for (Field field : cls.getFields()) {
             try {
@@ -131,16 +127,16 @@ public class ReportWriter {
             } catch (IllegalAccessException ignore) {
             }
         }
-        
+
         append(log);
         appendln();
     }
-    
+
     private void appendServerInformation(Server server) {
         appendHeader("Server Information");
-        
+
         LogListBlock log = new LogListBlock();
-        
+
         Runtime runtime = Runtime.getRuntime();
 
         log.put("Java", "%s %s (%s)",
@@ -165,23 +161,23 @@ public class ReportWriter {
         append(log);
         appendln();
     }
-    
+
     private void appendPluginInformation(Plugin[] plugins) {
         appendHeader("Plugins (" + plugins.length + ")");
-        
+
         LogListBlock log = new LogListBlock();
-        
+
         for (Plugin plugin : plugins) {
             log.put(plugin.getDescription().getName(), plugin.getDescription().getVersion());
         }
 
         append(log);
         appendln();
-        
+
         /*appendHeader("Plugin Information");
-        
+
         log = new LogListBlock();
-        
+
         for (Plugin plugin : plugins) {
             log.putChild(plugin.getDescription().getName())
                 .put("Data folder", plugin.getDataFolder())
@@ -192,20 +188,20 @@ public class ReportWriter {
         append(log);
         appendln();*/
     }
-    
+
     private void appendWorldInformation(List<World> worlds) {
         appendHeader("Worlds");
-        
+
         LogListBlock log = new LogListBlock();
-        
+
         int i = 0;
         for (World world : worlds) {
             int loadedChunkCount = world.getLoadedChunks().length;
-            
+
             LogListBlock worldLog = log.putChild(world.getName() + " (" +  i + ")");
             LogListBlock infoLog = worldLog.putChild("Information");
             LogListBlock entitiesLog = worldLog.putChild("Entities");
-            
+
             infoLog.put("Seed", world.getSeed());
             infoLog.put("Environment", world.getEnvironment().toString());
             infoLog.put("Player count", world.getPlayers().size());
@@ -213,21 +209,21 @@ public class ReportWriter {
             infoLog.put("Loaded chunk count", loadedChunkCount);
             infoLog.put("Spawn location", world.getSpawnLocation());
             infoLog.put("Raw time", world.getFullTime());
-            
+
             Map<Class<? extends Entity>, Integer> entityCounts =
                     new HashMap<Class<? extends Entity>, Integer>();
-            
+
             // Collect entities
             for (Entity entity : world.getEntities()) {
                 Class<? extends Entity> cls = entity.getClass();
-                
+
                 if (entityCounts.containsKey(cls)) {
                     entityCounts.put(cls, entityCounts.get(cls) + 1);
                 } else {
                     entityCounts.put(cls, 1);
                 }
             }
-            
+
             // Print entities
             for (Map.Entry<Class<? extends Entity>, Integer> entry
                     : entityCounts.entrySet()) {
@@ -236,18 +232,18 @@ public class ReportWriter {
                         entry.getValue(),
                         (float) (entry.getValue() / (double) loadedChunkCount));
             }
-            
+
             i++;
         }
 
         append(log);
         appendln();
     }
-    
+
     private void appendWorldConfigurations(StakeAClaimPlugin plugin, List<World> worlds,
             GlobalRequestManager requestMgr, ConfigurationManager mgr) {
         appendHeader("World Configurations");
-        
+
         LogListBlock log = new LogListBlock();
 
         int i = 0;
@@ -255,19 +251,16 @@ public class ReportWriter {
             LogListBlock worldLog = log.putChild(world.getName() + " (" +  i + ")");
             LogListBlock infoLog = worldLog.putChild("Information");
             LogListBlock configLog = worldLog.putChild("Configuration");
-//            LogListBlock blacklistLog = worldLog.putChild("Blacklist");
             LogListBlock requestsLog = worldLog.putChild("Request manager");
 
             infoLog.put("Configuration file", (new File(plugin.getDataFolder(), "worlds/"
                     + world.getName() + "/config.yml")).getAbsoluteFile());
 
-//            infoLog.put("Blacklist file", (new File(plugin.getDataFolder(), "worlds/"
-//                    + world.getName() + "/blacklist.txt")).getAbsoluteFile());
             infoLog.put("Requests file", (new File(plugin.getDataFolder(), "worlds/"
                     + world.getName() + "/requests.yml")).getAbsoluteFile());
-            
+
             WorldConfiguration config = mgr.get(world);
-            
+
             Class<? extends WorldConfiguration> cls = config.getClass();
             for (Field field : cls.getFields()) {
                 try {
@@ -278,44 +271,23 @@ public class ReportWriter {
                 } catch (IllegalAccessException ignore) {
                 }
             }
-            
-//            if (config.getBlacklist() == null) {
-//                blacklistLog.put("State", "DISABLED");
-//            } else {
-//                blacklistLog.put("State", "Enabled");
-//                blacklistLog.put("Number of items",
-//                        config.getBlacklist().getItemCount());
-//                blacklistLog.put("Is whitelist",
-//                        config.getBlacklist().isWhitelist());
-//            }
 
             RequestManager worldRequests = requestMgr.get(world);
 
             requestsLog.put("Type", worldRequests.getClass().getCanonicalName());
             requestsLog.put("Number of requests", worldRequests.getRequests().size());
             LogListBlock globalRequestLog = requestsLog.putChild("Global request");
-            
-//            StakeRequest globalRequest = worldRequests.getRequest("__global__");
-//            if (globalRequest == null) {
-//                globalRequestLog.put("Status", "UNDEFINED");
-//            } else {
-//                for (Flag<?> flag : DefaultFlag.getFlags()) {
-//                    if (flag instanceof StateFlag) {
-//                        globalRequestLog.put(flag.getName(),
-//                                globalRequest.getFlag(flag));
-//                    }
-//                }
-//            }
+
         }
 
         append(log);
         appendln();
     }
-    
+
     public void write(File file) throws IOException {
         FileWriter writer = null;
         BufferedWriter out;
-        
+
         try {
             writer = new FileWriter(file);
             out = new BufferedWriter(writer);
@@ -330,7 +302,7 @@ public class ReportWriter {
             }
         }
     }
-    
+
     @Override
     public String toString() {
         return output.toString();

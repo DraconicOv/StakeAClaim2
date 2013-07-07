@@ -135,7 +135,7 @@ public class ClaimCommands {
         // Check if there are any pending requests for this claim
         rqSet = rqMgr.getRegionStatusRequests(regionID, Status.PENDING);
         final StakeRequest pendingRequest = rqSet.getPendingRegionRequest();
-        
+
         // Throw an exception for a pending claim by another player
         if (pendingRequest != null) {
             if (!pendingRequest.getPlayerName().equals(player.getName().toLowerCase())) {
@@ -231,7 +231,7 @@ public class ClaimCommands {
             min = 0, max = 0)
     @CommandPermissions("stakeaclaim.claim.confirm")
     public void confirm(CommandContext args, CommandSender sender) throws CommandException {
-        
+
         final Player player = plugin.checkPlayer(sender);
         final World world = player.getWorld();
 
@@ -240,7 +240,7 @@ public class ClaimCommands {
         if (!wcfg.useRequests) {
             throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
         }
-        
+
         final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
         ApplicableRequestSet rqSet;
         final RegionManager rgMgr = WGBukkit.getRegionManager(world);
@@ -346,7 +346,7 @@ public class ClaimCommands {
         if (!wcfg.useRegions) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
-        
+
         final ProtectedRegion claim = getClaimStandingIn(player);
         final String regionID = claim.getId();
 
@@ -380,7 +380,7 @@ public class ClaimCommands {
         final String regionID = claim.getId();
 
         checkPerm(player, "remove", claim);
-        
+
         if (args.hasFlag('a')) {
             claim.getMembers().getPlayers().clear();
             claim.getMembers().getGroups().clear();

@@ -24,21 +24,13 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
-//import org.bukkit.Location;
 import org.bukkit.World;
-//import org.bukkit.block.Block;
-//import org.bukkit.entity.Player;
 
-//import org.stakeaclaim.LocalPlayer;
-//import org.stakeaclaim.bukkit.BukkitUtil;
 import org.stakeaclaim.bukkit.ConfigurationManager;
-//import org.stakeaclaim.bukkit.WorldConfiguration;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
-//import org.stakeaclaim.stakes.databases.MySQLDatabase;
 import org.stakeaclaim.stakes.databases.StakeDatabase;
 import org.stakeaclaim.stakes.databases.StakeDatabaseException;
 import org.stakeaclaim.stakes.databases.YAMLDatabase;
-//import org.stakeaclaim.stakes.RequestManager;
 
 /**
  * This class keeps track of request information for every world. It loads
@@ -136,20 +128,14 @@ public class GlobalRequestManager {
      */
     public RequestManager create(World world) {
         String name = world.getName();
-//        boolean sql = config.useSqlDatabase;
         StakeDatabase database;
         File file = null;
 
         try {
-//            if (!sql) {
-                file = getPath(name);
-                database = new YAMLDatabase(file, plugin.getLogger());
+            file = getPath(name);
+            database = new YAMLDatabase(file, plugin.getLogger());
 
-                // Store the last modification date so we can track changes
-                lastModified.put(name, file.lastModified());
-//            } else {
-//                database = new MySQLDatabase(config, name, plugin.getLogger());
-//            }
+            lastModified.put(name, file.lastModified());
 
             // Create a manager
             RequestManager manager = new RequestManager(database);
@@ -163,11 +149,7 @@ public class GlobalRequestManager {
             return manager;
         } catch (StakeDatabaseException e) {
             String logStr = "Failed to load requests from ";
-//            if (sql) {
-//                logStr += "SQL Database <" + config.sqlDsn + "> ";
-//            } else {
-                logStr += "file \"" + file + "\" ";
-//            }
+            logStr += "file \"" + file + "\" ";
 
             plugin.getLogger().log(Level.SEVERE, logStr + " : " + e.getMessage());
             e.printStackTrace();
@@ -177,7 +159,6 @@ public class GlobalRequestManager {
             e.printStackTrace();
         }
 
-        // @TODO: THIS CREATES PROBLEMS!!one!!1!!eleven!!1!!!
         return null;
     }
 
@@ -196,7 +177,6 @@ public class GlobalRequestManager {
      * have changed.
      */
     public void reloadChanged() {
-//        if (config.useSqlDatabase) return;
 
         for (String name : managers.keySet()) {
             File file = getPath(name);
@@ -240,129 +220,4 @@ public class GlobalRequestManager {
 
         return manager;
     }
-
-//    /**
-//     * Returns whether the player can bypass.
-//     *
-//     * @param player The player to check
-//     * @param world The world to check for
-//     * @return Whether {@code player} has bypass permission for {@code world}
-//     */
-//    public boolean hasBypass(LocalPlayer player, World world) {
-//        return player.hasPermission("stakeaclaim.request.bypass."
-//                        + world.getName());
-//    }
-//
-//    /**
-//     * Returns whether the player can bypass.
-//     *
-//     * @param player The player to check
-//     * @param world The world to check
-//     * @return Whether {@code player} has bypass permission for {@code world}
-//     */
-//    public boolean hasBypass(Player player, World world) {
-//        return plugin.hasPermission(player, "stakeaclaim.request.bypass."
-//                + world.getName());
-//    }
-//
-//    /**
-//     * Check if a player has permission to build at a block.
-//     *
-//     * @param player The player to check
-//     * @param block The block to check at
-//     * @return Whether {@code player} can build at {@code block}'s location
-//     */
-//    public boolean canBuild(Player player, Block block) {
-//        return canBuild(player, block.getLocation());
-//    }
-//
-//    /**
-//     * Check if a player has permission to build at a location.
-//     *
-//     * @param player The player to check
-//     * @param loc The location to check
-//     * @return Whether {@code player} can build at {@code loc}
-//     */
-//    public boolean canBuild(Player player, Location loc) {
-//        World world = loc.getWorld();
-//        WorldConfiguration worldConfig = config.get(world);
-//
-//        if (!worldConfig.useSAC) {
-//            return true;
-//        }
-//
-//        LocalPlayer localPlayer = plugin.wrapPlayer(player);
-//
-//        if (!hasBypass(player, world)) {
-//            RequestManager mgr = get(world);
-//
-//            if (!mgr.getApplicableRequests(BukkitUtil.toVector(loc))
-//                    .canBuild(localPlayer)) {
-//                return false;
-//            }
-//        }
-//
-//        return true;
-//    }
-//
-//    public boolean canConstruct(Player player, Block block) {
-//        return canConstruct(player, block.getLocation());
-//    }
-//
-//    public boolean canConstruct(Player player, Location loc) {
-//        World world = loc.getWorld();
-//        WorldConfiguration worldConfig = config.get(world);
-//
-//        if (!worldConfig.useSAC) {
-//            return true;
-//        }
-//
-//        LocalPlayer localPlayer = plugin.wrapPlayer(player);
-//
-//        if (!hasBypass(player, world)) {
-//            RequestManager mgr = get(world);
-//
-//            final ApplicableRequestSet applicableRequests = mgr.getApplicableRequests(BukkitUtil.toVector(loc));
-//            if (!applicableRequests.canBuild(localPlayer)) {
-//                return false;
-//            }
-//            if (!applicableRequests.canConstruct(localPlayer)) {
-//                return false;
-//            }
-//        }
-//
-//        return true;
-//    }
-//
-//    /**
-//     * Checks to see whether a flag is allowed.
-//     *
-//     * @see #allows(org.stakeaclaim.stakes.flags.StateFlag, org.bukkit.Location, org.stakeaclaim.LocalPlayer)
-//     * @param flag The flag to check
-//     * @param loc The location to check the flag at
-//     * @return Whether the flag is allowed
-//     */
-//    public boolean allows(StateFlag flag, Location loc) {
-//        return allows(flag, loc, null);
-//    }
-//
-//    /**
-//     * Checks to see whether a flag is allowed.
-//     *
-//     * @param flag The flag to check
-//     * @param loc The location to check the flag at
-//     * @param player The player to check for the flag's {@link org.stakeaclaim.stakes.flags.RequestGroup}
-//     * @return Whether the flag is allowed
-//     */
-//    public boolean allows(StateFlag flag, Location loc, LocalPlayer player) {
-//        World world = loc.getWorld();
-//        WorldConfiguration worldConfig = config.get(world);
-//
-//        if (!worldConfig.useSAC) {
-//            return true;
-//        }
-//
-//        RequestManager mgr = get(world);
-//        return mgr.getApplicableRequests(toVector(loc)).allows(flag, player);
-//    }
 }
