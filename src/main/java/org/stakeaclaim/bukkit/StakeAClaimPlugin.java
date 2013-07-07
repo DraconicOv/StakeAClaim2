@@ -260,45 +260,6 @@ public class StakeAClaimPlugin extends JavaPlugin {
     }
 
     /**
-     * Match a world.
-     *
-     * @param sender The sender requesting a match
-     * @param filter The filter string
-     * @return The resulting world
-     * @throws CommandException if no world matches
-     */
-    public World matchWorld(CommandSender sender, String filter) throws CommandException {
-        List<World> worlds = getServer().getWorlds();
-
-        for (World world : worlds) {
-            if (world.getName().equals(filter)) {
-                return world;
-            }
-        }
-
-        throw new CommandException("No world by that exact name found.");
-    }
-
-    /**
-     * Gets a copy of the WorldEdit plugin.
-     *
-     * @return The WorldEditPlugin instance
-     * @throws CommandException If there is no WorldEditPlugin available
-     */
-    public WorldEditPlugin getWorldEdit() throws CommandException {
-        Plugin worldEdit = getServer().getPluginManager().getPlugin("WorldEdit");
-        if (worldEdit == null) {
-            throw new CommandException("WorldEdit does not appear to be installed.");
-        }
-
-        if (worldEdit instanceof WorldEditPlugin) {
-            return (WorldEditPlugin) worldEdit;
-        } else {
-            throw new CommandException("WorldEdit detection failed (report error).");
-        }
-    }
-
-    /**
      * Create a default configuration file from the .jar.
      *
      * @param actual The destination file
