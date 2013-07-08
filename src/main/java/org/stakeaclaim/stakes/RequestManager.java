@@ -160,6 +160,25 @@ public class RequestManager {
     }
 
     /**
+     * Get a set of requests by {@code playerName) that are (@code status)
+     * 
+     * @param playerName the name of the player whose requests to get
+     * @param status the status of the requests
+     * @return request set
+     */
+    public ApplicableRequestSet getPlayerStatusRequests(String playerName, Status status) {
+        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
+
+        for (StakeRequest request : requests.values()) {
+            if (request.getPlayerName().equals(playerName) && request.getStatus() == status) {
+                appRequests.add(request);
+            }
+        }
+
+        return new ApplicableRequestSet(appRequests);
+    }
+
+    /**
      * Get a set of accepted requests by {@code player) that are (@code access)
      * 
      * @param player the player whose requests to get

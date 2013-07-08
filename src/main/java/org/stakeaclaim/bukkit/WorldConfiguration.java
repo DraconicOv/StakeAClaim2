@@ -60,9 +60,10 @@ public class WorldConfiguration {
     public int sacWand;
     public String claimNameFilter;
     public boolean useReclaimed;
+    public boolean claimLimitsAreArea;
     public double selfClaimMax;
     public double claimMax;
-    public boolean claimLimitsAreArea;
+    public double proxyClaimMax;
     public boolean showReclaimOnStake;
     public boolean twoStepSelfClaim;
     public boolean createRequest;
@@ -162,9 +163,10 @@ public class WorldConfiguration {
         sacWand = getInt("wand", 288); // Feather
         claimNameFilter = getString("claim-name-regex-filter-string", "^[NSns]\\d\\d?[EWew]\\d\\d?$"); // match eg. s2w45
         useReclaimed = getBoolean("set-status-to-reclaimed-on-reclaim", true);
-        selfClaimMax = getDouble("claiming.max-claims-a-player-can-stake-on-their-own", 1);
-        claimMax = getDouble("claiming.max-claims-a-player-can-own", -1);
         claimLimitsAreArea = getBoolean("claiming.claim-max-is-in-area-of-claims", false);
+        selfClaimMax = getDouble("claiming.max-claims-a-player-can-stake-on-their-own", 1);
+        claimMax = getDouble("claiming.max-claims-a-player-can-request", 3);
+        proxyClaimMax = getDouble("claiming.max-claims-a-proxy-can-request", -1);
         showReclaimOnStake = getBoolean("claiming.show-past-reclaimed-note", true);
         twoStepSelfClaim = getBoolean("claiming.players-need-to-confirm-when-self-accepting", true);
         createRequest = getBoolean("error-handling.create-request-for-claims-with-an-owner", true);

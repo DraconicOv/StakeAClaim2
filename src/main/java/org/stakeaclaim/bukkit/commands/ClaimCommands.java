@@ -66,7 +66,7 @@ public class ClaimCommands {
             usage = "",
             desc = "Get information about a claim",
             min = 0, max = 0)
-    @CommandPermissions("stakeaclaim.claim.info")
+    @CommandPermissions("stakeaclaim.claim.info.*")
     public void info(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
@@ -331,11 +331,11 @@ public class ClaimCommands {
         saveRequests(world);
     }
 
-    @Command(aliases = {"add", "addmember", "addmembers", "ad", "a"},
+    @Command(aliases = {"add", "a"},
             usage = "<members...>",
             desc = "Add a member to a claim",
             min = 1)
-    @CommandPermissions("stakeaclaim.claim.add")
+    @CommandPermissions("stakeaclaim.claim.add.*")
     public void add(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
@@ -359,12 +359,12 @@ public class ClaimCommands {
         saveRegions(world);
     }
 
-    @Command(aliases = {"remove", "removemember", "removemembers", "r"},
+    @Command(aliases = {"remove", "r"},
             usage = "<members...>",
             flags = "a:",
             desc = "Remove a member from a claim",
             min = 1)
-    @CommandPermissions("stakeaclaim.claim.remove")
+    @CommandPermissions("stakeaclaim.claim.remove.*")
     public void remove(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
@@ -396,11 +396,11 @@ public class ClaimCommands {
         saveRegions(world);
     }
 
-    @Command(aliases = {"private", "p"},
+    @Command(aliases = {"private", "v"},
             usage = "",
             desc = "Set a claim to private",
             min = 0, max = 0)
-    @CommandPermissions("stakeaclaim.claim.private")
+    @CommandPermissions("stakeaclaim.claim.private.*")
     public void setprivate(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
@@ -424,11 +424,11 @@ public class ClaimCommands {
         saveRegions(world);
     }
 
-    @Command(aliases = {"open", "o", "public"},
+    @Command(aliases = {"open", "o"},
             usage = "",
             desc = "Set a claim to open",
             min = 0, max = 0)
-    @CommandPermissions("stakeaclaim.claim.open")
+    @CommandPermissions("stakeaclaim.claim.open.*")
     public void open(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);

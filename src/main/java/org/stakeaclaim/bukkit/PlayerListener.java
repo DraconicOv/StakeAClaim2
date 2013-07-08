@@ -223,6 +223,7 @@ public class PlayerListener implements Listener {
                     activePlayer.sendMessage(ChatColor.YELLOW + "Do " + ChatColor.WHITE + "/tools proxy" + 
                             ChatColor.YELLOW + " to stake that claim for them.");
                     state.unsubmittedRequest = new StakeRequest(regionID, passivePlayer);
+                    state.unsubmittedRequest.setStatus(Status.PENDING);
                 } else {
                     state.unsubmittedRequest = null;
                 }

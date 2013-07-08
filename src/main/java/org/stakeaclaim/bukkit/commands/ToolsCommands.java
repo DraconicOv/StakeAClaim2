@@ -34,6 +34,7 @@ import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
+import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
@@ -314,7 +315,12 @@ public class ToolsCommands {
         claim.getOwners().getGroups().clear();
         claim.getMembers().getPlayers().clear();
         claim.getMembers().getGroups().clear();
-        requestToReclaim.setStatus(Status.RECLAIMED);
+        if (wcfg.useReclaimed) {
+            requestToReclaim.setStatus(Status.RECLAIMED);
+        } else {
+            requestToReclaim.setStatus(Status.UNSTAKED);
+        }
+        requestToReclaim.setAccess(null);
 
         sender.sendMessage(ChatColor.YELLOW + "You have reclaimed " + ChatColor.WHITE + requestToReclaim.getRegionID() +
                 ChatColor.YELLOW + " from " + ChatColor.GREEN + requestToReclaim.getPlayerName() + ChatColor.YELLOW + "!");
@@ -323,7 +329,115 @@ public class ToolsCommands {
         saveRegions(world);
     }
 
-    @Command(aliases = {"load", "reload", "l"},
+    @Command(aliases = {"proxy", "x"},
+            usage = "",
+            desc = "Stake their claim",
+            min = 0, max = 0)
+    @CommandPermissions("stakeaclaim.tools.proxy")
+    public void proxy(CommandContext args, CommandSender sender) throws CommandException {
+
+        final Player activePlayer = plugin.checkPlayer(sender);
+        final World world = activePlayer.getWorld();
+        final ConfigurationManager cfg = plugin.getGlobalStateManager();
+        final WorldConfiguration wcfg = cfg.get(world);
+        if (!wcfg.useRequests) {
+            throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
+        }
+
+        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        if (rgMgr == null) {
+            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
+        }
+
+        final PlayerFlagState state = plugin.getFlagStateManager().getState(activePlayer);
+        if (state.unsubmittedRequest == null) {
+            throw new CommandException(ChatColor.YELLOW + "No player to proxy for.");
+        }
+        final StakeRequest unsubmittedRequest = state.unsubmittedRequest;
+        final String regionID = unsubmittedRequest.getRegionID();
+        final String passivePlayer = unsubmittedRequest.getPlayerName();
+        final ProtectedRegion claim = rgMgr.getRegion(regionID);
+
+        final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
+        ApplicableRequestSet rqSet;
+        ProtectedRegion region;
+
+
+        // Check if there are any pending requests for this claim
+        rqSet = rqMgr.getRegionStatusRequests(regionID, Status.PENDING);
+        final StakeRequest pendingRequest = rqSet.getPendingRegionRequest();
+
+        // Throw an exception for a pending claim by another player
+        if (pendingRequest != null) {
+            if (!pendingRequest.getPlayerName().equals(passivePlayer)) {
+                saveRequests(world);
+                throw new CommandException(ChatColor.YELLOW + "This claim is already requested by " +
+                        ChatColor.GREEN + pendingRequest.getPlayerName() + ".");
+            }
+        }
+
+        // Check if there are any accepted requests for this claim
+        rqSet = rqMgr.getRegionStatusRequests(regionID, Status.ACCEPTED);
+        final StakeRequest acceptedRequest = rqSet.getAcceptedRequest(rgMgr);
+
+        // Throw an exception for a pre-owned claim
+        if (acceptedRequest != null) {
+            saveRequests(world);
+            if (acceptedRequest.getPlayerName().equals(passivePlayer)) {
+                throw new CommandException(ChatColor.GREEN + passivePlayer + ChatColor.YELLOW + " already owns this claim.");
+            }
+            throw new CommandException(ChatColor.YELLOW + "This claim is already owned by " + 
+                    ChatColor.GREEN + acceptedRequest.getPlayerName() + ".");
+        }
+
+        // Check if this would be over the proxyClaimMax
+        rqSet = rqMgr.getPlayerStatusRequests(passivePlayer, Status.ACCEPTED);
+        boolean claimWasReclaimed = false;
+
+        if (wcfg.claimLimitsAreArea) {
+            double area = getArea(claim);
+            for (StakeRequest request : rqSet) {
+                region = rgMgr.getRegion(request.getRegionID());
+                area = area + getArea(region);
+            }
+            if (area > wcfg.proxyClaimMax && wcfg.proxyClaimMax != -1) {
+                throw new CommandException(ChatColor.YELLOW + "This claim would put " + ChatColor.GREEN + passivePlayer + 
+                        ChatColor.YELLOW + " over the maximum claim area.");
+            }
+        } else {
+            if (rqSet.size() + 1 > wcfg.proxyClaimMax && wcfg.proxyClaimMax != -1) {
+                throw new CommandException(ChatColor.GREEN + passivePlayer + ChatColor.YELLOW + " has already claimed the maximum number of claims.");
+            }
+        }
+
+        // Set all old pending requests for (@code passivePlayer) to unstaked
+        rqSet = rqMgr.getPlayerStatusRequests(passivePlayer, Status.PENDING);
+        for (StakeRequest request : rqSet) {
+            request.setStatus(Status.UNSTAKED);
+        }
+
+        // Submit request
+        rqMgr.addRequest(unsubmittedRequest);
+
+        // Check if we need to show a reclaimed notification
+        rqSet = rqMgr.getRegionStatusRequests(regionID, Status.RECLAIMED);
+        if (rqSet.size() > 0 && wcfg.showReclaimOnStake) {
+            claimWasReclaimed = true;
+        }
+
+        // Display result
+        if (claimWasReclaimed) {
+            sender.sendMessage(ChatColor.RED + "note: " + ChatColor.WHITE + regionID + 
+                    ChatColor.YELLOW + " was claimed in the past and may not be pristine.");
+        }
+        sender.sendMessage(ChatColor.GREEN + passivePlayer + ChatColor.YELLOW + "'s stake request for " + ChatColor.WHITE + regionID + 
+                ChatColor.YELLOW + " is pending.");
+
+        saveRequests(world);
+        saveRegions(world);
+    }
+
+    @Command(aliases = {"load", "reload"},
             usage = "",
             desc = "Reload requests from file",
             min = 0, max = 0)
@@ -351,7 +465,7 @@ public class ToolsCommands {
         }
     }
 
-    @Command(aliases = {"save", "write", "s"},
+    @Command(aliases = {"save", "write"},
             usage = "",
             desc = "Re-save requests to file",
             min = 0, max = 0)
@@ -404,6 +518,13 @@ public class ToolsCommands {
             throw new CommandException("You are not in a single valid claim!");
         }
         return claim;
+    }
+
+    public double getArea(ProtectedRegion region) throws CommandException {
+        final BlockVector min = region.getMinimumPoint();
+        final BlockVector max = region.getMaximumPoint();
+
+        return (max.getBlockZ() - min.getBlockZ() + 1) * (max.getBlockX() - min.getBlockX() + 1);
     }
 
     public StakeRequest getRequestListItem(CommandContext args, CommandSender sender) throws CommandException {
