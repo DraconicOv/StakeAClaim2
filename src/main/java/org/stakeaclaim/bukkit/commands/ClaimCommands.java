@@ -141,6 +141,8 @@ public class ClaimCommands {
             final StakeRequest pendingRequest = SACUtil.getRegionPendingRequest(rqMgr, regionID);
             if (pendingRequest != null) {
                 if (!pendingRequest.getPlayerName().equals(player.getName().toLowerCase())) {
+                    saveRequests(world);
+                    saveRegions(world);
                     throw new CommandException(ChatColor.YELLOW + "This claim is already requested by " +
                             ChatColor.GREEN + pendingRequest.getPlayerName() + ".");
                 }
@@ -152,6 +154,7 @@ public class ClaimCommands {
                 request.setStatus(Status.UNSTAKED);
             }
             final StakeRequest acceptedRequest = SACUtil.fixRegionsRequests(rqMgr, claim, wcfg.useReclaimed);
+            saveRequests(world);
             if (acceptedRequest == null) {
                 throw new CommandException(ChatColor.RED + "Error in " + ChatColor.WHITE + regionID + 
                         ChatColor.RED + ", please notify admin!");
@@ -247,12 +250,13 @@ public class ClaimCommands {
             throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
         }
 
-        final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
-        ArrayList<StakeRequest> requestList;
         final RegionManager rgMgr = WGBukkit.getRegionManager(world);
         if (rgMgr == null) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
+
+        final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
+        ArrayList<StakeRequest> requestList;
 
         // Get the request the player will confirm
         final StakeRequest requestToConfirm = SACUtil.getPlayerPendingRequest(rqMgr, player);
@@ -261,6 +265,10 @@ public class ClaimCommands {
         }
 
         final ProtectedRegion claim = rgMgr.getRegion(requestToConfirm.getRegionID());
+        int ownedCode = SACUtil.isRegionOwned(claim);
+        if (ownedCode != 0) {
+            throw new CommandException(ChatColor.YELLOW + "Sorry, this claim is not open.");
+        }
 
         // Check if this would be over the selfClaimMax
         final ArrayList<ProtectedRegion> regionList = SACUtil.getOwnedRegions(rgMgr, player);
@@ -286,11 +294,12 @@ public class ClaimCommands {
             owners[0] = requestToConfirm.getPlayerName();
 
             RegionDBUtil.addToDomain(claim.getOwners(), owners, 0);
-            saveRegions(world);
             requestToConfirm.setStatus(Status.ACCEPTED);
-            saveRequests(world);
 
             sender.sendMessage(ChatColor.YELLOW + "You have staked your claim in " + ChatColor.WHITE + requestToConfirm.getRegionID() + "!");
+
+            saveRegions(world);
+            saveRequests(world);
         } else {
             throw new CommandException(ChatColor.YELLOW + "You can't confirm your own pending requests!");
         }
@@ -325,9 +334,8 @@ public class ClaimCommands {
             sender.sendMessage(ChatColor.YELLOW + "You had no pending stake request.");
         } else {
             sender.sendMessage(ChatColor.YELLOW + "Your stake request has been canceled.");
+            saveRequests(world);
         }
-
-        saveRequests(world);
     }
 
     @Command(aliases = {"add", "a"},
@@ -353,7 +361,8 @@ public class ClaimCommands {
 
         RegionDBUtil.addToDomain(claim.getMembers(), args.getPaddedSlice(1, 0), 0);
 
-        sender.sendMessage(ChatColor.YELLOW + "Added " + ChatColor.GREEN + args.getJoinedStrings(0) + ChatColor.YELLOW + " to claim: " + ChatColor.WHITE + regionID + ".");
+        sender.sendMessage(ChatColor.YELLOW + "Added " + ChatColor.GREEN + args.getJoinedStrings(0) + 
+                ChatColor.YELLOW + " to claim: " + ChatColor.WHITE + regionID + ".");
 
         saveRegions(world);
     }
@@ -383,14 +392,16 @@ public class ClaimCommands {
         if (args.hasFlag('a')) {
             claim.getMembers().getPlayers().clear();
             claim.getMembers().getGroups().clear();
+            sender.sendMessage(ChatColor.YELLOW + "Removed all members from claim: " + ChatColor.WHITE + regionID + ".");
         } else {
             if (args.argsLength() < 1) {
                 throw new CommandException("List some names to remove, or use -a to remove all.");
             }
             RegionDBUtil.removeFromDomain(claim.getMembers(), args.getPaddedSlice(1, 0), 0);
-        }
 
-        sender.sendMessage(ChatColor.YELLOW + "Removed " + ChatColor.GREEN + args.getJoinedStrings(0) + ChatColor.YELLOW + " from claim: " + ChatColor.WHITE + regionID + ".");
+            sender.sendMessage(ChatColor.YELLOW + "Removed " + ChatColor.GREEN + args.getJoinedStrings(0) + 
+                    ChatColor.YELLOW + " from claim: " + ChatColor.WHITE + regionID + ".");
+        }
 
         saveRegions(world);
     }

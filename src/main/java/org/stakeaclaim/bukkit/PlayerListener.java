@@ -54,6 +54,7 @@ import org.stakeaclaim.stakes.RequestManager;
 import org.stakeaclaim.stakes.StakeRequest;
 import org.stakeaclaim.stakes.StakeRequest.Access;
 import org.stakeaclaim.stakes.StakeRequest.Status;
+import org.stakeaclaim.stakes.databases.StakeDatabaseException;
 
 /**
  * Handles all events thrown in relation to a player.
@@ -234,6 +235,12 @@ public class PlayerListener implements Listener {
 
                 final StakeRequest pendingRequest = SACUtil.getPlayerPendingRequest(rqMgr, passivePlayer);
                 final ArrayList<StakeRequest> requestList = SACUtil.getAcceptedRequests(rqMgr, rgMgr, passivePlayer, wcfg.useReclaimed);
+                try {
+                    rqMgr.save();
+                } catch (StakeDatabaseException e) {
+                    activePlayer.sendMessage(ChatColor.RED + "Failed to write requests: " + e.getMessage());
+                    return;
+                }
 
                 int index = 0;
                 if (pendingRequest != null) {

@@ -26,7 +26,6 @@ import java.util.Map;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-//import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.protection.databases.ProtectionDatabaseException;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
@@ -71,6 +70,16 @@ public class SACUtil {
                 checkRequests(rqMgr, rgMgr, wcfg.useReclaimed);
                 checkRegions(rqMgr, rgMgr, wcfg.useReclaimed);
 
+                try {
+                    rgMgr.save();
+                } catch (ProtectionDatabaseException e) {
+//                    throw new CommandException("Failed to write regions: " + e.getMessage());
+                }
+                try {
+                    rqMgr.save();
+                } catch (StakeDatabaseException e) {
+//                    throw new CommandException("Failed to write requests: " + e.getMessage());
+                }
             }
         }
     }
@@ -103,8 +112,22 @@ public class SACUtil {
                 }
             }
         }
-        save(rqMgr);
-        save(rgMgr);
+    }
+
+    /**
+     * Reclaim region and request
+     * 
+     * @param request the request to reclaim
+     * @param region the region to reclaim
+     * @param useReclaimed boolean config value
+     */
+    public static void reclaim(StakeRequest request, ProtectedRegion region, boolean useReclaimed) {
+        reclaim(request, useReclaimed);
+        region.getOwners().getPlayers().clear();
+        region.getOwners().getGroups().clear();
+        region.getMembers().getPlayers().clear();
+        region.getMembers().getGroups().clear();
+        region.setFlag(DefaultFlag.ENTRY, null);
     }
 
     /**
@@ -113,18 +136,13 @@ public class SACUtil {
      * @param request the request to reclaim
      * @param useReclaimed boolean config value
      */
-    public static void reclaim(StakeRequest request, ProtectedRegion region, boolean useReclaimed) {
+    public static void reclaim(StakeRequest request, boolean useReclaimed) {
         if (useReclaimed) {
             request.setStatus(Status.RECLAIMED);
         } else {
             request.setStatus(Status.UNSTAKED);
         }
         request.setAccess(null);
-        region.getOwners().getPlayers().clear();
-        region.getOwners().getGroups().clear();
-        region.getMembers().getPlayers().clear();
-        region.getMembers().getGroups().clear();
-        region.setFlag(DefaultFlag.ENTRY, null);
     }
 
     /**
@@ -156,7 +174,6 @@ public class SACUtil {
                 // Members w/o owner, add some catch
             }
         }
-        save(rqMgr);
     }
 
     /**
@@ -204,12 +221,7 @@ public class SACUtil {
         // Remove requests by wrong owner
         for (StakeRequest request : requests) {
             if (!region.getOwners().contains(request.getPlayerName())) {
-                if (useReclaimed) {
-                    request.setStatus(Status.RECLAIMED);
-                } else {
-                    request.setStatus(Status.UNSTAKED);
-                }
-                request.setAccess(null);
+                reclaim(request, useReclaimed);
             }
         }
         requests = rqMgr.getRegionStatusRequests(region.getId(), Status.ACCEPTED);
@@ -227,20 +239,10 @@ public class SACUtil {
 
                 // Save oldest
                 if (requests.get(i).getRequestID() < newRequest.getRequestID()) {
-                    if (useReclaimed) {
-                        newRequest.setStatus(Status.RECLAIMED);
-                    } else {
-                        newRequest.setStatus(Status.UNSTAKED);
-                    }
-                    newRequest.setAccess(null);
+                    reclaim(newRequest, useReclaimed);
                     newRequest = requests.get(i);
                 } else {
-                    if (useReclaimed) {
-                        requests.get(i).setStatus(Status.RECLAIMED);
-                    } else {
-                        requests.get(i).setStatus(Status.UNSTAKED);
-                    }
-                    requests.get(i).setAccess(null);
+                    reclaim(requests.get(i), useReclaimed);
                 }
             }
         }
@@ -279,7 +281,7 @@ public class SACUtil {
                 }
             }
         }
-        save(rqMgr);
+
         return requestList;
     }
 
@@ -318,6 +320,7 @@ public class SACUtil {
 
     /**
      * Get pending request for (@code regionID)
+     * fixes duplicate requests
      * 
      * @param rqMgr the request manager to work with
      * @param regionID the region to get the request for
@@ -333,8 +336,7 @@ public class SACUtil {
         } else {
             oldestRequest = requestList.get(0);
             for (int i = 1; i < requestList.size(); i++) {
-    
-                // Save oldest
+
                 if (requestList.get(i).getRequestID() < oldestRequest.getRequestID()) {
                     oldestRequest.setStatus(Status.UNSTAKED);
                     oldestRequest = requestList.get(i);
@@ -342,7 +344,6 @@ public class SACUtil {
                     requestList.get(i).setStatus(Status.UNSTAKED);
                 }
             }
-            save(rqMgr);
         }
 
         return oldestRequest;
@@ -376,34 +377,14 @@ public class SACUtil {
         } else {
             oldestRequest = requestList.get(0);
             for (int i = 1; i < requestList.size(); i++) {
-    
-                // Save oldest
+
                 if (requestList.get(i).getRequestID() < oldestRequest.getRequestID()) {
-//                    oldestRequest.setStatus(Status.UNSTAKED);
                     oldestRequest = requestList.get(i);
-//                } else {
-//                    requestList.get(i).setStatus(Status.UNSTAKED);
                 }
             }
-            save(rqMgr);
         }
 
         return oldestRequest;
     }
 
-    public static void save(RegionManager rgMgr) {
-        try {
-            rgMgr.save();
-        } catch (ProtectionDatabaseException e) {
-//            throw new CommandException("Failed to write regions: " + e.getMessage());
-        }
-    }
-
-    public static void save(RequestManager rqMgr) {
-        try {
-            rqMgr.save();
-        } catch (StakeDatabaseException e) {
-//            throw new CommandException("Failed to write requests: " + e.getMessage());
-        }
-    }
 }
