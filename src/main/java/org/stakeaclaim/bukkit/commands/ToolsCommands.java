@@ -216,10 +216,7 @@ public class ToolsCommands {
         }
 
         // Accept the request
-        final String[] owners = new String[1];
-        owners[0] = requestToAccept.getPlayerName();
-
-        RegionDBUtil.addToDomain(claim.getOwners(), owners, 0);
+        claim.getOwners().addPlayer(requestToAccept.getPlayerName());
         requestToAccept.setStatus(Status.ACCEPTED);
 
         sender.sendMessage(ChatColor.YELLOW + "You have accepted " + ChatColor.GREEN + requestToAccept.getPlayerName() +

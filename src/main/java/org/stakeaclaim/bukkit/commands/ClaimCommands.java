@@ -214,10 +214,7 @@ public class ClaimCommands {
 
         // Do we use self claim?
         if (selfClaimActive && !wcfg.twoStepSelfClaim && !claimWasReclaimed) {
-            final String[] owners = new String[1];
-            owners[0] = newRequest.getPlayerName();
-
-            RegionDBUtil.addToDomain(claim.getOwners(), owners, 0);
+            claim.getOwners().addPlayer(newRequest.getPlayerName());
             newRequest.setStatus(Status.ACCEPTED);
 
             sender.sendMessage(ChatColor.YELLOW + "You have staked your claim in " + ChatColor.WHITE + newRequest.getRegionID() + "!");
@@ -290,10 +287,7 @@ public class ClaimCommands {
 
         // Do we use self claim?
         if (selfClaimActive) {
-            final String[] owners = new String[1];
-            owners[0] = requestToConfirm.getPlayerName();
-
-            RegionDBUtil.addToDomain(claim.getOwners(), owners, 0);
+            claim.getOwners().addPlayer(requestToConfirm.getPlayerName());
             requestToConfirm.setStatus(Status.ACCEPTED);
 
             sender.sendMessage(ChatColor.YELLOW + "You have staked your claim in " + ChatColor.WHITE + requestToConfirm.getRegionID() + "!");
