@@ -18,6 +18,7 @@
  */
 package org.stakeaclaim.bukkit;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,8 +48,8 @@ import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
+import org.stakeaclaim.bukkit.SACUtil;
 import org.stakeaclaim.bukkit.FlagStateManager.PlayerFlagState;
-import org.stakeaclaim.stakes.ApplicableRequestSet;
 import org.stakeaclaim.stakes.RequestManager;
 import org.stakeaclaim.stakes.StakeRequest;
 import org.stakeaclaim.stakes.StakeRequest.Access;
@@ -231,9 +232,8 @@ public class PlayerListener implements Listener {
                 LinkedHashMap<Integer, Long> requests = new LinkedHashMap<Integer, Long>();
                 state.requestList = null;
 
-                ApplicableRequestSet rqSet = rqMgr.getPlayerStatusRequests(passivePlayer, Status.PENDING);
-                final StakeRequest pendingRequest = rqSet.getPendingPlayerRequest();
-                rqSet = rqMgr.getPlayerStatusRequests(passivePlayer, Status.ACCEPTED);
+                final StakeRequest pendingRequest = SACUtil.getPlayerPendingRequest(rqMgr, passivePlayer);
+                final ArrayList<StakeRequest> requestList = SACUtil.getAcceptedRequests(rqMgr, rgMgr, passivePlayer, wcfg.useReclaimed);
 
                 int index = 0;
                 if (pendingRequest != null) {
@@ -241,7 +241,7 @@ public class PlayerListener implements Listener {
                     index = 1;
                 }
 
-                for (StakeRequest request : rqSet) {
+                for (StakeRequest request : requestList) {
                     requests.put(index, request.getRequestID());
                     index++;
                 }
@@ -296,20 +296,20 @@ public class PlayerListener implements Listener {
 
         if (plugin.hasPermission(player, "stakeaclaim.events.access")) {
             RequestManager rqMgr;
-            ApplicableRequestSet rqSet;
+            ArrayList<StakeRequest> requestList;
             RegionManager rgMgr;
             ProtectedRegion claim;
 
             for (World world : plugin.getServer().getWorlds()) {
                 rqMgr = plugin.getGlobalRequestManager().get(world);
-                rqSet = rqMgr.getPlayerAccessRequests(player);
+                requestList = rqMgr.getPlayerAccessRequests(player);
 
                 rgMgr = WGBukkit.getRegionManager(world);
                 if (rgMgr == null) {
                     continue;
                 }
 
-                for (StakeRequest request : rqSet) {
+                for (StakeRequest request : requestList) {
                     claim = rgMgr.getRegion(request.getRegionID());
                     if (request.getAccess() == Access.ALLOW) {
                         claim.setFlag(DefaultFlag.ENTRY, State.ALLOW);

@@ -66,8 +66,6 @@ public class WorldConfiguration {
     public double proxyClaimMax;
     public boolean showReclaimOnStake;
     public boolean twoStepSelfClaim;
-    public boolean createRequest;
-    public boolean addOwner;
     /* Configuration data end */
 
     /**
@@ -169,8 +167,6 @@ public class WorldConfiguration {
         proxyClaimMax = getDouble("claiming.max-claims-a-proxy-can-request", -1);
         showReclaimOnStake = getBoolean("claiming.show-past-reclaimed-note", true);
         twoStepSelfClaim = getBoolean("claiming.players-need-to-confirm-when-self-accepting", true);
-        createRequest = getBoolean("error-handling.create-request-for-claims-with-an-owner", true);
-        addOwner = getBoolean("error-handling.add-owner-to-claims-with-an-accepted-request", true);
 
         useRegions = WGBukkit.getPlugin().getGlobalStateManager().get(plugin.getServer().getWorld(worldName)).useRegions;
 

@@ -19,6 +19,7 @@
 
 package org.stakeaclaim.stakes;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -126,18 +127,18 @@ public class RequestManager {
      * 
      * @param regionID the name of the region whose requests to get
      * @param status the status of the requests
-     * @return request set
+     * @return list of StakeRequest
      */
-    public ApplicableRequestSet getRegionStatusRequests(String regionID, Status status) {
-        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
+    public ArrayList<StakeRequest> getRegionStatusRequests(String regionID, Status status) {
+        ArrayList<StakeRequest> requestList = new ArrayList<StakeRequest>();
 
         for (StakeRequest request : requests.values()) {
             if (request.getRegionID().equals(regionID.toLowerCase()) && request.getStatus() == status) {
-                appRequests.add(request);
+                requestList.add(request);
             }
         }
 
-        return new ApplicableRequestSet(appRequests);
+        return requestList;
     }
 
     /**
@@ -145,18 +146,10 @@ public class RequestManager {
      * 
      * @param player the player whose requests to get
      * @param status the status of the requests
-     * @return request set
+     * @return list of StakeRequest
      */
-    public ApplicableRequestSet getPlayerStatusRequests(Player player, Status status) {
-        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
-
-        for (StakeRequest request : requests.values()) {
-            if (request.getPlayerName().equals(player.getName().toLowerCase()) && request.getStatus() == status) {
-                appRequests.add(request);
-            }
-        }
-
-        return new ApplicableRequestSet(appRequests);
+    public ArrayList<StakeRequest> getPlayerStatusRequests(Player player, Status status) {
+        return getPlayerStatusRequests(player.getName().toLowerCase(), status);
     }
 
     /**
@@ -164,18 +157,18 @@ public class RequestManager {
      * 
      * @param playerName the name of the player whose requests to get
      * @param status the status of the requests
-     * @return request set
+     * @return list of StakeRequest
      */
-    public ApplicableRequestSet getPlayerStatusRequests(String playerName, Status status) {
-        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
+    public ArrayList<StakeRequest> getPlayerStatusRequests(String playerName, Status status) {
+        ArrayList<StakeRequest> requestList = new ArrayList<StakeRequest>();
 
         for (StakeRequest request : requests.values()) {
             if (request.getPlayerName().equals(playerName) && request.getStatus() == status) {
-                appRequests.add(request);
+                requestList.add(request);
             }
         }
 
-        return new ApplicableRequestSet(appRequests);
+        return requestList;
     }
 
     /**
@@ -185,126 +178,56 @@ public class RequestManager {
      * @param access the access of the requests
      * @return request set
      */
-    public ApplicableRequestSet getPlayerAccessRequests(Player player, Access access) {
-        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
+    public ArrayList<StakeRequest> getPlayerAccessRequests(Player player, Access access) {
+        ArrayList<StakeRequest> requestList = new ArrayList<StakeRequest>();
 
         for (StakeRequest request : requests.values()) {
-            if (request.getPlayerName().equals(player.getName().toLowerCase()) && request.getAccess() == access) {
-                appRequests.add(request);
+            if (request.getPlayerName().equals(player.getName().toLowerCase()) && 
+                    request.getStatus() == Status.ACCEPTED &&
+                    request.getAccess() == access) {
+                requestList.add(request);
             }
         }
 
-        return new ApplicableRequestSet(appRequests);
+        return requestList;
     }
 
     /**
      * Get a set of accepted requests by {@code player) that have an access node
      * 
      * @param player the player whose requests to get
-     * @return request set
+     * @return list of StakeRequest
      */
-    public ApplicableRequestSet getPlayerAccessRequests(Player player) {
-        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
+    public ArrayList<StakeRequest> getPlayerAccessRequests(Player player) {
+        ArrayList<StakeRequest> requestList = new ArrayList<StakeRequest>();
 
         for (StakeRequest request : requests.values()) {
             if (request.getPlayerName().equals(player.getName().toLowerCase()) && 
                     request.getStatus() == Status.ACCEPTED &&
                     request.getAccess() != null) {
-                appRequests.add(request);
+                requestList.add(request);
             }
         }
 
-        return new ApplicableRequestSet(appRequests);
-    }
-
-    /**
-     * Get a set of requests for region {@code name)
-     *
-     * @param name the name of the region whose requests to get
-     * @return request set
-     */
-    public ApplicableRequestSet getRegionRequests(String regionID) {
-        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
-
-        for (StakeRequest request : requests.values()) {
-            if (request.getRegionID().equals(regionID.toLowerCase())) {
-                appRequests.add(request);
-            }
-        }
-
-        return new ApplicableRequestSet(appRequests);
-    }
-
-    /**
-     * Get a set of requests requested by player
-     *
-     * @param name the name of the player whose requests to get
-     * @return request set
-     */
-    public ApplicableRequestSet getPlayerRequests(String playerName) {
-        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
-
-        for (StakeRequest request : requests.values()) {
-            if (request.getPlayerName().equals(playerName.toLowerCase())) {
-                appRequests.add(request);
-            }
-        }
-
-        return new ApplicableRequestSet(appRequests);
-    }
-
-    /**
-     * Get a set of requests requested by {@code player)
-     *
-     * @param player the player whose requests to get
-     * @return request set
-     */
-    public ApplicableRequestSet getPlayerRequests(Player player) {
-        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
-
-        for (StakeRequest request : requests.values()) {
-            if (request.getPlayerName().equals(player.getName().toLowerCase())) {
-                appRequests.add(request);
-            }
-        }
-
-        return new ApplicableRequestSet(appRequests);
+        return requestList;
     }
 
     /**
      * Get a set of requests with status {@code status)
      *
      * @param status the status to get requests with
-     * @return request set
+     * @return list of StakeRequest
      */
-    public ApplicableRequestSet getStatusRequests(Status status) {
-        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
+    public ArrayList<StakeRequest> getStatusRequests(Status status) {
+        ArrayList<StakeRequest> requestList = new ArrayList<StakeRequest>();
 
         for (StakeRequest request : requests.values()) {
             if (request.getStatus() == status) {
-                appRequests.add(request);
+                requestList.add(request);
             }
         }
 
-        return new ApplicableRequestSet(appRequests);
-    }
-
-    /**
-     * Get a set of requests with access state of {@code status)
-     *
-     * @param status the access state to get requests with
-     * @return request set
-     */
-    public ApplicableRequestSet getAccessRequests(Access access) {
-        TreeSet<StakeRequest> appRequests = new TreeSet<StakeRequest>();
-
-        for (StakeRequest request : requests.values()) {
-            if (request.getAccess() == access) {
-                appRequests.add(request);
-            }
-        }
-
-        return new ApplicableRequestSet(appRequests);
+        return requestList;
     }
 
     /**

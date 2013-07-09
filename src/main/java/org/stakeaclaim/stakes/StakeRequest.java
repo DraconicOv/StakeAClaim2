@@ -48,7 +48,8 @@ public class StakeRequest implements Comparable<StakeRequest> {
         ACCEPTED,
         DENIED,
         UNSTAKED,
-        RECLAIMED
+        RECLAIMED,
+        NOREGION
     }
 
     public enum Access {

@@ -20,6 +20,7 @@
 package org.stakeaclaim.bukkit.commands;
 
 import java.lang.Integer;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,10 +45,10 @@ import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 import org.stakeaclaim.bukkit.ConfigurationManager;
+import org.stakeaclaim.bukkit.SACUtil;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 import org.stakeaclaim.bukkit.WorldConfiguration;
 import org.stakeaclaim.bukkit.FlagStateManager.PlayerFlagState;
-import org.stakeaclaim.stakes.ApplicableRequestSet;
 import org.stakeaclaim.stakes.databases.StakeDatabaseException;
 import org.stakeaclaim.stakes.RequestManager;
 import org.stakeaclaim.stakes.StakeRequest;
@@ -77,13 +78,13 @@ public class ToolsCommands {
         }
 
         final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
-        ApplicableRequestSet rqSet;
-        rqSet = rqMgr.getStatusRequests(Status.PENDING);
+        ArrayList<StakeRequest> requestList;
+        requestList = rqMgr.getStatusRequests(Status.PENDING);
         LinkedHashMap<Integer, Long> requests = new LinkedHashMap<Integer, Long>();
         PlayerFlagState state = plugin.getFlagStateManager().getState(player);
 
         int index = 0;
-        for (StakeRequest request : rqSet) {
+        for (StakeRequest request : requestList) {
             requests.put(index, request.getRequestID());
             index++;
         }
@@ -150,10 +151,12 @@ public class ToolsCommands {
         LinkedHashMap<Integer, Long> requests = new LinkedHashMap<Integer, Long>();
         state.requestList = null;
 
-        ApplicableRequestSet rqSet = rqMgr.getRegionStatusRequests(regionID, Status.PENDING);
-        final StakeRequest pendingRequest = rqSet.getPendingRegionRequest();
-        rqSet = rqMgr.getRegionStatusRequests(regionID, Status.ACCEPTED);
-        final StakeRequest acceptedRequest = rqSet.getAcceptedRequest(rgMgr);
+        ArrayList<StakeRequest> requestList = rqMgr.getRegionStatusRequests(regionID, Status.PENDING);
+//        final StakeRequest pendingRequest = rqSet.getPendingRegionRequest();
+        final StakeRequest pendingRequest = requestList.get(0);
+        requestList = rqMgr.getRegionStatusRequests(regionID, Status.ACCEPTED);
+//        final StakeRequest acceptedRequest = rqSet.getAcceptedRequest(rgMgr);
+        final StakeRequest acceptedRequest = requestList.get(0);
 
         if (acceptedRequest != null) {
             requests.put(0, acceptedRequest.getRequestID());
@@ -303,24 +306,14 @@ public class ToolsCommands {
         }
         StakeRequest requestToReclaim = getRequestListItem(args, sender);
 
-        if (requestToReclaim.getStatus() != Status.ACCEPTED) {
-            throw new CommandException(ChatColor.YELLOW + "Sorry, this request is not accepted.");
-        }
-
-        // Get the region requested
         final ProtectedRegion claim = rgMgr.getRegion(requestToReclaim.getRegionID());
+        int ownedCode = SACUtil.isRegionOwned(claim);
+        if (ownedCode != 1) {
+            throw new CommandException(ChatColor.YELLOW + "Sorry, this claim is not owned.");
+        }
 
         // Reclaim the request
-        claim.getOwners().getPlayers().clear();
-        claim.getOwners().getGroups().clear();
-        claim.getMembers().getPlayers().clear();
-        claim.getMembers().getGroups().clear();
-        if (wcfg.useReclaimed) {
-            requestToReclaim.setStatus(Status.RECLAIMED);
-        } else {
-            requestToReclaim.setStatus(Status.UNSTAKED);
-        }
-        requestToReclaim.setAccess(null);
+        SACUtil.reclaim(requestToReclaim, claim, wcfg.useReclaimed);
 
         sender.sendMessage(ChatColor.YELLOW + "You have reclaimed " + ChatColor.WHITE + requestToReclaim.getRegionID() +
                 ChatColor.YELLOW + " from " + ChatColor.GREEN + requestToReclaim.getPlayerName() + ChatColor.YELLOW + "!");
@@ -359,45 +352,51 @@ public class ToolsCommands {
         final ProtectedRegion claim = rgMgr.getRegion(regionID);
 
         final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
-        ApplicableRequestSet rqSet;
-        ProtectedRegion region;
+        ArrayList<StakeRequest> requestList;
 
-
-        // Check if there are any pending requests for this claim
-        rqSet = rqMgr.getRegionStatusRequests(regionID, Status.PENDING);
-        final StakeRequest pendingRequest = rqSet.getPendingRegionRequest();
-
-        // Throw an exception for a pending claim by another player
-        if (pendingRequest != null) {
-            if (!pendingRequest.getPlayerName().equals(passivePlayer)) {
-                saveRequests(world);
-                throw new CommandException(ChatColor.YELLOW + "This claim is already requested by " +
-                        ChatColor.GREEN + pendingRequest.getPlayerName() + ".");
+        int ownedCode = SACUtil.isRegionOwned(claim);
+        if (ownedCode == 0) {
+            // Reclaim all accepted requests for this region
+            requestList = rqMgr.getRegionStatusRequests(regionID, Status.ACCEPTED);
+            for (StakeRequest request : requestList) {
+                SACUtil.reclaim(request, claim, wcfg.useReclaimed);
             }
-        }
-
-        // Check if there are any accepted requests for this claim
-        rqSet = rqMgr.getRegionStatusRequests(regionID, Status.ACCEPTED);
-        final StakeRequest acceptedRequest = rqSet.getAcceptedRequest(rgMgr);
-
-        // Throw an exception for a pre-owned claim
-        if (acceptedRequest != null) {
-            saveRequests(world);
-            if (acceptedRequest.getPlayerName().equals(passivePlayer)) {
+            final StakeRequest pendingRequest = SACUtil.getRegionPendingRequest(rqMgr, regionID);
+            if (pendingRequest != null) {
+                if (!pendingRequest.getPlayerName().equals(passivePlayer)) {
+                    throw new CommandException(ChatColor.YELLOW + "This claim is already requested by " +
+                            ChatColor.GREEN + pendingRequest.getPlayerName() + ".");
+                }
+            }
+        } else if (ownedCode == 1) {
+            // Set all pending requests for this region to unstaked
+            requestList = rqMgr.getRegionStatusRequests(regionID, Status.PENDING);
+            for (StakeRequest request : requestList) {
+                request.setStatus(Status.UNSTAKED);
+            }
+            final StakeRequest acceptedRequest = SACUtil.fixRegionsRequests(rqMgr, claim, wcfg.useReclaimed);
+            if (acceptedRequest == null) {
+                throw new CommandException(ChatColor.RED + "Error in " + ChatColor.WHITE + regionID + 
+                        ChatColor.RED + ", please notify admin!");
+            } else {
+                if (acceptedRequest.getPlayerName().equals(passivePlayer)) {
                 throw new CommandException(ChatColor.GREEN + passivePlayer + ChatColor.YELLOW + " already owns this claim.");
+                }
+                throw new CommandException(ChatColor.YELLOW + "This claim is already owned by " + 
+                        ChatColor.GREEN + acceptedRequest.getPlayerName() + ".");
             }
-            throw new CommandException(ChatColor.YELLOW + "This claim is already owned by " + 
-                    ChatColor.GREEN + acceptedRequest.getPlayerName() + ".");
+        } else {
+                throw new CommandException(ChatColor.RED + "Claim error: " + ChatColor.WHITE + 
+                        ownedCode + "-" + regionID + ChatColor.RED + ", please notify admin!");
         }
 
         // Check if this would be over the proxyClaimMax
-        rqSet = rqMgr.getPlayerStatusRequests(passivePlayer, Status.ACCEPTED);
+        final ArrayList<ProtectedRegion> regionList = SACUtil.getOwnedRegions(rgMgr, passivePlayer);
         boolean claimWasReclaimed = false;
 
         if (wcfg.claimLimitsAreArea) {
             double area = getArea(claim);
-            for (StakeRequest request : rqSet) {
-                region = rgMgr.getRegion(request.getRegionID());
+            for (ProtectedRegion region : regionList) {
                 area = area + getArea(region);
             }
             if (area > wcfg.proxyClaimMax && wcfg.proxyClaimMax != -1) {
@@ -405,36 +404,30 @@ public class ToolsCommands {
                         ChatColor.YELLOW + " over the maximum claim area.");
             }
         } else {
-            if (rqSet.size() + 1 > wcfg.proxyClaimMax && wcfg.proxyClaimMax != -1) {
-                throw new CommandException(ChatColor.GREEN + passivePlayer + ChatColor.YELLOW + " has already claimed the maximum number of claims.");
+            if (regionList.size() >= wcfg.proxyClaimMax && wcfg.proxyClaimMax != -1) {
+                throw new CommandException(ChatColor.GREEN + passivePlayer + ChatColor.YELLOW + 
+                        " has already claimed the maximum number of claims.");
             }
         }
 
-        // Set all old pending requests for (@code passivePlayer) to unstaked
-        rqSet = rqMgr.getPlayerStatusRequests(passivePlayer, Status.PENDING);
-        for (StakeRequest request : rqSet) {
+        // Set all old pending requests for passivePlayer to unstaked
+        requestList = rqMgr.getPlayerStatusRequests(passivePlayer, Status.PENDING);
+        for (StakeRequest request : requestList) {
             request.setStatus(Status.UNSTAKED);
         }
 
         // Submit request
         rqMgr.addRequest(unsubmittedRequest);
 
-        // Check if we need to show a reclaimed notification
-        rqSet = rqMgr.getRegionStatusRequests(regionID, Status.RECLAIMED);
-        if (rqSet.size() > 0 && wcfg.showReclaimOnStake) {
-            claimWasReclaimed = true;
-        }
-
-        // Display result
-        if (claimWasReclaimed) {
+        requestList = rqMgr.getRegionStatusRequests(regionID, Status.RECLAIMED);
+        if (requestList.size() > 0 && wcfg.showReclaimOnStake) {
             sender.sendMessage(ChatColor.RED + "note: " + ChatColor.WHITE + regionID + 
                     ChatColor.YELLOW + " was claimed in the past and may not be pristine.");
         }
-        sender.sendMessage(ChatColor.GREEN + passivePlayer + ChatColor.YELLOW + "'s stake request for " + ChatColor.WHITE + regionID + 
-                ChatColor.YELLOW + " is pending.");
+        sender.sendMessage(ChatColor.GREEN + passivePlayer + ChatColor.YELLOW + "'s stake request for " + 
+                ChatColor.WHITE + regionID + ChatColor.YELLOW + " is pending.");
 
         saveRequests(world);
-        saveRegions(world);
     }
 
     @Command(aliases = {"load", "reload"},
@@ -568,7 +561,7 @@ public class ToolsCommands {
         try {
             rgMgr.save();
         } catch (ProtectionDatabaseException e) {
-            throw new CommandException("Failed to write regionss: " + e.getMessage());
+            throw new CommandException("Failed to write regions: " + e.getMessage());
         }
     }
 
