@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import org.bukkit.World;
 
 import org.stakeaclaim.bukkit.ConfigurationManager;
+import org.stakeaclaim.bukkit.SACUtil;
 import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 import org.stakeaclaim.stakes.databases.StakeDatabase;
 import org.stakeaclaim.stakes.databases.StakeDatabaseException;
@@ -141,9 +142,12 @@ public class GlobalRequestManager {
             RequestManager manager = new RequestManager(database);
             manager.load();
 
+            final String[] results = SACUtil.fixRquests(plugin, manager, world);
+
             if (plugin.getGlobalStateManager().get(world).summaryOnStart) {
                 plugin.getLogger().info(manager.getRequests().size()
                         + " requests loaded for '" + name + "'");
+
             }
 
             return manager;

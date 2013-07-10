@@ -46,42 +46,44 @@ public class SACUtil {
 
     }
 
+    // Fix inconsistencies
     /**
-     * Fix requests for all worlds
+     * Fix requests for one world
      * Deals with players added/removed via WG
      * or manual edits to regions or requests
+     * 
+     * @param plugin the SAC plugin
+     * @param rqMgr the request manager to work with
+     * @param world the world to fix requests in
+     * @return string array of results
      */
-    public static void fixRquests(StakeAClaimPlugin plugin) {
+    public static String[] fixRquests(StakeAClaimPlugin plugin, RequestManager rqMgr, World world) {
 
-        final List<World> worlds = plugin.getServer().getWorlds();
         final ConfigurationManager cfg = plugin.getGlobalStateManager();
+        final WorldConfiguration wcfg = cfg.get(world);
+        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        final String[] results = new String[0];
+        results[0] = "";
+        results[1] = "";
+                
+        if (wcfg.useRequests && rgMgr != null) {
 
-        WorldConfiguration wcfg;
-        RegionManager rgMgr;
-        RequestManager rqMgr;
+            checkRequests(rqMgr, rgMgr, wcfg.useReclaimed);
+            checkRegions(rqMgr, rgMgr, wcfg.useReclaimed);
 
-        for (World world : worlds) {
-
-            wcfg = cfg.get(world);
-            rgMgr = WGBukkit.getRegionManager(world);
-            if (wcfg.useRequests && rgMgr != null) {
-                rqMgr = plugin.getGlobalRequestManager().get(world);
-
-                checkRequests(rqMgr, rgMgr, wcfg.useReclaimed);
-                checkRegions(rqMgr, rgMgr, wcfg.useReclaimed);
-
-                try {
-                    rgMgr.save();
-                } catch (ProtectionDatabaseException e) {
-//                    throw new CommandException("Failed to write regions: " + e.getMessage());
-                }
-                try {
-                    rqMgr.save();
-                } catch (StakeDatabaseException e) {
-//                    throw new CommandException("Failed to write requests: " + e.getMessage());
-                }
+            try {
+                rqMgr.save();
+            } catch (StakeDatabaseException e) {
+                results[0] = "Failed to write requests: " + e.getMessage();
+            }
+            try {
+                rgMgr.save();
+            } catch (ProtectionDatabaseException e) {
+                results[1] = "Failed to write regions: " + e.getMessage();
             }
         }
+
+        return results;
     }
 
     /**
@@ -96,53 +98,36 @@ public class SACUtil {
     public static void checkRequests(RequestManager rqMgr, RegionManager rgMgr, boolean useReclaimed) {
 
         final Map<Long, StakeRequest> requests = rqMgr.getRequests();
-        ProtectedRegion region;
 
         for (StakeRequest request : requests.values()) {
-            if (request.getStatus() != Status.NOREGION) {
-                if (!rgMgr.hasRegion(request.getRegionID())) {
-                    request.setStatus(Status.NOREGION);
-                } else {
-                    if (request.getStatus() == Status.ACCEPTED) {
-                        region = rgMgr.getRegion(request.getRegionID());
-                        if (region.getOwners().size() < 1) {
-                            reclaim(request, region, useReclaimed);
-                        }
+            fixRequest(request, rgMgr, useReclaimed);
+        }
+    }
+
+    /**
+     * Fix one request:
+     * Fix for non existing regions
+     * Fix for unowned regions
+     * 
+     * @param request the request to fix
+     * @param rgMgr the region manager to work with
+     * @param useReclaimed boolean config value
+     */
+    public static void fixRequest(StakeRequest request, RegionManager rgMgr, boolean useReclaimed) {
+
+        if (request.getStatus() != Status.NOREGION) {
+            if (!rgMgr.hasRegion(request.getRegionID())) {
+                request.setStatus(Status.NOREGION);
+            } else {
+                if (request.getStatus() == Status.ACCEPTED) {
+                    final ProtectedRegion region = rgMgr.getRegion(request.getRegionID());
+                    final int ownedCode = isRegionOwned(region);
+                    if (ownedCode == 0) {
+                        reclaim(request, region, useReclaimed);
                     }
                 }
             }
         }
-    }
-
-    /**
-     * Reclaim region and request
-     * 
-     * @param request the request to reclaim
-     * @param region the region to reclaim
-     * @param useReclaimed boolean config value
-     */
-    public static void reclaim(StakeRequest request, ProtectedRegion region, boolean useReclaimed) {
-        reclaim(request, useReclaimed);
-        region.getOwners().getPlayers().clear();
-        region.getOwners().getGroups().clear();
-        region.getMembers().getPlayers().clear();
-        region.getMembers().getGroups().clear();
-        region.setFlag(DefaultFlag.ENTRY, null);
-    }
-
-    /**
-     * Reclaim request
-     * 
-     * @param request the request to reclaim
-     * @param useReclaimed boolean config value
-     */
-    public static void reclaim(StakeRequest request, boolean useReclaimed) {
-        if (useReclaimed) {
-            request.setStatus(Status.RECLAIMED);
-        } else {
-            request.setStatus(Status.UNSTAKED);
-        }
-        request.setAccess(null);
     }
 
     /**
@@ -176,26 +161,7 @@ public class SACUtil {
         }
     }
 
-    /**
-     * Check one region for owners
-     * int > 1 has muiltiple owners
-     * int < 0 has members but no owners
-     * 
-     * @param region the region to check owners of
-     * @return int error code / modified owners count
-     */
-    public static int isRegionOwned(ProtectedRegion region) {
-
-        int owners = region.getOwners().size();
-        if (owners == 1) {
-            return owners + region.getOwners().getGroups().size();
-        }
-        if (owners == 0) {
-            return owners - region.getMembers().size();
-        }
-        return owners;
-    }
-
+    // Get request, fix inconsistencies if needed
     /**
      * Fix one region's requests:
      * Add missing requests
@@ -256,6 +222,38 @@ public class SACUtil {
         return requests.get(0);
     }
 
+    /**
+     * Get pending request for (@code regionID)
+     * fixes duplicate requests
+     * 
+     * @param rqMgr the request manager to work with
+     * @param regionID the region to get the request for
+     * @return pending request, will return null if there is none
+     */
+    public static StakeRequest getRegionPendingRequest(RequestManager rqMgr, String regionID) {
+
+        ArrayList<StakeRequest> requestList = rqMgr.getRegionStatusRequests(regionID, Status.PENDING);
+        StakeRequest oldestRequest;
+
+        if (requestList.size() < 1) {
+            return null;
+        } else {
+            oldestRequest = requestList.get(0);
+            for (int i = 1; i < requestList.size(); i++) {
+
+                if (requestList.get(i).getRequestID() < oldestRequest.getRequestID()) {
+                    oldestRequest.setStatus(Status.UNSTAKED);
+                    oldestRequest = requestList.get(i);
+                } else {
+                    requestList.get(i).setStatus(Status.UNSTAKED);
+                }
+            }
+        }
+
+        return oldestRequest;
+    }
+
+    // Get request(s) or regions, query only
     /**
      * Get a list of requests for regions owned by (@code player)
      * 
@@ -319,37 +317,6 @@ public class SACUtil {
     }
 
     /**
-     * Get pending request for (@code regionID)
-     * fixes duplicate requests
-     * 
-     * @param rqMgr the request manager to work with
-     * @param regionID the region to get the request for
-     * @return pending request, will return null if there is none
-     */
-    public static StakeRequest getRegionPendingRequest(RequestManager rqMgr, String regionID) {
-
-        ArrayList<StakeRequest> requestList = rqMgr.getRegionStatusRequests(regionID, Status.PENDING);
-        StakeRequest oldestRequest;
-
-        if (requestList.size() < 1) {
-            return null;
-        } else {
-            oldestRequest = requestList.get(0);
-            for (int i = 1; i < requestList.size(); i++) {
-
-                if (requestList.get(i).getRequestID() < oldestRequest.getRequestID()) {
-                    oldestRequest.setStatus(Status.UNSTAKED);
-                    oldestRequest = requestList.get(i);
-                } else {
-                    requestList.get(i).setStatus(Status.UNSTAKED);
-                }
-            }
-        }
-
-        return oldestRequest;
-    }
-
-    /**
      * Get pending request for (@code player)
      * 
      * @param rqMgr the request manager to work with
@@ -385,6 +352,58 @@ public class SACUtil {
         }
 
         return oldestRequest;
+    }
+
+    // Utilities
+    /**
+     * Reclaim region and request
+     * 
+     * @param request the request to reclaim
+     * @param region the region to reclaim
+     * @param useReclaimed boolean config value
+     */
+    public static void reclaim(StakeRequest request, ProtectedRegion region, boolean useReclaimed) {
+        reclaim(request, useReclaimed);
+        region.getOwners().getPlayers().clear();
+        region.getOwners().getGroups().clear();
+        region.getMembers().getPlayers().clear();
+        region.getMembers().getGroups().clear();
+        region.setFlag(DefaultFlag.ENTRY, null);
+    }
+
+    /**
+     * Reclaim request
+     * 
+     * @param request the request to reclaim
+     * @param useReclaimed boolean config value
+     */
+    public static void reclaim(StakeRequest request, boolean useReclaimed) {
+        if (useReclaimed) {
+            request.setStatus(Status.RECLAIMED);
+        } else {
+            request.setStatus(Status.UNSTAKED);
+        }
+        request.setAccess(null);
+    }
+
+    /**
+     * Check one region for owners
+     * int > 1 has muiltiple owners
+     * int < 0 has members but no owners
+     * 
+     * @param region the region to check owners of
+     * @return int error code / modified owners count
+     */
+    public static int isRegionOwned(ProtectedRegion region) {
+
+        int owners = region.getOwners().size();
+        if (owners == 1) {
+            return owners + region.getOwners().getGroups().size();
+        }
+        if (owners == 0) {
+            return owners - region.getMembers().size();
+        }
+        return owners;
     }
 
 }
