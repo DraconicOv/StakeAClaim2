@@ -62,7 +62,7 @@ public class SACUtil {
         final ConfigurationManager cfg = plugin.getGlobalStateManager();
         final WorldConfiguration wcfg = cfg.get(world);
         final RegionManager rgMgr = WGBukkit.getRegionManager(world);
-        final String[] results = new String[0];
+        final String[] results = new String[2];
         results[0] = "";
         results[1] = "";
                 
@@ -182,37 +182,39 @@ public class SACUtil {
         }
 
         StakeRequest newRequest;
-        ArrayList<StakeRequest> requests = rqMgr.getRegionStatusRequests(region.getId(), Status.ACCEPTED);
+        final ArrayList<StakeRequest> requests = rqMgr.getRegionStatusRequests(region.getId(), Status.ACCEPTED);
 
         // Remove requests by wrong owner
-        for (StakeRequest request : requests) {
-            if (!region.getOwners().contains(request.getPlayerName())) {
-                reclaim(request, useReclaimed);
+        for (int i = requests.size() - 1; i <= 0; i--) {
+            if (!region.getOwners().contains(requests.get(i).getPlayerName())) {
+                reclaim(requests.get(i), useReclaimed);
+                requests.remove(i);
             }
         }
-        requests = rqMgr.getRegionStatusRequests(region.getId(), Status.ACCEPTED);
 
         // Add a missing request
         if (requests.size() == 0) {
             newRequest = new StakeRequest(region.getId(), region.getOwners().getPlayers().toArray(new String[0])[0]);
             newRequest.setStatus(Status.ACCEPTED);
             rqMgr.addRequest(newRequest);
+            requests.add(newRequest);
 
         // Remove duplicate requests
         } else if (requests.size() > 1) {
-            newRequest = requests.get(0);
-            for (int i = 1; i < requests.size(); i++) {
+            newRequest = requests.get(requests.size() - 1);
+            for (int i = requests.size() - 2; i <= 0; i--) {
 
                 // Save oldest
                 if (requests.get(i).getRequestID() < newRequest.getRequestID()) {
                     reclaim(newRequest, useReclaimed);
+                    requests.remove(requests.indexOf(newRequest));
                     newRequest = requests.get(i);
                 } else {
                     reclaim(requests.get(i), useReclaimed);
+                    requests.remove(i);
                 }
             }
         }
-        requests = rqMgr.getRegionStatusRequests(region.getId(), Status.ACCEPTED);
 
         // Did it get fixed?
         if (requests.size() != 1) {

@@ -147,6 +147,12 @@ public class GlobalRequestManager {
             if (plugin.getGlobalStateManager().get(world).summaryOnStart) {
                 plugin.getLogger().info(manager.getRequests().size()
                         + " requests loaded for '" + name + "'");
+                if (!results[0].equals("")) {
+                    plugin.getLogger().info(results[0]);
+                }
+                if (!results[1].equals("")) {
+                    plugin.getLogger().info(results[1]);
+                }
 
             }
 

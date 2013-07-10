@@ -93,7 +93,7 @@ public class YAMLDatabase extends AbstractStakeDatabase {
                 request.setAccess(unmarshalAccess(node.getString("access")));
 
                 requests.put(requestID, request);
-                
+
             } catch (NullPointerException e) {
                 logger.warning("Missing data for request '" + entry.getKey() + '"');
             } catch (NumberFormatException e) {
