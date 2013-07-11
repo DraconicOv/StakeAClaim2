@@ -17,12 +17,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.stakeaclaim.stakes.databases;
+package com.nineteengiraffes.stakeaclaim.stakes.databases;
 
 import java.util.Map;
 
-import org.stakeaclaim.stakes.RequestManager;
-import org.stakeaclaim.stakes.StakeRequest;
+import com.nineteengiraffes.stakeaclaim.stakes.RequestManager;
+import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest;
 
 /**
  * Represents a database to read and write lists of requests from and to.

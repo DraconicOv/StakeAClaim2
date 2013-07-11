@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.stakeaclaim.bukkit;
+package com.nineteengiraffes.stakeaclaim.bukkit;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -27,7 +27,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -39,6 +38,12 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 
+import com.nineteengiraffes.stakeaclaim.bukkit.FlagStateManager.PlayerFlagState;
+import com.nineteengiraffes.stakeaclaim.stakes.RequestManager;
+import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest;
+import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest.Access;
+import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest.Status;
+import com.nineteengiraffes.stakeaclaim.stakes.databases.StakeDatabaseException;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.domains.DefaultDomain;
@@ -47,14 +52,6 @@ import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-
-import org.stakeaclaim.bukkit.SACUtil;
-import org.stakeaclaim.bukkit.FlagStateManager.PlayerFlagState;
-import org.stakeaclaim.stakes.RequestManager;
-import org.stakeaclaim.stakes.StakeRequest;
-import org.stakeaclaim.stakes.StakeRequest.Access;
-import org.stakeaclaim.stakes.StakeRequest.Status;
-import org.stakeaclaim.stakes.databases.StakeDatabaseException;
 
 /**
  * Handles all events thrown in relation to a player.

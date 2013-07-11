@@ -17,16 +17,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.stakeaclaim.bukkit;
+package com.nineteengiraffes.stakeaclaim.bukkit;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.sk89q.util.yaml.YAMLFormat;
 import com.sk89q.util.yaml.YAMLProcessor;
-
 import com.sk89q.worldguard.bukkit.WGBukkit;
 
 /**

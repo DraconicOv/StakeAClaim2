@@ -17,29 +17,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.stakeaclaim.stakes.databases;
+package com.nineteengiraffes.stakeaclaim.stakes.databases;
 
-import org.stakeaclaim.stakes.RequestManager;
+public class StakeDatabaseException extends Exception {
+    private static final long serialVersionUID = 1L;
 
-public abstract class AbstractStakeDatabase implements StakeDatabase {
-
-    /**
-     * Load the list of requests into a request manager.
-     * 
-     * @throws StakeDatabaseException
-     */
-    public void load(RequestManager manager) throws StakeDatabaseException {
-        load();
-        manager.setRequests(getRequests());
+    public StakeDatabaseException() {
+        super();
     }
 
-    /**
-     * Save the list of requests from a request manager.
-     * 
-     * @throws StakeDatabaseException
-     */
-    public void save(RequestManager manager) throws StakeDatabaseException {
-        setRequests(manager.getRequests());
-        save();
+    public StakeDatabaseException(String message) {
+        super(message);
+    }
+
+    public StakeDatabaseException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public StakeDatabaseException(Throwable cause) {
+        super(cause);
     }
 }

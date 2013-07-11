@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.stakeaclaim.bukkit;
+package com.nineteengiraffes.stakeaclaim.bukkit;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -35,10 +35,9 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 
+import com.nineteengiraffes.stakeaclaim.stakes.GlobalRequestManager;
+import com.nineteengiraffes.stakeaclaim.stakes.RequestManager;
 import com.sk89q.worldguard.util.LogListBlock;
-
-import org.stakeaclaim.stakes.GlobalRequestManager;
-import org.stakeaclaim.stakes.RequestManager;
 
 public class ReportWriter {
 

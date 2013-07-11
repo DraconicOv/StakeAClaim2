@@ -17,25 +17,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.stakeaclaim.bukkit;
+package com.nineteengiraffes.stakeaclaim.bukkit;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 import org.bukkit.ChatColor;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.nineteengiraffes.stakeaclaim.bukkit.commands.AllCommands;
+import com.nineteengiraffes.stakeaclaim.stakes.GlobalRequestManager;
 import com.sk89q.bukkit.util.CommandsManagerRegistration;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissionsException;
@@ -45,12 +44,7 @@ import com.sk89q.minecraft.util.commands.MissingNestedCommandException;
 import com.sk89q.minecraft.util.commands.SimpleInjector;
 import com.sk89q.minecraft.util.commands.WrappedCommandException;
 import com.sk89q.wepif.PermissionsResolverManager;
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.util.FatalConfigurationLoadingException;
-
-import org.stakeaclaim.bukkit.commands.AllCommands;
-import org.stakeaclaim.stakes.GlobalRequestManager;
-import org.stakeaclaim.stakes.RequestManager;
 
 /**
  * The main class for StakeAClaim as a Bukkit plugin.

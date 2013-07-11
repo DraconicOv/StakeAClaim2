@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.stakeaclaim.bukkit.commands;
+package com.nineteengiraffes.stakeaclaim.bukkit.commands;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -29,6 +29,14 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.nineteengiraffes.stakeaclaim.bukkit.ConfigurationManager;
+import com.nineteengiraffes.stakeaclaim.bukkit.SACUtil;
+import com.nineteengiraffes.stakeaclaim.bukkit.StakeAClaimPlugin;
+import com.nineteengiraffes.stakeaclaim.bukkit.WorldConfiguration;
+import com.nineteengiraffes.stakeaclaim.stakes.RequestManager;
+import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest;
+import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest.Status;
+import com.nineteengiraffes.stakeaclaim.stakes.databases.StakeDatabaseException;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
@@ -45,15 +53,6 @@ import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-
-import org.stakeaclaim.bukkit.ConfigurationManager;
-import org.stakeaclaim.bukkit.SACUtil;
-import org.stakeaclaim.bukkit.StakeAClaimPlugin;
-import org.stakeaclaim.bukkit.WorldConfiguration;
-import org.stakeaclaim.stakes.databases.StakeDatabaseException;
-import org.stakeaclaim.stakes.RequestManager;
-import org.stakeaclaim.stakes.StakeRequest;
-import org.stakeaclaim.stakes.StakeRequest.Status;
 
 public class ClaimCommands {
     private final StakeAClaimPlugin plugin;

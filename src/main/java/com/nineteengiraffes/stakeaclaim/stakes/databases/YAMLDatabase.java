@@ -17,29 +17,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.stakeaclaim.stakes.databases;
+package com.nineteengiraffes.stakeaclaim.stakes.databases;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
+import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest;
+import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest.Access;
+import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest.Status;
 import com.sk89q.util.yaml.YAMLFormat;
 import com.sk89q.util.yaml.YAMLNode;
 import com.sk89q.util.yaml.YAMLProcessor;
-import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldedit.BlockVector2D;
-import com.sk89q.worldedit.Vector;
-
-import org.stakeaclaim.stakes.StakeRequest;
-import org.stakeaclaim.stakes.StakeRequest.Access;
-import org.stakeaclaim.stakes.StakeRequest.Status;
 
 public class YAMLDatabase extends AbstractStakeDatabase {
 

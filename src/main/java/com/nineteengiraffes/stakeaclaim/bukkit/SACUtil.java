@@ -17,28 +17,23 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.stakeaclaim.bukkit;
+package com.nineteengiraffes.stakeaclaim.bukkit;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import com.nineteengiraffes.stakeaclaim.stakes.RequestManager;
+import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest;
+import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest.Status;
+import com.nineteengiraffes.stakeaclaim.stakes.databases.StakeDatabaseException;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.protection.databases.ProtectionDatabaseException;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-
-import org.stakeaclaim.bukkit.ConfigurationManager;
-import org.stakeaclaim.bukkit.StakeAClaimPlugin;
-import org.stakeaclaim.bukkit.WorldConfiguration;
-import org.stakeaclaim.stakes.RequestManager;
-import org.stakeaclaim.stakes.StakeRequest;
-import org.stakeaclaim.stakes.StakeRequest.Status;
-import org.stakeaclaim.stakes.databases.StakeDatabaseException;
 
 public class SACUtil {
 

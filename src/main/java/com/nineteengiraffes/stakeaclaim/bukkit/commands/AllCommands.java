@@ -17,17 +17,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package org.stakeaclaim.bukkit.commands;
+package com.nineteengiraffes.stakeaclaim.bukkit.commands;
 
 //import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
+import com.nineteengiraffes.stakeaclaim.bukkit.StakeAClaimPlugin;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
-import org.stakeaclaim.bukkit.StakeAClaimPlugin;
 
 public class AllCommands {
     private final StakeAClaimPlugin plugin;

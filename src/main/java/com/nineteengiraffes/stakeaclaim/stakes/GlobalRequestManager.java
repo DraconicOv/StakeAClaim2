@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.stakeaclaim.stakes;
+package com.nineteengiraffes.stakeaclaim.stakes;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,12 +26,12 @@ import java.util.logging.Level;
 
 import org.bukkit.World;
 
-import org.stakeaclaim.bukkit.ConfigurationManager;
-import org.stakeaclaim.bukkit.SACUtil;
-import org.stakeaclaim.bukkit.StakeAClaimPlugin;
-import org.stakeaclaim.stakes.databases.StakeDatabase;
-import org.stakeaclaim.stakes.databases.StakeDatabaseException;
-import org.stakeaclaim.stakes.databases.YAMLDatabase;
+import com.nineteengiraffes.stakeaclaim.bukkit.ConfigurationManager;
+import com.nineteengiraffes.stakeaclaim.bukkit.SACUtil;
+import com.nineteengiraffes.stakeaclaim.bukkit.StakeAClaimPlugin;
+import com.nineteengiraffes.stakeaclaim.stakes.databases.StakeDatabase;
+import com.nineteengiraffes.stakeaclaim.stakes.databases.StakeDatabaseException;
+import com.nineteengiraffes.stakeaclaim.stakes.databases.YAMLDatabase;
 
 /**
  * This class keeps track of request information for every world. It loads
@@ -47,10 +47,10 @@ public class GlobalRequestManager {
      */
     private StakeAClaimPlugin plugin;
 
-    /**
-     * Reference to the global configuration.
-     */
-    private ConfigurationManager config;
+//    /**
+//     * Reference to the global configuration.
+//     */
+//    private ConfigurationManager config;
 
     /**
      * Map of managers per-world.
@@ -70,7 +70,7 @@ public class GlobalRequestManager {
      */
     public GlobalRequestManager(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
-        config = plugin.getGlobalStateManager();
+//        config = plugin.getGlobalStateManager();
         managers = new ConcurrentHashMap<String, RequestManager>();
         lastModified = new HashMap<String, Long>();
     }

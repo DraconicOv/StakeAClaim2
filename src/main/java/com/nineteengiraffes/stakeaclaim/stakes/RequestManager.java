@@ -17,19 +17,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.stakeaclaim.stakes;
+package com.nineteengiraffes.stakeaclaim.stakes;
 
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.bukkit.entity.Player;
 
-import org.stakeaclaim.stakes.databases.StakeDatabaseException;
-import org.stakeaclaim.stakes.databases.StakeDatabase;
-import org.stakeaclaim.stakes.StakeRequest.Access;
-import org.stakeaclaim.stakes.StakeRequest.Status;
+import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest.Access;
+import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest.Status;
+import com.nineteengiraffes.stakeaclaim.stakes.databases.StakeDatabase;
+import com.nineteengiraffes.stakeaclaim.stakes.databases.StakeDatabaseException;
 
 /**
  * An class for getting, setting, and looking up requests.
