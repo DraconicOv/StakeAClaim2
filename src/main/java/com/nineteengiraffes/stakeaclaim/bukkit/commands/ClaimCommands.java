@@ -252,7 +252,7 @@ public class ClaimCommands {
         }
 
         final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
-        ArrayList<StakeRequest> requestList;
+//        ArrayList<StakeRequest> requestList;
 
         // Get the request the player will confirm
         final StakeRequest requestToConfirm = SACUtil.getPlayerPendingRequest(rqMgr, player);

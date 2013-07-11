@@ -26,7 +26,6 @@ import java.util.logging.Level;
 
 import org.bukkit.World;
 
-import com.nineteengiraffes.stakeaclaim.bukkit.ConfigurationManager;
 import com.nineteengiraffes.stakeaclaim.bukkit.SACUtil;
 import com.nineteengiraffes.stakeaclaim.bukkit.StakeAClaimPlugin;
 import com.nineteengiraffes.stakeaclaim.stakes.databases.StakeDatabase;
@@ -36,9 +35,6 @@ import com.nineteengiraffes.stakeaclaim.stakes.databases.YAMLDatabase;
 /**
  * This class keeps track of request information for every world. It loads
  * world request information as needed.
- *
- * @author sk89q
- * @author Redecouverte
  */
 public class GlobalRequestManager {
 
@@ -51,7 +47,7 @@ public class GlobalRequestManager {
 //     * Reference to the global configuration.
 //     */
 //    private ConfigurationManager config;
-
+//
     /**
      * Map of managers per-world.
      */

@@ -48,8 +48,6 @@ import com.sk89q.worldguard.util.FatalConfigurationLoadingException;
 
 /**
  * The main class for StakeAClaim as a Bukkit plugin.
- *
- * @author sk89q
  */
 public class StakeAClaimPlugin extends JavaPlugin {
 
@@ -259,8 +257,8 @@ public class StakeAClaimPlugin extends JavaPlugin {
      * @param actual The destination file
      * @param defaultName The name of the file inside the jar's defaults folder
      */
-    public void createDefaultConfiguration(File actual,
-            String defaultName) {
+    @SuppressWarnings("resource")
+    public void createDefaultConfiguration(File actual, String defaultName) {
 
         // Make parent directories
         File parent = actual.getParentFile();

@@ -275,7 +275,7 @@ public class ReportWriter {
 
             requestsLog.put("Type", worldRequests.getClass().getCanonicalName());
             requestsLog.put("Number of requests", worldRequests.getRequests().size());
-            LogListBlock globalRequestLog = requestsLog.putChild("Global request");
+//            LogListBlock globalRequestLog = requestsLog.putChild("Global request");
 
         }
 
