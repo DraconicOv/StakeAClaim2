@@ -31,9 +31,6 @@ import com.sk89q.util.yaml.YAMLProcessor;
 /**
  * Represents the global configuration and also delegates configuration
  * for individual worlds.
- *
- * @author sk89q
- * @author Michael
  */
 public class ConfigurationManager {
 
