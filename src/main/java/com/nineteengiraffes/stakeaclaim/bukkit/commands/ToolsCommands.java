@@ -169,6 +169,9 @@ public class ToolsCommands {
                 sender.sendMessage(ChatColor.RED + "Owned claim: ");
                 sender.sendMessage(ChatColor.YELLOW + "# 1: " + ChatColor.WHITE + regionID +
                         ", " + ChatColor.GREEN + acceptedRequest.getPlayerName());
+        } else {
+                throw new CommandException(ChatColor.RED + "Claim error: " + ChatColor.WHITE + 
+                        ownedCode + "-" + regionID + ChatColor.RED + ", please notify admin!");
         }
 
         saveRequests(world);
