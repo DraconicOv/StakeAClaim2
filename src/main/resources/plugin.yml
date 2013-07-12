@@ -1,4 +1,4 @@
 name: StakeAClaim
-main: org.stakeaclaim.bukkit.StakeAClaimPlugin
+main: com.nineteengiraffes.stakeaclaim.bukkit.StakeAClaimPlugin
 version: "${project.version}"
 softdepend: [WorldEdit, WorldGuard]
