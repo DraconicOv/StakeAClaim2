@@ -180,7 +180,7 @@ public class SACUtil {
         final ArrayList<StakeRequest> requests = rqMgr.getRegionStatusRequests(region.getId(), Status.ACCEPTED);
 
         // Remove requests by wrong owner
-        for (int i = requests.size() - 1; i <= 0; i--) {
+        for (int i = requests.size() - 1; i >= 0; i--) {
             if (!region.getOwners().contains(requests.get(i).getPlayerName())) {
                 reclaim(requests.get(i), useReclaimed);
                 requests.remove(i);
@@ -197,7 +197,7 @@ public class SACUtil {
         // Remove duplicate requests
         } else if (requests.size() > 1) {
             newRequest = requests.get(requests.size() - 1);
-            for (int i = requests.size() - 2; i <= 0; i--) {
+            for (int i = requests.size() - 2; i >= 0; i--) {
 
                 // Save oldest
                 if (requests.get(i).getRequestID() < newRequest.getRequestID()) {

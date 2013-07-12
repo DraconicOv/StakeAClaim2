@@ -19,9 +19,9 @@
 
 package com.nineteengiraffes.stakeaclaim.bukkit.commands;
 
-//import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
+import com.nineteengiraffes.stakeaclaim.bukkit.StakeAClaimPlugin;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
@@ -31,8 +31,7 @@ import com.sk89q.minecraft.util.commands.NestedCommand;
 public class AllCommands {
 //    private final StakeAClaimPlugin plugin;
 
-    public AllCommands() {
-//    public AllCommands(StakeAClaimPlugin plugin) {
+    public AllCommands(StakeAClaimPlugin plugin) {
 //        this.plugin = plugin;
     }
 
