@@ -20,8 +20,6 @@ package com.nineteengiraffes.stakeaclaim.bukkit;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -47,7 +45,6 @@ import com.nineteengiraffes.stakeaclaim.stakes.databases.StakeDatabaseException;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.domains.DefaultDomain;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
@@ -115,23 +112,8 @@ public class PlayerListener implements Listener {
                             return;
                         }
 
-                        final Vector pt = new Vector(event.getTo().getBlockX(), event.getTo().getBlockY(), event.getTo().getBlockZ());
-                        final ApplicableRegionSet rgSet = rgMgr.getApplicableRegions(pt);
-                        final Pattern regexPat = Pattern.compile(wcfg.claimNameFilter);
-                        Matcher regexMat;
-                        ProtectedRegion claim = null;
-
-                        for (ProtectedRegion region : rgSet) {
-                            regexMat = regexPat.matcher(region.getId());
-                            if (regexMat.find()) {
-                                if (claim == null) {
-                                    claim = region;
-                                } else {
-                                    claim = null;
-                                    break;
-                                }
-                            }
-                        }
+                        final ProtectedRegion claim = SACUtil.getClaimAtPoint(rgMgr, wcfg,
+                                new Vector(event.getTo().getBlockX(), event.getTo().getBlockY(), event.getTo().getBlockZ()));
 
                         if (claim != null) {
                             // Display info for claim.
@@ -195,25 +177,10 @@ public class PlayerListener implements Listener {
                 }
 
                 final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
-                final PlayerFlagState state = plugin.getFlagStateManager().getState(activePlayer);
                 final Location loc = passivePlayer.getLocation();
-                final Vector pt = new Vector(loc.getX(), loc.getY(), loc.getZ());
-                final ApplicableRegionSet rgSet = rgMgr.getApplicableRegions(pt);
-                final Pattern regexPat = Pattern.compile(wcfg.claimNameFilter);
-                Matcher regexMat;
+                final PlayerFlagState state = plugin.getFlagStateManager().getState(activePlayer);
 
-                ProtectedRegion claim = null;
-                for (ProtectedRegion region : rgSet) {
-                    regexMat = regexPat.matcher(region.getId());
-                    if (regexMat.find()) {
-                        if (claim == null) {
-                            claim = region;
-                        } else {
-                            claim = null;
-                            break;
-                        }
-                    }
-                }
+                final ProtectedRegion claim = SACUtil.getClaimAtPoint(rgMgr, wcfg, new Vector(loc.getX(), loc.getY(), loc.getZ()));
 
                 if (claim != null) {
                     final String regionID = claim.getId();

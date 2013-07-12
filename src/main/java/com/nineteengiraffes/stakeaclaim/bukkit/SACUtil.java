@@ -21,7 +21,11 @@ package com.nineteengiraffes.stakeaclaim.bukkit;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
@@ -29,7 +33,10 @@ import com.nineteengiraffes.stakeaclaim.stakes.RequestManager;
 import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest;
 import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest.Status;
 import com.nineteengiraffes.stakeaclaim.stakes.databases.StakeDatabaseException;
+import com.sk89q.minecraft.util.commands.CommandException;
+import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.bukkit.WGBukkit;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.databases.ProtectionDatabaseException;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
@@ -37,7 +44,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class SACUtil {
 
-    private SACUtil()  {
+    private SACUtil() {
 
     }
 
@@ -385,7 +392,7 @@ public class SACUtil {
 
     /**
      * Check one region for owners
-     * int > 1 has muiltiple owners
+     * int > 1 has multiple owners
      * int < 0 has members but no owners
      * 
      * @param region the region to check owners of
@@ -403,4 +410,62 @@ public class SACUtil {
         return owners;
     }
 
+    /**
+     * Get the single claim the player is in
+     * 
+     * @param player the player to get the location from
+     * @param plugin the SAC plugin
+     * @return the 'claim' the player is standing in
+     * @throws CommandException no regions or not in a single 'claim'
+     */
+    public static ProtectedRegion getClaimStandingIn(Player player, StakeAClaimPlugin plugin) throws CommandException {
+
+        final World world = player.getWorld();
+        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        if (rgMgr == null) {
+            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
+        }
+
+        final ConfigurationManager cfg = plugin.getGlobalStateManager();
+        final WorldConfiguration wcfg = cfg.get(world);
+        final Location loc = player.getLocation();
+
+        ProtectedRegion claim = getClaimAtPoint(rgMgr, wcfg, new Vector(loc.getX(), loc.getY(), loc.getZ()));
+ 
+        if (claim == null) {
+            throw new CommandException("You are not in a single valid claim!");
+        }
+
+        return claim;
+    }
+
+    /**
+     * Get the single 'claim' at a given point
+     * 
+     * @param rgMgr the region manager to look for the claim in
+     * @param wcfg the world config to work with
+     * @param vector the location to look for the claim
+     * @return the claim at ({@code vector}, returns null if there are no claims there, or more than one
+     */
+    public static ProtectedRegion getClaimAtPoint(RegionManager rgMgr, WorldConfiguration wcfg, Vector vector) {
+
+        final ApplicableRegionSet rgSet = rgMgr.getApplicableRegions(vector);
+        final Pattern regexPat = Pattern.compile(wcfg.claimNameFilter);
+        Matcher regexMat;
+        ProtectedRegion claim = null;
+
+        for (ProtectedRegion region : rgSet) {
+            regexMat = regexPat.matcher(region.getId());
+            if (regexMat.find()) {
+                if (claim == null) {
+                    claim = region;
+                } else {
+                    claim = null;
+                    break;
+                }
+            }
+        }
+
+        return claim;
+    }
 }

@@ -20,11 +20,8 @@
 package com.nineteengiraffes.stakeaclaim.bukkit.commands;
 
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -43,10 +40,8 @@ import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.CommandPermissionsException;
 import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.domains.DefaultDomain;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.databases.ProtectionDatabaseException;
 import com.sk89q.worldguard.protection.databases.RegionDBUtil;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
@@ -70,7 +65,7 @@ public class ClaimCommands {
     public void info(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
-        final ProtectedRegion claim = getClaimStandingIn(player);
+        final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
         final String regionID = claim.getId();
 
         checkPerm(player, "info", claim);
@@ -124,7 +119,7 @@ public class ClaimCommands {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
 
-        final ProtectedRegion claim = getClaimStandingIn(player);
+        final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
         final String regionID = claim.getId();
 
         final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
@@ -347,7 +342,7 @@ public class ClaimCommands {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
 
-        final ProtectedRegion claim = getClaimStandingIn(player);
+        final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
         final String regionID = claim.getId();
 
         checkPerm(player, "add", claim);
@@ -377,7 +372,7 @@ public class ClaimCommands {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
 
-        final ProtectedRegion claim = getClaimStandingIn(player);
+        final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
         final String regionID = claim.getId();
 
         checkPerm(player, "remove", claim);
@@ -415,7 +410,7 @@ public class ClaimCommands {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
 
-        final ProtectedRegion claim = getClaimStandingIn(player);
+        final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
         final String regionID = claim.getId();
 
         checkPerm(player, "private", claim);
@@ -447,7 +442,7 @@ public class ClaimCommands {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
 
-        final ProtectedRegion claim = getClaimStandingIn(player);
+        final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
         final String regionID = claim.getId();
 
         checkPerm(player, "open", claim);
@@ -464,40 +459,6 @@ public class ClaimCommands {
     }
 
     // Other methods
-    public ProtectedRegion getClaimStandingIn(Player player) throws CommandException {
-
-        final World world = player.getWorld();
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
-        if (rgMgr == null) {
-            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
-        }
-        final Location loc = player.getLocation();
-        final Vector pt = new Vector(loc.getX(), loc.getY(), loc.getZ());
-        final ApplicableRegionSet rgSet = rgMgr.getApplicableRegions(pt);
-        final ConfigurationManager cfg = plugin.getGlobalStateManager();
-        final WorldConfiguration wcfg = cfg.get(world);
-        final Pattern regexPat = Pattern.compile(wcfg.claimNameFilter);
-        Matcher regexMat;
-        ProtectedRegion claim = null;
-
-        for (ProtectedRegion region : rgSet) {
-            regexMat = regexPat.matcher(region.getId());
-            if (regexMat.find()) {
-                if (claim == null) {
-                    claim = region;
-                } else {
-                    claim = null;
-                    break;
-                }
-            }
-        }
-
-        if (claim == null) {
-            throw new CommandException("You are not in a single valid claim!");
-        }
-        return claim;
-    }
-
     public double getArea(ProtectedRegion region) throws CommandException {
         final BlockVector min = region.getMinimumPoint();
         final BlockVector max = region.getMaximumPoint();
