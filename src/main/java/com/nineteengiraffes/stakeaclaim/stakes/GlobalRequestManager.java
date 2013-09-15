@@ -26,7 +26,6 @@ import java.util.logging.Level;
 
 import org.bukkit.World;
 
-import com.nineteengiraffes.stakeaclaim.bukkit.SACUtil;
 import com.nineteengiraffes.stakeaclaim.bukkit.StakeAClaimPlugin;
 import com.nineteengiraffes.stakeaclaim.stakes.databases.StakeDatabase;
 import com.nineteengiraffes.stakeaclaim.stakes.databases.StakeDatabaseException;
@@ -138,17 +137,17 @@ public class GlobalRequestManager {
             RequestManager manager = new RequestManager(database);
             manager.load();
 
-            final String[] results = SACUtil.fixRquests(plugin, manager, world);
+//            final String[] results = SACUtil.fixRquests(plugin, manager, world);
 
             if (plugin.getGlobalStateManager().get(world).summaryOnStart) {
                 plugin.getLogger().info(manager.getRequests().size()
                         + " requests loaded for '" + name + "'");
-                if (!results[0].equals("")) {
-                    plugin.getLogger().info(results[0]);
-                }
-                if (!results[1].equals("")) {
-                    plugin.getLogger().info(results[1]);
-                }
+//                if (!results[0].equals("")) {
+//                    plugin.getLogger().info(results[0]);
+//                }
+//                if (!results[1].equals("")) {
+//                    plugin.getLogger().info(results[1]);
+//                }
 
             }
 
