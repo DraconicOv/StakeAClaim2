@@ -71,7 +71,7 @@
     <dependency>
       <groupId>com.sk89q</groupId>
       <artifactId>worldedit</artifactId>
-      <version>5.5.3</version>
+      <version>5.5.7-SNAPSHOT</version>
       <scope>compile</scope>
       <type>jar</type>
     </dependency>
@@ -79,7 +79,7 @@
     <dependency>
       <groupId>com.sk89q</groupId>
       <artifactId>worldguard</artifactId>
-      <version>5.7.6-SNAPSHOT</version>
+      <version>5.8-SNAPSHOT</version>
       <scope>compile</scope>
       <type>jar</type>
     </dependency>
@@ -87,7 +87,7 @@
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
-      <version>1.5-R0.1-SNAPSHOT</version>
+      <version>1.6.2-R1.0</version>
       <scope>compile</scope>
       <type>jar</type>
     </dependency>
