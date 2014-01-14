@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.nineteengiraffes</groupId>
   <artifactId>stakeaclaim</artifactId>
-  <version>1.1.4-SNAPSHOT</version>
+  <version>1.1.5-SNAPSHOT</version>
   <packaging>jar</packaging>
   
   <!-- Project information -->
@@ -10,7 +10,7 @@
   <description>StakeAClaim claim management tools add-on for WorldGuard.</description>
   <licenses>
     <license>
-      <name>GNU General Public License 2.0</name>
+      <name>GNU General Public License 3.0</name>
       <url>LICENSE.txt</url>
       <distribution>repo</distribution>
       <comments>License on all contributions</comments>
@@ -36,7 +36,7 @@
     <dependency>
       <groupId>com.sk89q</groupId>
       <artifactId>worldedit</artifactId>
-      <version>5.5.7-SNAPSHOT</version>
+      <version>5.5.8</version>
       <scope>compile</scope>
       <type>jar</type>
     </dependency>
@@ -44,7 +44,7 @@
     <dependency>
       <groupId>com.sk89q</groupId>
       <artifactId>worldguard</artifactId>
-      <version>5.8-SNAPSHOT</version>
+      <version>5.8.1-SNAPSHOT</version>
       <scope>compile</scope>
       <type>jar</type>
     </dependency>
@@ -52,7 +52,7 @@
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
-      <version>1.6.2-R1.0</version>
+      <version>1.7.2-R0.2</version>
       <scope>compile</scope>
       <type>jar</type>
     </dependency>
