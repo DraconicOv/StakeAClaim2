@@ -394,7 +394,6 @@ public class ToolsCommands {
 
         // Check if this would be over the proxyClaimMax
         final ArrayList<ProtectedRegion> regionList = SACUtil.getOwnedRegions(rgMgr, passivePlayer);
-//        boolean claimWasReclaimed = false;
 
         if (wcfg.claimLimitsAreArea) {
             double area = getArea(claim);

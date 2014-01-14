@@ -42,11 +42,6 @@ public class GlobalRequestManager {
      */
     private StakeAClaimPlugin plugin;
 
-//    /**
-//     * Reference to the global configuration.
-//     */
-//    private ConfigurationManager config;
-//
     /**
      * Map of managers per-world.
      */
@@ -65,7 +60,6 @@ public class GlobalRequestManager {
      */
     public GlobalRequestManager(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
-//        config = plugin.getGlobalStateManager();
         managers = new ConcurrentHashMap<String, RequestManager>();
         lastModified = new HashMap<String, Long>();
     }
@@ -137,18 +131,9 @@ public class GlobalRequestManager {
             RequestManager manager = new RequestManager(database);
             manager.load();
 
-//            final String[] results = SACUtil.fixRquests(plugin, manager, world);
-
             if (plugin.getGlobalStateManager().get(world).summaryOnStart) {
                 plugin.getLogger().info(manager.getRequests().size()
                         + " requests loaded for '" + name + "'");
-//                if (!results[0].equals("")) {
-//                    plugin.getLogger().info(results[0]);
-//                }
-//                if (!results[1].equals("")) {
-//                    plugin.getLogger().info(results[1]);
-//                }
-
             }
 
             return manager;

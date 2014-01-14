@@ -17,37 +17,6 @@
     </license>
   </licenses>
   
- <!--  <issueManagement>
-    <system>YouTrack</system>
-    <url>http://youtrack.sk89q.com</url>
-  </issueManagement>
-  
-  <ciManagement>
-    <system>Jenkins</system>
-    <url>http://build.sk89q.com</url>
-  </ciManagement>
-  
-  <scm>
-    <connection>scm:git:git://github.com/sk89q/worldguard.git</connection>
-    <developerConnection>scm:git:git@github.com:sk89q/worldguard.git</developerConnection>
-    <url>https://github.com/sk89q/worldguard</url>
-    <tag>master</tag>
-  </scm>
-  
-  <mailingLists>
-    <mailingList>
-      <name>Developer Discussion</name>
-      <archive>https://groups.google.com/d/forum/sk-dev-discuss</archive>
-    </mailingList>
-  </mailingLists>
-  
-  <distributionManagement>
-    <site>
-      <id>sk89q-docs-upload</id>
-      <url>ftp://sk89q-maven-deploy/worldguard/</url>
-    </site>
-  </distributionManagement> -->
-  
   <properties> <!-- Fix encoding warnings -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -56,10 +25,6 @@
     <repository>
       <id>sk89q-repo</id>
       <url>http://maven.sk89q.com/repo/</url>
-    </repository>
-    <repository>
-      <id>zml-repo</id>
-      <url>http://files.zachsthings.com/repo</url>
     </repository>
     <repository>
       <id>bukkit-repo</id>
@@ -91,56 +56,6 @@
       <scope>compile</scope>
       <type>jar</type>
     </dependency>
-    
-<!--    <dependency>
-      <groupId>com.sk89q</groupId>
-      <artifactId>commandbook</artifactId>
-      <version>2.1</version>
-      <scope>compile</scope>
-      <type>jar</type>
-      <exclusions>
-        <exclusion>
-          <groupId>com.zachsthings.libcomponents</groupId>
-          <artifactId>libcomponents-bukkit</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.spout</groupId>
-          <artifactId>spoutapi</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    
-    <dependency>
-      <groupId>com.nijikokun</groupId>
-      <artifactId>iconomy</artifactId>
-      <version>5.0</version>
-      <scope>compile</scope>
-      <type>jar</type>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.khelekore</groupId>
-      <artifactId>prtree</artifactId>
-      <version>1.5.0</version>
-      <scope>compile</scope>
-      <type>jar</type>
-    </dependency>
-    
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.8.1</version>
-      <scope>test</scope>
-      <type>jar</type>
-    </dependency> -->
-    
-<!--     <dependency> -->
-<!--       <groupId>net.sf.opencsv</groupId> -->
-<!--       <artifactId>opencsv</artifactId> -->
-<!--       <version>2.0</version> -->
-<!--       <scope>compile</scope> -->
-<!--       <type>jar</type> -->
-<!--     </dependency> -->
   </dependencies>
   
   <build>
@@ -171,7 +86,6 @@
         <includes>
           <include>config.yml</include>
           <include>config_world.yml</include>
-<!--           <include>blacklist.txt</include> -->
         </includes>
       </resource>
     </resources>
@@ -198,9 +112,6 @@
               <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
             </manifest>
-            <manifestEntries>
-              <Class-Path>WorldGuard/WorldEdit.jar lib/WorldEdit.jar ../lib/WorldEdit.jar ../WorldEdit.jar</Class-Path>
-            </manifestEntries>
           </archive>
         </configuration>
       </plugin>

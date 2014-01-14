@@ -130,16 +130,6 @@ public class WorldConfiguration {
         }
     }
 
-//    private Object getProperty(String node) {
-//        Object res = parentConfig.getProperty(node);
-//
-//        if (config.getProperty(node) != null) {
-//            res = config.getProperty(node);
-//        }
-//
-//        return res;
-//    }
-
     /**
      * Load the configuration.
      */
