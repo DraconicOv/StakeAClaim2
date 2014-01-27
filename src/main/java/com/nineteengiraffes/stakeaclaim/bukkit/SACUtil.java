@@ -19,11 +19,15 @@
 
 package com.nineteengiraffes.stakeaclaim.bukkit;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -35,16 +39,19 @@ import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest.Status;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.bukkit.WGBukkit;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.GlobalRegionManager;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
+import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class SACUtil {
 
-    private SACUtil() {
-
-    }
+//    private SACUtil() {
+//
+//    }
 
     // Get request, fix inconsistencies if needed
     /**
@@ -351,4 +358,30 @@ public class SACUtil {
 
         return claim;
     }
+    
+    
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static void addFlags() {
+        try {
+            Field field = DefaultFlag.class.getDeclaredField("flagsList");
+            Field modifiersField = Field.class.getDeclaredField("modifiers");
+            modifiersField.setAccessible(true);
+            modifiersField.setInt(field, field.getModifiers() & 0xFFFFFFEF);
+            field.setAccessible(true);
+
+            List wgFlags = new ArrayList(Arrays.asList(DefaultFlag.getFlags()));
+            wgFlags.add(SACFlags.RECLAIMED);
+            Flag<?>[] newFlags = new Flag[wgFlags.size()];
+            wgFlags.toArray(newFlags);
+            field.set(null, newFlags);
+
+            Field grmField = WorldGuardPlugin.class.getDeclaredField("globalRegionManager");
+            grmField.setAccessible(true);
+            GlobalRegionManager gRgMr = (GlobalRegionManager) grmField.get(Bukkit.getPluginManager().getPlugin("WorldGuard"));
+            gRgMr.preload();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
 }

@@ -34,6 +34,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.nineteengiraffes.stakeaclaim.bukkit.commands.AllCommands;
+import com.nineteengiraffes.stakeaclaim.bukkit.SACUtil;
 import com.nineteengiraffes.stakeaclaim.stakes.GlobalRequestManager;
 import com.sk89q.bukkit.util.CommandsManagerRegistration;
 import com.sk89q.minecraft.util.commands.CommandException;
@@ -126,6 +127,9 @@ public class StakeAClaimPlugin extends JavaPlugin {
 
         // Register events
         (new PlayerListener(this)).registerEvents();
+
+        // Add in custom flags
+        SACUtil.addFlags();
     }
 
     /**
