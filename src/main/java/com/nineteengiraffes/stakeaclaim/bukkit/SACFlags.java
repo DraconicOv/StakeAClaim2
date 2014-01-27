@@ -20,10 +20,15 @@
 package com.nineteengiraffes.stakeaclaim.bukkit;
 
 import com.sk89q.worldguard.protection.flags.BooleanFlag;
-import com.sk89q.worldguard.protection.flags.RegionGroup;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.StringFlag;
 
 public final class SACFlags {
 
-    public static final BooleanFlag RECLAIMED = new BooleanFlag("reclaimed", RegionGroup.ALL);
+    public static final BooleanFlag RECLAIMED = new BooleanFlag("reclaimed");
+    public static final BooleanFlag PENDING = new BooleanFlag("pending-claim");
+    public static final StringFlag REQUEST_NAME = new StringFlag("request-name");
+    public static final StringFlag REQUEST_MESSAGE = new StringFlag("request-message");
+    public static final StateFlag ENTRY_DEF = new StateFlag("entry-default",true);
 
 }

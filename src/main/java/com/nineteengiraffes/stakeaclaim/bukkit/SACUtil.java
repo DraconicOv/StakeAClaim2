@@ -358,8 +358,11 @@ public class SACUtil {
 
         return claim;
     }
-    
-    
+
+    /**
+     * Add in SAC's custom flags
+     * 
+     */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static void addFlags() {
         try {
@@ -370,7 +373,14 @@ public class SACUtil {
             field.setAccessible(true);
 
             List wgFlags = new ArrayList(Arrays.asList(DefaultFlag.getFlags()));
+
+            // Flags
             wgFlags.add(SACFlags.RECLAIMED);
+            wgFlags.add(SACFlags.PENDING);
+            wgFlags.add(SACFlags.REQUEST_NAME);
+            wgFlags.add(SACFlags.REQUEST_MESSAGE);
+            wgFlags.add(SACFlags.ENTRY_DEF);
+
             Flag<?>[] newFlags = new Flag[wgFlags.size()];
             wgFlags.toArray(newFlags);
             field.set(null, newFlags);
