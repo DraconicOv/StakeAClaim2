@@ -120,7 +120,7 @@ public class PlayerStateManager implements Runnable {
         public int lastBlockY;
         public int lastBlockZ;
         public String lastSupport;
-        public LinkedHashMap<Integer, Long> requestList;
-        public StakeRequest unsubmittedRequest;
+        public LinkedHashMap<Integer, String> regionList;
+        public String[] unsubmittedRequest;
     }
 }

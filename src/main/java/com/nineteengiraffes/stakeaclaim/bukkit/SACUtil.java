@@ -197,10 +197,8 @@ public class SACUtil {
         ArrayList<ProtectedRegion> regionList = new ArrayList<ProtectedRegion>();
 
         for (ProtectedRegion region : regions.values()) {
-            if (isRegionOwned(region) == 1) {
-                if (region.getOwners().contains(playerName)) {
-                    regionList.add(region);
-                }
+            if (isRegionOwned(region) == 1 && region.getOwners().contains(playerName)) {
+                regionList.add(region);
             }
         }
         return regionList;
@@ -230,14 +228,28 @@ public class SACUtil {
         ArrayList<ProtectedRegion> regionList = new ArrayList<ProtectedRegion>();
 
         for (ProtectedRegion region : regions.values()) {
-            if (region.getFlag(SACFlags.REQUEST_NAME) != null) {
-                if (region.getFlag(SACFlags.REQUEST_NAME).equals(playerName)) {
-                    if (region.getFlag(SACFlags.PENDING) != null) {
-                        if (region.getFlag(SACFlags.PENDING) == true) {
-                            regionList.add(region);
-                        }
-                    }
-                }
+            if (region.getFlag(SACFlags.REQUEST_NAME) != null && region.getFlag(SACFlags.REQUEST_NAME).equals(playerName) &&
+                    region.getFlag(SACFlags.PENDING) != null && region.getFlag(SACFlags.PENDING) == true) {
+                regionList.add(region);
+            }
+        }
+        return regionList;
+    }
+
+    /**
+     * Get a list of pending regions
+     * 
+     * @param rgMgr the region manager to work with
+     * @return list of pending regions
+     */
+    public static ArrayList<ProtectedRegion> getPendingRegions(RegionManager rgMgr) {
+
+        final Map<String, ProtectedRegion> regions = rgMgr.getRegions();
+        ArrayList<ProtectedRegion> regionList = new ArrayList<ProtectedRegion>();
+
+        for (ProtectedRegion region : regions.values()) {
+            if (region.getFlag(SACFlags.PENDING) != null && region.getFlag(SACFlags.REQUEST_NAME) != null && region.getFlag(SACFlags.PENDING) == true) {
+                regionList.add(region);
             }
         }
         return regionList;
@@ -283,34 +295,24 @@ public class SACUtil {
 
     // Utilities
     /**
-     * Reclaim region and request
+     * Reclaim region
      * 
-     * @param request the request to reclaim
      * @param region the region to reclaim
      * @param useReclaimed boolean config value
      */
-    public static void reclaim(StakeRequest request, ProtectedRegion region, boolean useReclaimed) {
-        reclaim(request, useReclaimed);
+    public static void reclaim(ProtectedRegion region, boolean useReclaimed) {
         region.getOwners().getPlayers().clear();
         region.getOwners().getGroups().clear();
         region.getMembers().getPlayers().clear();
         region.getMembers().getGroups().clear();
-        region.setFlag(DefaultFlag.ENTRY, null);
-    }
-
-    /**
-     * Reclaim request
-     * 
-     * @param request the request to reclaim
-     * @param useReclaimed boolean config value
-     */
-    public static void reclaim(StakeRequest request, boolean useReclaimed) {
+        region.setFlag(SACFlags.REQUEST_STATUS,null);
+        region.setFlag(SACFlags.REQUEST_NAME,null);
+        region.setFlag(SACFlags.PENDING,null);
+        region.setFlag(SACFlags.ENTRY_DEF,null);
+        region.setFlag(DefaultFlag.ENTRY,null);
         if (useReclaimed) {
-            request.setStatus(Status.RECLAIMED);
-        } else {
-            request.setStatus(Status.UNSTAKED);
+            region.setFlag(SACFlags.RECLAIMED,true);
         }
-        request.setAccess(null);
     }
 
     /**

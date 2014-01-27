@@ -31,8 +31,6 @@ import com.nineteengiraffes.stakeaclaim.bukkit.SACFlags;
 import com.nineteengiraffes.stakeaclaim.bukkit.SACUtil;
 import com.nineteengiraffes.stakeaclaim.bukkit.StakeAClaimPlugin;
 import com.nineteengiraffes.stakeaclaim.bukkit.WorldConfiguration;
-import com.nineteengiraffes.stakeaclaim.stakes.RequestManager;
-import com.nineteengiraffes.stakeaclaim.stakes.databases.StakeDatabaseException;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
@@ -121,17 +119,19 @@ public class ClaimCommands {
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
 
         int ownedCode = SACUtil.isRegionOwned(claim);
-        if (ownedCode == 0) {
-            if (claim.getFlag(SACFlags.PENDING) != null) {
-                if (claim.getFlag(SACFlags.PENDING) == true) {
-                    if (claim.getFlag(SACFlags.REQUEST_NAME) == null) {
-                        claim.setFlag(SACFlags.REQUEST_STATUS,null);
-                        claim.setFlag(SACFlags.PENDING,null);
-                        claim.setFlag(SACFlags.ENTRY_DEF,null);
-                    } else if (!claim.getFlag(SACFlags.REQUEST_NAME).equals(player.getName().toLowerCase())) {
-                        throw new CommandException(ChatColor.YELLOW + "This claim is already requested by " +
-                                ChatColor.GREEN + claim.getFlag(SACFlags.REQUEST_NAME) + ".");
-                    }
+        if (ownedCode <= 0) {
+            claim.getMembers().getPlayers().clear();
+            claim.getMembers().getGroups().clear();
+            if (claim.getFlag(SACFlags.PENDING) != null && claim.getFlag(SACFlags.PENDING) == true) {
+                if (claim.getFlag(SACFlags.REQUEST_NAME) == null) {
+                    claim.setFlag(SACFlags.REQUEST_STATUS,null);
+                    claim.setFlag(SACFlags.PENDING,null);
+                    claim.setFlag(SACFlags.ENTRY_DEF,null);
+                    claim.setFlag(DefaultFlag.ENTRY,null);
+                } else if (!claim.getFlag(SACFlags.REQUEST_NAME).equals(player.getName().toLowerCase())) {
+                    saveRegions(world);
+                    throw new CommandException(ChatColor.YELLOW + "This claim is already requested by " +
+                            ChatColor.GREEN + claim.getFlag(SACFlags.REQUEST_NAME) + ".");
                 }
             }
         } else if (ownedCode == 1) {
@@ -144,23 +144,6 @@ public class ClaimCommands {
             }
             throw new CommandException(ChatColor.YELLOW + "This claim is already owned by " + 
                     ChatColor.GREEN + claim.getOwners().toUserFriendlyString() + ".");
-        } else if (ownedCode < 0) {
-            claim.getMembers().getPlayers().clear();
-            claim.getMembers().getGroups().clear();
-            if (claim.getFlag(SACFlags.PENDING) != null) {
-                if (claim.getFlag(SACFlags.PENDING) == true) {
-                    if (claim.getFlag(SACFlags.REQUEST_NAME) == null) {
-                        claim.setFlag(SACFlags.REQUEST_STATUS,null);
-                        claim.setFlag(SACFlags.PENDING,null);
-                        claim.setFlag(SACFlags.ENTRY_DEF,null);
-                        claim.setFlag(DefaultFlag.ENTRY,null);
-                    } else if (!claim.getFlag(SACFlags.REQUEST_NAME).equals(player.getName().toLowerCase())) {
-                        saveRegions(world);
-                        throw new CommandException(ChatColor.YELLOW + "This claim is already requested by " +
-                                ChatColor.GREEN + claim.getFlag(SACFlags.REQUEST_NAME) + ".");
-                    }
-                }
-            }
         } else {
                 throw new CommandException(ChatColor.RED + "Claim error: " + ChatColor.WHITE + 
                           claim.getId() + ChatColor.RED + " already has multiple owners!");
@@ -195,11 +178,11 @@ public class ClaimCommands {
         // Remove pending flag on any/all other claims
         regionList = SACUtil.getPendingRegions(rgMgr, player);
         for (ProtectedRegion region : regionList) {
-                    region.setFlag(SACFlags.REQUEST_STATUS,null);
-                    region.setFlag(SACFlags.REQUEST_NAME,null);
-                    region.setFlag(SACFlags.PENDING,null);
-                    region.setFlag(SACFlags.ENTRY_DEF,null);
-                    region.setFlag(DefaultFlag.ENTRY,null);
+            region.setFlag(SACFlags.REQUEST_STATUS,null);
+            region.setFlag(SACFlags.REQUEST_NAME,null);
+            region.setFlag(SACFlags.PENDING,null);
+            region.setFlag(SACFlags.ENTRY_DEF,null);
+            region.setFlag(DefaultFlag.ENTRY,null);
         }
 
         // Submit request
@@ -208,10 +191,8 @@ public class ClaimCommands {
         claim.setFlag(SACFlags.REQUEST_STATUS,"Pending");
 
         boolean useReclaimed = false;
-        if (claim.getFlag(SACFlags.RECLAIMED) != null) {
-            if (claim.getFlag(SACFlags.RECLAIMED) == true && wcfg.showReclaimOnStake) {
+        if (claim.getFlag(SACFlags.RECLAIMED) != null && claim.getFlag(SACFlags.RECLAIMED) == true && wcfg.showReclaimOnStake) {
                 useReclaimed = true;
-            }
         }
         if (selfClaimActive && !wcfg.twoStepSelfClaim && useReclaimed == false) {
             claim.getOwners().addPlayer(player.getName().toLowerCase());
@@ -340,14 +321,14 @@ public class ClaimCommands {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
 
-        // Set all pending requests for this player to unstaked
+        // Remove all pending requests for this player
         ArrayList<ProtectedRegion> regionList = SACUtil.getPendingRegions(rgMgr, player);
         for (ProtectedRegion region : regionList) {
-                    region.setFlag(SACFlags.REQUEST_STATUS,null);
-                    region.setFlag(SACFlags.REQUEST_NAME,null);
-                    region.setFlag(SACFlags.PENDING,null);
-                    region.setFlag(SACFlags.ENTRY_DEF,null);
-                    region.setFlag(DefaultFlag.ENTRY,null);
+            region.setFlag(SACFlags.REQUEST_STATUS,null);
+            region.setFlag(SACFlags.REQUEST_NAME,null);
+            region.setFlag(SACFlags.PENDING,null);
+            region.setFlag(SACFlags.ENTRY_DEF,null);
+            region.setFlag(DefaultFlag.ENTRY,null);
         }
 
         if (regionList.size() == 0) {
@@ -526,14 +507,4 @@ public class ClaimCommands {
         }
     }
 
-    public void saveRequests(World world) throws CommandException {
-
-        final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
-
-        try {
-            rqMgr.save();
-        } catch (StakeDatabaseException e) {
-            throw new CommandException("Failed to write requests: " + e.getMessage());
-        }
-    }
 }

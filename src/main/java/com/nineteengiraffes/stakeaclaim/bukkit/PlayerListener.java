@@ -135,7 +135,7 @@ public class PlayerListener implements Listener {
 
                     // save state
                     if (state.lastWorld != event.getTo().getWorld()) {
-                        state.requestList = null;
+                        state.regionList = null;
                         state.unsubmittedRequest = null;
                         state.lastWorld = event.getTo().getWorld();
                     }
@@ -148,6 +148,7 @@ public class PlayerListener implements Listener {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
 
@@ -176,7 +177,6 @@ public class PlayerListener implements Listener {
                     return;
                 }
 
-                final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
                 final Location loc = passivePlayer.getLocation();
                 final PlayerState state = plugin.getPlayerStateManager().getState(activePlayer);
 
@@ -188,42 +188,41 @@ public class PlayerListener implements Listener {
                             ChatColor.YELLOW + " is in " + ChatColor.WHITE + regionID + ".");
                     activePlayer.sendMessage(ChatColor.YELLOW + "Do " + ChatColor.WHITE + "/tools proxy" + 
                             ChatColor.YELLOW + " to stake that claim for them.");
-                    state.unsubmittedRequest = new StakeRequest(regionID, passivePlayer);
-                    state.unsubmittedRequest.setStatus(Status.PENDING);
+                    state.unsubmittedRequest = new String[]{passivePlayer.getName().toLowerCase(),regionID};
                 } else {
                     state.unsubmittedRequest = null;
                 }
 
-                LinkedHashMap<Integer, Long> requests = new LinkedHashMap<Integer, Long>();
-                state.requestList = null;
+                LinkedHashMap<Integer, Long> regions = new LinkedHashMap<Integer, Long>();
+                state.regionList = null;
 
-                final StakeRequest pendingRequest = SACUtil.getPlayerPendingRequest(rqMgr, passivePlayer);
+                ArrayList<ProtectedRegion> regionList = SACUtil.getPendingRegions(rgMgr, passivePlayer);
                 final ArrayList<StakeRequest> requestList = SACUtil.getAcceptedRequests(rqMgr, rgMgr, passivePlayer, wcfg.useReclaimed);
-                try {
-                    rqMgr.save();
-                } catch (StakeDatabaseException e) {
-                    activePlayer.sendMessage(ChatColor.RED + "Failed to write requests: " + e.getMessage());
-                    return;
-                }
+//                try {
+//                    rqMgr.save();
+//                } catch (StakeDatabaseException e) {
+//                    activePlayer.sendMessage(ChatColor.RED + "Failed to write requests: " + e.getMessage());
+//                    return;
+//                }
 
                 int index = 0;
-                if (pendingRequest != null) {
-                    requests.put(index, pendingRequest.getRequestID());
+                if (regionList != null) {
+                    regions.put(index, regionList.getRequestID());
                     index = 1;
                 }
 
                 for (StakeRequest request : requestList) {
-                    requests.put(index, request.getRequestID());
+                    regions.put(index, request.getRequestID());
                     index++;
                 }
 
-                final int totalSize = requests.size();
+                final int totalSize = regions.size();
                 if (totalSize < 1) {
-                    state.requestList = null;
+                    state.regionList = null;
                     activePlayer.sendMessage(ChatColor.YELLOW + "This player has no requests.");
                     return;
                 }
-                state.requestList = requests;
+                state.regionList = regions;
 
                 // Display the list
                 activePlayer.sendMessage(ChatColor.GREEN + passivePlayer.getName().toLowerCase() +
@@ -231,7 +230,7 @@ public class PlayerListener implements Listener {
 
                 StakeRequest request;
                 for (int i = 0; i < totalSize; i++) {
-                    request = rqMgr.getRequest(requests.get(i));
+                    request = rqMgr.getRequest(regions.get(i));
                     activePlayer.sendMessage(ChatColor.YELLOW + "# " + (i + 1) + ": " + ChatColor.WHITE + request.getRegionID() +
                             ", " + ChatColor.GREEN + request.getPlayerName() +
                             ", " + ChatColor.YELLOW + request.getStatus().name().toLowerCase());
@@ -256,7 +255,7 @@ public class PlayerListener implements Listener {
             state.lastBlockY = loc.getBlockY();
             state.lastBlockZ = loc.getBlockZ();
             state.lastSupport = null;
-            state.requestList = null;
+            state.regionList = null;
             state.unsubmittedRequest = null;
         }
     }
