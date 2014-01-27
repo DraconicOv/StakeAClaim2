@@ -33,9 +33,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import com.nineteengiraffes.stakeaclaim.stakes.RequestManager;
-import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest;
-import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest.Status;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.bukkit.WGBukkit;
@@ -49,130 +46,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class SACUtil {
 
-    // Get request, fix inconsistencies if needed
-    /**
-     * Fix one region's requests:
-     * Add missing requests
-     * Fix non matching requests
-     * Fix duplicate requests
-     * 
-     * Must have just one owner!
-     * 
-     * @param rqMgr the request manager to work with
-     * @param region the region to check
-     * @param useReclaimed boolean config value
-     * @return request for the region, will return null on error
-     */
-    public static StakeRequest fixRegionsRequests(RequestManager rqMgr, ProtectedRegion region, boolean useReclaimed) {
-
-        if (region.getOwners().getPlayers().size() != 1) {
-            return null;
-        }
-
-        StakeRequest newRequest;
-        final ArrayList<StakeRequest> requests = rqMgr.getRegionStatusRequests(region.getId(), Status.ACCEPTED);
-
-        // Remove requests by wrong owner
-        for (int i = requests.size() - 1; i >= 0; i--) {
-            if (!region.getOwners().contains(requests.get(i).getPlayerName())) {
-                reclaim(requests.get(i), useReclaimed);
-                requests.remove(i);
-            }
-        }
-
-        // Add a missing request
-        if (requests.size() == 0) {
-            newRequest = new StakeRequest(region.getId(), region.getOwners().getPlayers().toArray(new String[0])[0]);
-            newRequest.setStatus(Status.ACCEPTED);
-            rqMgr.addRequest(newRequest);
-            requests.add(newRequest);
-
-        // Remove duplicate requests
-        } else if (requests.size() > 1) {
-            newRequest = requests.get(requests.size() - 1);
-            for (int i = requests.size() - 2; i >= 0; i--) {
-
-                // Save oldest
-                if (requests.get(i).getRequestID() < newRequest.getRequestID()) {
-                    reclaim(newRequest, useReclaimed);
-                    requests.remove(requests.indexOf(newRequest));
-                    newRequest = requests.get(i);
-                } else {
-                    reclaim(requests.get(i), useReclaimed);
-                    requests.remove(i);
-                }
-            }
-        }
-
-        // Did it get fixed?
-        if (requests.size() != 1) {
-            return null;
-        }
-
-        return requests.get(0);
-    }
-
-    /**
-     * Get pending request for (@code regionID)
-     * fixes duplicate requests
-     * 
-     * @param rqMgr the request manager to work with
-     * @param regionID the region to get the request for
-     * @return pending request, will return null if there is none
-     */
-    public static StakeRequest getRegionPendingRequest(RequestManager rqMgr, String regionID) {
-
-        ArrayList<StakeRequest> requestList = rqMgr.getRegionStatusRequests(regionID, Status.PENDING);
-        StakeRequest oldestRequest;
-
-        if (requestList.size() < 1) {
-            return null;
-        } else {
-            oldestRequest = requestList.get(0);
-            for (int i = 1; i < requestList.size(); i++) {
-
-                if (requestList.get(i).getRequestID() < oldestRequest.getRequestID()) {
-                    oldestRequest.setStatus(Status.UNSTAKED);
-                    oldestRequest = requestList.get(i);
-                } else {
-                    requestList.get(i).setStatus(Status.UNSTAKED);
-                }
-            }
-        }
-
-        return oldestRequest;
-    }
-
-    // Get request(s) or regions, query only
-    /**
-     * Get a list of requests for regions owned by (@code player)
-     * 
-     * @param rqMgr the request manager to work with
-     * @param rgMgr the region manager to work with
-     * @param player the to get the requests for
-     * @param useReclaimed boolean config value
-     * @return list of accepted requests for the player
-     */
-    public static ArrayList<StakeRequest> getAcceptedRequests(RequestManager rqMgr, RegionManager rgMgr, Player player, boolean useReclaimed) {
-
-        final Map<String, ProtectedRegion> regions = rgMgr.getRegions();
-        ArrayList<StakeRequest> requestList = new ArrayList<StakeRequest>();
-        StakeRequest request;
-
-        for (ProtectedRegion region : regions.values()) {
-            if (isRegionOwned(region) == 1) {
-                if (region.getOwners().contains(player.getName().toLowerCase())) {
-                    request = fixRegionsRequests(rqMgr, region, useReclaimed);
-                    if (request != null) {
-                        requestList.add(request);
-                    }
-                }
-            }
-        }
-
-        return requestList;
-    }
-
+    // Get regions
     /**
      * Get a list of regions owned by (@code player)
      * 
@@ -255,45 +129,25 @@ public class SACUtil {
         return regionList;
     }
 
+    // Utilities
     /**
-     * Get pending request for (@code player)
+     * Resets regions with default entry flag owned by (@code player)
      * 
-     * @param rqMgr the request manager to work with
-     * @param player the player to get the request for
-     * @return pending request, will return null if there is none
+     * @param rgMgr the region manager to work with
+     * @param player the player to reset entries for
+     * @return list of entry regions for the player
      */
-    public static StakeRequest getPlayerPendingRequest(RequestManager rqMgr, Player player) {
-        return getPlayerPendingRequest(rqMgr, player.getName().toLowerCase());
-    }
+    public static void resetEntryRegions(RegionManager rgMgr, Player player) {
 
-    /**
-     * Get pending request for (@code playerName)
-     * 
-     * @param rqMgr the request manager to work with
-     * @param playerName name of the player to get the request for
-     * @return pending request, will return null if there is none
-     */
-    public static StakeRequest getPlayerPendingRequest(RequestManager rqMgr, String playerName) {
+        final Map<String, ProtectedRegion> regions = rgMgr.getRegions();
 
-        ArrayList<StakeRequest> requestList = rqMgr.getPlayerStatusRequests(playerName, Status.PENDING);
-        StakeRequest oldestRequest;
-
-        if (requestList.size() < 1) {
-            return null;
-        } else {
-            oldestRequest = requestList.get(0);
-            for (int i = 1; i < requestList.size(); i++) {
-
-                if (requestList.get(i).getRequestID() < oldestRequest.getRequestID()) {
-                    oldestRequest = requestList.get(i);
-                }
+        for (ProtectedRegion region : regions.values()) {
+            if (region.getOwners().contains(player.getName().toLowerCase()) && region.getFlag(SACFlags.ENTRY_DEFAULT) != null && isRegionOwned(region) == 1) {
+                region.setFlag(DefaultFlag.ENTRY, region.getFlag(SACFlags.ENTRY_DEFAULT));
             }
         }
-
-        return oldestRequest;
     }
 
-    // Utilities
     /**
      * Reclaim region
      * 
@@ -308,7 +162,7 @@ public class SACUtil {
         region.setFlag(SACFlags.REQUEST_STATUS,null);
         region.setFlag(SACFlags.REQUEST_NAME,null);
         region.setFlag(SACFlags.PENDING,null);
-        region.setFlag(SACFlags.ENTRY_DEF,null);
+        region.setFlag(SACFlags.ENTRY_DEFAULT,null);
         region.setFlag(DefaultFlag.ENTRY,null);
         if (useReclaimed) {
             region.setFlag(SACFlags.RECLAIMED,true);
@@ -414,7 +268,7 @@ public class SACUtil {
             wgFlags.add(SACFlags.PENDING);
             wgFlags.add(SACFlags.REQUEST_NAME);
             wgFlags.add(SACFlags.REQUEST_STATUS);
-            wgFlags.add(SACFlags.ENTRY_DEF);
+            wgFlags.add(SACFlags.ENTRY_DEFAULT);
 
             Flag<?>[] newFlags = new Flag[wgFlags.size()];
             wgFlags.toArray(newFlags);

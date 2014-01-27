@@ -37,16 +37,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 
 import com.nineteengiraffes.stakeaclaim.bukkit.PlayerStateManager.PlayerState;
-import com.nineteengiraffes.stakeaclaim.stakes.RequestManager;
-import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest;
-import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest.Access;
-import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest.Status;
-import com.nineteengiraffes.stakeaclaim.stakes.databases.StakeDatabaseException;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.domains.DefaultDomain;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
-import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -79,6 +72,7 @@ public class PlayerListener implements Listener {
     }
 
     class PlayerMoveHandler implements Listener {
+        @SuppressWarnings("deprecation")
         @EventHandler(priority = EventPriority.HIGH)
         public void onPlayerMove(PlayerMoveEvent event) {
             Player player = event.getPlayer();
@@ -180,7 +174,7 @@ public class PlayerListener implements Listener {
                 final Location loc = passivePlayer.getLocation();
                 final PlayerState state = plugin.getPlayerStateManager().getState(activePlayer);
 
-                final ProtectedRegion claim = SACUtil.getClaimAtPoint(rgMgr, wcfg, new Vector(loc.getX(), loc.getY(), loc.getZ()));
+                ProtectedRegion claim = SACUtil.getClaimAtPoint(rgMgr, wcfg, new Vector(loc.getX(), loc.getY(), loc.getZ()));
 
                 if (claim != null) {
                     final String regionID = claim.getId();
@@ -193,26 +187,19 @@ public class PlayerListener implements Listener {
                     state.unsubmittedRequest = null;
                 }
 
-                LinkedHashMap<Integer, Long> regions = new LinkedHashMap<Integer, Long>();
+                LinkedHashMap<Integer, String> regions = new LinkedHashMap<Integer, String>();
                 state.regionList = null;
 
                 ArrayList<ProtectedRegion> regionList = SACUtil.getPendingRegions(rgMgr, passivePlayer);
-                final ArrayList<StakeRequest> requestList = SACUtil.getAcceptedRequests(rqMgr, rgMgr, passivePlayer, wcfg.useReclaimed);
-//                try {
-//                    rqMgr.save();
-//                } catch (StakeDatabaseException e) {
-//                    activePlayer.sendMessage(ChatColor.RED + "Failed to write requests: " + e.getMessage());
-//                    return;
-//                }
-
                 int index = 0;
-                if (regionList != null) {
-                    regions.put(index, regionList.getRequestID());
-                    index = 1;
+                for (ProtectedRegion region : regionList) {
+                    regions.put(index, region.getId());
+                    index++;
                 }
 
-                for (StakeRequest request : requestList) {
-                    regions.put(index, request.getRequestID());
+                regionList = SACUtil.getOwnedRegions(rgMgr, passivePlayer);
+                for (ProtectedRegion region : regionList) {
+                    regions.put(index, region.getId());
                     index++;
                 }
 
@@ -228,12 +215,11 @@ public class PlayerListener implements Listener {
                 activePlayer.sendMessage(ChatColor.GREEN + passivePlayer.getName().toLowerCase() +
                         ChatColor.RED + "'s request list:");
 
-                StakeRequest request;
                 for (int i = 0; i < totalSize; i++) {
-                    request = rqMgr.getRequest(regions.get(i));
-                    activePlayer.sendMessage(ChatColor.YELLOW + "# " + (i + 1) + ": " + ChatColor.WHITE + request.getRegionID() +
-                            ", " + ChatColor.GREEN + request.getPlayerName() +
-                            ", " + ChatColor.YELLOW + request.getStatus().name().toLowerCase());
+                    claim = rgMgr.getRegion(regions.get(i));
+                    activePlayer.sendMessage(ChatColor.YELLOW + "# " + (i + 1) + ": " + ChatColor.WHITE + claim.getId() +
+                            ", " + ChatColor.GREEN + passivePlayer.getName().toLowerCase() +
+                            ", " + ChatColor.YELLOW + claim.getFlag(SACFlags.PENDING) != null ? "Pending" : "Accepted");
                 }
             }
         }
@@ -263,30 +249,20 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        ConfigurationManager cfg = plugin.getGlobalStateManager();
 
-        if (plugin.hasPermission(player, "stakeaclaim.events.access")) {
-            RequestManager rqMgr;
-            ArrayList<StakeRequest> requestList;
+        if (plugin.hasPermission(player, "stakeaclaim.events.reset-entry")) {
             RegionManager rgMgr;
-            ProtectedRegion claim;
+            WorldConfiguration wcfg;
 
             for (World world : plugin.getServer().getWorlds()) {
-                rqMgr = plugin.getGlobalRequestManager().get(world);
-                requestList = rqMgr.getPlayerAccessRequests(player);
-
+                wcfg = cfg.get(world);
                 rgMgr = WGBukkit.getRegionManager(world);
-                if (rgMgr == null) {
+                if (!wcfg.useSAC || rgMgr == null) {
                     continue;
                 }
 
-                for (StakeRequest request : requestList) {
-                    claim = rgMgr.getRegion(request.getRegionID());
-                    if (request.getAccess() == Access.ALLOW) {
-                        claim.setFlag(DefaultFlag.ENTRY, State.ALLOW);
-                    } else if (request.getAccess() == Access.DENY) {
-                        claim.setFlag(DefaultFlag.ENTRY, State.DENY);
-                    }
-                }
+                SACUtil.resetEntryRegions(rgMgr, player);
             }
         }
 

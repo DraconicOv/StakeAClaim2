@@ -126,7 +126,7 @@ public class ClaimCommands {
                 if (claim.getFlag(SACFlags.REQUEST_NAME) == null) {
                     claim.setFlag(SACFlags.REQUEST_STATUS,null);
                     claim.setFlag(SACFlags.PENDING,null);
-                    claim.setFlag(SACFlags.ENTRY_DEF,null);
+                    claim.setFlag(SACFlags.ENTRY_DEFAULT,null);
                     claim.setFlag(DefaultFlag.ENTRY,null);
                 } else if (!claim.getFlag(SACFlags.REQUEST_NAME).equals(player.getName().toLowerCase())) {
                     saveRegions(world);
@@ -181,7 +181,7 @@ public class ClaimCommands {
             region.setFlag(SACFlags.REQUEST_STATUS,null);
             region.setFlag(SACFlags.REQUEST_NAME,null);
             region.setFlag(SACFlags.PENDING,null);
-            region.setFlag(SACFlags.ENTRY_DEF,null);
+            region.setFlag(SACFlags.ENTRY_DEFAULT,null);
             region.setFlag(DefaultFlag.ENTRY,null);
         }
 
@@ -252,7 +252,7 @@ public class ClaimCommands {
                 region.setFlag(SACFlags.REQUEST_STATUS,null);
                 region.setFlag(SACFlags.REQUEST_NAME,null);
                 region.setFlag(SACFlags.PENDING,null);
-                region.setFlag(SACFlags.ENTRY_DEF,null);
+                region.setFlag(SACFlags.ENTRY_DEFAULT,null);
                 region.setFlag(DefaultFlag.ENTRY,null);
             }
         }
@@ -327,7 +327,7 @@ public class ClaimCommands {
             region.setFlag(SACFlags.REQUEST_STATUS,null);
             region.setFlag(SACFlags.REQUEST_NAME,null);
             region.setFlag(SACFlags.PENDING,null);
-            region.setFlag(SACFlags.ENTRY_DEF,null);
+            region.setFlag(SACFlags.ENTRY_DEFAULT,null);
             region.setFlag(DefaultFlag.ENTRY,null);
         }
 

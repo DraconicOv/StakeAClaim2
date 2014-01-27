@@ -41,6 +41,7 @@ import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.protection.databases.ProtectionDatabaseException;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
+import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -97,7 +98,7 @@ public class ToolsCommands {
         }
         final int pageSize = 10;
         final int pages = (int) Math.ceil(totalSize / (float) pageSize);
-        if (page - 1 > pages) {
+        if (page + 1 > pages) {
             page = pages - 1;
         }
 
@@ -160,7 +161,7 @@ public class ToolsCommands {
                 claim.setFlag(SACFlags.REQUEST_NAME,null);
                 claim.setFlag(SACFlags.REQUEST_STATUS,null);
                 claim.setFlag(SACFlags.PENDING,null);
-                claim.setFlag(SACFlags.ENTRY_DEF,null);
+                claim.setFlag(SACFlags.ENTRY_DEFAULT,null);
                 claim.setFlag(DefaultFlag.ENTRY,null);
                 sender.sendMessage(ChatColor.RED + "Open claim: ");
                 sender.sendMessage(ChatColor.YELLOW + "# 1: " + ChatColor.WHITE + regionID +
@@ -170,7 +171,7 @@ public class ToolsCommands {
             claim.setFlag(SACFlags.PENDING,null);
             sender.sendMessage(ChatColor.RED + "Owned claim: ");
             sender.sendMessage(ChatColor.YELLOW + "# 1: " + ChatColor.WHITE + regionID +
-                    ", " + ChatColor.GREEN + claim.getOwners());
+                    ", " + ChatColor.GREEN + claim.getOwners().toUserFriendlyString());
         } else {
             sender.sendMessage(ChatColor.RED + "Claim error: " + ChatColor.WHITE + 
                       claim.getId() + ChatColor.RED + " has multiple owners!");
@@ -216,7 +217,7 @@ public class ToolsCommands {
         // Accept the request
         claim.getOwners().addPlayer(claim.getFlag(SACFlags.REQUEST_NAME));
         claim.setFlag(SACFlags.PENDING,null);
-        claim.setFlag(SACFlags.REQUEST_STATUS,"Accepted");
+        claim.setFlag(SACFlags.REQUEST_STATUS,"accepted");
 
         sender.sendMessage(ChatColor.YELLOW + "You have accepted " + ChatColor.GREEN + claim.getFlag(SACFlags.REQUEST_NAME) +
                 ChatColor.YELLOW + "'s request for " + ChatColor.WHITE + regionID + "!");
@@ -260,7 +261,7 @@ public class ToolsCommands {
 
         // Deny the request
         claim.setFlag(SACFlags.PENDING,null);
-        claim.setFlag(SACFlags.REQUEST_STATUS,"Denied");
+        claim.setFlag(SACFlags.REQUEST_STATUS,"denied");
 
         sender.sendMessage(ChatColor.YELLOW + "You have denied " + ChatColor.GREEN + claim.getFlag(SACFlags.REQUEST_NAME) +
                 ChatColor.YELLOW + "'s request for " + ChatColor.WHITE + regionID + "!");
@@ -304,7 +305,7 @@ public class ToolsCommands {
 
         // Cancel the request
         claim.setFlag(SACFlags.PENDING,null);
-        claim.setFlag(SACFlags.REQUEST_STATUS,"Canceled");
+        claim.setFlag(SACFlags.REQUEST_STATUS,"canceled");
 
         sender.sendMessage(ChatColor.YELLOW + "You have canceled " + ChatColor.GREEN + claim.getFlag(SACFlags.REQUEST_NAME) +
                 ChatColor.YELLOW + "'s request for " + ChatColor.WHITE + regionID + "!");
@@ -388,7 +389,7 @@ public class ToolsCommands {
                 if (claim.getFlag(SACFlags.REQUEST_NAME) == null) {
                     claim.setFlag(SACFlags.REQUEST_STATUS,null);
                     claim.setFlag(SACFlags.PENDING,null);
-                    claim.setFlag(SACFlags.ENTRY_DEF,null);
+                    claim.setFlag(SACFlags.ENTRY_DEFAULT,null);
                     claim.setFlag(DefaultFlag.ENTRY,null);
                 } else if (!claim.getFlag(SACFlags.REQUEST_NAME).equals(passivePlayer)) {
                     saveRegions(world);
@@ -436,7 +437,7 @@ public class ToolsCommands {
             region.setFlag(SACFlags.REQUEST_STATUS,null);
             region.setFlag(SACFlags.REQUEST_NAME,null);
             region.setFlag(SACFlags.PENDING,null);
-            region.setFlag(SACFlags.ENTRY_DEF,null);
+            region.setFlag(SACFlags.ENTRY_DEFAULT,null);
             region.setFlag(DefaultFlag.ENTRY,null);
         }
 
@@ -455,6 +456,89 @@ public class ToolsCommands {
         saveRegions(world);
     }
 
+    @Command(aliases = {"private", "v"},
+            usage = "<list entry #>",
+            desc = "Set a claim default to private",
+            min = 1, max = 1)
+    @CommandPermissions("stakeaclaim.tools.private.*")
+    public void setprivate(CommandContext args, CommandSender sender) throws CommandException {
+
+        final Player player = plugin.checkPlayer(sender);
+        final World world = player.getWorld();
+
+        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        if (rgMgr == null) {
+            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
+        }
+
+        final String regionID = getRegionIDFromList(args, player);
+        final ProtectedRegion claim = rgMgr.getRegion(regionID);
+
+        int ownedCode = SACUtil.isRegionOwned(claim);
+        if (ownedCode != 1) {
+            throw new CommandException(ChatColor.YELLOW + "Sorry, this claim is not owned.");
+        }
+        claim.setFlag(SACFlags.ENTRY_DEFAULT, State.DENY);
+
+        sender.sendMessage(ChatColor.YELLOW + "Set " + ChatColor.WHITE + regionID + ChatColor.YELLOW + "'s default to " + ChatColor.RED + "private.");
+
+        saveRegions(world);
+    }
+
+    @Command(aliases = {"open", "o"},
+            usage = "<list entry #>",
+            desc = "Set a claim default to open",
+            min = 1, max = 1)
+    @CommandPermissions("stakeaclaim.tools.open.*")
+    public void open(CommandContext args, CommandSender sender) throws CommandException {
+
+        final Player player = plugin.checkPlayer(sender);
+        final World world = player.getWorld();
+
+        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        if (rgMgr == null) {
+            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
+        }
+
+        final String regionID = getRegionIDFromList(args, player);
+        final ProtectedRegion claim = rgMgr.getRegion(regionID);
+
+        int ownedCode = SACUtil.isRegionOwned(claim);
+        if (ownedCode != 1) {
+            throw new CommandException(ChatColor.YELLOW + "Sorry, this claim is not owned.");
+        }
+        claim.setFlag(SACFlags.ENTRY_DEFAULT, State.ALLOW);
+
+        sender.sendMessage(ChatColor.YELLOW + "Set " + ChatColor.WHITE + regionID + ChatColor.YELLOW + "'s default to " + ChatColor.GRAY + "open.");
+
+        saveRegions(world);
+    }
+
+    @Command(aliases = {"entry", "e"},
+            usage = "<list entry #>",
+            desc = "Remove claim entry default",
+            min = 1, max = 1)
+    @CommandPermissions("stakeaclaim.tools.entry.*")
+    public void entry(CommandContext args, CommandSender sender) throws CommandException {
+
+        final Player player = plugin.checkPlayer(sender);
+        final World world = player.getWorld();
+
+        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        if (rgMgr == null) {
+            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
+        }
+
+        final String regionID = getRegionIDFromList(args, player);
+        final ProtectedRegion claim = rgMgr.getRegion(regionID);
+
+        claim.setFlag(SACFlags.ENTRY_DEFAULT, null);
+
+        sender.sendMessage(ChatColor.YELLOW + "Removed " + ChatColor.WHITE + regionID + ChatColor.YELLOW + " 's default entry setting.");
+
+        saveRegions(world);
+    }
+    
     // Other methods
     public double getArea(ProtectedRegion region) throws CommandException {
         final BlockVector min = region.getMinimumPoint();
