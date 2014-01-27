@@ -72,7 +72,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
     /**
      * Used for scheduling flags.
      */
-    private FlagStateManager flagStateManager;
+    private PlayerStateManager playerStateManager;
 
     /**
      * Construct objects. Actual loading occurs when the plugin is enabled, so
@@ -118,11 +118,11 @@ public class StakeAClaimPlugin extends JavaPlugin {
             getServer().shutdown();
         }
 
-        flagStateManager = new FlagStateManager(this);
+        playerStateManager = new PlayerStateManager(this);
 
         if (configuration.useRequestsScheduler) {
-            getServer().getScheduler().scheduleSyncRepeatingTask(this, flagStateManager,
-                    FlagStateManager.RUN_DELAY, FlagStateManager.RUN_DELAY);
+            getServer().getScheduler().scheduleSyncRepeatingTask(this, playerStateManager,
+                    PlayerStateManager.RUN_DELAY, PlayerStateManager.RUN_DELAY);
         }
 
         // Register events
@@ -185,8 +185,8 @@ public class StakeAClaimPlugin extends JavaPlugin {
      *
      * @return The flag state manager
      */
-    public FlagStateManager getFlagStateManager() {
-        return flagStateManager;
+    public PlayerStateManager getPlayerStateManager() {
+        return playerStateManager;
     }
 
     /**
@@ -324,6 +324,6 @@ public class StakeAClaimPlugin extends JavaPlugin {
      * @param player The player to remove state information for
      */
     public void forgetPlayer(Player player) {
-        flagStateManager.forget(player);
+        playerStateManager.forget(player);
     }
 }

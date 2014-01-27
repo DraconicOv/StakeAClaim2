@@ -28,7 +28,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.nineteengiraffes.stakeaclaim.bukkit.ConfigurationManager;
-import com.nineteengiraffes.stakeaclaim.bukkit.FlagStateManager.PlayerFlagState;
+import com.nineteengiraffes.stakeaclaim.bukkit.PlayerStateManager.PlayerState;
 import com.nineteengiraffes.stakeaclaim.bukkit.SACUtil;
 import com.nineteengiraffes.stakeaclaim.bukkit.StakeAClaimPlugin;
 import com.nineteengiraffes.stakeaclaim.bukkit.WorldConfiguration;
@@ -73,7 +73,7 @@ public class ToolsCommands {
         ArrayList<StakeRequest> requestList;
         requestList = rqMgr.getStatusRequests(Status.PENDING);
         LinkedHashMap<Integer, Long> requests = new LinkedHashMap<Integer, Long>();
-        PlayerFlagState state = plugin.getFlagStateManager().getState(player);
+        PlayerState state = plugin.getPlayerStateManager().getState(player);
 
         int index = 0;
         for (StakeRequest request : requestList) {
@@ -138,7 +138,7 @@ public class ToolsCommands {
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
         final String regionID = claim.getId();
         final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
-        final PlayerFlagState state = plugin.getFlagStateManager().getState(player);
+        final PlayerState state = plugin.getPlayerStateManager().getState(player);
 
         LinkedHashMap<Integer, Long> requests = new LinkedHashMap<Integer, Long>();
         state.requestList = null;
@@ -341,7 +341,7 @@ public class ToolsCommands {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
 
-        final PlayerFlagState state = plugin.getFlagStateManager().getState(activePlayer);
+        final PlayerState state = plugin.getPlayerStateManager().getState(activePlayer);
         if (state.unsubmittedRequest == null) {
             throw new CommandException(ChatColor.YELLOW + "No player to proxy for.");
         }
@@ -497,7 +497,7 @@ public class ToolsCommands {
         
         final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
         LinkedHashMap<Integer, Long> requests = new LinkedHashMap<Integer, Long>();
-        PlayerFlagState state = plugin.getFlagStateManager().getState(player);
+        PlayerState state = plugin.getPlayerStateManager().getState(player);
 
         if (state.requestList != null) {
 

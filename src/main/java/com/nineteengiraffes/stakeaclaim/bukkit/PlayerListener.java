@@ -36,7 +36,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 
-import com.nineteengiraffes.stakeaclaim.bukkit.FlagStateManager.PlayerFlagState;
+import com.nineteengiraffes.stakeaclaim.bukkit.PlayerStateManager.PlayerState;
 import com.nineteengiraffes.stakeaclaim.stakes.RequestManager;
 import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest;
 import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest.Access;
@@ -92,12 +92,12 @@ public class PlayerListener implements Listener {
                 if (event.getFrom().getBlockX() != event.getTo().getBlockX()
                         || event.getFrom().getBlockY() != event.getTo().getBlockY()
                         || event.getFrom().getBlockZ() != event.getTo().getBlockZ()) {
-                    PlayerFlagState state = plugin.getFlagStateManager().getState(player);
+                    PlayerState state = plugin.getPlayerStateManager().getState(player);
 
                     //Flush states in multiworld scenario
                     if (state.lastWorld != null && !state.lastWorld.equals(world)) {
-                        plugin.getFlagStateManager().forget(player);
-                        state = plugin.getFlagStateManager().getState(player);
+                        plugin.getPlayerStateManager().forget(player);
+                        state = plugin.getPlayerStateManager().getState(player);
                     }
 
                     // If wand is in hand, displays claim name and owner(s) as you enter
@@ -178,7 +178,7 @@ public class PlayerListener implements Listener {
 
                 final RequestManager rqMgr = plugin.getGlobalRequestManager().get(world);
                 final Location loc = passivePlayer.getLocation();
-                final PlayerFlagState state = plugin.getFlagStateManager().getState(activePlayer);
+                final PlayerState state = plugin.getPlayerStateManager().getState(activePlayer);
 
                 final ProtectedRegion claim = SACUtil.getClaimAtPoint(rgMgr, wcfg, new Vector(loc.getX(), loc.getY(), loc.getZ()));
 
@@ -249,7 +249,7 @@ public class PlayerListener implements Listener {
         WorldConfiguration wcfg = cfg.get(world);
 
         if (wcfg.useSAC) {
-            PlayerFlagState state = plugin.getFlagStateManager().getState(player);
+            PlayerState state = plugin.getPlayerStateManager().getState(player);
             Location loc = player.getLocation();
             state.lastWorld = loc.getWorld();
             state.lastBlockX = loc.getBlockX();

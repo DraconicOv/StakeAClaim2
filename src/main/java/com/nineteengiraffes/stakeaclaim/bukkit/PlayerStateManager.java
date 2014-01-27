@@ -32,22 +32,22 @@ import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest;
  * This processes per-player state information and is also meant to be used
  * as a scheduled task.
  */
-public class FlagStateManager implements Runnable {
+public class PlayerStateManager implements Runnable {
 
     public static final int RUN_DELAY = 20;
 
     private StakeAClaimPlugin plugin;
-    private Map<String, PlayerFlagState> states;
+    private Map<String, PlayerState> states;
 
     /**
      * Construct the object.
      *
      * @param plugin The plugin instance
      */
-    public FlagStateManager(StakeAClaimPlugin plugin) {
+    public PlayerStateManager(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
 
-        states = new HashMap<String, PlayerFlagState>();
+        states = new HashMap<String, PlayerState>();
     }
 
     /**
@@ -64,13 +64,13 @@ public class FlagStateManager implements Runnable {
                 continue;
             }
 
-            PlayerFlagState state;
+            PlayerState state;
 
             synchronized (this) {
                 state = states.get(player.getName());
 
                 if (state == null) {
-                    state = new PlayerFlagState();
+                    state = new PlayerState();
                     states.put(player.getName(), state);
                 }
             }
@@ -100,11 +100,11 @@ public class FlagStateManager implements Runnable {
      * @param player The player to get a state for
      * @return The {@code player}'s state
      */
-    public synchronized PlayerFlagState getState(Player player) {
-        PlayerFlagState state = states.get(player.getName());
+    public synchronized PlayerState getState(Player player) {
+        PlayerState state = states.get(player.getName());
 
         if (state == null) {
-            state = new PlayerFlagState();
+            state = new PlayerState();
             states.put(player.getName(), state);
         }
 
@@ -114,7 +114,7 @@ public class FlagStateManager implements Runnable {
     /**
      * Keeps state per player.
      */
-    public static class PlayerFlagState {
+    public static class PlayerState {
         public World lastWorld;
         public int lastBlockX;
         public int lastBlockY;
