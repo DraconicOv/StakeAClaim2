@@ -28,7 +28,7 @@ public final class SACFlags {
     public static final BooleanFlag RECLAIMED = new BooleanFlag("reclaimed");
     public static final BooleanFlag PENDING = new BooleanFlag("pending-claim");
     public static final StringFlag REQUEST_NAME = new StringFlag("request-name");
-    public static final StringFlag REQUEST_MESSAGE = new StringFlag("request-message");
+    public static final StringFlag REQUEST_STATUS = new StringFlag("request-status");
     public static final StateFlag ENTRY_DEF = new StateFlag("entry-default",true);
 
 }

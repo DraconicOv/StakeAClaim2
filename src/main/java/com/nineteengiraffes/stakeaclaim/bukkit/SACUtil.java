@@ -49,10 +49,6 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class SACUtil {
 
-//    private SACUtil() {
-//
-//    }
-
     // Get request, fix inconsistencies if needed
     /**
      * Fix one region's requests:
@@ -204,6 +200,43 @@ public class SACUtil {
             if (isRegionOwned(region) == 1) {
                 if (region.getOwners().contains(playerName)) {
                     regionList.add(region);
+                }
+            }
+        }
+        return regionList;
+    }
+
+    /**
+     * Get a list of pending regions for (@code player)
+     * 
+     * @param rgMgr the region manager to work with
+     * @param player the player to get the regions for
+     * @return list of pending regions for the player
+     */
+    public static ArrayList<ProtectedRegion> getPendingRegions(RegionManager rgMgr, Player player) {
+        return getPendingRegions(rgMgr, player.getName().toLowerCase());
+    }
+
+    /**
+     * Get a list of pending regions for (@code playerName)
+     * 
+     * @param rgMgr the region manager to work with
+     * @param playerName the name of the player to get the regions for
+     * @return list of pending regions for the player
+     */
+    public static ArrayList<ProtectedRegion> getPendingRegions(RegionManager rgMgr, String playerName) {
+
+        final Map<String, ProtectedRegion> regions = rgMgr.getRegions();
+        ArrayList<ProtectedRegion> regionList = new ArrayList<ProtectedRegion>();
+
+        for (ProtectedRegion region : regions.values()) {
+            if (region.getFlag(SACFlags.REQUEST_NAME) != null) {
+                if (region.getFlag(SACFlags.REQUEST_NAME).equals(playerName)) {
+                    if (region.getFlag(SACFlags.PENDING) != null) {
+                        if (region.getFlag(SACFlags.PENDING) == true) {
+                            regionList.add(region);
+                        }
+                    }
                 }
             }
         }
@@ -378,7 +411,7 @@ public class SACUtil {
             wgFlags.add(SACFlags.RECLAIMED);
             wgFlags.add(SACFlags.PENDING);
             wgFlags.add(SACFlags.REQUEST_NAME);
-            wgFlags.add(SACFlags.REQUEST_MESSAGE);
+            wgFlags.add(SACFlags.REQUEST_STATUS);
             wgFlags.add(SACFlags.ENTRY_DEF);
 
             Flag<?>[] newFlags = new Flag[wgFlags.size()];
