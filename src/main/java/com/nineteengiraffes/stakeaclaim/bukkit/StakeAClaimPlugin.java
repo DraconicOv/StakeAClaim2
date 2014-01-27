@@ -34,8 +34,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.nineteengiraffes.stakeaclaim.bukkit.commands.AllCommands;
-import com.nineteengiraffes.stakeaclaim.bukkit.SACUtil;
-import com.nineteengiraffes.stakeaclaim.stakes.GlobalRequestManager;
 import com.sk89q.bukkit.util.CommandsManagerRegistration;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissionsException;
@@ -60,11 +58,6 @@ public class StakeAClaimPlugin extends JavaPlugin {
     private final CommandsManager<CommandSender> commands;
 
     /**
-     * Handles the request databases for all worlds.
-     */
-    private final GlobalRequestManager globalRequestManager;
-
-    /**
      * Handles all configuration.
      */
     private final ConfigurationManager configuration;
@@ -80,7 +73,6 @@ public class StakeAClaimPlugin extends JavaPlugin {
      */
     public StakeAClaimPlugin() {
         configuration = new ConfigurationManager(this);
-        globalRequestManager = new GlobalRequestManager(this);
 
         final StakeAClaimPlugin plugin = this;
         commands = new CommandsManager<CommandSender>() {
@@ -112,7 +104,6 @@ public class StakeAClaimPlugin extends JavaPlugin {
         try {
             // Load the configuration
             configuration.load();
-            globalRequestManager.preload();
         } catch (FatalConfigurationLoadingException e) {
             e.printStackTrace();
             getServer().shutdown();
@@ -137,7 +128,6 @@ public class StakeAClaimPlugin extends JavaPlugin {
      */
     @Override
     public void onDisable() {
-        globalRequestManager.unload();
         configuration.unload();
         this.getServer().getScheduler().cancelTasks(this);
     }
@@ -172,18 +162,9 @@ public class StakeAClaimPlugin extends JavaPlugin {
     }
 
     /**
-     * Get the GlobalRequestManager.
+     * Gets the player state manager.
      *
-     * @return The plugin's global request manager
-     */
-    public GlobalRequestManager getGlobalRequestManager() {
-        return globalRequestManager;
-    }
-
-    /**
-     * Gets the flag state manager.
-     *
-     * @return The flag state manager
+     * @return The player state manager
      */
     public PlayerStateManager getPlayerStateManager() {
         return playerStateManager;

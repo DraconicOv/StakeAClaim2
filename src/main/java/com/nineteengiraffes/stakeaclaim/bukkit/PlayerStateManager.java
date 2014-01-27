@@ -26,8 +26,6 @@ import java.util.Map;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import com.nineteengiraffes.stakeaclaim.stakes.StakeRequest;
-
 /**
  * This processes per-player state information and is also meant to be used
  * as a scheduled task.
