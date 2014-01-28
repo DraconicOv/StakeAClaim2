@@ -583,74 +583,59 @@ public class ClaimCommands {
         }
     }
 
-    @Command(aliases = {"me", "m"},
+    @Command(aliases = {"list", "l"},
             usage = "",
             desc = "List of all your claims",
             min = 0, max = 0)
-    @CommandPermissions("stakeaclaim.claim.me")
-    public void me(CommandContext args, CommandSender sender) throws CommandException {
+    @CommandPermissions("stakeaclaim.claim.list")
+    public void list(CommandContext args, CommandSender sender) throws CommandException {
 
-//        final Player player = plugin.checkPlayer(sender);
-//        final World world = player.getWorld();
-//        final PlayerState state = plugin.getPlayerStateManager().getState(player);
-//
-//        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
-//        if (rgMgr == null) {
-//            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
-//        }
-//
-//        if (args.argsLength() == 0) {
-//            if (state.lastWarp != null) {
-////                SACUtil.warpTo(state.lastWarp, state, travelPlayer, false);
-//            }
-//            sender.sendMessage(ChatColor.RED + "Too few arguments.");
-//            throw new CommandException(ChatColor.RED + "/claim " + args.getCommand() + " <player> [list entry #]");
-//        }
-//
-//        final String targetPlayer = args.getString(0);
-//        ArrayList<ProtectedRegion> tempList = SACUtil.getOwnedRegions(rgMgr, targetPlayer);
-//        ArrayList<ProtectedRegion> regionList = new ArrayList<ProtectedRegion>(tempList);
-//        LinkedHashMap<Integer, String> regions = new LinkedHashMap<Integer, String>();
-//
-//        for (ProtectedRegion region : tempList) {
-////            if (region.getFlag(DefaultFlag.ENTRY) != null && region.getFlag(DefaultFlag.ENTRY) == State.DENY) {
-////                regionList.remove(region);
-////            } else if (!hasPerm(travelPlayer, "warp", region)) {
-////                regionList.remove(region);
-////            }
-//        }
-//        if (regionList.isEmpty()) {
-//            if (plugin.getServer().getOfflinePlayer(targetPlayer).hasPlayedBefore() == false) {
-//                throw new CommandException(ChatColor.GREEN + targetPlayer + ChatColor.YELLOW + " has not played on this server.");
-//            }
-//            throw new CommandException(ChatColor.GREEN + targetPlayer + ChatColor.YELLOW + " has no claims for you to warp to.");
-//        } else if (regionList.size() == 1) {
-////            SACUtil.warpTo(regionList.get(0), state, travelPlayer, false);
-//        } else {
-//            int index = 0;
-//            for (ProtectedRegion region : regionList) {
-//                regions.put(index, region.getId());
-//                index++;
-//            }
-//        }
-//        int listNumber = 0;
-//        if (args.argsLength() == 2) {
-//            listNumber = args.getInteger(1) - 1;
-//            if (!regions.containsKey(listNumber)) {
-//                throw new CommandException(ChatColor.YELLOW + "That is not a valid list entry number.");
-//            }
-////            SACUtil.warpTo(rgMgr.getRegion(regions.get(listNumber)), state, travelPlayer, false);
-//        }
-//
-//        
-//        // Display the list
-//        sender.sendMessage(ChatColor.GREEN + targetPlayer + ChatColor.RED + "'s claim warp list:");
-//
-//        ProtectedRegion region;
-//        for (int i = 0; i < regions.size(); i++) {
-//            region = rgMgr.getRegion(regions.get(i));
-//            sender.sendMessage(ChatColor.YELLOW + "# " + (i + 1) + ": " + ChatColor.WHITE + region.getId());
-//        }
+        final Player player = plugin.checkPlayer(sender);
+        LinkedHashMap<World, LinkedHashMap<Integer, String>> allClaims = new LinkedHashMap<World, LinkedHashMap<Integer, String>>();
+        RegionManager rgMgr;
+        int index = 0;
+
+        for (World world : plugin.getServer().getWorlds()) {
+            rgMgr = WGBukkit.getRegionManager(world);
+            if (rgMgr == null) {
+                continue;
+            }
+            LinkedHashMap<Integer, String> someClaims = new LinkedHashMap<Integer, String>();
+            ArrayList<ProtectedRegion> regions = SACUtil.getOwnedRegions(rgMgr, player);
+            for (ProtectedRegion region : regions) {
+                if (region.getFlag(SACFlags.CLAIM_WARP_NAME) == null) {
+                    someClaims.put(index, region.getId());
+                } else {
+                    someClaims.put(index, region.getId() + " " + ChatColor.LIGHT_PURPLE + region.getFlag(SACFlags.CLAIM_WARP_NAME));
+                }
+                index++;
+            }
+            regions = SACUtil.getPendingRegions(rgMgr, player);
+            for (ProtectedRegion region : regions) {
+                someClaims.put(index, region.getId() + ChatColor.YELLOW + " Pending");
+                index++;
+            }
+            if (!someClaims.isEmpty()) {
+                allClaims.put(world, someClaims);
+            }
+        }
+
+        if (!allClaims.isEmpty()) {
+            sender.sendMessage(ChatColor.YELLOW + "Summery for " + ChatColor.GREEN + player.getName().toLowerCase());
+            for (World claimWorld : allClaims.keySet()) {
+                if (allClaims.size() == 1 && allClaims.containsKey(player.getWorld())) {
+                    sender.sendMessage(ChatColor.YELLOW + "Claims:");
+                } else {
+                    sender.sendMessage(ChatColor.YELLOW + "Claims in " + ChatColor.BLUE + claimWorld.getName() + ChatColor.YELLOW + ":");
+                }
+                LinkedHashMap<Integer, String> someClaims = allClaims.get(claimWorld);
+                for (Integer i : someClaims.keySet()) {
+                    sender.sendMessage(ChatColor.YELLOW + "# " + (i + 1) + ": " + ChatColor.WHITE + someClaims.get(i));
+                }
+            }
+        } else {
+            sender.sendMessage(ChatColor.YELLOW + "You do not have any claims!");
+        }
     }
 
     // Other methods

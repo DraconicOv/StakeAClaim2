@@ -355,10 +355,11 @@ public class ToolsCommands {
         }
 
         // Reclaim the claim
+        final String owner = claim.getOwners().toUserFriendlyString();
         SACUtil.reclaim(claim, wcfg.useReclaimed);
 
         sender.sendMessage(ChatColor.YELLOW + "You have reclaimed " + ChatColor.WHITE + regionID +
-                ChatColor.YELLOW + " from " + ChatColor.GREEN + claim.getOwners().toUserFriendlyString() + ChatColor.YELLOW + "!");
+                ChatColor.YELLOW + " from " + ChatColor.GREEN + owner + ChatColor.YELLOW + "!");
 
         saveRegions(world);
     }
