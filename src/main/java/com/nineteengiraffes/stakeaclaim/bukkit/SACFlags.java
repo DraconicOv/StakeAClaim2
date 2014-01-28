@@ -30,5 +30,6 @@ public final class SACFlags {
     public static final StringFlag REQUEST_NAME = new StringFlag("request-name");
     public static final StringFlag REQUEST_STATUS = new StringFlag("request-status");
     public static final StateFlag ENTRY_DEFAULT = new StateFlag("entry-default",true);
+    public static final StringFlag CLAIM_WARP_NAME = new StringFlag("warp-name");
 
 }

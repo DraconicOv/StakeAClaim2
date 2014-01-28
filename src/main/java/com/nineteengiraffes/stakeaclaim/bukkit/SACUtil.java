@@ -33,8 +33,10 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import com.nineteengiraffes.stakeaclaim.bukkit.PlayerStateManager.PlayerState;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
@@ -149,7 +151,7 @@ public class SACUtil {
     }
 
     /**
-     * Reclaim region
+     * Reclaim a region
      * 
      * @param region the region to reclaim
      * @param useReclaimed boolean config value
@@ -190,7 +192,7 @@ public class SACUtil {
     }
 
     /**
-     * Get the single claim the player is in
+     * Get the single 'claim' the player is in
      * 
      * @param player the player to get the location from
      * @param plugin the SAC plugin
@@ -269,6 +271,7 @@ public class SACUtil {
             wgFlags.add(SACFlags.REQUEST_NAME);
             wgFlags.add(SACFlags.REQUEST_STATUS);
             wgFlags.add(SACFlags.ENTRY_DEFAULT);
+            wgFlags.add(SACFlags.CLAIM_WARP_NAME);
 
             Flag<?>[] newFlags = new Flag[wgFlags.size()];
             wgFlags.toArray(newFlags);
@@ -282,5 +285,35 @@ public class SACUtil {
             e.printStackTrace();
         }
     }
-    
+
+    /**
+     *  Warp {@code player} to {@code claim}
+     * 
+     * @param claim the claim to warp to
+     * @param state players state so save last warp
+     * @param player the player to warp
+     * @param forceSpawn toggle spawn only warp
+     * @throws CommandException
+     */
+    public static void warpTo(ProtectedRegion claim, PlayerState state, Player player, boolean forceSpawn) throws CommandException {
+
+        if (claim.getFlag(DefaultFlag.TELE_LOC)!= null && !forceSpawn) {
+            player.teleport(BukkitUtil.toLocation(claim.getFlag(DefaultFlag.TELE_LOC)));
+            state.lastWarp = claim;
+            throw new CommandException(ChatColor.YELLOW + "Gone to " + 
+                    (claim.getFlag(SACFlags.CLAIM_WARP_NAME) == null ? (ChatColor.WHITE + claim.getId()) : (ChatColor.LIGHT_PURPLE + claim.getFlag(SACFlags.CLAIM_WARP_NAME))) + 
+                    ChatColor.YELLOW + " By: " + ChatColor.GREEN + claim.getOwners().toUserFriendlyString());
+
+        } else if (claim.getFlag(DefaultFlag.SPAWN_LOC)!= null) {
+            player.teleport(BukkitUtil.toLocation(claim.getFlag(DefaultFlag.SPAWN_LOC)));
+            state.lastWarp = claim;
+            throw new CommandException(ChatColor.YELLOW + "Gone to " + ChatColor.WHITE + claim.getId() + 
+                    ChatColor.YELLOW + "'s spawn. By: " + ChatColor.GREEN + claim.getOwners().toUserFriendlyString());
+
+        } else {
+            state.lastWarp = null;
+            throw new CommandException("No warp set for this claim!");
+        }
+    }
+
 }

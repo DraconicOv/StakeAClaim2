@@ -26,6 +26,8 @@ import java.util.Map;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+
 /**
  * This processes per-player state information and is also meant to be used
  * as a scheduled task.
@@ -120,5 +122,6 @@ public class PlayerStateManager implements Runnable {
         public String lastSupport;
         public LinkedHashMap<Integer, String> regionList;
         public String[] unsubmittedRequest;
+        public ProtectedRegion lastWarp;
     }
 }

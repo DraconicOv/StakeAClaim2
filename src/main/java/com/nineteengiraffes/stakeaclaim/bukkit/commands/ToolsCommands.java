@@ -119,7 +119,7 @@ public class ToolsCommands {
         }
     }
 
-    @Command(aliases = {"claim"},
+    @Command(aliases = {"claim", "m"},
             usage = "",
             desc = "Populates a list with one claim",
             min = 0, max = 0)
@@ -210,7 +210,11 @@ public class ToolsCommands {
         }
 
         int ownedCode = SACUtil.isRegionOwned(claim);
-        if (ownedCode != 0) {
+        if (ownedCode > 0) {
+            claim.setFlag(SACFlags.REQUEST_NAME,null);
+            claim.setFlag(SACFlags.REQUEST_STATUS,null);
+            claim.setFlag(SACFlags.PENDING,null);
+            saveRegions(world);
             throw new CommandException(ChatColor.YELLOW + "Sorry, this claim is not open.");
         }
 
@@ -255,7 +259,11 @@ public class ToolsCommands {
         }
 
         int ownedCode = SACUtil.isRegionOwned(claim);
-        if (ownedCode != 0) {
+        if (ownedCode > 0) {
+            claim.setFlag(SACFlags.REQUEST_NAME,null);
+            claim.setFlag(SACFlags.REQUEST_STATUS,null);
+            claim.setFlag(SACFlags.PENDING,null);
+            saveRegions(world);
             throw new CommandException(ChatColor.YELLOW + "Sorry, this claim is not open.");
         }
 
@@ -299,7 +307,11 @@ public class ToolsCommands {
         }
 
         int ownedCode = SACUtil.isRegionOwned(claim);
-        if (ownedCode != 0) {
+        if (ownedCode > 0) {
+            claim.setFlag(SACFlags.REQUEST_NAME,null);
+            claim.setFlag(SACFlags.REQUEST_STATUS,null);
+            claim.setFlag(SACFlags.PENDING,null);
+            saveRegions(world);
             throw new CommandException(ChatColor.YELLOW + "Sorry, this claim is not open.");
         }
 
@@ -338,7 +350,7 @@ public class ToolsCommands {
         final ProtectedRegion claim = rgMgr.getRegion(regionID);
 
         int ownedCode = SACUtil.isRegionOwned(claim);
-        if (ownedCode != 1) {
+        if (ownedCode < 1) {
             throw new CommandException(ChatColor.YELLOW + "Sorry, this claim is not owned.");
         }
 
@@ -400,6 +412,10 @@ public class ToolsCommands {
         } else if (ownedCode == 1) {
             // Remove pending flag
             claim.setFlag(SACFlags.PENDING,null);
+            if (claim.getFlag(SACFlags.REQUEST_NAME) != null && claim.getOwners().equals(claim.getFlag(SACFlags.REQUEST_NAME))) {
+                claim.setFlag(SACFlags.REQUEST_NAME,null);
+                claim.setFlag(SACFlags.REQUEST_STATUS,null);
+            }
             saveRegions(world);
 
             if (claim.getOwners().equals(passivePlayer)) {
@@ -460,7 +476,7 @@ public class ToolsCommands {
             usage = "<list entry #>",
             desc = "Set a claim default to private",
             min = 1, max = 1)
-    @CommandPermissions("stakeaclaim.tools.private.*")
+    @CommandPermissions("stakeaclaim.tools.private")
     public void setprivate(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
@@ -489,7 +505,7 @@ public class ToolsCommands {
             usage = "<list entry #>",
             desc = "Set a claim default to open",
             min = 1, max = 1)
-    @CommandPermissions("stakeaclaim.tools.open.*")
+    @CommandPermissions("stakeaclaim.tools.open")
     public void open(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
@@ -518,7 +534,7 @@ public class ToolsCommands {
             usage = "<list entry #>",
             desc = "Remove claim entry default",
             min = 1, max = 1)
-    @CommandPermissions("stakeaclaim.tools.entry.*")
+    @CommandPermissions("stakeaclaim.tools.entry")
     public void entry(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);

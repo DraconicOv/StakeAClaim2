@@ -20,6 +20,7 @@
 package com.nineteengiraffes.stakeaclaim.bukkit.commands;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -27,6 +28,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.nineteengiraffes.stakeaclaim.bukkit.ConfigurationManager;
+import com.nineteengiraffes.stakeaclaim.bukkit.PlayerStateManager.PlayerState;
 import com.nineteengiraffes.stakeaclaim.bukkit.SACFlags;
 import com.nineteengiraffes.stakeaclaim.bukkit.SACUtil;
 import com.nineteengiraffes.stakeaclaim.bukkit.StakeAClaimPlugin;
@@ -137,6 +139,10 @@ public class ClaimCommands {
         } else if (ownedCode == 1) {
             // Remove pending flag
             claim.setFlag(SACFlags.PENDING,null);
+            if (claim.getFlag(SACFlags.REQUEST_NAME) != null && claim.getOwners().equals(claim.getFlag(SACFlags.REQUEST_NAME))) {
+                claim.setFlag(SACFlags.REQUEST_NAME,null);
+                claim.setFlag(SACFlags.REQUEST_STATUS,null);
+            }
             saveRegions(world);
 
             if (claim.getOwners().equals(player.getName().toLowerCase())) {
@@ -471,6 +477,75 @@ public class ClaimCommands {
         saveRegions(world);
     }
 
+    @Command(aliases = {"warp", "w"},
+            usage = "<player> [list entry #]",
+            desc = "Accept a pending request",
+            min = 0, max = 2)
+    @CommandPermissions("stakeaclaim.claim.warp.*")
+    public void warp(CommandContext args, CommandSender sender) throws CommandException {
+
+        final Player travelPlayer = plugin.checkPlayer(sender);
+        final World world = travelPlayer.getWorld();
+        final PlayerState state = plugin.getPlayerStateManager().getState(travelPlayer);
+
+        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        if (rgMgr == null) {
+            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
+        }
+
+        if (args.argsLength() == 0) {
+            if (state.lastWarp != null) {
+                SACUtil.warpTo(state.lastWarp, state, travelPlayer, false);
+            }
+            sender.sendMessage(ChatColor.RED + "Too few arguments.");
+            throw new CommandException(ChatColor.RED + "/claim " + args.getCommand() + " <player> [list entry #]");
+        }
+
+        final String targetPlayer = args.getString(0);
+        ArrayList<ProtectedRegion> tempList = SACUtil.getOwnedRegions(rgMgr, targetPlayer);
+        ArrayList<ProtectedRegion> regionList = new ArrayList<ProtectedRegion>(tempList);
+        LinkedHashMap<Integer, String> regions = new LinkedHashMap<Integer, String>();
+
+        for (ProtectedRegion region : tempList) {
+            if (region.getFlag(DefaultFlag.ENTRY) != null && region.getFlag(DefaultFlag.ENTRY) == State.DENY) {
+                regionList.remove(region);
+            } else if (!hasPerm(travelPlayer, "warp", region)) {
+                regionList.remove(region);
+            }
+        }
+        if (regionList.isEmpty()) {
+            if (plugin.getServer().getOfflinePlayer(targetPlayer).hasPlayedBefore() == false) {
+                throw new CommandException(ChatColor.GREEN + targetPlayer + ChatColor.YELLOW + " has not played on this server.");
+            }
+            throw new CommandException(ChatColor.GREEN + targetPlayer + ChatColor.YELLOW + " has no claims for you to warp to.");
+        } else if (regionList.size() == 1) {
+            SACUtil.warpTo(regionList.get(0), state, travelPlayer, false);
+        } else {
+            int index = 0;
+            for (ProtectedRegion region : regionList) {
+                regions.put(index, region.getId());
+                index++;
+            }
+        }
+        int listNumber = 0;
+        if (args.argsLength() == 2) {
+            listNumber = args.getInteger(1) - 1;
+            if (!regions.containsKey(listNumber)) {
+                throw new CommandException(ChatColor.YELLOW + "That is not a valid list entry number.");
+            }
+            SACUtil.warpTo(rgMgr.getRegion(regions.get(listNumber)), state, travelPlayer, false);
+        }
+
+        // Display the list
+        sender.sendMessage(ChatColor.GREEN + targetPlayer + ChatColor.RED + "'s claim warp list:");
+
+        ProtectedRegion region;
+        for (int i = 0; i < regions.size(); i++) {
+            region = rgMgr.getRegion(regions.get(i));
+            sender.sendMessage(ChatColor.YELLOW + "# " + (i + 1) + ": " + ChatColor.WHITE + region.getId());
+        }
+    }
+
     // Other methods
     public double getArea(ProtectedRegion region) throws CommandException {
         final BlockVector min = region.getMinimumPoint();
@@ -490,6 +565,20 @@ public class ClaimCommands {
             plugin.checkPermission(player, "stakeaclaim.claim." + command + ".member." + id.toLowerCase());
         } else {
             plugin.checkPermission(player, "stakeaclaim.claim." + command + "." + id.toLowerCase());
+        }
+    }
+
+    public boolean hasPerm(Player player, String command, ProtectedRegion claim) {
+
+        final String playerName = player.getName();
+        final String id = claim.getId();
+
+        if (claim.isOwner(playerName)) {
+            return plugin.hasPermission(player, "stakeaclaim.claim." + command + ".own." + id.toLowerCase());
+        } else if (claim.isMember(playerName)) {
+            return plugin.hasPermission(player, "stakeaclaim.claim." + command + ".member." + id.toLowerCase());
+        } else {
+            return plugin.hasPermission(player, "stakeaclaim.claim." + command + "." + id.toLowerCase());
         }
     }
 
