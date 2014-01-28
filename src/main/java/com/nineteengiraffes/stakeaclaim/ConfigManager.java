@@ -32,7 +32,7 @@ import com.sk89q.util.yaml.YAMLProcessor;
  * Represents the global configuration and also delegates configuration
  * for individual worlds.
  */
-public class ConfigurationManager {
+public class ConfigManager {
 
     private static final String CONFIG_HEADER = "#\r\n" +
             "# StakeAClaim's main configuration file\r\n" +
@@ -63,7 +63,7 @@ public class ConfigurationManager {
     /**
      * Holds configurations for different worlds.
      */
-    private ConcurrentMap<String, WorldConfiguration> worlds;
+    private ConcurrentMap<String, WorldConfig> worlds;
 
     /**
      * The global configuration for use when loading worlds
@@ -80,9 +80,9 @@ public class ConfigurationManager {
      *
      * @param plugin The plugin instance
      */
-    public ConfigurationManager(StakeAClaimPlugin plugin) {
+    public ConfigManager(StakeAClaimPlugin plugin) {
         this.plugin = plugin;
-        this.worlds = new ConcurrentHashMap<String, WorldConfiguration>();
+        this.worlds = new ConcurrentHashMap<String, WorldConfig>();
     }
 
     /**
@@ -90,7 +90,7 @@ public class ConfigurationManager {
      */
     public void load() {
         // Create the default configuration file
-        plugin.createDefaultConfiguration(new File(plugin.getDataFolder(), "config.yml"), "config.yml");
+        plugin.createDefaultConfig(new File(plugin.getDataFolder(), "config.yml"), "config.yml");
 
         config = new YAMLProcessor(new File(plugin.getDataFolder(), "config.yml"), true, YAMLFormat.EXTENDED);
         try {
@@ -128,14 +128,14 @@ public class ConfigurationManager {
      * @param world The world to get the configuration for
      * @return {@code world}'s configuration
      */
-    public WorldConfiguration get(World world) {
+    public WorldConfig get(World world) {
         String worldName = world.getName();
-        WorldConfiguration config = worlds.get(worldName);
-        WorldConfiguration newConfig = null;
+        WorldConfig config = worlds.get(worldName);
+        WorldConfig newConfig = null;
 
         while (config == null) {
             if (newConfig == null) {
-                newConfig = new WorldConfiguration(plugin, worldName, this.config);
+                newConfig = new WorldConfig(plugin, worldName, this.config);
             }
             worlds.putIfAbsent(worldName, newConfig);
             config = worlds.get(worldName);

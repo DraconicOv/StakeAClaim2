@@ -207,8 +207,8 @@ public class SACUtil {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
 
-        final ConfigurationManager cfg = plugin.getGlobalStateManager();
-        final WorldConfiguration wcfg = cfg.get(world);
+        final ConfigManager cfg = plugin.getGlobalManager();
+        final WorldConfig wcfg = cfg.get(world);
         final Location loc = player.getLocation();
 
         ProtectedRegion claim = getClaimAtPoint(rgMgr, wcfg, new Vector(loc.getX(), loc.getY(), loc.getZ()));
@@ -228,7 +228,7 @@ public class SACUtil {
      * @param vector the location to look for the claim
      * @return the claim at ({@code vector}, returns null if there are no claims there, or more than one
      */
-    public static ProtectedRegion getClaimAtPoint(RegionManager rgMgr, WorldConfiguration wcfg, Vector vector) {
+    public static ProtectedRegion getClaimAtPoint(RegionManager rgMgr, WorldConfig wcfg, Vector vector) {
 
         final ApplicableRegionSet rgSet = rgMgr.getApplicableRegions(vector);
         final Pattern regexPat = Pattern.compile(wcfg.claimNameFilter);

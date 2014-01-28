@@ -55,10 +55,10 @@ public class PlayerStateManager implements Runnable {
      */
     public void run() {
         Player[] players = plugin.getServer().getOnlinePlayers();
-        ConfigurationManager config = plugin.getGlobalStateManager();
+        ConfigManager config = plugin.getGlobalManager();
 
         for (Player player : players) {
-            WorldConfiguration worldConfig = config.get(player.getWorld());
+            WorldConfig worldConfig = config.get(player.getWorld());
 
             if (!worldConfig.useSAC) {
                 continue;

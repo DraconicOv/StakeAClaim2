@@ -58,9 +58,9 @@ public class StakeAClaimPlugin extends JavaPlugin {
     private final CommandsManager<CommandSender> commands;
 
     /**
-     * Handles all configuration.
+     * Handles all config.
      */
-    private final ConfigurationManager configuration;
+    private final ConfigManager config;
 
     /**
      * Used for scheduling flags.
@@ -72,7 +72,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
      * this merely instantiates the objects.
      */
     public StakeAClaimPlugin() {
-        configuration = new ConfigurationManager(this);
+        config = new ConfigManager(this);
 
         final StakeAClaimPlugin plugin = this;
         commands = new CommandsManager<CommandSender>() {
@@ -102,8 +102,8 @@ public class StakeAClaimPlugin extends JavaPlugin {
         PermissionsResolverManager.initialize(this);
 
         try {
-            // Load the configuration
-            configuration.load();
+            // Load the config
+            config.load();
         } catch (FatalConfigurationLoadingException e) {
             e.printStackTrace();
             getServer().shutdown();
@@ -111,7 +111,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
 
         playerStateManager = new PlayerStateManager(this);
 
-        if (configuration.useRequestsScheduler) {
+        if (config.useRequestsScheduler) {
             getServer().getScheduler().scheduleSyncRepeatingTask(this, playerStateManager,
                     PlayerStateManager.RUN_DELAY, PlayerStateManager.RUN_DELAY);
         }
@@ -128,7 +128,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
      */
     @Override
     public void onDisable() {
-        configuration.unload();
+        config.unload();
         this.getServer().getScheduler().cancelTasks(this);
     }
 
@@ -171,12 +171,12 @@ public class StakeAClaimPlugin extends JavaPlugin {
     }
 
     /**
-     * Get the global ConfigurationManager.
-     * USe this to access global configuration values and per-world configuration values.
-     * @return The global ConfigurationManager
+     * Get the global ConfignManager.
+     * USe this to access global config values and per-world config values.
+     * @return The global ConfigManager
      */
-    public ConfigurationManager getGlobalStateManager() {
-        return configuration;
+    public ConfigManager getGlobalManager() {
+        return config;
     }
 
     /**
@@ -189,7 +189,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
     public boolean hasPermission(CommandSender sender, String perm) {
         if (sender.isOp()) {
             if (sender instanceof Player) {
-                if (this.getGlobalStateManager().get(((Player) sender).getWorld()).opPermissions) {
+                if (this.getGlobalManager().get(((Player) sender).getWorld()).opPermissions) {
                     return true;
                 }
             } else {
@@ -237,13 +237,13 @@ public class StakeAClaimPlugin extends JavaPlugin {
     }
 
     /**
-     * Create a default configuration file from the .jar.
+     * Create a default config file from the .jar.
      *
      * @param actual The destination file
      * @param defaultName The name of the file inside the jar's defaults folder
      */
     @SuppressWarnings("resource")
-    public void createDefaultConfiguration(File actual, String defaultName) {
+    public void createDefaultConfig(File actual, String defaultName) {
 
         // Make parent directories
         File parent = actual.getParentFile();

@@ -29,7 +29,7 @@ import com.sk89q.worldguard.bukkit.WGBukkit;
 /**
  * Holds the configuration for individual worlds.
  */
-public class WorldConfiguration {
+public class WorldConfig {
 
     public static final String CONFIG_HEADER = "#\r\n" +
             "# StakeAClaim's world configuration file\r\n" +
@@ -72,7 +72,7 @@ public class WorldConfiguration {
      * @param worldName The world name that this WorldConfiguration is for.
      * @param parentConfig The parent configuration to read defaults from
      */
-    public WorldConfiguration(StakeAClaimPlugin plugin, String worldName, YAMLProcessor parentConfig) {
+    public WorldConfig(StakeAClaimPlugin plugin, String worldName, YAMLProcessor parentConfig) {
         File baseFolder = new File(plugin.getDataFolder(), "worlds/" + worldName);
         File configFile = new File(baseFolder, "config.yml");
 
@@ -80,7 +80,7 @@ public class WorldConfiguration {
         this.worldName = worldName;
         this.parentConfig = parentConfig;
 
-        plugin.createDefaultConfiguration(configFile, "config_world.yml");
+        plugin.createDefaultConfig(configFile, "config_world.yml");
 
         config = new YAMLProcessor(configFile, true, YAMLFormat.EXTENDED);
         loadConfiguration();

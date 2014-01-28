@@ -66,7 +66,7 @@ public class PlayerListener implements Listener {
         final PluginManager pm = plugin.getServer().getPluginManager();
         pm.registerEvents(this, plugin);
 
-        if (plugin.getGlobalStateManager().usePlayerMove) {
+        if (plugin.getGlobalManager().usePlayerMove) {
             pm.registerEvents(new PlayerMoveHandler(), plugin);
         }
     }
@@ -78,8 +78,8 @@ public class PlayerListener implements Listener {
             Player player = event.getPlayer();
             World world = player.getWorld();
 
-            ConfigurationManager cfg = plugin.getGlobalStateManager();
-            WorldConfiguration wcfg = cfg.get(world);
+            ConfigManager cfg = plugin.getGlobalManager();
+            WorldConfig wcfg = cfg.get(world);
 
             if (wcfg.useRegions && wcfg.useSAC) {
                 // Did we move a block?
@@ -153,8 +153,8 @@ public class PlayerListener implements Listener {
             Player passivePlayer = (Player) thingClicked;
             World world = passivePlayer.getWorld();
 
-            ConfigurationManager cfg = plugin.getGlobalStateManager();
-            WorldConfiguration wcfg = cfg.get(world);
+            ConfigManager cfg = plugin.getGlobalManager();
+            WorldConfig wcfg = cfg.get(world);
 
             ItemStack held = activePlayer.getItemInHand();
 
@@ -230,8 +230,8 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         World world = player.getWorld();
 
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
-        WorldConfiguration wcfg = cfg.get(world);
+        ConfigManager cfg = plugin.getGlobalManager();
+        WorldConfig wcfg = cfg.get(world);
 
         if (wcfg.useSAC) {
             PlayerState state = plugin.getPlayerStateManager().getState(player);
@@ -249,11 +249,11 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        ConfigurationManager cfg = plugin.getGlobalStateManager();
+        ConfigManager cfg = plugin.getGlobalManager();
 
         if (plugin.hasPermission(player, "stakeaclaim.events.reset-entry")) {
             RegionManager rgMgr;
-            WorldConfiguration wcfg;
+            WorldConfig wcfg;
 
             for (World world : plugin.getServer().getWorlds()) {
                 wcfg = cfg.get(world);

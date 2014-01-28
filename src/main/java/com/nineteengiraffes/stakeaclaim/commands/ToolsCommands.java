@@ -27,12 +27,12 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.nineteengiraffes.stakeaclaim.ConfigurationManager;
+import com.nineteengiraffes.stakeaclaim.ConfigManager;
 import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
 import com.nineteengiraffes.stakeaclaim.SACFlags;
 import com.nineteengiraffes.stakeaclaim.SACUtil;
 import com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin;
-import com.nineteengiraffes.stakeaclaim.WorldConfiguration;
+import com.nineteengiraffes.stakeaclaim.WorldConfig;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
@@ -62,8 +62,8 @@ public class ToolsCommands {
         final Player player = plugin.checkPlayer(sender);
         final World world = player.getWorld();
 
-        final ConfigurationManager cfg = plugin.getGlobalStateManager();
-        final WorldConfiguration wcfg = cfg.get(world);
+        final ConfigManager cfg = plugin.getGlobalManager();
+        final WorldConfig wcfg = cfg.get(world);
         if (!wcfg.useRequests) {
             throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
         }
@@ -129,8 +129,8 @@ public class ToolsCommands {
         final Player player = plugin.checkPlayer(sender);
         final World world = player.getWorld();
 
-        final ConfigurationManager cfg = plugin.getGlobalStateManager();
-        final WorldConfiguration wcfg = cfg.get(world);
+        final ConfigManager cfg = plugin.getGlobalManager();
+        final WorldConfig wcfg = cfg.get(world);
         if (!wcfg.useRequests) {
             throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
         }
@@ -190,8 +190,8 @@ public class ToolsCommands {
         final Player player = plugin.checkPlayer(sender);
         final World world = player.getWorld();
 
-        final ConfigurationManager cfg = plugin.getGlobalStateManager();
-        final WorldConfiguration wcfg = cfg.get(world);
+        final ConfigManager cfg = plugin.getGlobalManager();
+        final WorldConfig wcfg = cfg.get(world);
         if (!wcfg.useRequests) {
             throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
         }
@@ -239,8 +239,8 @@ public class ToolsCommands {
         final Player player = plugin.checkPlayer(sender);
         final World world = player.getWorld();
 
-        final ConfigurationManager cfg = plugin.getGlobalStateManager();
-        final WorldConfiguration wcfg = cfg.get(world);
+        final ConfigManager cfg = plugin.getGlobalManager();
+        final WorldConfig wcfg = cfg.get(world);
         if (!wcfg.useRequests) {
             throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
         }
@@ -287,8 +287,8 @@ public class ToolsCommands {
         final Player player = plugin.checkPlayer(sender);
         final World world = player.getWorld();
 
-        final ConfigurationManager cfg = plugin.getGlobalStateManager();
-        final WorldConfiguration wcfg = cfg.get(world);
+        final ConfigManager cfg = plugin.getGlobalManager();
+        final WorldConfig wcfg = cfg.get(world);
         if (!wcfg.useRequests) {
             throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
         }
@@ -335,8 +335,8 @@ public class ToolsCommands {
         final Player player = plugin.checkPlayer(sender);
         final World world = player.getWorld();
 
-        final ConfigurationManager cfg = plugin.getGlobalStateManager();
-        final WorldConfiguration wcfg = cfg.get(world);
+        final ConfigManager cfg = plugin.getGlobalManager();
+        final WorldConfig wcfg = cfg.get(world);
         if (!wcfg.useRequests) {
             throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
         }
@@ -372,8 +372,8 @@ public class ToolsCommands {
 
         final Player activePlayer = plugin.checkPlayer(sender);
         final World world = activePlayer.getWorld();
-        final ConfigurationManager cfg = plugin.getGlobalStateManager();
-        final WorldConfiguration wcfg = cfg.get(world);
+        final ConfigManager cfg = plugin.getGlobalManager();
+        final WorldConfig wcfg = cfg.get(world);
         if (!wcfg.useRequests) {
             throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
         }
