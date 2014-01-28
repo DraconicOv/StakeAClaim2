@@ -36,13 +36,13 @@ public class AllCommands {
     }
 
     @Command(aliases = {"tools", "o"},
-        desc = "Claim tools commands")
+        desc = "SAC tool commands")
     @NestedCommand(ToolsCommands.class)
     @CommandPermissions("stakeaclaim.tools")
     public void tools(CommandContext args, CommandSender sender) {}
 
     @Command(aliases = {"claim", "c"},
-            desc = "Claim commands")
+            desc = "SAC claim commands")
 //    @NestedCommand(value=ClaimCommands.class, executeBody=true)
     @NestedCommand(value=ClaimCommands.class)
     @CommandPermissions("stakeaclaim.claim")

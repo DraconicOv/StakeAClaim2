@@ -165,6 +165,8 @@ public class SACUtil {
         region.setFlag(SACFlags.REQUEST_NAME,null);
         region.setFlag(SACFlags.PENDING,null);
         region.setFlag(SACFlags.ENTRY_DEFAULT,null);
+        region.setFlag(SACFlags.CLAIM_WARP_NAME,null);
+        region.setFlag(DefaultFlag.TELE_LOC,null);
         region.setFlag(DefaultFlag.ENTRY,null);
         if (useReclaimed) {
             region.setFlag(SACFlags.RECLAIMED,true);

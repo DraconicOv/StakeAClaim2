@@ -1,4 +1,4 @@
 name: StakeAClaim
 main: com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin
 version: "${project.version}"
-softdepend: [WorldEdit, WorldGuard]
+depend: [WorldEdit, WorldGuard]
