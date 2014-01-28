@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.nineteengiraffes.stakeaclaim.bukkit;
+package com.nineteengiraffes.stakeaclaim;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import com.nineteengiraffes.stakeaclaim.bukkit.PlayerStateManager.PlayerState;
+import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.bukkit.BukkitUtil;

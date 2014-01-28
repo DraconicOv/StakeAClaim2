@@ -17,11 +17,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.nineteengiraffes.stakeaclaim.bukkit.commands;
+package com.nineteengiraffes.stakeaclaim.commands;
 
 import org.bukkit.command.CommandSender;
 
-import com.nineteengiraffes.stakeaclaim.bukkit.StakeAClaimPlugin;
+import com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;

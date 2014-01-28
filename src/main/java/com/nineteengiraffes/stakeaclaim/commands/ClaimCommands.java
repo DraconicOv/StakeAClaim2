@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.nineteengiraffes.stakeaclaim.bukkit.commands;
+package com.nineteengiraffes.stakeaclaim.commands;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -27,12 +27,12 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.nineteengiraffes.stakeaclaim.bukkit.ConfigurationManager;
-import com.nineteengiraffes.stakeaclaim.bukkit.PlayerStateManager.PlayerState;
-import com.nineteengiraffes.stakeaclaim.bukkit.SACFlags;
-import com.nineteengiraffes.stakeaclaim.bukkit.SACUtil;
-import com.nineteengiraffes.stakeaclaim.bukkit.StakeAClaimPlugin;
-import com.nineteengiraffes.stakeaclaim.bukkit.WorldConfiguration;
+import com.nineteengiraffes.stakeaclaim.ConfigurationManager;
+import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
+import com.nineteengiraffes.stakeaclaim.SACFlags;
+import com.nineteengiraffes.stakeaclaim.SACUtil;
+import com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin;
+import com.nineteengiraffes.stakeaclaim.WorldConfiguration;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;

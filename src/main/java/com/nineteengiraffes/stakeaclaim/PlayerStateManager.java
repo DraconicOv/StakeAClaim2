@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.nineteengiraffes.stakeaclaim.bukkit;
+package com.nineteengiraffes.stakeaclaim;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;

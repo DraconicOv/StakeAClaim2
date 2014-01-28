@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.nineteengiraffes.stakeaclaim.bukkit;
+package com.nineteengiraffes.stakeaclaim;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -36,7 +36,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 
-import com.nineteengiraffes.stakeaclaim.bukkit.PlayerStateManager.PlayerState;
+import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.domains.DefaultDomain;
