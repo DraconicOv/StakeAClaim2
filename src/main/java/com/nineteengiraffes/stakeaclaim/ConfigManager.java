@@ -89,15 +89,12 @@ public class ConfigManager {
      * Load the configuration.
      */
     public void load() {
-        // Create the default configuration file
-        plugin.createDefaultConfig(new File(plugin.getDataFolder(), "config.yml"), "config.yml");
 
         config = new YAMLProcessor(new File(plugin.getDataFolder(), "config.yml"), true, YAMLFormat.EXTENDED);
         try {
             config.load();
         } catch (IOException e) {
-            plugin.getLogger().severe("Error reading configuration for global config: ");
-            e.printStackTrace();
+            plugin.getLogger().info("No global configuration found, using default.");
         }
 
         useRequestsScheduler = config.getBoolean("sac.use-scheduler", true);

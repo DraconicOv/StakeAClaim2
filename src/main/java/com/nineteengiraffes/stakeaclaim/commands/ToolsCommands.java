@@ -463,7 +463,7 @@ public class ToolsCommands {
         claim.setFlag(SACFlags.REQUEST_NAME,passivePlayer);
         claim.setFlag(SACFlags.REQUEST_STATUS,"Pending");
 
-        if (claim.getFlag(SACFlags.RECLAIMED) != null && claim.getFlag(SACFlags.RECLAIMED) == true && wcfg.showReclaimOnStake) {
+        if (claim.getFlag(SACFlags.RECLAIMED) != null && claim.getFlag(SACFlags.RECLAIMED) == true) {
             sender.sendMessage(ChatColor.RED + "note: " + ChatColor.WHITE + regionID + 
                     ChatColor.YELLOW + " was claimed in the past and may not be pristine.");
         }

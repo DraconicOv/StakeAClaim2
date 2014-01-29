@@ -198,7 +198,7 @@ public class ClaimCommands {
         claim.setFlag(SACFlags.REQUEST_STATUS,"Pending");
 
         boolean useReclaimed = false;
-        if (claim.getFlag(SACFlags.RECLAIMED) != null && claim.getFlag(SACFlags.RECLAIMED) == true && wcfg.showReclaimOnStake) {
+        if (claim.getFlag(SACFlags.RECLAIMED) != null && claim.getFlag(SACFlags.RECLAIMED) == true) {
                 useReclaimed = true;
         }
         if (selfClaimActive && !wcfg.twoStepSelfClaim && useReclaimed == false) {

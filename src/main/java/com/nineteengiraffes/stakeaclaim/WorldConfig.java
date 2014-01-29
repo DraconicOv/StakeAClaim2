@@ -61,7 +61,6 @@ public class WorldConfig {
     public double selfClaimMax;
     public double claimMax;
     public double proxyClaimMax;
-    public boolean showReclaimOnStake;
     public boolean twoStepSelfClaim;
     /* Configuration data end */
 
@@ -73,14 +72,12 @@ public class WorldConfig {
      * @param parentConfig The parent configuration to read defaults from
      */
     public WorldConfig(StakeAClaimPlugin plugin, String worldName, YAMLProcessor parentConfig) {
-        File baseFolder = new File(plugin.getDataFolder(), "worlds/" + worldName);
-        File configFile = new File(baseFolder, "config.yml");
+        File baseFolder = new File(plugin.getDataFolder(), "worlds/");
+        File configFile = new File(baseFolder, worldName + "_config.yml");
 
         this.plugin = plugin;
         this.worldName = worldName;
         this.parentConfig = parentConfig;
-
-        plugin.createDefaultConfig(configFile, "config_world.yml");
 
         config = new YAMLProcessor(configFile, true, YAMLFormat.EXTENDED);
         loadConfiguration();
@@ -134,11 +131,11 @@ public class WorldConfig {
      * Load the configuration.
      */
     private void loadConfiguration() {
+        //TODO make default config generation include comments
         try {
             config.load();
         } catch (IOException e) {
-            plugin.getLogger().severe("Error reading configuration for world " + worldName + ": ");
-            e.printStackTrace();
+            plugin.getLogger().info("No configuration for world '" + worldName + "' found, using default.");
         }
 
         summaryOnStart = getBoolean("summary-on-start", true);
@@ -147,12 +144,11 @@ public class WorldConfig {
         useRequests = getBoolean("requests-enable", true);
         sacWand = getInt("wand", 288); // Feather
         claimNameFilter = getString("claim-name-regex-filter-string", "^[NSns]\\d\\d?[EWew]\\d\\d?$"); // match eg. s2w45
-        useReclaimed = getBoolean("set-status-to-reclaimed-on-reclaim", true);
+        useReclaimed = getBoolean("remeber-reclaimed", true);
         claimLimitsAreArea = getBoolean("claiming.claim-max-is-in-area-of-claims", false);
         selfClaimMax = getDouble("claiming.max-claims-a-player-can-stake-on-their-own", 1);
         claimMax = getDouble("claiming.max-claims-a-player-can-request", 3);
         proxyClaimMax = getDouble("claiming.max-claims-a-proxy-can-request", -1);
-        showReclaimOnStake = getBoolean("claiming.show-past-reclaimed-note", true);
         twoStepSelfClaim = getBoolean("claiming.players-need-to-confirm-when-self-accepting", true);
 
         useRegions = WGBukkit.getPlugin().getGlobalStateManager().get(plugin.getServer().getWorld(worldName)).useRegions;

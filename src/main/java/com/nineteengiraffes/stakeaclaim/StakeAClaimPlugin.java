@@ -237,69 +237,6 @@ public class StakeAClaimPlugin extends JavaPlugin {
     }
 
     /**
-     * Create a default config file from the .jar.
-     *
-     * @param actual The destination file
-     * @param defaultName The name of the file inside the jar's defaults folder
-     */
-    @SuppressWarnings("resource")
-    public void createDefaultConfig(File actual, String defaultName) {
-
-        // Make parent directories
-        File parent = actual.getParentFile();
-        if (!parent.exists()) {
-            parent.mkdirs();
-        }
-
-        if (actual.exists()) {
-            return;
-        }
-
-        InputStream input =
-                    null;
-            try {
-                JarFile file = new JarFile(getFile());
-                ZipEntry copy = file.getEntry("defaults/" + defaultName);
-                if (copy == null) throw new FileNotFoundException();
-                input = file.getInputStream(copy);
-            } catch (IOException e) {
-                getLogger().severe("Unable to read default configuration: " + defaultName);
-            }
-
-        if (input != null) {
-            FileOutputStream output = null;
-
-            try {
-                output = new FileOutputStream(actual);
-                byte[] buf = new byte[8192];
-                int length = 0;
-                while ((length = input.read(buf)) > 0) {
-                    output.write(buf, 0, length);
-                }
-
-                getLogger().info("Default configuration file written: "
-                        + actual.getAbsolutePath());
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (input != null) {
-                        input.close();
-                    }
-                } catch (IOException ignore) {
-                }
-
-                try {
-                    if (output != null) {
-                        output.close();
-                    }
-                } catch (IOException ignore) {
-                }
-            }
-        }
-    }
-
-    /**
      * Forgets a player.
      *
      * @param player The player to remove state information for

@@ -62,17 +62,8 @@
           <include>plugin.yml</include>
         </includes>
       </resource>
-      <resource>
-        <targetPath>defaults/</targetPath>
-        <filtering>true</filtering>
-        <directory>${basedir}/src/main/resources/</directory>
-        <includes>
-          <include>config.yml</include>
-          <include>config_world.yml</include>
-        </includes>
-      </resource>
     </resources>
-  
+    
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -97,27 +88,6 @@
             </manifest>
           </archive>
         </configuration>
-      </plugin>
-      
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>1.4</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <artifactSet>
-                <includes>
-                  <include>net.sf.opencsv:opencsv</include>
-                </includes>
-              </artifactSet>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       
       <plugin>

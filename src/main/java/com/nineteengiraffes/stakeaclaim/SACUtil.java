@@ -282,6 +282,14 @@ public class SACUtil {
             Field grmField = WorldGuardPlugin.class.getDeclaredField("globalRegionManager");
             grmField.setAccessible(true);
             GlobalRegionManager gRgMr = (GlobalRegionManager) grmField.get(Bukkit.getPluginManager().getPlugin("WorldGuard"));
+
+            for (World world : Bukkit.getWorlds()) {
+                if (WGBukkit.getPlugin().getGlobalStateManager().get(world).summaryOnStart) {
+                    Bukkit.getPluginManager().getPlugin("StakeAClaim").getLogger().info("Connected to WorldGuard. Reloading regions.");
+                    break;
+                }
+            }
+
             gRgMr.preload();
         } catch (Exception e) {
             e.printStackTrace();
