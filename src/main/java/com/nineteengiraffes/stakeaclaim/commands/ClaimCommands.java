@@ -61,7 +61,7 @@ public class ClaimCommands {
             usage = "",
             desc = "Get information about a claim",
             min = 0, max = 0)
-    @CommandPermissions("stakeaclaim.claim.info.*")
+    @CommandPermissions({"stakeaclaim.claim.info", "stakeaclaim.claim.info.own.*", "stakeaclaim.claim.info.member.*", "stakeaclaim.claim.info.*"})
     public void info(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
@@ -350,7 +350,7 @@ public class ClaimCommands {
             usage = "<members...>",
             desc = "Add a member to a claim",
             min = 1)
-    @CommandPermissions("stakeaclaim.claim.add.*")
+    @CommandPermissions({"stakeaclaim.claim.add", "stakeaclaim.claim.add.own.*", "stakeaclaim.claim.add.member.*", "stakeaclaim.claim.add.*"})
     public void add(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
@@ -380,7 +380,7 @@ public class ClaimCommands {
             flags = "a:",
             desc = "Remove a member from a claim",
             min = 1)
-    @CommandPermissions("stakeaclaim.claim.remove.*")
+    @CommandPermissions({"stakeaclaim.claim.remove", "stakeaclaim.claim.remove.own.*", "stakeaclaim.claim.remove.member.*", "stakeaclaim.claim.remove.*"})
     public void remove(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
@@ -414,11 +414,11 @@ public class ClaimCommands {
         saveRegions(world);
     }
 
-    @Command(aliases = {"private", "v"},
-            usage = "",
+    @Command(aliases = {"private", "p"},
+            usage = "[default]",
             desc = "Set a claim to private",
-            min = 0, max = 0)
-    @CommandPermissions("stakeaclaim.claim.private.*")
+            min = 0, max = 1)
+    @CommandPermissions({"stakeaclaim.claim.private", "stakeaclaim.claim.private.own.*", "stakeaclaim.claim.private.member.*", "stakeaclaim.claim.private.*"})
     public void setprivate(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
@@ -433,10 +433,26 @@ public class ClaimCommands {
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
         final String regionID = claim.getId();
 
+        if (args.argsLength() == 1) {
+            final String isDefault = args.getString(0);
+
+            if (isDefault.equalsIgnoreCase("default") || isDefault.equalsIgnoreCase("d")) {
+                checkPerm(player, "default.private", claim);
+
+                int ownedCode = SACUtil.isRegionOwned(claim);
+                if (ownedCode < 1) {
+                    throw new CommandException(ChatColor.YELLOW + "Sorry, this claim is not owned.");
+                }
+
+                claim.setFlag(SACFlags.ENTRY_DEFAULT, State.DENY);
+                saveRegions(world);
+                throw new CommandException(ChatColor.YELLOW + "Set " + ChatColor.WHITE + regionID + ChatColor.YELLOW + "'s default to " + ChatColor.RED + "private.");
+            }
+        }
         checkPerm(player, "private", claim);
 
         int ownedCode = SACUtil.isRegionOwned(claim);
-        if (ownedCode != 1) {
+        if (ownedCode < 1) {
             throw new CommandException(ChatColor.YELLOW + "Sorry, this claim is not owned.");
         }
         claim.setFlag(DefaultFlag.ENTRY, State.DENY);
@@ -447,10 +463,10 @@ public class ClaimCommands {
     }
 
     @Command(aliases = {"open", "o"},
-            usage = "",
+            usage = "[default]",
             desc = "Set a claim to open",
-            min = 0, max = 0)
-    @CommandPermissions("stakeaclaim.claim.open.*")
+            min = 0, max = 1)
+    @CommandPermissions({"stakeaclaim.claim.open", "stakeaclaim.claim.open.own.*", "stakeaclaim.claim.open.member.*", "stakeaclaim.claim.open.*"})
     public void open(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
@@ -465,10 +481,26 @@ public class ClaimCommands {
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
         final String regionID = claim.getId();
 
+        if (args.argsLength() == 1) {
+            final String isDefault = args.getString(0);
+
+            if (isDefault.equalsIgnoreCase("default") || isDefault.equalsIgnoreCase("d")) {
+                checkPerm(player, "default.open", claim);
+
+                int ownedCode = SACUtil.isRegionOwned(claim);
+                if (ownedCode < 1) {
+                    throw new CommandException(ChatColor.YELLOW + "Sorry, this claim is not owned.");
+                }
+
+                claim.setFlag(SACFlags.ENTRY_DEFAULT, State.ALLOW);
+                saveRegions(world);
+                throw new CommandException(ChatColor.YELLOW + "Set " + ChatColor.WHITE + regionID + ChatColor.YELLOW + "'s default to " + ChatColor.GRAY + "open.");
+            }
+        }
         checkPerm(player, "open", claim);
 
         int ownedCode = SACUtil.isRegionOwned(claim);
-        if (ownedCode != 1) {
+        if (ownedCode < 1) {
             throw new CommandException(ChatColor.YELLOW + "Sorry, this claim is not owned.");
         }
         claim.setFlag(DefaultFlag.ENTRY, null);
@@ -482,7 +514,7 @@ public class ClaimCommands {
             usage = "<player> [list entry #]",
             desc = "Warp to a players claim",
             min = 0)
-    @CommandPermissions("stakeaclaim.claim.warp.*")
+    @CommandPermissions({"stakeaclaim.claim.warp", "stakeaclaim.claim.warp.own.*", "stakeaclaim.claim.warp.member.*", "stakeaclaim.claim.warp.*"})
     public void warp(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player travelPlayer = plugin.checkPlayer(sender);
@@ -506,7 +538,7 @@ public class ClaimCommands {
 
         if (targetPlayer.equalsIgnoreCase("set") || targetPlayer.equalsIgnoreCase("s")) {
             ProtectedRegion claim = SACUtil.getClaimStandingIn(travelPlayer, plugin);
-            checkPerm(travelPlayer, "set", claim);
+            checkPerm(travelPlayer, "set.warp", claim);
 
             // Sets the name
             if (args.argsLength() >= 2) {
@@ -524,7 +556,7 @@ public class ClaimCommands {
         if (targetPlayer.equalsIgnoreCase("del") || targetPlayer.equalsIgnoreCase("delete") || targetPlayer.equalsIgnoreCase("d") || 
                 targetPlayer.equalsIgnoreCase("clear") || targetPlayer.equalsIgnoreCase("c")) {
             ProtectedRegion claim = SACUtil.getClaimStandingIn(travelPlayer, plugin);
-            checkPerm(travelPlayer, "del", claim);
+            checkPerm(travelPlayer, "del.warp", claim);
 
             // Clears the name
             if (args.argsLength() == 2 && args.getString(1).equalsIgnoreCase("name")) {

@@ -41,7 +41,6 @@ import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.protection.databases.ProtectionDatabaseException;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
-import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -117,67 +116,6 @@ public class ToolsCommands {
                         ", " + ChatColor.GREEN + region.getFlag(SACFlags.REQUEST_NAME));
             }
         }
-    }
-
-    @Command(aliases = {"claim", "m"},
-            usage = "",
-            desc = "Populates a list with one claim",
-            min = 0, max = 0)
-    @CommandPermissions("stakeaclaim.tools.claim")
-    public void claim(CommandContext args, CommandSender sender) throws CommandException {
-
-        final Player player = plugin.checkPlayer(sender);
-        final World world = player.getWorld();
-
-        final ConfigManager cfg = plugin.getGlobalManager();
-        final WorldConfig wcfg = cfg.get(world);
-        if (!wcfg.useRequests) {
-            throw new CommandException(ChatColor.YELLOW + "Requests are disabled in this world.");
-        }
-
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
-        if (rgMgr == null) {
-            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
-        }
-
-        final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
-        final String regionID = claim.getId();
-        final PlayerState state = plugin.getPlayerStateManager().getState(player);
-
-        LinkedHashMap<Integer, String> regions = new LinkedHashMap<Integer, String>();
-        state.regionList = null;
-        regions.put(0, regionID);
-        state.regionList = regions;
-
-        int ownedCode = SACUtil.isRegionOwned(claim);
-        if (ownedCode <= 0) {
-            claim.getMembers().getPlayers().clear();
-            claim.getMembers().getGroups().clear();
-            if (claim.getFlag(SACFlags.PENDING) != null && claim.getFlag(SACFlags.PENDING) == true && claim.getFlag(SACFlags.REQUEST_NAME) != null) {
-                sender.sendMessage(ChatColor.RED + "Pending request: ");
-                sender.sendMessage(ChatColor.YELLOW + "# 1: " + ChatColor.WHITE + regionID +
-                        ", " + ChatColor.GREEN + claim.getFlag(SACFlags.REQUEST_NAME));
-            } else {
-                claim.setFlag(SACFlags.REQUEST_NAME,null);
-                claim.setFlag(SACFlags.REQUEST_STATUS,null);
-                claim.setFlag(SACFlags.PENDING,null);
-                claim.setFlag(SACFlags.ENTRY_DEFAULT,null);
-                claim.setFlag(DefaultFlag.ENTRY,null);
-                sender.sendMessage(ChatColor.RED + "Open claim: ");
-                sender.sendMessage(ChatColor.YELLOW + "# 1: " + ChatColor.WHITE + regionID +
-                        ", " + ChatColor.GRAY + "Unclaimed");
-            }
-        } else if (ownedCode == 1) {
-            claim.setFlag(SACFlags.PENDING,null);
-            sender.sendMessage(ChatColor.RED + "Owned claim: ");
-            sender.sendMessage(ChatColor.YELLOW + "# 1: " + ChatColor.WHITE + regionID +
-                    ", " + ChatColor.GREEN + claim.getOwners().toUserFriendlyString());
-        } else {
-            sender.sendMessage(ChatColor.RED + "Claim error: " + ChatColor.WHITE + 
-                      claim.getId() + ChatColor.RED + " has multiple owners!");
-        }
-
-        saveRegions(world);
     }
 
     @Command(aliases = {"accept", "a"},
@@ -469,64 +407,6 @@ public class ToolsCommands {
         }
         sender.sendMessage(ChatColor.GREEN + passivePlayer + ChatColor.YELLOW + "'s stake request for " + 
                 ChatColor.WHITE + regionID + ChatColor.YELLOW + " is pending.");
-
-        saveRegions(world);
-    }
-
-    @Command(aliases = {"private", "v"},
-            usage = "<list entry #>",
-            desc = "Set a claim default to private",
-            min = 1, max = 1)
-    @CommandPermissions("stakeaclaim.tools.private")
-    public void setprivate(CommandContext args, CommandSender sender) throws CommandException {
-
-        final Player player = plugin.checkPlayer(sender);
-        final World world = player.getWorld();
-
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
-        if (rgMgr == null) {
-            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
-        }
-
-        final String regionID = getRegionIDFromList(args, player);
-        final ProtectedRegion claim = rgMgr.getRegion(regionID);
-
-        int ownedCode = SACUtil.isRegionOwned(claim);
-        if (ownedCode != 1) {
-            throw new CommandException(ChatColor.YELLOW + "Sorry, this claim is not owned.");
-        }
-        claim.setFlag(SACFlags.ENTRY_DEFAULT, State.DENY);
-
-        sender.sendMessage(ChatColor.YELLOW + "Set " + ChatColor.WHITE + regionID + ChatColor.YELLOW + "'s default to " + ChatColor.RED + "private.");
-
-        saveRegions(world);
-    }
-
-    @Command(aliases = {"open", "o"},
-            usage = "<list entry #>",
-            desc = "Set a claim default to open",
-            min = 1, max = 1)
-    @CommandPermissions("stakeaclaim.tools.open")
-    public void open(CommandContext args, CommandSender sender) throws CommandException {
-
-        final Player player = plugin.checkPlayer(sender);
-        final World world = player.getWorld();
-
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
-        if (rgMgr == null) {
-            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
-        }
-
-        final String regionID = getRegionIDFromList(args, player);
-        final ProtectedRegion claim = rgMgr.getRegion(regionID);
-
-        int ownedCode = SACUtil.isRegionOwned(claim);
-        if (ownedCode != 1) {
-            throw new CommandException(ChatColor.YELLOW + "Sorry, this claim is not owned.");
-        }
-        claim.setFlag(SACFlags.ENTRY_DEFAULT, State.ALLOW);
-
-        sender.sendMessage(ChatColor.YELLOW + "Set " + ChatColor.WHITE + regionID + ChatColor.YELLOW + "'s default to " + ChatColor.GRAY + "open.");
 
         saveRegions(world);
     }

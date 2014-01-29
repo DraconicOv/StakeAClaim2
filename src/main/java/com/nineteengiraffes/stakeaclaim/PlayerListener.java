@@ -24,12 +24,15 @@ import java.util.LinkedHashMap;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -40,6 +43,8 @@ import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.domains.DefaultDomain;
+import com.sk89q.worldguard.protection.databases.ProtectionDatabaseException;
+import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -143,7 +148,7 @@ public class PlayerListener implements Listener {
     }
 
     @SuppressWarnings("deprecation")
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
 
         Entity thingClicked = event.getRightClicked();
@@ -220,6 +225,79 @@ public class PlayerListener implements Listener {
                     activePlayer.sendMessage(ChatColor.YELLOW + "# " + (i + 1) + ": " + ChatColor.WHITE + claim.getId() +
                             ", " + ChatColor.GREEN + passivePlayer.getName().toLowerCase() +
                             ", " + ChatColor.YELLOW + claim.getFlag(SACFlags.PENDING) != null ? "Pending" : "Accepted");
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerInteract(PlayerInteractEvent event) {
+
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            Block block = event.getClickedBlock();
+            World world = block.getWorld();
+            Player player = event.getPlayer();
+            ItemStack held = player.getItemInHand();
+            ConfigManager cfg = plugin.getGlobalManager();
+            WorldConfig wcfg = cfg.get(world);
+
+            if (held.getTypeId() == wcfg.sacWand && plugin.hasPermission(player, "stakeaclaim.events.wand.claim")) {
+
+                if (!wcfg.useRequests) {
+                    player.sendMessage(ChatColor.YELLOW + "Requests are disabled in this world.");
+                    return;
+                }
+
+                final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+                if (rgMgr == null) {
+                    player.sendMessage(ChatColor.YELLOW + "Regions are disabled in this world.");
+                    return;
+                }
+
+                final Location loc = block.getLocation();
+
+                ProtectedRegion claim = SACUtil.getClaimAtPoint(rgMgr, wcfg, new Vector(loc.getX(), loc.getY(), loc.getZ()));
+                final String regionID = claim.getId();
+                final PlayerState state = plugin.getPlayerStateManager().getState(player);
+
+                LinkedHashMap<Integer, String> regions = new LinkedHashMap<Integer, String>();
+                state.regionList = null;
+                regions.put(0, regionID);
+                state.regionList = regions;
+
+                int ownedCode = SACUtil.isRegionOwned(claim);
+                if (ownedCode <= 0) {
+                    claim.getMembers().getPlayers().clear();
+                    claim.getMembers().getGroups().clear();
+                    if (claim.getFlag(SACFlags.PENDING) != null && claim.getFlag(SACFlags.PENDING) == true && claim.getFlag(SACFlags.REQUEST_NAME) != null) {
+                        player.sendMessage(ChatColor.RED + "Pending request: ");
+                        player.sendMessage(ChatColor.YELLOW + "# 1: " + ChatColor.WHITE + regionID +
+                                ", " + ChatColor.GREEN + claim.getFlag(SACFlags.REQUEST_NAME));
+                    } else {
+                        claim.setFlag(SACFlags.REQUEST_NAME,null);
+                        claim.setFlag(SACFlags.REQUEST_STATUS,null);
+                        claim.setFlag(SACFlags.PENDING,null);
+                        claim.setFlag(SACFlags.ENTRY_DEFAULT,null);
+                        claim.setFlag(DefaultFlag.ENTRY,null);
+                        player.sendMessage(ChatColor.RED + "Open claim: ");
+                        player.sendMessage(ChatColor.YELLOW + "# 1: " + ChatColor.WHITE + regionID +
+                                ", " + ChatColor.GRAY + "Unclaimed");
+                    }
+                } else if (ownedCode == 1) {
+                    claim.setFlag(SACFlags.PENDING,null);
+                    player.sendMessage(ChatColor.RED + "Owned claim: ");
+                    player.sendMessage(ChatColor.YELLOW + "# 1: " + ChatColor.WHITE + regionID +
+                            ", " + ChatColor.GREEN + claim.getOwners().toUserFriendlyString());
+                } else {
+                    player.sendMessage(ChatColor.RED + "Claim error: " + ChatColor.WHITE + 
+                              claim.getId() + ChatColor.RED + " has multiple owners!");
+                }
+
+                try {
+                    rgMgr.save();
+                } catch (ProtectionDatabaseException e) {
+                    player.sendMessage("Failed to write regions: " + e.getMessage());
                 }
             }
         }

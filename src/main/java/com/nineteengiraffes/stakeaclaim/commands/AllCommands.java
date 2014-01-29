@@ -35,7 +35,7 @@ public class AllCommands {
 //        this.plugin = plugin;
     }
 
-    @Command(aliases = {"tools", "o"},
+    @Command(aliases = {"tools", "o", "t"},
         desc = "SAC tool commands")
     @NestedCommand(ToolsCommands.class)
     @CommandPermissions("stakeaclaim.tools")
