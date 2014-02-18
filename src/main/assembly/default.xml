@@ -15,16 +15,14 @@
 			<filtered>false</filtered>
 		</file>
 		<file>
-			<source>README.html</source>
+			<source>README.txt</source>
+			<outputDirectory>/</outputDirectory>
+			<filtered>true</filtered>
+		</file>
+		<file>
+			<source>LICENSE.txt</source>
 			<outputDirectory>/</outputDirectory>
 			<filtered>true</filtered>
 		</file>
 	</files>
-	<fileSets>
-		<fileSet>
-			<includes>
-				<include>LICENSE.txt</include>
-			</includes>
-		</fileSet>
-	</fileSets>
 </assembly>
