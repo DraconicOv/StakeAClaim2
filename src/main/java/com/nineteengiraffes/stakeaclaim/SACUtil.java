@@ -34,6 +34,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
+import com.nineteengiraffes.stakeaclaim.SACFlags.Status;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.Vector;
@@ -75,6 +76,47 @@ public class SACUtil {
 
         for (ProtectedRegion region : regions.values()) {
             if (isRegionOwned(region) == 1 && region.getOwners().contains(playerName)) {
+                regionList.add(region);
+            }
+        }
+        return regionList;
+    }
+
+    /**
+     * Get a list of regions with a status for (@code player)
+     * 
+     * @param rgMgr the region manager to work with
+     * @param player the player to get the regions for
+     * @return list of status regions for the player
+     */
+    public static ArrayList<ProtectedRegion> getStatusRegions(RegionManager rgMgr, Player player) {
+
+        final Map<String, ProtectedRegion> regions = rgMgr.getRegions();
+        ArrayList<ProtectedRegion> regionList = new ArrayList<ProtectedRegion>();
+
+        for (ProtectedRegion region : regions.values()) {
+            if (region.getFlag(SACFlags.REQUEST_NAME) != null && region.getFlag(SACFlags.REQUEST_NAME).equals(player.getName().toLowerCase()) &&
+                    region.getFlag(SACFlags.REQUEST_STATUS) != null) {
+                regionList.add(region);
+            }
+        }
+        return regionList;
+    }
+
+    /**
+     * Get a list of regions with status 'pending'
+     * 
+     * @param rgMgr the region manager to work with
+     * @return list of status pending regions
+     */
+    public static ArrayList<ProtectedRegion> getStatusPendingRegions(RegionManager rgMgr) {
+
+        final Map<String, ProtectedRegion> regions = rgMgr.getRegions();
+        ArrayList<ProtectedRegion> regionList = new ArrayList<ProtectedRegion>();
+
+        for (ProtectedRegion region : regions.values()) {
+            if (region.getFlag(SACFlags.REQUEST_STATUS) != null && region.getFlag(SACFlags.REQUEST_STATUS) == Status.PENDING &&
+                    region.getFlag(SACFlags.REQUEST_NAME) != null) {
                 regionList.add(region);
             }
         }

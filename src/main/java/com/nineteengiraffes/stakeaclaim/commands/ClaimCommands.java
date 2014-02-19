@@ -30,6 +30,7 @@ import org.bukkit.entity.Player;
 import com.nineteengiraffes.stakeaclaim.ConfigManager;
 import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
 import com.nineteengiraffes.stakeaclaim.SACFlags;
+import com.nineteengiraffes.stakeaclaim.SACFlags.Status;
 import com.nineteengiraffes.stakeaclaim.SACUtil;
 import com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin;
 import com.nineteengiraffes.stakeaclaim.WorldConfig;
@@ -70,8 +71,14 @@ public class ClaimCommands {
 
         checkPerm(player, "info", claim);
 
+        final World world = player.getWorld();
+        final ConfigManager cfg = plugin.getGlobalManager();
+        final WorldConfig wcfg = cfg.get(world);
+
         if (claim.getFlag(DefaultFlag.ENTRY) == State.DENY) {
             sender.sendMessage(ChatColor.YELLOW + "Location: " + ChatColor.WHITE + regionID + ChatColor.RED + " Private!");
+        } else if (claim.getFlag(SACFlags.VIP) != null && claim.getFlag(SACFlags.VIP) == true) {
+            sender.sendMessage(ChatColor.YELLOW + "Location: " + ChatColor.WHITE + regionID + ChatColor.AQUA +" " + wcfg.VIPs + " claim!");
         } else {
             sender.sendMessage(ChatColor.YELLOW + "Location: " + ChatColor.WHITE + regionID);
         }
@@ -183,7 +190,7 @@ public class ClaimCommands {
         }
 
         // VIP check
-        if (claim.getFlag(SACFlags.VIP) != null && !plugin.hasPermission(player, "stakeaclaim.claim.vip") && claim.getFlag(SACFlags.VIP) == true) {
+        if (claim.getFlag(SACFlags.VIP) != null && !plugin.hasPermission(player, "stakeaclaim.vip") && claim.getFlag(SACFlags.VIP) == true) {
                 throw new CommandException(ChatColor.YELLOW + "Only " + wcfg.VIPs + " may stake this claim.");
         }
 
@@ -198,7 +205,6 @@ public class ClaimCommands {
         // Submit request
         claim.setFlag(SACFlags.PENDING,true);
         claim.setFlag(SACFlags.REQUEST_NAME,player.getName().toLowerCase());
-        claim.setFlag(SACFlags.REQUEST_STATUS,"Pending");
 
         boolean useReclaimed = false;
         if (claim.getFlag(SACFlags.RECLAIMED) != null && claim.getFlag(SACFlags.RECLAIMED) == true) {
@@ -218,6 +224,18 @@ public class ClaimCommands {
             }
             sender.sendMessage(ChatColor.YELLOW + "Your stake request for " + ChatColor.WHITE + claim.getId() + 
                     ChatColor.YELLOW + " is pending.");
+
+            if (wcfg.silentNotify) {
+                        claim.setFlag(SACFlags.REQUEST_STATUS,null);
+            } else {
+                claim.setFlag(SACFlags.REQUEST_STATUS,Status.PENDING);
+                for (Player admin : plugin.getServer().getOnlinePlayers()) {
+                    if (plugin.hasPermission(admin, "stakeaclaim.pending.notify")) {
+                        admin.sendMessage(ChatColor.YELLOW + "New stake request by " + ChatColor.GREEN + player.getName() + ChatColor.YELLOW + " for " + ChatColor.WHITE + claim.getId() + ChatColor.YELLOW + " in " + 
+                            ChatColor.BLUE + world.getName() + "!");
+                    }
+                }
+            }
         }
 
         saveRegions(world);
@@ -262,8 +280,6 @@ public class ClaimCommands {
                 region.setFlag(SACFlags.REQUEST_STATUS,null);
                 region.setFlag(SACFlags.REQUEST_NAME,null);
                 region.setFlag(SACFlags.PENDING,null);
-                region.setFlag(SACFlags.ENTRY_DEFAULT,null);
-                region.setFlag(DefaultFlag.ENTRY,null);
             }
         }
         if (claim == null) {
@@ -337,8 +353,6 @@ public class ClaimCommands {
             region.setFlag(SACFlags.REQUEST_STATUS,null);
             region.setFlag(SACFlags.REQUEST_NAME,null);
             region.setFlag(SACFlags.PENDING,null);
-            region.setFlag(SACFlags.ENTRY_DEFAULT,null);
-            region.setFlag(DefaultFlag.ENTRY,null);
         }
 
         if (regionList.size() == 0) {
@@ -371,6 +385,16 @@ public class ClaimCommands {
         checkPerm(player, "add", claim);
 
         RegionDBUtil.addToDomain(claim.getMembers(), args.getPaddedSlice(1, 0), 0);
+
+        if (!wcfg.silentNotify) {
+            for (Player member : plugin.getServer().getOnlinePlayers()) {
+                for (String added : args.getPaddedSlice(1, 0)) {
+                    if (member.getName().equalsIgnoreCase(added)) {
+                        member.sendMessage(ChatColor.GREEN + player.getName().toLowerCase() + ChatColor.YELLOW + " has added you to " + ChatColor.WHITE + claim.getId() + "!");
+                    }
+                }
+            }
+        }
 
         sender.sendMessage(ChatColor.YELLOW + "Added " + ChatColor.GREEN + args.getJoinedStrings(0) + 
                 ChatColor.YELLOW + " to claim: " + ChatColor.WHITE + regionID + ".");
@@ -586,7 +610,15 @@ public class ClaimCommands {
             }
         }
         if (regionList.isEmpty()) {
-            if (plugin.getServer().getOfflinePlayer(targetPlayer).hasPlayedBefore() == false) {
+            boolean onlinePlayer = false;
+            for (Player player : plugin.getServer().getOnlinePlayers()) {
+                if (targetPlayer.equalsIgnoreCase(player.getName())) {
+                    onlinePlayer = true;
+                }
+            }
+            boolean offlinePlayer = plugin.getServer().getOfflinePlayer(targetPlayer).hasPlayedBefore();
+
+            if (!onlinePlayer && !offlinePlayer) {
                 throw new CommandException(ChatColor.GREEN + targetPlayer + ChatColor.YELLOW + " has not played on this server.");
             }
             throw new CommandException(ChatColor.GREEN + targetPlayer + ChatColor.YELLOW + " has no claims for you to warp to.");

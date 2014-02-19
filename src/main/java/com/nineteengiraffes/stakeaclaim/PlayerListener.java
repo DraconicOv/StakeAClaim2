@@ -40,6 +40,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 
 import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
+import com.nineteengiraffes.stakeaclaim.SACFlags.Status;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.domains.DefaultDomain;
@@ -306,10 +307,10 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        World world = player.getWorld();
+        World playersWorld = player.getWorld();
 
         ConfigManager cfg = plugin.getGlobalManager();
-        WorldConfig wcfg = cfg.get(world);
+        WorldConfig wcfg = cfg.get(playersWorld);
 
         if (wcfg.useSAC) {
             PlayerState state = plugin.getPlayerStateManager().getState(player);
@@ -321,6 +322,55 @@ public class PlayerListener implements Listener {
             state.lastSupport = null;
             state.regionList = null;
             state.unsubmittedRequest = null;
+        }
+
+        RegionManager rgMgr;
+
+        for (World world : plugin.getServer().getWorlds()) {
+            wcfg = cfg.get(world);
+            rgMgr = WGBukkit.getRegionManager(world);
+            if (!wcfg.useSAC || rgMgr == null) {
+                continue;
+            }
+
+            ArrayList<ProtectedRegion> regionList = SACUtil.getStatusRegions(rgMgr, player);
+            for (ProtectedRegion region : regionList) {
+                Status status = region.getFlag(SACFlags.REQUEST_STATUS);
+                StringBuilder message = new StringBuilder(ChatColor.YELLOW + "Your request for " + ChatColor.WHITE + region.getId() + ChatColor.YELLOW + " in " + 
+                        ChatColor.BLUE + world.getName() + ChatColor.YELLOW);
+                switch (status) {
+                    case PENDING:
+                        message.append(" is still pending.");
+                        break;
+                    case ACCEPTED:
+                        message.append(" has been " + ChatColor.DARK_GREEN + "accepted!");
+                        region.setFlag(SACFlags.REQUEST_NAME,null);
+                        region.setFlag(SACFlags.REQUEST_STATUS,null);
+                        break;
+                    case DENIED:
+                        message.append(" has been " + ChatColor.DARK_RED + "denied!");
+                        region.setFlag(SACFlags.REQUEST_NAME,null);
+                        region.setFlag(SACFlags.REQUEST_STATUS,null);
+                        break;
+                    case CANCELED:
+                        message.append(" has been " + ChatColor.GRAY + "canceled.");
+                        region.setFlag(SACFlags.REQUEST_NAME,null);
+                        region.setFlag(SACFlags.REQUEST_STATUS,null);
+                        break;
+                }
+                player.sendMessage(message.toString());
+            }
+
+            if (plugin.hasPermission(player, "stakeaclaim.pending.notify")) {
+                regionList = SACUtil.getStatusPendingRegions(rgMgr);
+                if (regionList.size() == 1) {
+                    player.sendMessage(ChatColor.YELLOW + "There is " + regionList.size() + " pending stake request in " + 
+                            ChatColor.BLUE + world.getName() + ".");
+                } else if (regionList.size() > 1) {
+                    player.sendMessage(ChatColor.YELLOW + "There are " + regionList.size() + " pending stake requests in " + 
+                            ChatColor.BLUE + world.getName() + ".");
+                }
+            }
         }
     }
 

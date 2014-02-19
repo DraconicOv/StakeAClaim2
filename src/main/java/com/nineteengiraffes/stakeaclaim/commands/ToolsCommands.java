@@ -33,6 +33,7 @@ import org.bukkit.entity.Player;
 import com.nineteengiraffes.stakeaclaim.ConfigManager;
 import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
 import com.nineteengiraffes.stakeaclaim.SACFlags;
+import com.nineteengiraffes.stakeaclaim.SACFlags.Status;
 import com.nineteengiraffes.stakeaclaim.SACUtil;
 import com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin;
 import com.nineteengiraffes.stakeaclaim.WorldConfig;
@@ -163,10 +164,24 @@ public class ToolsCommands {
         // Accept the request
         claim.getOwners().addPlayer(claim.getFlag(SACFlags.REQUEST_NAME));
         claim.setFlag(SACFlags.PENDING,null);
-        claim.setFlag(SACFlags.REQUEST_STATUS,"accepted");
 
         sender.sendMessage(ChatColor.YELLOW + "You have accepted " + ChatColor.GREEN + claim.getFlag(SACFlags.REQUEST_NAME) +
                 ChatColor.YELLOW + "'s request for " + ChatColor.WHITE + regionID + "!");
+
+        if (wcfg.silentNotify) {
+                    claim.setFlag(SACFlags.REQUEST_NAME,null);
+                    claim.setFlag(SACFlags.REQUEST_STATUS,null);
+        } else {
+            claim.setFlag(SACFlags.REQUEST_STATUS,Status.ACCEPTED);
+            for (Player requester : plugin.getServer().getOnlinePlayers()) {
+                if (requester.getName().equalsIgnoreCase(claim.getFlag(SACFlags.REQUEST_NAME))) {
+                    requester.sendMessage(ChatColor.YELLOW + "Your request for " + ChatColor.WHITE + regionID + ChatColor.YELLOW + " in " + 
+                            ChatColor.BLUE + world.getName() + ChatColor.YELLOW + " has been " + ChatColor.DARK_GREEN + "accepted!");
+                    claim.setFlag(SACFlags.REQUEST_NAME,null);
+                    claim.setFlag(SACFlags.REQUEST_STATUS,null);
+                }
+            }
+        }
 
         saveRegions(world);
     }
@@ -211,10 +226,24 @@ public class ToolsCommands {
 
         // Deny the request
         claim.setFlag(SACFlags.PENDING,null);
-        claim.setFlag(SACFlags.REQUEST_STATUS,"denied");
 
         sender.sendMessage(ChatColor.YELLOW + "You have denied " + ChatColor.GREEN + claim.getFlag(SACFlags.REQUEST_NAME) +
                 ChatColor.YELLOW + "'s request for " + ChatColor.WHITE + regionID + "!");
+
+        if (wcfg.silentNotify) {
+                    claim.setFlag(SACFlags.REQUEST_NAME,null);
+                    claim.setFlag(SACFlags.REQUEST_STATUS,null);
+        } else {
+            claim.setFlag(SACFlags.REQUEST_STATUS,Status.DENIED);
+            for (Player requester : plugin.getServer().getOnlinePlayers()) {
+                if (requester.getName().equalsIgnoreCase(claim.getFlag(SACFlags.REQUEST_NAME))) {
+                    requester.sendMessage(ChatColor.YELLOW + "Your request for " + ChatColor.WHITE + regionID + ChatColor.YELLOW + " in " + 
+                            ChatColor.BLUE + world.getName() + ChatColor.YELLOW + " has been " + ChatColor.DARK_RED + "denied!");
+                    claim.setFlag(SACFlags.REQUEST_NAME,null);
+                    claim.setFlag(SACFlags.REQUEST_STATUS,null);
+                }
+            }
+        }
 
         saveRegions(world);
     }
@@ -259,10 +288,24 @@ public class ToolsCommands {
 
         // Cancel the request
         claim.setFlag(SACFlags.PENDING,null);
-        claim.setFlag(SACFlags.REQUEST_STATUS,"canceled");
 
         sender.sendMessage(ChatColor.YELLOW + "You have canceled " + ChatColor.GREEN + claim.getFlag(SACFlags.REQUEST_NAME) +
                 ChatColor.YELLOW + "'s request for " + ChatColor.WHITE + regionID + "!");
+
+        if (wcfg.silentNotify) {
+                    claim.setFlag(SACFlags.REQUEST_NAME,null);
+                    claim.setFlag(SACFlags.REQUEST_STATUS,null);
+        } else {
+            claim.setFlag(SACFlags.REQUEST_STATUS,Status.CANCELED);
+            for (Player requester : plugin.getServer().getOnlinePlayers()) {
+                if (requester.getName().equalsIgnoreCase(claim.getFlag(SACFlags.REQUEST_NAME))) {
+                    requester.sendMessage(ChatColor.YELLOW + "Your request for " + ChatColor.WHITE + regionID + ChatColor.YELLOW + " in " + 
+                            ChatColor.BLUE + world.getName() + ChatColor.YELLOW + " has been " + ChatColor.GRAY + "canceled.");
+                    claim.setFlag(SACFlags.REQUEST_NAME,null);
+                    claim.setFlag(SACFlags.REQUEST_STATUS,null);
+                }
+            }
+        }
 
         saveRegions(world);
     }
@@ -302,6 +345,15 @@ public class ToolsCommands {
 
         sender.sendMessage(ChatColor.YELLOW + "You have reclaimed " + ChatColor.WHITE + regionID +
                 ChatColor.YELLOW + " from " + ChatColor.GREEN + owner + ChatColor.YELLOW + "!");
+
+        if (!wcfg.silentNotify) {
+            for (Player requester : plugin.getServer().getOnlinePlayers()) {
+                if (requester.getName().equalsIgnoreCase(owner)) {
+                    requester.sendMessage(ChatColor.YELLOW + "You no longer own " + ChatColor.WHITE + regionID + ChatColor.YELLOW + " in " + 
+                            ChatColor.BLUE + world.getName() + ". " + ChatColor.WHITE + regionID + ChatColor.YELLOW + " has been " + ChatColor.DARK_RED + "reclaimed!");
+                }
+            }
+        }
 
         saveRegions(world);
     }
@@ -403,7 +455,6 @@ public class ToolsCommands {
         // Submit request
         claim.setFlag(SACFlags.PENDING,true);
         claim.setFlag(SACFlags.REQUEST_NAME,passivePlayer);
-        claim.setFlag(SACFlags.REQUEST_STATUS,"Pending");
 
         if (claim.getFlag(SACFlags.RECLAIMED) != null && claim.getFlag(SACFlags.RECLAIMED) == true) {
             sender.sendMessage(ChatColor.RED + "note: " + ChatColor.WHITE + regionID + 
@@ -411,6 +462,22 @@ public class ToolsCommands {
         }
         sender.sendMessage(ChatColor.GREEN + passivePlayer + ChatColor.YELLOW + "'s stake request for " + 
                 ChatColor.WHITE + regionID + ChatColor.YELLOW + " is pending.");
+
+        if (wcfg.silentNotify) {
+                    claim.setFlag(SACFlags.REQUEST_STATUS,null);
+        } else {
+            claim.setFlag(SACFlags.REQUEST_STATUS,Status.PENDING);
+            for (Player player : plugin.getServer().getOnlinePlayers()) {
+                if (player.getName().equalsIgnoreCase(passivePlayer)) {
+                    player.sendMessage(ChatColor.YELLOW + "Your stake request for " + ChatColor.WHITE + regionID + ChatColor.YELLOW + " in " + 
+                            ChatColor.BLUE + world.getName() + ChatColor.YELLOW + " is pending.");
+                }
+                if (plugin.hasPermission(player, "stakeaclaim.pending.notify")) {
+                    player.sendMessage(ChatColor.YELLOW + "New stake request by " + ChatColor.GREEN + passivePlayer + ChatColor.YELLOW + " for " + ChatColor.WHITE + regionID + ChatColor.YELLOW + " in " + 
+                            ChatColor.BLUE + world.getName() + "!");
+                }
+            }
+        }
 
         saveRegions(world);
     }

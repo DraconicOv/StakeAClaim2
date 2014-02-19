@@ -20,16 +20,24 @@
 package com.nineteengiraffes.stakeaclaim;
 
 import com.sk89q.worldguard.protection.flags.BooleanFlag;
+import com.sk89q.worldguard.protection.flags.EnumFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.StringFlag;
 
 public final class SACFlags {
 
+    public enum Status {
+        PENDING,
+        ACCEPTED,
+        DENIED,
+        CANCELED
+    }
+
     public static final BooleanFlag RECLAIMED = new BooleanFlag("reclaimed");
     public static final BooleanFlag PENDING = new BooleanFlag("pending-claim");
     public static final BooleanFlag VIP = new BooleanFlag("vip-claim");
     public static final StringFlag REQUEST_NAME = new StringFlag("request-name");
-    public static final StringFlag REQUEST_STATUS = new StringFlag("request-status");
+    public static final EnumFlag<Status> REQUEST_STATUS = new EnumFlag<Status>("request-status", Status.class);
     public static final StateFlag ENTRY_DEFAULT = new StateFlag("entry-default",true);
     public static final StringFlag CLAIM_WARP_NAME = new StringFlag("warp-name");
 

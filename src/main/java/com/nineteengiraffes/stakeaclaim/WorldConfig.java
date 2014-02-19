@@ -63,6 +63,7 @@ public class WorldConfig {
     public double proxyClaimMax;
     public boolean twoStepSelfClaim;
     public String VIPs;
+    public boolean silentNotify;
     /* Configuration data end */
 
     /**
@@ -147,6 +148,7 @@ public class WorldConfig {
         claimNameFilter = getString("claim-name-regex-filter-string", "^[NSns]\\d\\d?[EWew]\\d\\d?$"); // match eg. s2w45
         useReclaimed = getBoolean("remeber-reclaimed", true);
         VIPs = getString("what-you-call-your-vips", "Donors");
+        silentNotify = getBoolean("claiming.silent-claiming", false);
         claimLimitsAreArea = getBoolean("claiming.claim-max-is-in-area-of-claims", false);
         selfClaimMax = getDouble("claiming.max-claims-a-player-can-stake-on-their-own", 1);
         claimMax = getDouble("claiming.max-claims-a-player-can-request", 3);
