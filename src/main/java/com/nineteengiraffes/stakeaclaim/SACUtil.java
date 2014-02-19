@@ -318,8 +318,13 @@ public class SACUtil {
         } else if (claim.getFlag(DefaultFlag.SPAWN_LOC)!= null) {
             player.teleport(BukkitUtil.toLocation(claim.getFlag(DefaultFlag.SPAWN_LOC)));
             state.lastWarp = claim;
-            throw new CommandException(ChatColor.YELLOW + "Gone to " + ChatColor.WHITE + claim.getId() + 
-                    ChatColor.YELLOW + "'s spawn. By: " + ChatColor.GREEN + claim.getOwners().toUserFriendlyString());
+            if (claim.getOwners().size() == 0) {
+                throw new CommandException(ChatColor.YELLOW + "Gone to " + ChatColor.WHITE + claim.getId() + 
+                        ChatColor.YELLOW + "'s spawn. By: " + ChatColor.GRAY + "Unclaimed");
+            } else {
+                throw new CommandException(ChatColor.YELLOW + "Gone to " + ChatColor.WHITE + claim.getId() + 
+                        ChatColor.YELLOW + "'s spawn. By: " + ChatColor.GREEN + claim.getOwners().toUserFriendlyString());
+            }
 
         } else {
             state.lastWarp = null;
