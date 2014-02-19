@@ -182,14 +182,17 @@ public class ClaimCommands {
             }
         }
 
+        // VIP check
+        if (claim.getFlag(SACFlags.VIP) != null && !plugin.hasPermission(player, "stakeaclaim.claim.vip") && claim.getFlag(SACFlags.VIP) == true) {
+                throw new CommandException(ChatColor.YELLOW + "Only " + wcfg.VIPs + " may stake this claim.");
+        }
+
         // Remove pending flag on any/all other claims
         regionList = SACUtil.getPendingRegions(rgMgr, player);
         for (ProtectedRegion region : regionList) {
             region.setFlag(SACFlags.REQUEST_STATUS,null);
             region.setFlag(SACFlags.REQUEST_NAME,null);
             region.setFlag(SACFlags.PENDING,null);
-            region.setFlag(SACFlags.ENTRY_DEFAULT,null);
-            region.setFlag(DefaultFlag.ENTRY,null);
         }
 
         // Submit request

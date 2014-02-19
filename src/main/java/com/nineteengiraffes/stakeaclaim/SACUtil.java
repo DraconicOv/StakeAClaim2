@@ -271,6 +271,7 @@ public class SACUtil {
             // Flags
             wgFlags.add(SACFlags.RECLAIMED);
             wgFlags.add(SACFlags.PENDING);
+            wgFlags.add(SACFlags.VIP);
             wgFlags.add(SACFlags.REQUEST_NAME);
             wgFlags.add(SACFlags.REQUEST_STATUS);
             wgFlags.add(SACFlags.ENTRY_DEFAULT);

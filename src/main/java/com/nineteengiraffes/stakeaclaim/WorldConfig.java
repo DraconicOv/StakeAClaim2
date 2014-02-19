@@ -62,6 +62,7 @@ public class WorldConfig {
     public double claimMax;
     public double proxyClaimMax;
     public boolean twoStepSelfClaim;
+    public String VIPs;
     /* Configuration data end */
 
     /**
@@ -145,6 +146,7 @@ public class WorldConfig {
         sacWand = getInt("wand", 288); // Feather
         claimNameFilter = getString("claim-name-regex-filter-string", "^[NSns]\\d\\d?[EWew]\\d\\d?$"); // match eg. s2w45
         useReclaimed = getBoolean("remeber-reclaimed", true);
+        VIPs = getString("what-you-call-your-vips", "Donors");
         claimLimitsAreArea = getBoolean("claiming.claim-max-is-in-area-of-claims", false);
         selfClaimMax = getDouble("claiming.max-claims-a-player-can-stake-on-their-own", 1);
         claimMax = getDouble("claiming.max-claims-a-player-can-request", 3);
