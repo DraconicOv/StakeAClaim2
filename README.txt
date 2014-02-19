@@ -35,10 +35,9 @@ In chat ‘support’ as you enter a claim when holding the SAC wand (default: f
     unstake - cancel your stake request) [u]
     add <players> - adds member(s) to this claim [a]
     remove <players> - removes member(s) from this claim, do -a to remove all [r]
-    private - set this claim to private (people can’t enter) [p]
-        default -  set this claim's default entry state to private [d]
-    open - set this claim to open (anyone can enter) [o]
-        default -  set this claim's default entry state to open [d]
+    private - toggle this claim to private/open (people can’t enter) [p]
+        default - toggle this claim's default entry state [d]
+        clear - clear all privacy settings from claim [c]
     warp [player], [list item #] - warp to a player’s claim [w]
         set [new name] - set this claim's warp location (or it's name)[s]
         del ['name'] - delete this claim's warp location (or it's name)[d]
@@ -50,11 +49,12 @@ In chat ‘support’ as you enter a claim when holding the SAC wand (default: f
     cancel <list item #> - cancel someone's stake request [c]
     reclaim <list item #> - unclaim someone's claim > [r]
     proxy - claim for someone else [x]
-    entry <list item #> - remove a claim's default entry state [e]
+    goto <list item #> or <region ID> ['spawn'] - go to a claim [g]
+    spawns - create default spawn points for all claims in this world [s]
 
 Hit a player with wand to lookup claims by that player
 Hit a block with wand to lookup the claim the block is in
-A claim will automatically revert to the default entry state (private or open) when the owner logs off.
+A claim can be set to automatically revert to the default entry state (private or open) when the owner logs off.
 
 
 Install:

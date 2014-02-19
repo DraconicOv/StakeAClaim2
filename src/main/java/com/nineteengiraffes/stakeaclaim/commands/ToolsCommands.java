@@ -482,31 +482,6 @@ public class ToolsCommands {
         saveRegions(world);
     }
 
-    @Command(aliases = {"entry", "e"},
-            usage = "<list entry #>",
-            desc = "Remove claim entry default",
-            min = 1, max = 1)
-    @CommandPermissions("stakeaclaim.tools.entry")
-    public void entry(CommandContext args, CommandSender sender) throws CommandException {
-
-        final Player player = plugin.checkPlayer(sender);
-        final World world = player.getWorld();
-
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
-        if (rgMgr == null) {
-            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
-        }
-
-        final String regionID = getRegionIDFromList(args, player);
-        final ProtectedRegion claim = rgMgr.getRegion(regionID);
-
-        claim.setFlag(SACFlags.ENTRY_DEFAULT, null);
-
-        sender.sendMessage(ChatColor.YELLOW + "Removed " + ChatColor.WHITE + regionID + ChatColor.YELLOW + " 's default entry setting.");
-
-        saveRegions(world);
-    }
-
     @Command(aliases = {"goto", "g", "go"},
             usage = "<list entry #> or <region ID> ['spawn']",
             desc = "Goto to a claim",

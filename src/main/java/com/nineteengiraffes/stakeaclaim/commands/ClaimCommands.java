@@ -39,6 +39,7 @@ import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.CommandPermissionsException;
+import com.sk89q.minecraft.util.commands.NestedCommand;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldguard.bukkit.WGBukkit;
@@ -442,9 +443,10 @@ public class ClaimCommands {
     }
 
     @Command(aliases = {"private", "p"},
-            usage = "[default]",
-            desc = "Set a claim to private",
-            min = 0, max = 1)
+            usage = "",
+            desc = "Toggle a claim to private/open",
+            min = 0, max = 0)
+    @NestedCommand(value=PrivateCommands.class, executeBody=true)
     @CommandPermissions({"stakeaclaim.claim.private", "stakeaclaim.claim.private.own.*", "stakeaclaim.claim.private.member.*", "stakeaclaim.claim.private.*"})
     public void setprivate(CommandContext args, CommandSender sender) throws CommandException {
 
@@ -460,79 +462,20 @@ public class ClaimCommands {
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
         final String regionID = claim.getId();
 
-        if (args.argsLength() == 1) {
-            final String isDefault = args.getString(0);
-
-            if (isDefault.equalsIgnoreCase("default") || isDefault.equalsIgnoreCase("d")) {
-                checkPerm(player, "default.private", claim);
-
-                int ownedCode = SACUtil.isRegionOwned(claim);
-                if (ownedCode < 1) {
-                    throw new CommandException(ChatColor.YELLOW + "Sorry, this claim is not owned.");
-                }
-
-                claim.setFlag(SACFlags.ENTRY_DEFAULT, State.DENY);
-                saveRegions(world);
-                throw new CommandException(ChatColor.YELLOW + "Set " + ChatColor.WHITE + regionID + ChatColor.YELLOW + "'s default to " + ChatColor.RED + "private.");
-            }
-        }
         checkPerm(player, "private", claim);
 
         int ownedCode = SACUtil.isRegionOwned(claim);
         if (ownedCode < 1) {
             throw new CommandException(ChatColor.YELLOW + "Sorry, this claim is not owned.");
         }
-        claim.setFlag(DefaultFlag.ENTRY, State.DENY);
 
-        sender.sendMessage(ChatColor.YELLOW + "Set " + ChatColor.WHITE + regionID + ChatColor.YELLOW + " to " + ChatColor.RED + "private.");
-
-        saveRegions(world);
-    }
-
-    @Command(aliases = {"open", "o"},
-            usage = "[default]",
-            desc = "Set a claim to open",
-            min = 0, max = 1)
-    @CommandPermissions({"stakeaclaim.claim.open", "stakeaclaim.claim.open.own.*", "stakeaclaim.claim.open.member.*", "stakeaclaim.claim.open.*"})
-    public void open(CommandContext args, CommandSender sender) throws CommandException {
-
-        final Player player = plugin.checkPlayer(sender);
-        final World world = player.getWorld();
-
-        final ConfigManager cfg = plugin.getGlobalManager();
-        final WorldConfig wcfg = cfg.get(world);
-        if (!wcfg.useRegions) {
-            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
+        if (claim.getFlag(DefaultFlag.ENTRY) == null || (claim.getFlag(DefaultFlag.ENTRY) != null && claim.getFlag(DefaultFlag.ENTRY) == State.ALLOW)) {
+            claim.setFlag(DefaultFlag.ENTRY, State.DENY);
+            sender.sendMessage(ChatColor.YELLOW + "Set " + ChatColor.WHITE + regionID + ChatColor.YELLOW + " to " + ChatColor.RED + "private.");
+        } else {
+            claim.setFlag(DefaultFlag.ENTRY, null);
+            sender.sendMessage(ChatColor.YELLOW + "Set " + ChatColor.WHITE + regionID + ChatColor.YELLOW + " to " + ChatColor.GRAY + "open.");
         }
-
-        final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
-        final String regionID = claim.getId();
-
-        if (args.argsLength() == 1) {
-            final String isDefault = args.getString(0);
-
-            if (isDefault.equalsIgnoreCase("default") || isDefault.equalsIgnoreCase("d")) {
-                checkPerm(player, "default.open", claim);
-
-                int ownedCode = SACUtil.isRegionOwned(claim);
-                if (ownedCode < 1) {
-                    throw new CommandException(ChatColor.YELLOW + "Sorry, this claim is not owned.");
-                }
-
-                claim.setFlag(SACFlags.ENTRY_DEFAULT, State.ALLOW);
-                saveRegions(world);
-                throw new CommandException(ChatColor.YELLOW + "Set " + ChatColor.WHITE + regionID + ChatColor.YELLOW + "'s default to " + ChatColor.GRAY + "open.");
-            }
-        }
-        checkPerm(player, "open", claim);
-
-        int ownedCode = SACUtil.isRegionOwned(claim);
-        if (ownedCode < 1) {
-            throw new CommandException(ChatColor.YELLOW + "Sorry, this claim is not owned.");
-        }
-        claim.setFlag(DefaultFlag.ENTRY, null);
-
-        sender.sendMessage(ChatColor.YELLOW + "Set " + ChatColor.WHITE + regionID + ChatColor.YELLOW + " to " + ChatColor.GRAY + "open.");
 
         saveRegions(world);
     }

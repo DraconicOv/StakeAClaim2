@@ -24,7 +24,6 @@ import org.bukkit.command.CommandSender;
 import com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
-import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
 
@@ -43,13 +42,7 @@ public class AllCommands {
 
     @Command(aliases = {"claim", "c"},
             desc = "SAC claim commands")
-//    @NestedCommand(value=ClaimCommands.class, executeBody=true)
-    @NestedCommand(value=ClaimCommands.class)
+    @NestedCommand(ClaimCommands.class)
     @CommandPermissions("stakeaclaim.claim")
-    public void claim(CommandContext args, CommandSender sender) throws CommandException {
-
-//        sender.sendMessage(ChatColor.YELLOW + "This will display the " + ChatColor.GREEN + 
-//                "player's " + ChatColor.AQUA +"requests " + ChatColor.YELLOW +"and " + ChatColor.WHITE + "claims.");
-
-    }
+    public void claim(CommandContext args, CommandSender sender) {}
 }
