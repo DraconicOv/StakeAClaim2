@@ -21,6 +21,9 @@ package com.nineteengiraffes.stakeaclaim.commands;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -41,6 +44,7 @@ import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.protection.databases.ProtectionDatabaseException;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
+import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -435,7 +439,82 @@ public class ToolsCommands {
 
         saveRegions(world);
     }
-    
+
+    @Command(aliases = {"goto", "g", "go"},
+            usage = "<list entry #> or <region ID> ['spawn']",
+            desc = "Goto to a claim",
+            min = 0, max = 2)
+    @CommandPermissions("stakeaclaim.tools.goto")
+    public void togo(CommandContext args, CommandSender sender) throws CommandException {
+
+        final Player player = plugin.checkPlayer(sender);
+        final World world = player.getWorld();
+        final PlayerState state = plugin.getPlayerStateManager().getState(player);
+
+        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        if (rgMgr == null) {
+            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
+        }
+
+        if (args.argsLength() == 0) {
+            if (state.lastWarp != null) {
+                SACUtil.warpTo(state.lastWarp, state, player, false);
+            }
+            sender.sendMessage(ChatColor.RED + "Too few arguments.");
+            throw new CommandException(ChatColor.RED + "/tools " + args.getCommand() + "<list entry #> or <region ID>");
+        }
+
+        final boolean forceSpawn = (args.argsLength() >= 2 && (args.getString(1).toLowerCase().equals("s") || args.getString(1).toLowerCase().equals("spawn")));
+        String claimID = args.getString(0);
+        ProtectedRegion claim = rgMgr.getRegion(claimID);
+        if (claim == null) {
+            claimID = getRegionIDFromList(args, player);
+            claim = rgMgr.getRegion(claimID);
+        }
+
+        if (claim.getFlag(DefaultFlag.ENTRY) != null && claim.getFlag(DefaultFlag.ENTRY) == State.DENY) {
+                sender.sendMessage(ChatColor.WHITE + claimID + ChatColor.YELLOW + " is set to " + ChatColor.RED + "Private!");
+        }
+
+        SACUtil.warpTo(claim, state, player, forceSpawn);
+
+    }
+
+    @Command(aliases = {"setspawns", "spawns", "s"},
+            usage = "",
+            desc = "Generate spawns for all claims",
+            min = 0, max = 0)
+    @CommandPermissions("stakeaclaim.tools.spawns")
+    public void spawns(CommandContext args, CommandSender sender) throws CommandException {
+
+        final Player player = plugin.checkPlayer(sender);
+        final World world = player.getWorld();
+
+        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        if (rgMgr == null) {
+            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
+        }
+
+        ConfigManager cfg = plugin.getGlobalManager();
+        WorldConfig wcfg = cfg.get(world);
+
+        final Map<String, ProtectedRegion> regions = rgMgr.getRegions();
+        final Pattern regexPat = Pattern.compile(wcfg.claimNameFilter);
+        Matcher regexMat;
+        int claims = 0;
+
+        for (ProtectedRegion region : regions.values()) {
+            regexMat = regexPat.matcher(region.getId());
+            if (regexMat.find()) {
+                SACUtil.makeSpawn(region, world);
+                claims++;
+            }
+        }
+
+        sender.sendMessage(ChatColor.YELLOW + "Created spawns for " + claims + " claims.");
+
+    }
+
     // Other methods
     public double getArea(ProtectedRegion region) throws CommandException {
         final BlockVector min = region.getMinimumPoint();

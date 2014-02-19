@@ -35,6 +35,7 @@ import org.bukkit.entity.Player;
 
 import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
 import com.sk89q.minecraft.util.commands.CommandException;
+import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldguard.bukkit.WGBukkit;
@@ -324,6 +325,30 @@ public class SACUtil {
             state.lastWarp = null;
             throw new CommandException("No warp set for this claim!");
         }
+    }
+
+    /**
+     *  Create spawn location for {@code claim} in {@code world}
+     * 
+     * @param claim the claim to create a spawn for
+     * @param world the world the claim is in
+     * @throws CommandException 
+     */
+    @SuppressWarnings("deprecation")
+    public static void makeSpawn(ProtectedRegion claim, World world) throws CommandException {
+        Vector center = BlockVector.getMidpoint(claim.getMaximumPoint(),claim.getMinimumPoint());
+        for (int i = 255; i >= 0; i--) {
+            if (world.getBlockTypeIdAt(center.getBlockX(), i, center.getBlockZ()) != 0) {
+                center = new Vector(center.getBlockX()+.5, i+1, center.getBlockZ()+.5);
+                break;
+            }
+            if (i == 0) {
+                center = new Vector(center.getBlockX()+.5, 100, center.getBlockZ()+.5);
+            }
+        }
+
+        claim.setFlag(DefaultFlag.SPAWN_LOC, new com.sk89q.worldedit.Location(BukkitUtil.getLocalWorld(world), center));
+        
     }
 
 }

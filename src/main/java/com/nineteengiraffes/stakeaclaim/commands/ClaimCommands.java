@@ -611,7 +611,11 @@ public class ClaimCommands {
         ProtectedRegion region;
         for (int i = 0; i < regions.size(); i++) {
             region = rgMgr.getRegion(regions.get(i));
-            sender.sendMessage(ChatColor.YELLOW + "# " + (i + 1) + ": " + ChatColor.WHITE + region.getId());
+            if (region.getFlag(SACFlags.CLAIM_WARP_NAME) != null) {
+                sender.sendMessage(ChatColor.YELLOW + "# " + (i + 1) + ": " + ChatColor.WHITE + region.getId() + " " + ChatColor.LIGHT_PURPLE + region.getFlag(SACFlags.CLAIM_WARP_NAME));
+            } else {
+                sender.sendMessage(ChatColor.YELLOW + "# " + (i + 1) + ": " + ChatColor.WHITE + region.getId());
+            }
         }
     }
 
