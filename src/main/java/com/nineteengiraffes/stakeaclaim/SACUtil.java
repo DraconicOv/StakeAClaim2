@@ -208,7 +208,7 @@ public class SACUtil {
         region.setFlag(SACFlags.REQUEST_NAME,null);
         region.setFlag(SACFlags.PENDING,null);
         region.setFlag(SACFlags.ENTRY_DEFAULT,null);
-        region.setFlag(SACFlags.CLAIM_WARP_NAME,null);
+        region.setFlag(SACFlags.CLAIM_NAME,null);
         region.setFlag(DefaultFlag.TELE_LOC,null);
         region.setFlag(DefaultFlag.ENTRY,null);
         if (useReclaimed) {
@@ -317,7 +317,7 @@ public class SACUtil {
             wgFlags.add(SACFlags.REQUEST_NAME);
             wgFlags.add(SACFlags.REQUEST_STATUS);
             wgFlags.add(SACFlags.ENTRY_DEFAULT);
-            wgFlags.add(SACFlags.CLAIM_WARP_NAME);
+            wgFlags.add(SACFlags.CLAIM_NAME);
 
             Flag<?>[] newFlags = new Flag[wgFlags.size()];
             wgFlags.toArray(newFlags);
@@ -355,7 +355,7 @@ public class SACUtil {
             player.teleport(BukkitUtil.toLocation(claim.getFlag(DefaultFlag.TELE_LOC)));
             state.lastWarp = claim;
             throw new CommandException(ChatColor.YELLOW + "Gone to " + 
-                    (claim.getFlag(SACFlags.CLAIM_WARP_NAME) == null ? (ChatColor.WHITE + claim.getId()) : (ChatColor.LIGHT_PURPLE + claim.getFlag(SACFlags.CLAIM_WARP_NAME))) + 
+                    (claim.getFlag(SACFlags.CLAIM_NAME) == null ? (ChatColor.WHITE + claim.getId()) : (ChatColor.LIGHT_PURPLE + claim.getFlag(SACFlags.CLAIM_NAME))) + 
                     ChatColor.YELLOW + " By: " + ChatColor.GREEN + claim.getOwners().toUserFriendlyString());
 
         } else if (claim.getFlag(DefaultFlag.SPAWN_LOC)!= null) {

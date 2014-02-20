@@ -41,7 +41,6 @@ import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.CommandPermissionsException;
 import com.sk89q.minecraft.util.commands.NestedCommand;
 import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.databases.ProtectionDatabaseException;
@@ -483,7 +482,7 @@ public class ClaimCommands {
     @Command(aliases = {"warp", "w"},
             usage = "<player> [list entry #]",
             desc = "Warp to a players claim",
-            min = 0)
+            min = 0, max = 2)
     @CommandPermissions({"stakeaclaim.claim.warp", "stakeaclaim.claim.warp.own.*", "stakeaclaim.claim.warp.member.*", "stakeaclaim.claim.warp.*"})
     public void warp(CommandContext args, CommandSender sender) throws CommandException {
 
@@ -505,41 +504,6 @@ public class ClaimCommands {
         }
 
         final String targetPlayer = args.getString(0);
-
-        if (targetPlayer.equalsIgnoreCase("set") || targetPlayer.equalsIgnoreCase("s")) {
-            ProtectedRegion claim = SACUtil.getClaimStandingIn(travelPlayer, plugin);
-            checkPerm(travelPlayer, "set.warp", claim);
-
-            // Sets the name
-            if (args.argsLength() >= 2) {
-                claim.setFlag(SACFlags.CLAIM_WARP_NAME, args.getJoinedStrings(1));
-                saveRegions(world);
-                throw new CommandException(ChatColor.WHITE + claim.getId() + ChatColor.YELLOW + "'s warp name set to: " + ChatColor.LIGHT_PURPLE + args.getJoinedStrings(1));
-            }
-
-            // Sets the warp
-            claim.setFlag(DefaultFlag.TELE_LOC,BukkitUtil.toLocation(travelPlayer.getLocation()));
-            saveRegions(world);
-            throw new CommandException(ChatColor.WHITE + claim.getId() + ChatColor.YELLOW + "'s warp set.");
-        }
-
-        if (targetPlayer.equalsIgnoreCase("del") || targetPlayer.equalsIgnoreCase("delete") || targetPlayer.equalsIgnoreCase("d") || 
-                targetPlayer.equalsIgnoreCase("clear") || targetPlayer.equalsIgnoreCase("c")) {
-            ProtectedRegion claim = SACUtil.getClaimStandingIn(travelPlayer, plugin);
-            checkPerm(travelPlayer, "del.warp", claim);
-
-            // Clears the name
-            if (args.argsLength() == 2 && args.getString(1).equalsIgnoreCase("name")) {
-                claim.setFlag(SACFlags.CLAIM_WARP_NAME, null);
-                saveRegions(world);
-                throw new CommandException(ChatColor.WHITE + claim.getId() + ChatColor.YELLOW + "'s warp name cleared.");
-            }
-
-            // Clears the warp
-            claim.setFlag(DefaultFlag.TELE_LOC,null);
-            saveRegions(world);
-            throw new CommandException(ChatColor.WHITE + claim.getId() + ChatColor.YELLOW + "'s warp deleted.");
-        }
 
         ArrayList<ProtectedRegion> tempList = SACUtil.getOwnedRegions(rgMgr, targetPlayer);
         ArrayList<ProtectedRegion> regionList = new ArrayList<ProtectedRegion>(tempList);
@@ -575,7 +539,7 @@ public class ClaimCommands {
             }
         }
         int listNumber = 0;
-        if (args.argsLength() >= 2) {
+        if (args.argsLength() == 2) {
             listNumber = args.getInteger(1) - 1;
             if (!regions.containsKey(listNumber)) {
                 throw new CommandException(ChatColor.YELLOW + "That is not a valid list entry number.");
@@ -589,20 +553,20 @@ public class ClaimCommands {
         ProtectedRegion region;
         for (int i = 0; i < regions.size(); i++) {
             region = rgMgr.getRegion(regions.get(i));
-            if (region.getFlag(SACFlags.CLAIM_WARP_NAME) != null) {
-                sender.sendMessage(ChatColor.YELLOW + "# " + (i + 1) + ": " + ChatColor.WHITE + region.getId() + " " + ChatColor.LIGHT_PURPLE + region.getFlag(SACFlags.CLAIM_WARP_NAME));
+            if (region.getFlag(SACFlags.CLAIM_NAME) != null) {
+                sender.sendMessage(ChatColor.YELLOW + "# " + (i + 1) + ": " + ChatColor.WHITE + region.getId() + " " + ChatColor.LIGHT_PURPLE + region.getFlag(SACFlags.CLAIM_NAME));
             } else {
                 sender.sendMessage(ChatColor.YELLOW + "# " + (i + 1) + ": " + ChatColor.WHITE + region.getId());
             }
         }
     }
 
-    @Command(aliases = {"list", "l"},
+    @Command(aliases = {"me", "m"},
             usage = "",
-            desc = "List of all your claims",
+            desc = "Your claims",
             min = 0, max = 0)
-    @CommandPermissions("stakeaclaim.claim.list")
-    public void list(CommandContext args, CommandSender sender) throws CommandException {
+    @CommandPermissions("stakeaclaim.claim.me")
+    public void me(CommandContext args, CommandSender sender) throws CommandException {
 
         final Player player = plugin.checkPlayer(sender);
         LinkedHashMap<World, LinkedHashMap<Integer, String>> allClaims = new LinkedHashMap<World, LinkedHashMap<Integer, String>>();
@@ -617,10 +581,10 @@ public class ClaimCommands {
             LinkedHashMap<Integer, String> someClaims = new LinkedHashMap<Integer, String>();
             ArrayList<ProtectedRegion> regions = SACUtil.getOwnedRegions(rgMgr, player);
             for (ProtectedRegion region : regions) {
-                if (region.getFlag(SACFlags.CLAIM_WARP_NAME) == null) {
+                if (region.getFlag(SACFlags.CLAIM_NAME) == null) {
                     someClaims.put(index, region.getId());
                 } else {
-                    someClaims.put(index, region.getId() + " " + ChatColor.LIGHT_PURPLE + region.getFlag(SACFlags.CLAIM_WARP_NAME));
+                    someClaims.put(index, region.getId() + " " + ChatColor.LIGHT_PURPLE + region.getFlag(SACFlags.CLAIM_NAME));
                 }
                 index++;
             }
@@ -651,6 +615,18 @@ public class ClaimCommands {
             sender.sendMessage(ChatColor.YELLOW + "You do not have any claims!");
         }
     }
+
+    @Command(aliases = {"set"},
+        desc = "Set things about this claim")
+    @NestedCommand(SetCommands.class)
+    @CommandPermissions("stakeaclaim.claim.set")
+    public void set(CommandContext args, CommandSender sender) {}
+
+    @Command(aliases = {"del", "delete"},
+            desc = "Delete things about this claim")
+    @NestedCommand(DeleteCommands.class)
+    @CommandPermissions("stakeaclaim.claim.del")
+    public void del(CommandContext args, CommandSender sender) {}
 
     // Other methods
     public double getArea(ProtectedRegion region) throws CommandException {

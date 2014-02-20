@@ -28,7 +28,7 @@ Features and commands:
 In chat ‘support’ as you enter a claim when holding the SAC wand (default: feather)
 
 /claim [c]
-    list - show player summary [l]
+    me - show player summary [m]
     info - displays info about this claim [i]
     stake - stake your claim here [s]
     confirm - accept your own stake request [c]
@@ -39,8 +39,12 @@ In chat ‘support’ as you enter a claim when holding the SAC wand (default: f
         default - toggle this claim's default entry state [d]
         clear - clear all privacy settings from claim [c]
     warp [player], [list item #] - warp to a player’s claim [w]
-        set [new name] - set this claim's warp location (or it's name)[s]
-        del ['name'] - delete this claim's warp location (or it's name)[d]
+    set
+        warp - set this claim's warp location [w]
+        name <name> - set this claim's name [n]
+    del
+        warp - delete this claim's warp location [w]
+        name - delete this claim's name [n]
 
 /tools [t]
     pending - show a list of pending stake requests [p]

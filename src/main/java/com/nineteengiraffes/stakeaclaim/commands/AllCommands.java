@@ -28,11 +28,8 @@ import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
 
 public class AllCommands {
-//    private final StakeAClaimPlugin plugin;
 
-    public AllCommands(StakeAClaimPlugin plugin) {
-//        this.plugin = plugin;
-    }
+    public AllCommands(StakeAClaimPlugin plugin) {}
 
     @Command(aliases = {"tools", "o", "t"},
         desc = "SAC tool commands")

@@ -39,6 +39,6 @@ public final class SACFlags {
     public static final StringFlag REQUEST_NAME = new StringFlag("request-name");
     public static final EnumFlag<Status> REQUEST_STATUS = new EnumFlag<Status>("request-status", Status.class);
     public static final StateFlag ENTRY_DEFAULT = new StateFlag("entry-default",true);
-    public static final StringFlag CLAIM_WARP_NAME = new StringFlag("warp-name");
+    public static final StringFlag CLAIM_NAME = new StringFlag("claim-name");
 
 }
