@@ -19,32 +19,28 @@
 
 package com.nineteengiraffes.stakeaclaim;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
-import com.nineteengiraffes.stakeaclaim.SACFlags.Status;
+import com.nineteengiraffes.stakeaclaim.stakes.Stake;
+import com.nineteengiraffes.stakeaclaim.stakes.Stake.Status;
+import com.nineteengiraffes.stakeaclaim.stakes.StakeManager;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldguard.bukkit.WGBukkit;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.GlobalRegionManager;
+import com.sk89q.worldguard.protection.databases.ProtectionDatabaseException;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
-import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -80,160 +76,6 @@ public class SACUtil {
             }
         }
         return regionList;
-    }
-
-    /**
-     * Get a list of regions with a status for (@code player)
-     * 
-     * @param rgMgr the region manager to work with
-     * @param player the player to get the regions for
-     * @return list of status regions for the player
-     */
-    public static ArrayList<ProtectedRegion> getStatusRegions(RegionManager rgMgr, Player player) {
-
-        final Map<String, ProtectedRegion> regions = rgMgr.getRegions();
-        ArrayList<ProtectedRegion> regionList = new ArrayList<ProtectedRegion>();
-
-        for (ProtectedRegion region : regions.values()) {
-            if (region.getFlag(SACFlags.REQUEST_NAME) != null && region.getFlag(SACFlags.REQUEST_NAME).equals(player.getName().toLowerCase()) &&
-                    region.getFlag(SACFlags.REQUEST_STATUS) != null) {
-                regionList.add(region);
-            }
-        }
-        return regionList;
-    }
-
-    /**
-     * Get a list of regions with status 'pending'
-     * 
-     * @param rgMgr the region manager to work with
-     * @return list of status pending regions
-     */
-    public static ArrayList<ProtectedRegion> getStatusPendingRegions(RegionManager rgMgr) {
-
-        final Map<String, ProtectedRegion> regions = rgMgr.getRegions();
-        ArrayList<ProtectedRegion> regionList = new ArrayList<ProtectedRegion>();
-
-        for (ProtectedRegion region : regions.values()) {
-            if (region.getFlag(SACFlags.REQUEST_STATUS) != null && region.getFlag(SACFlags.REQUEST_STATUS) == Status.PENDING &&
-                    region.getFlag(SACFlags.REQUEST_NAME) != null) {
-                regionList.add(region);
-            }
-        }
-        return regionList;
-    }
-
-    /**
-     * Get a list of pending regions for (@code player)
-     * 
-     * @param rgMgr the region manager to work with
-     * @param player the player to get the regions for
-     * @return list of pending regions for the player
-     */
-    public static ArrayList<ProtectedRegion> getPendingRegions(RegionManager rgMgr, Player player) {
-        return getPendingRegions(rgMgr, player.getName().toLowerCase());
-    }
-
-    /**
-     * Get a list of pending regions for (@code playerName)
-     * 
-     * @param rgMgr the region manager to work with
-     * @param playerName the name of the player to get the regions for
-     * @return list of pending regions for the player
-     */
-    public static ArrayList<ProtectedRegion> getPendingRegions(RegionManager rgMgr, String playerName) {
-
-        final Map<String, ProtectedRegion> regions = rgMgr.getRegions();
-        ArrayList<ProtectedRegion> regionList = new ArrayList<ProtectedRegion>();
-
-        for (ProtectedRegion region : regions.values()) {
-            if (region.getFlag(SACFlags.REQUEST_NAME) != null && region.getFlag(SACFlags.REQUEST_NAME).equals(playerName) &&
-                    region.getFlag(SACFlags.PENDING) != null && region.getFlag(SACFlags.PENDING) == true) {
-                regionList.add(region);
-            }
-        }
-        return regionList;
-    }
-
-    /**
-     * Get a list of pending regions
-     * 
-     * @param rgMgr the region manager to work with
-     * @return list of pending regions
-     */
-    public static ArrayList<ProtectedRegion> getPendingRegions(RegionManager rgMgr) {
-
-        final Map<String, ProtectedRegion> regions = rgMgr.getRegions();
-        ArrayList<ProtectedRegion> regionList = new ArrayList<ProtectedRegion>();
-
-        for (ProtectedRegion region : regions.values()) {
-            if (region.getFlag(SACFlags.PENDING) != null && region.getFlag(SACFlags.REQUEST_NAME) != null && region.getFlag(SACFlags.PENDING) == true) {
-                regionList.add(region);
-            }
-        }
-        return regionList;
-    }
-
-    // Utilities
-    /**
-     * Resets regions with default entry flag owned by (@code player)
-     * 
-     * @param rgMgr the region manager to work with
-     * @param player the player to reset entries for
-     * @return list of entry regions for the player
-     */
-    public static void resetEntryRegions(RegionManager rgMgr, Player player) {
-
-        final Map<String, ProtectedRegion> regions = rgMgr.getRegions();
-
-        for (ProtectedRegion region : regions.values()) {
-            if (region.getOwners().contains(player.getName().toLowerCase()) && region.getFlag(SACFlags.ENTRY_DEFAULT) != null && isRegionOwned(region) == 1) {
-                region.setFlag(DefaultFlag.ENTRY, region.getFlag(SACFlags.ENTRY_DEFAULT));
-            }
-        }
-    }
-
-    /**
-     * Reclaim a region
-     * 
-     * @param region the region to reclaim
-     * @param useReclaimed boolean config value
-     */
-    public static void reclaim(ProtectedRegion region, boolean useReclaimed) {
-        region.getOwners().getPlayers().clear();
-        region.getOwners().getGroups().clear();
-        region.getMembers().getPlayers().clear();
-        region.getMembers().getGroups().clear();
-        region.setFlag(SACFlags.REQUEST_STATUS,null);
-        region.setFlag(SACFlags.REQUEST_NAME,null);
-        region.setFlag(SACFlags.PENDING,null);
-        region.setFlag(SACFlags.ENTRY_DEFAULT,null);
-        region.setFlag(SACFlags.CLAIM_NAME,null);
-        region.setFlag(DefaultFlag.TELE_LOC,null);
-        region.setFlag(DefaultFlag.ENTRY,null);
-        if (useReclaimed) {
-            region.setFlag(SACFlags.RECLAIMED,true);
-        }
-    }
-
-    /**
-     * Check one region for owners
-     * int > 1 has multiple owners
-     * int < 0 has members but no owners
-     * 
-     * @param region the region to check owners of
-     * @return int error code / modified owners count
-     */
-    public static int isRegionOwned(ProtectedRegion region) {
-
-        int owners = region.getOwners().size();
-        if (owners == 1) {
-            return owners + region.getOwners().getGroups().size();
-        }
-        if (owners == 0) {
-            return owners - region.getMembers().size();
-        }
-        return owners;
     }
 
     /**
@@ -295,49 +137,180 @@ public class SACUtil {
         return claim;
     }
 
+
+    // Get Stakes
     /**
-     * Add in SAC's custom flags
+     * Get a list of pending stakes
      * 
+     * @param rgMgr the region manager to work with
+     * @param sMgr the stake manager to work with
+     * @return list of pending stakes
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static void addFlags() {
-        try {
-            Field field = DefaultFlag.class.getDeclaredField("flagsList");
-            Field modifiersField = Field.class.getDeclaredField("modifiers");
-            modifiersField.setAccessible(true);
-            modifiersField.setInt(field, field.getModifiers() & 0xFFFFFFEF);
-            field.setAccessible(true);
+    public static ArrayList<Stake> getPendingStakes(RegionManager rgMgr, StakeManager sMgr) {
 
-            List wgFlags = new ArrayList(Arrays.asList(DefaultFlag.getFlags()));
+        final Map<String, Stake> stakes = sMgr.getStakes();
+        ArrayList<Stake> stakeList = new ArrayList<Stake>();
+        ProtectedRegion claim;
+        boolean save = false;
 
-            // Flags
-            wgFlags.add(SACFlags.RECLAIMED);
-            wgFlags.add(SACFlags.PENDING);
-            wgFlags.add(SACFlags.VIP);
-            wgFlags.add(SACFlags.REQUEST_NAME);
-            wgFlags.add(SACFlags.REQUEST_STATUS);
-            wgFlags.add(SACFlags.ENTRY_DEFAULT);
-            wgFlags.add(SACFlags.CLAIM_NAME);
-
-            Flag<?>[] newFlags = new Flag[wgFlags.size()];
-            wgFlags.toArray(newFlags);
-            field.set(null, newFlags);
-
-            Field grmField = WorldGuardPlugin.class.getDeclaredField("globalRegionManager");
-            grmField.setAccessible(true);
-            GlobalRegionManager gRgMr = (GlobalRegionManager) grmField.get(Bukkit.getPluginManager().getPlugin("WorldGuard"));
-
-            for (World world : Bukkit.getWorlds()) {
-                if (WGBukkit.getPlugin().getGlobalStateManager().get(world).summaryOnStart) {
-                    Bukkit.getPluginManager().getPlugin("StakeAClaim").getLogger().info("Connected to WorldGuard. Reloading regions.");
-                    break;
+        for (Stake stake : stakes.values()) {
+            if (stake.getStatus() != null && stake.getStatus() == Status.PENDING && stake.getStakeName() != null) {
+                claim = rgMgr.getRegion(stake.getId());
+                if (claim == null) {
+                    stakes.remove(stake.getId());
+                    save = true;
+                    continue;
+                }
+                int ownedCode = SACUtil.isRegionOwned(claim);
+                if (ownedCode >= 1) {
+                    stake.setStatus(null);
+                    stake.setStakeName(null);
+                    save = true;
+                } else {
+                    stakeList.add(stake);
                 }
             }
-
-            gRgMr.preload();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+        if (save) sMgr.save();
+        return stakeList;
+    }
+
+    /**
+     * Get the pending stake for (@code player) if any
+     * 
+     * @param rgMgr the region manager to work with
+     * @param sMgr the stake manager to work with
+     * @param player the player to get the regions for
+     * @return pending stake for the player, or null
+     */
+    public static Stake getPendingStake(RegionManager rgMgr, StakeManager sMgr, Player player) {
+        return getPendingStake(rgMgr, sMgr, player.getName().toLowerCase());
+    }
+
+    /**
+     * Get the pending stake for (@code playerName) if any
+     * 
+     * @param rgMgr the region manager to work with
+     * @param sMgr the stake manager to work with
+     * @param player the player to get the regions for
+     * @return pending stake for the player, or null
+     */
+    public static Stake getPendingStake(RegionManager rgMgr, StakeManager sMgr, String playerName) {
+
+        final Map<String, Stake> stakes = sMgr.getStakes();
+        ArrayList<Stake> stakeList = new ArrayList<Stake>();
+        ProtectedRegion claim;
+        boolean save = false;
+
+        for (Stake stake : stakes.values()) {
+            if (stake.getStakeName() != null && stake.getStakeName().equals(playerName) &&
+                    stake.getStatus() != null && stake.getStatus() == Status.PENDING) {
+                claim = rgMgr.getRegion(stake.getId());
+                if (claim == null) {
+                    stakes.remove(stake.getId());
+                    save = true;
+                    continue;
+                }
+                int ownedCode = SACUtil.isRegionOwned(claim);
+                if (ownedCode >= 1) {
+                    stake.setStatus(null);
+                    stake.setStakeName(null);
+                    save = true;
+                } else {
+                    stakeList.add(stake);
+                }
+            }
+        }
+
+        if (stakeList.size() == 0) {
+            if (save) sMgr.save();
+            return null;
+        } else {
+            for (int i = 1; i < stakeList.size(); i++) {
+                stakeList.get(i).setStatus(null);
+                stakeList.get(i).setStakeName(null);
+                save = true;
+            }
+            if (save) sMgr.save();
+            return stakeList.get(0);
+        }
+    }
+
+
+    // Utilities
+    /**
+     * Resets regions with default entry flag owned by (@code player)
+     * 
+     * @param rgMgr the region manager to work with
+     * @param sMgr the stake manager to work with
+     * @param player the player to reset entries for
+     */
+    public static void resetEntryRegions(RegionManager rgMgr, StakeManager sMgr, Player player) {
+
+        final Map<String, Stake> stakes = sMgr.getStakes();
+        ProtectedRegion region;
+        boolean save = false;
+
+        for (Stake stake : stakes.values()) {
+            if (stake.getDefaultEntry() != null) {
+                region = rgMgr.getRegion(stake.getId());
+                if (region.getOwners().contains(player.getName().toLowerCase())) {
+                    if (region.getFlag(DefaultFlag.ENTRY) != stake.getDefaultEntry()) {
+                        region.setFlag(DefaultFlag.ENTRY, stake.getDefaultEntry());
+                        save = true;
+                    }
+                }
+            }
+        }
+
+        if (save) {
+            try {
+                rgMgr.save();
+            } catch (ProtectionDatabaseException e) {
+            }
+        }
+    }
+
+    /**
+     * Reclaim a region and reset its stake
+     * 
+     * @param stake the stake to reset
+     * @param region the region to reclaim
+     * @param useReclaimed boolean config value
+     */
+    public static void reclaim(Stake stake, ProtectedRegion region, boolean useReclaimed) {
+        region.getOwners().getPlayers().clear();
+        region.getOwners().getGroups().clear();
+        region.getMembers().getPlayers().clear();
+        region.getMembers().getGroups().clear();
+        region.setFlag(DefaultFlag.TELE_LOC,null);
+        region.setFlag(DefaultFlag.ENTRY,null);
+        stake.setStatus(null);
+        stake.setStakeName(null);
+        stake.setDefaultEntry(null);
+        stake.setClaimName(null);
+        stake.setVIP(false);
+        stake.setRecalimed(useReclaimed);
+    }
+
+    /**
+     * Check one region for owners. 
+     * int > 1, has multiple owners. 
+     * int < 0, has members but no owners.
+     * 
+     * @param region the region to check owners of
+     * @return int error code / modified owners count
+     */
+    public static int isRegionOwned(ProtectedRegion region) {
+
+        int owners = region.getOwners().size();
+        if (owners == 1) {
+            return owners + region.getOwners().getGroups().size();
+        }
+        if (owners == 0) {
+            return owners - region.getMembers().size();
+        }
+        return owners;
     }
 
     /**
@@ -347,15 +320,16 @@ public class SACUtil {
      * @param state players state so save last warp
      * @param player the player to warp
      * @param forceSpawn toggle spawn only warp
+     * @param claimName the custom name of the destination claim
      * @throws CommandException
      */
-    public static void warpTo(ProtectedRegion claim, PlayerState state, Player player, boolean forceSpawn) throws CommandException {
+    public static void warpTo(ProtectedRegion claim, PlayerState state, Player player, boolean forceSpawn, String claimName) throws CommandException {
 
         if (claim.getFlag(DefaultFlag.TELE_LOC)!= null && !forceSpawn) {
             player.teleport(BukkitUtil.toLocation(claim.getFlag(DefaultFlag.TELE_LOC)));
             state.lastWarp = claim;
             throw new CommandException(ChatColor.YELLOW + "Gone to " + 
-                    (claim.getFlag(SACFlags.CLAIM_NAME) == null ? (ChatColor.WHITE + claim.getId()) : (ChatColor.LIGHT_PURPLE + claim.getFlag(SACFlags.CLAIM_NAME))) + 
+                    (claimName == null ? (ChatColor.WHITE + claim.getId()) : (ChatColor.LIGHT_PURPLE + claimName)) + 
                     ChatColor.YELLOW + " By: " + ChatColor.GREEN + claim.getOwners().toUserFriendlyString());
 
         } else if (claim.getFlag(DefaultFlag.SPAWN_LOC)!= null) {
@@ -376,6 +350,38 @@ public class SACUtil {
     }
 
     /**
+     *  Create spawn locations for all claims in {@code world}
+     * 
+     * @param plugin the SAC plugin
+     * @param world the world the claim is in
+     * @return int count of spawns made, -1 if there is no rgMgr for this world
+     */
+    public static int makeSpawns(StakeAClaimPlugin plugin, World world){
+        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        if (rgMgr == null) {
+            return -1;
+        }
+
+        ConfigManager cfg = plugin.getGlobalManager();
+        WorldConfig wcfg = cfg.get(world);
+
+        final Map<String, ProtectedRegion> regions = rgMgr.getRegions();
+        final Pattern regexPat = Pattern.compile(wcfg.claimNameFilter);
+        Matcher regexMat;
+        int claims = 0;
+
+        for (ProtectedRegion region : regions.values()) {
+            regexMat = regexPat.matcher(region.getId());
+            if (regexMat.find()) {
+                makeSpawn(region, world);
+                claims++;
+            }
+        }
+        
+        return claims;
+    }
+
+    /**
      *  Create spawn location for {@code claim} in {@code world}
      * 
      * @param claim the claim to create a spawn for
@@ -383,7 +389,7 @@ public class SACUtil {
      * @throws CommandException 
      */
     @SuppressWarnings("deprecation")
-    public static void makeSpawn(ProtectedRegion claim, World world) throws CommandException {
+    public static void makeSpawn(ProtectedRegion claim, World world){
         Vector center = BlockVector.getMidpoint(claim.getMaximumPoint(),claim.getMinimumPoint());
         for (int i = 255; i >= 0; i--) {
             if (world.getBlockTypeIdAt(center.getBlockX(), i, center.getBlockZ()) != 0) {

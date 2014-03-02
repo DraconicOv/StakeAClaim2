@@ -52,7 +52,7 @@ public class WorldConfig {
     public boolean summaryOnStart;
     public boolean opPermissions;
     public boolean useSAC;
-    public boolean useRequests;
+    public boolean useStakes;
     public boolean useRegions;
     public int sacWand;
     public String claimNameFilter;
@@ -74,8 +74,7 @@ public class WorldConfig {
      * @param parentConfig The parent configuration to read defaults from
      */
     public WorldConfig(StakeAClaimPlugin plugin, String worldName, YAMLProcessor parentConfig) {
-        File baseFolder = new File(plugin.getDataFolder(), "worlds/");
-        File configFile = new File(baseFolder, worldName + "_config.yml");
+        File configFile = new File(plugin.getDataFolder(), "worlds" + File.separator + worldName + File.separator + "config.yml");
 
         this.plugin = plugin;
         this.worldName = worldName;
@@ -143,7 +142,7 @@ public class WorldConfig {
         summaryOnStart = getBoolean("summary-on-start", true);
         opPermissions = getBoolean("op-permissions", true);
         useSAC = getBoolean("master-enable", true);
-        useRequests = getBoolean("requests-enable", true);
+        useStakes = getBoolean("stakes-enable", true);
         sacWand = getInt("wand", 288); // Feather
         claimNameFilter = getString("claim-name-regex-filter-string", "^[NSns]\\d\\d?[EWew]\\d\\d?$"); // match eg. s2w45
         useReclaimed = getBoolean("remeber-reclaimed", true);
@@ -151,14 +150,14 @@ public class WorldConfig {
         silentNotify = getBoolean("claiming.silent-claiming", false);
         claimLimitsAreArea = getBoolean("claiming.claim-max-is-in-area-of-claims", false);
         selfClaimMax = getDouble("claiming.max-claims-a-player-can-stake-on-their-own", 1);
-        claimMax = getDouble("claiming.max-claims-a-player-can-request", 3);
-        proxyClaimMax = getDouble("claiming.max-claims-a-proxy-can-request", -1);
+        claimMax = getDouble("claiming.max-claims-a-player-can-stake", 3);
+        proxyClaimMax = getDouble("claiming.max-claims-a-proxy-can-stake", -1);
         twoStepSelfClaim = getBoolean("claiming.players-need-to-confirm-when-self-accepting", true);
 
         useRegions = WGBukkit.getPlugin().getGlobalStateManager().get(plugin.getServer().getWorld(worldName)).useRegions;
 
         if (!useRegions || !useSAC) {
-            useRequests = false;
+            useStakes = false;
         }
 
         config.setHeader(CONFIG_HEADER);

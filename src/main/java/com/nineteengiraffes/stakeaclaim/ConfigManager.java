@@ -71,7 +71,7 @@ public class ConfigManager {
     private YAMLProcessor config;
 
     /* Configuration data start */
-    public boolean useRequestsScheduler;
+    public boolean useStakeScheduler;
     public boolean usePlayerMove;
     /* Configuration data end */
 
@@ -97,7 +97,7 @@ public class ConfigManager {
             plugin.getLogger().info("No global configuration found, using default.");
         }
 
-        useRequestsScheduler = config.getBoolean("sac.use-scheduler", true);
+        useStakeScheduler = config.getBoolean("sac.use-scheduler", true);
         usePlayerMove = config.getBoolean("sac.use-player-move-event", true);
 
         // Load configurations for each world

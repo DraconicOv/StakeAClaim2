@@ -25,10 +25,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.nineteengiraffes.stakeaclaim.ConfigManager;
-import com.nineteengiraffes.stakeaclaim.SACFlags;
 import com.nineteengiraffes.stakeaclaim.SACUtil;
 import com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin;
 import com.nineteengiraffes.stakeaclaim.WorldConfig;
+import com.nineteengiraffes.stakeaclaim.stakes.Stake;
+import com.nineteengiraffes.stakeaclaim.stakes.StakeManager;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
@@ -61,8 +62,8 @@ public class PrivateCommands {
 
         final ConfigManager cfg = plugin.getGlobalManager();
         final WorldConfig wcfg = cfg.get(world);
-        if (!wcfg.useRegions) {
-            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
+        if (!wcfg.useStakes) {
+            throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
         }
 
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
@@ -75,15 +76,17 @@ public class PrivateCommands {
             throw new CommandException(ChatColor.YELLOW + "Sorry, this claim is not owned.");
         }
 
-        if (claim.getFlag(SACFlags.ENTRY_DEFAULT) == null || (claim.getFlag(SACFlags.ENTRY_DEFAULT) != null && claim.getFlag(SACFlags.ENTRY_DEFAULT) == State.ALLOW)) {
-            claim.setFlag(SACFlags.ENTRY_DEFAULT, State.DENY);
+        final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
+        Stake stake = sMgr.getStake(claim.getId());
+        if (stake.getDefaultEntry() == null || stake.getDefaultEntry() == State.ALLOW) {
+            stake.setDefaultEntry(State.DENY);
             sender.sendMessage(ChatColor.YELLOW + "Set " + ChatColor.WHITE + regionID + ChatColor.YELLOW + "'s default to " + ChatColor.RED + "private.");
         } else {
-            claim.setFlag(SACFlags.ENTRY_DEFAULT, State.ALLOW);
+            stake.setDefaultEntry(State.ALLOW);
             sender.sendMessage(ChatColor.YELLOW + "Set " + ChatColor.WHITE + regionID + ChatColor.YELLOW + "'s default to " + ChatColor.GRAY + "open.");
         }
 
-        saveRegions(world);
+        sMgr.save();
     }
 
     @Command(aliases = {"clear", "c"},
@@ -98,19 +101,21 @@ public class PrivateCommands {
 
         final ConfigManager cfg = plugin.getGlobalManager();
         final WorldConfig wcfg = cfg.get(world);
-        if (!wcfg.useRegions) {
-            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
+        if (!wcfg.useStakes) {
+            throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
         }
 
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
-        final String regionID = claim.getId();
 
         checkPerm(player, "clear.private", claim);
 
-        claim.setFlag(SACFlags.ENTRY_DEFAULT, null);
+        final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
+        Stake stake = sMgr.getStake(claim.getId());
+        stake.setDefaultEntry(null);
         claim.setFlag(DefaultFlag.ENTRY, null);
-        sender.sendMessage(ChatColor.YELLOW + "Cleared " + ChatColor.WHITE + regionID + ChatColor.YELLOW + "'s privacy settings.");
+        sender.sendMessage(ChatColor.YELLOW + "Cleared " + ChatColor.WHITE + claim.getId() + ChatColor.YELLOW + "'s privacy settings.");
 
+        sMgr.save();
         saveRegions(world);
     }
 

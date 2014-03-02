@@ -26,6 +26,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.nineteengiraffes.stakeaclaim.commands.AllCommands;
+import com.nineteengiraffes.stakeaclaim.stakes.GlobalStakeManager;
 import com.sk89q.bukkit.util.CommandsManagerRegistration;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissionsException;
@@ -55,6 +56,11 @@ public class StakeAClaimPlugin extends JavaPlugin {
     private final ConfigManager config;
 
     /**
+     * Handles all stakes.
+     */
+    private final GlobalStakeManager globalStakes;
+
+    /**
      * Used for scheduling flags.
      */
     private PlayerStateManager playerStateManager;
@@ -65,6 +71,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
      */
     public StakeAClaimPlugin() {
         config = new ConfigManager(this);
+        globalStakes = new GlobalStakeManager(this);
 
         final StakeAClaimPlugin plugin = this;
         commands = new CommandsManager<CommandSender>() {
@@ -96,6 +103,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
         try {
             // Load the config
             config.load();
+            globalStakes.load();
         } catch (FatalConfigurationLoadingException e) {
             e.printStackTrace();
             getServer().shutdown();
@@ -103,7 +111,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
 
         playerStateManager = new PlayerStateManager(this);
 
-        if (config.useRequestsScheduler) {
+        if (config.useStakeScheduler) {
             getServer().getScheduler().scheduleSyncRepeatingTask(this, playerStateManager,
                     PlayerStateManager.RUN_DELAY, PlayerStateManager.RUN_DELAY);
         }
@@ -111,8 +119,6 @@ public class StakeAClaimPlugin extends JavaPlugin {
         // Register events
         (new PlayerListener(this)).registerEvents();
 
-        // Add in custom flags
-        SACUtil.addFlags();
     }
 
     /**
@@ -120,6 +126,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
      */
     @Override
     public void onDisable() {
+        globalStakes.unload();
         config.unload();
         this.getServer().getScheduler().cancelTasks(this);
     }
@@ -163,12 +170,21 @@ public class StakeAClaimPlugin extends JavaPlugin {
     }
 
     /**
-     * Get the global ConfignManager.
-     * USe this to access global config values and per-world config values.
+     * Get the global ConfigManager.
+     * Use this to access global config values and per-world config values.
      * @return The global ConfigManager
      */
     public ConfigManager getGlobalManager() {
         return config;
+    }
+
+    /**
+     * Get the global stake manager.
+     * Use this to access all stakes.
+     * @return The global stake manager
+     */
+    public GlobalStakeManager getGlobalStakeManager() {
+        return globalStakes;
     }
 
     /**

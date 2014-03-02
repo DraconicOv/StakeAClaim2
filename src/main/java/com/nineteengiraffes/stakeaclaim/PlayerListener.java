@@ -20,6 +20,7 @@ package com.nineteengiraffes.stakeaclaim;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -40,12 +41,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 
 import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
-import com.nineteengiraffes.stakeaclaim.SACFlags.Status;
+import com.nineteengiraffes.stakeaclaim.stakes.Stake;
+import com.nineteengiraffes.stakeaclaim.stakes.Stake.Status;
+import com.nineteengiraffes.stakeaclaim.stakes.StakeManager;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.domains.DefaultDomain;
-import com.sk89q.worldguard.protection.databases.ProtectionDatabaseException;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -136,7 +137,7 @@ public class PlayerListener implements Listener {
                     // save state
                     if (state.lastWorld != event.getTo().getWorld()) {
                         state.regionList = null;
-                        state.unsubmittedRequest = null;
+                        state.unsubmittedStake = null;
                         state.lastWorld = event.getTo().getWorld();
                     }
                     state.lastBlockX = event.getTo().getBlockX();
@@ -166,8 +167,8 @@ public class PlayerListener implements Listener {
 
             if (held.getTypeId() == wcfg.sacWand && plugin.hasPermission(activePlayer, "stakeaclaim.events.wand.player")) {
 
-                if (!wcfg.useRequests) {
-                    activePlayer.sendMessage(ChatColor.YELLOW + "Requests are disabled in this world.");
+                if (!wcfg.useStakes) {
+                    activePlayer.sendMessage(ChatColor.YELLOW + "Stakes are disabled in this world.");
                     return;
                 }
 
@@ -177,6 +178,8 @@ public class PlayerListener implements Listener {
                     return;
                 }
 
+
+                final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
                 final Location loc = passivePlayer.getLocation();
                 final PlayerState state = plugin.getPlayerStateManager().getState(activePlayer);
 
@@ -188,22 +191,22 @@ public class PlayerListener implements Listener {
                             ChatColor.YELLOW + " is in " + ChatColor.WHITE + regionID + ".");
                     activePlayer.sendMessage(ChatColor.YELLOW + "Do " + ChatColor.WHITE + "/tools proxy" + 
                             ChatColor.YELLOW + " to stake that claim for them.");
-                    state.unsubmittedRequest = new String[]{passivePlayer.getName().toLowerCase(),regionID};
+                    state.unsubmittedStake = new String[]{passivePlayer.getName().toLowerCase(),regionID};
                 } else {
-                    state.unsubmittedRequest = null;
+                    state.unsubmittedStake = null;
                 }
 
                 LinkedHashMap<Integer, String> regions = new LinkedHashMap<Integer, String>();
                 state.regionList = null;
 
-                ArrayList<ProtectedRegion> regionList = SACUtil.getPendingRegions(rgMgr, passivePlayer);
                 int index = 0;
-                for (ProtectedRegion region : regionList) {
-                    regions.put(index, region.getId());
+                Stake stake = SACUtil.getPendingStake(rgMgr, sMgr, passivePlayer);
+                if (stake != null) {
+                    regions.put(index, stake.getId());
                     index++;
                 }
 
-                regionList = SACUtil.getOwnedRegions(rgMgr, passivePlayer);
+                ArrayList<ProtectedRegion> regionList = SACUtil.getOwnedRegions(rgMgr, passivePlayer);
                 for (ProtectedRegion region : regionList) {
                     regions.put(index, region.getId());
                     index++;
@@ -212,20 +215,20 @@ public class PlayerListener implements Listener {
                 final int totalSize = regions.size();
                 if (totalSize < 1) {
                     state.regionList = null;
-                    activePlayer.sendMessage(ChatColor.YELLOW + "This player has no requests.");
+                    activePlayer.sendMessage(ChatColor.YELLOW + "This player has no stakes.");
                     return;
                 }
                 state.regionList = regions;
 
                 // Display the list
                 activePlayer.sendMessage(ChatColor.GREEN + passivePlayer.getName().toLowerCase() +
-                        ChatColor.RED + "'s request list:");
+                        ChatColor.RED + "'s stake list:");
 
                 for (int i = 0; i < totalSize; i++) {
-                    claim = rgMgr.getRegion(regions.get(i));
-                    activePlayer.sendMessage(ChatColor.YELLOW + "# " + (i + 1) + ": " + ChatColor.WHITE + claim.getId() +
+                    stake = sMgr.getStake(regions.get(i));
+                    activePlayer.sendMessage(ChatColor.YELLOW + "# " + (i + 1) + ": " + ChatColor.WHITE + regions.get(i) +
                             ", " + ChatColor.GREEN + passivePlayer.getName().toLowerCase() +
-                            ", " + ChatColor.YELLOW + claim.getFlag(SACFlags.PENDING) != null ? "Pending" : "Accepted");
+                            ", " + ChatColor.YELLOW + stake.getStatus() != null && stake.getStatus() == Status.PENDING ? "Pending" : "Accepted");
                 }
             }
         }
@@ -245,8 +248,8 @@ public class PlayerListener implements Listener {
 
             if (held.getTypeId() == wcfg.sacWand && plugin.hasPermission(player, "stakeaclaim.events.wand.claim")) {
 
-                if (!wcfg.useRequests) {
-                    player.sendMessage(ChatColor.YELLOW + "Requests are disabled in this world.");
+                if (!wcfg.useStakes) {
+                    player.sendMessage(ChatColor.YELLOW + "Stakes are disabled in this world.");
                     return;
                 }
 
@@ -262,6 +265,9 @@ public class PlayerListener implements Listener {
                 final String regionID = claim.getId();
                 final PlayerState state = plugin.getPlayerStateManager().getState(player);
 
+                final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
+                Stake stake = sMgr.getStake(regionID);
+
                 LinkedHashMap<Integer, String> regions = new LinkedHashMap<Integer, String>();
                 state.regionList = null;
                 regions.put(0, regionID);
@@ -269,36 +275,22 @@ public class PlayerListener implements Listener {
 
                 int ownedCode = SACUtil.isRegionOwned(claim);
                 if (ownedCode <= 0) {
-                    claim.getMembers().getPlayers().clear();
-                    claim.getMembers().getGroups().clear();
-                    if (claim.getFlag(SACFlags.PENDING) != null && claim.getFlag(SACFlags.PENDING) == true && claim.getFlag(SACFlags.REQUEST_NAME) != null) {
-                        player.sendMessage(ChatColor.RED + "Pending request: ");
+                    if (stake.getStatus() != null && stake.getStatus() == Status.PENDING && stake.getStakeName() != null) {
+                        player.sendMessage(ChatColor.RED + "Pending stake: ");
                         player.sendMessage(ChatColor.YELLOW + "# 1: " + ChatColor.WHITE + regionID +
-                                ", " + ChatColor.GREEN + claim.getFlag(SACFlags.REQUEST_NAME));
+                                ", " + ChatColor.GREEN + stake.getStakeName());
                     } else {
-                        claim.setFlag(SACFlags.REQUEST_NAME,null);
-                        claim.setFlag(SACFlags.REQUEST_STATUS,null);
-                        claim.setFlag(SACFlags.PENDING,null);
-                        claim.setFlag(SACFlags.ENTRY_DEFAULT,null);
-                        claim.setFlag(DefaultFlag.ENTRY,null);
                         player.sendMessage(ChatColor.RED + "Open claim: ");
                         player.sendMessage(ChatColor.YELLOW + "# 1: " + ChatColor.WHITE + regionID +
                                 ", " + ChatColor.GRAY + "Unclaimed");
                     }
                 } else if (ownedCode == 1) {
-                    claim.setFlag(SACFlags.PENDING,null);
                     player.sendMessage(ChatColor.RED + "Owned claim: ");
                     player.sendMessage(ChatColor.YELLOW + "# 1: " + ChatColor.WHITE + regionID +
                             ", " + ChatColor.GREEN + claim.getOwners().toUserFriendlyString());
                 } else {
                     player.sendMessage(ChatColor.RED + "Claim error: " + ChatColor.WHITE + 
-                              claim.getId() + ChatColor.RED + " has multiple owners!");
-                }
-
-                try {
-                    rgMgr.save();
-                } catch (ProtectionDatabaseException e) {
-                    player.sendMessage("Failed to write regions: " + e.getMessage());
+                              regionID + ChatColor.RED + " has multiple owners!");
                 }
             }
         }
@@ -321,53 +313,53 @@ public class PlayerListener implements Listener {
             state.lastBlockZ = loc.getBlockZ();
             state.lastSupport = null;
             state.regionList = null;
-            state.unsubmittedRequest = null;
+            state.unsubmittedStake = null;
         }
 
-        RegionManager rgMgr;
+        StakeManager sMgr;
 
         for (World world : plugin.getServer().getWorlds()) {
             wcfg = cfg.get(world);
-            rgMgr = WGBukkit.getRegionManager(world);
-            if (!wcfg.useSAC || rgMgr == null) {
+            sMgr = plugin.getGlobalStakeManager().get(world);
+            if (!wcfg.useStakes || wcfg.silentNotify) {
                 continue;
             }
 
-            ArrayList<ProtectedRegion> regionList = SACUtil.getStatusRegions(rgMgr, player);
-            for (ProtectedRegion region : regionList) {
-                Status status = region.getFlag(SACFlags.REQUEST_STATUS);
-                StringBuilder message = new StringBuilder(ChatColor.YELLOW + "Your request for " + ChatColor.WHITE + region.getId() + ChatColor.YELLOW + " in " + 
-                        ChatColor.BLUE + world.getName() + ChatColor.YELLOW);
-                switch (status) {
-                    case PENDING:
-                        message.append(" is still pending.");
-                        break;
-                    case ACCEPTED:
-                        message.append(" has been " + ChatColor.DARK_GREEN + "accepted!");
-                        region.setFlag(SACFlags.REQUEST_NAME,null);
-                        region.setFlag(SACFlags.REQUEST_STATUS,null);
-                        break;
-                    case DENIED:
-                        message.append(" has been " + ChatColor.DARK_RED + "denied!");
-                        region.setFlag(SACFlags.REQUEST_NAME,null);
-                        region.setFlag(SACFlags.REQUEST_STATUS,null);
-                        break;
-                    case CANCELED:
-                        message.append(" has been " + ChatColor.GRAY + "canceled.");
-                        region.setFlag(SACFlags.REQUEST_NAME,null);
-                        region.setFlag(SACFlags.REQUEST_STATUS,null);
-                        break;
+            final Map<String, Stake> stakes = sMgr.getStakes();
+            int pendingCount = 0;
+
+            for (Stake stake : stakes.values()) {
+                if (stake.getStakeName() != null && stake.getStakeName().equals(player.getName().toLowerCase()) && stake.getStatus() != null) {
+                    StringBuilder message = new StringBuilder(ChatColor.YELLOW + "Your stake in " + ChatColor.WHITE + stake.getId() + ChatColor.YELLOW + " in " + 
+                            ChatColor.BLUE + world.getName() + ChatColor.YELLOW);
+                    switch (stake.getStatus()) {
+                        case PENDING:
+                            message.append(" is still pending.");
+                            break;
+                        case ACCEPTED:
+                            message.append(" has been " + ChatColor.DARK_GREEN + "accepted!");
+                            stake.setStatus(null);
+                            stake.setStakeName(null);
+                            break;
+                        case DENIED:
+                            message.append(" has been " + ChatColor.DARK_RED + "denied!");
+                            stake.setStatus(null);
+                            stake.setStakeName(null);
+                            break;
+                    }
+                    player.sendMessage(message.toString());
                 }
-                player.sendMessage(message.toString());
+                if (stake.getStatus() != null && stake.getStatus() == Status.PENDING && stake.getStakeName() != null) {
+                    pendingCount++;
+                }
             }
 
             if (plugin.hasPermission(player, "stakeaclaim.pending.notify")) {
-                regionList = SACUtil.getStatusPendingRegions(rgMgr);
-                if (regionList.size() == 1) {
-                    player.sendMessage(ChatColor.YELLOW + "There is " + regionList.size() + " pending stake request in " + 
+                if (pendingCount == 1) {
+                    player.sendMessage(ChatColor.YELLOW + "There is 1 pending stake in " + 
                             ChatColor.BLUE + world.getName() + ".");
-                } else if (regionList.size() > 1) {
-                    player.sendMessage(ChatColor.YELLOW + "There are " + regionList.size() + " pending stake requests in " + 
+                } else if (pendingCount > 1) {
+                    player.sendMessage(ChatColor.YELLOW + "There are " + pendingCount + " pending stakes in " + 
                             ChatColor.BLUE + world.getName() + ".");
                 }
             }
@@ -381,16 +373,19 @@ public class PlayerListener implements Listener {
 
         if (plugin.hasPermission(player, "stakeaclaim.events.reset-entry")) {
             RegionManager rgMgr;
+            StakeManager sMgr;
             WorldConfig wcfg;
 
             for (World world : plugin.getServer().getWorlds()) {
                 wcfg = cfg.get(world);
+                sMgr = plugin.getGlobalStakeManager().get(world);
                 rgMgr = WGBukkit.getRegionManager(world);
                 if (!wcfg.useSAC || rgMgr == null) {
                     continue;
                 }
 
-                SACUtil.resetEntryRegions(rgMgr, player);
+                SACUtil.resetEntryRegions(rgMgr, sMgr, player);
+                
             }
         }
 

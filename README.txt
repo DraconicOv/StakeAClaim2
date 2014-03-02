@@ -31,8 +31,8 @@ In chat ‘support’ as you enter a claim when holding the SAC wand (default: f
     me - show player summary [m]
     info - displays info about this claim [i]
     stake - stake your claim here [s]
-    confirm - accept your own stake request [c]
-    unstake - cancel your stake request) [u]
+    confirm - accept your own stake [c]
+    unstake - remove your stake) [u]
     add <players> - adds member(s) to this claim [a]
     remove <players> - removes member(s) from this claim, do -a to remove all [r]
     private - toggle this claim to private/open (people can’t enter) [p]
@@ -47,14 +47,17 @@ In chat ‘support’ as you enter a claim when holding the SAC wand (default: f
         name - delete this claim's name [n]
 
 /tools [t]
-    pending - show a list of pending stake requests [p]
-    accept <list item #> - accept someone's stake request [a]
-    deny <list item #> - deny someone's stake request [d]
-    cancel <list item #> - cancel someone's stake request [c]
+    pending - show a list of pending stakes [p]
+    accept <list item #> - accept someone's stake [a]
+    deny <list item #> - deny someone's stake [d]
     reclaim <list item #> - unclaim someone's claim > [r]
     proxy - claim for someone else [x]
     goto <list item #> or <region ID> ['spawn'] - go to a claim [g]
-    spawns - create default spawn points for all claims in this world [s]
+
+/sac
+    generate [world] or ['all'] - generate default spawn points for all claims in world [g]
+    save [world] or ['all'] - save stakes to file for world [s]
+    load [world] or ['all'] or ['config'] - load stakes from file for world [l]
 
 Hit a player with wand to lookup claims by that player
 Hit a block with wand to lookup the claim the block is in

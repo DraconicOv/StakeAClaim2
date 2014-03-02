@@ -25,10 +25,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.nineteengiraffes.stakeaclaim.ConfigManager;
-import com.nineteengiraffes.stakeaclaim.SACFlags;
 import com.nineteengiraffes.stakeaclaim.SACUtil;
 import com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin;
 import com.nineteengiraffes.stakeaclaim.WorldConfig;
+import com.nineteengiraffes.stakeaclaim.stakes.Stake;
+import com.nineteengiraffes.stakeaclaim.stakes.StakeManager;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
@@ -77,7 +78,7 @@ public class SetCommands {
     @Command(aliases = {"name", "n"},
             usage = "<name>",
             desc = "Set this claim's name",
-            min = 1, max = 1)
+            min = 1)
     @CommandPermissions({"stakeaclaim.claim.set.name", "stakeaclaim.claim.set.name.own.*", "stakeaclaim.claim.set.name.member.*", "stakeaclaim.claim.set.name.*"})
     public void name(CommandContext args, CommandSender sender) throws CommandException {
 
@@ -86,17 +87,20 @@ public class SetCommands {
 
         final ConfigManager cfg = plugin.getGlobalManager();
         final WorldConfig wcfg = cfg.get(world);
-        if (!wcfg.useRegions) {
-            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
+        if (!wcfg.useStakes) {
+            throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
         }
 
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
         checkPerm(player, "set.name", claim);
 
-        claim.setFlag(SACFlags.CLAIM_NAME, args.getJoinedStrings(0));
+        final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
+        Stake stake = sMgr.getStake(claim.getId());
+
+        stake.setClaimName(args.getJoinedStrings(0));
         sender.sendMessage(ChatColor.WHITE + claim.getId() + ChatColor.YELLOW + "'s name set to: " + ChatColor.LIGHT_PURPLE + args.getJoinedStrings(0));
 
-        saveRegions(world);
+        sMgr.save();
     }
 
     @Command(aliases = {"vip", "v"},
@@ -111,17 +115,20 @@ public class SetCommands {
 
         final ConfigManager cfg = plugin.getGlobalManager();
         final WorldConfig wcfg = cfg.get(world);
-        if (!wcfg.useRegions) {
-            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
+        if (!wcfg.useStakes) {
+            throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
         }
 
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
         checkPerm(player, "set.vip", claim);
 
-        claim.setFlag(SACFlags.VIP,true);
+        final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
+        Stake stake = sMgr.getStake(claim.getId());
+
+        stake.setVIP(true);
         sender.sendMessage(ChatColor.WHITE + claim.getId() + ChatColor.YELLOW + " set to " + wcfg.VIPs + " only.");
 
-        saveRegions(world);
+        sMgr.save();
     }
 
     // Other methods

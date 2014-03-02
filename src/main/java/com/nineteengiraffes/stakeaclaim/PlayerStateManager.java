@@ -121,7 +121,7 @@ public class PlayerStateManager implements Runnable {
         public int lastBlockZ;
         public String lastSupport;
         public LinkedHashMap<Integer, String> regionList;
-        public String[] unsubmittedRequest;
+        public String[] unsubmittedStake;
         public ProtectedRegion lastWarp;
     }
 }
