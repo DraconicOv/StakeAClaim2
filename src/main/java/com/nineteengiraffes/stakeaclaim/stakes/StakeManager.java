@@ -31,6 +31,7 @@ import com.sk89q.util.yaml.YAMLFormat;
 import com.sk89q.util.yaml.YAMLNode;
 import com.sk89q.util.yaml.YAMLProcessor;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class StakeManager {
 
@@ -199,6 +200,17 @@ public class StakeManager {
      */
     public Map<String, Stake> getStakes() {
         return this.stakes;
+    }
+
+    /**
+     * Get a stake for {@code claim},
+     * if it does not exists it will be created
+     *
+     * @param claim to get the stake for
+     * @return stake
+     */
+    public Stake getStake(ProtectedRegion claim) {
+        return getStake(claim.getId());
     }
 
     /**

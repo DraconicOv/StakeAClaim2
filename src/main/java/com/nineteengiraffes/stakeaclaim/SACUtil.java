@@ -29,7 +29,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
 import com.nineteengiraffes.stakeaclaim.stakes.Stake;
 import com.nineteengiraffes.stakeaclaim.stakes.Stake.Status;
 import com.nineteengiraffes.stakeaclaim.stakes.StakeManager;
@@ -41,6 +40,7 @@ import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.databases.ProtectionDatabaseException;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
+import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -51,28 +51,114 @@ public class SACUtil {
      * Get a list of regions owned by (@code player)
      * 
      * @param rgMgr the region manager to work with
+     * @param wcfg the world config to work with
      * @param player the player to get the regions for
      * @return list of regions owned by the player
      */
-    public static ArrayList<ProtectedRegion> getOwnedRegions(RegionManager rgMgr, Player player) {
-        return getOwnedRegions(rgMgr, player.getName().toLowerCase());
+    public static ArrayList<ProtectedRegion> getOwnedClaims(RegionManager rgMgr, WorldConfig wcfg, Player player) {
+        return getOwnedClaims(rgMgr, wcfg, player.getName().toLowerCase());
     }
 
     /**
      * Get a list of regions owned by (@code playerName)
      * 
      * @param rgMgr the region manager to work with
+     * @param wcfg the world config to work with
      * @param playerName the name of the player to get the regions for
      * @return list of regions owned by the player
      */
-    public static ArrayList<ProtectedRegion> getOwnedRegions(RegionManager rgMgr, String playerName) {
+    public static ArrayList<ProtectedRegion> getOwnedClaims(RegionManager rgMgr, WorldConfig wcfg, String playerName) {
 
         final Map<String, ProtectedRegion> regions = rgMgr.getRegions();
         ArrayList<ProtectedRegion> regionList = new ArrayList<ProtectedRegion>();
+        final Pattern regexPat = Pattern.compile(wcfg.claimNameFilter);
+        Matcher regexMat;
 
         for (ProtectedRegion region : regions.values()) {
-            if (isRegionOwned(region) == 1 && region.getOwners().contains(playerName)) {
-                regionList.add(region);
+            if (isRegionOwned(region) > 0 && region.getOwners().contains(playerName)) {
+                regexMat = regexPat.matcher(region.getId());
+                if (regexMat.find()) {
+                    regionList.add(region);
+                }
+            }
+        }
+        return regionList;
+    }
+
+    /**
+     * Get a list of owned claims
+     * 
+     * @param rgMgr the region manager to work with
+     * @param wcfg the world config to work with
+     * @return list of owned claims
+     */
+    public static ArrayList<ProtectedRegion> getOwnedClaims(RegionManager rgMgr, WorldConfig wcfg) {
+
+        final Map<String, ProtectedRegion> regions = rgMgr.getRegions();
+        ArrayList<ProtectedRegion> regionList = new ArrayList<ProtectedRegion>();
+        final Pattern regexPat = Pattern.compile(wcfg.claimNameFilter);
+        Matcher regexMat;
+
+        for (ProtectedRegion region : regions.values()) {
+            if (isRegionOwned(region) > 0) {
+                regexMat = regexPat.matcher(region.getId());
+                if (regexMat.find()) {
+                    regionList.add(region);
+                }
+            }
+        }
+        return regionList;
+    }
+
+    /**
+     * Get a list of unclaimed claims
+     * 
+     * @param rgMgr the region manager to work with
+     * @param wcfg the world config to work with
+     * @return list of unclaimed claims
+     */
+    public static ArrayList<ProtectedRegion> getUnclaimed(RegionManager rgMgr, WorldConfig wcfg) {
+
+        final Map<String, ProtectedRegion> regions = rgMgr.getRegions();
+        ArrayList<ProtectedRegion> regionList = new ArrayList<ProtectedRegion>();
+        final Pattern regexPat = Pattern.compile(wcfg.claimNameFilter);
+        Matcher regexMat;
+
+        for (ProtectedRegion region : regions.values()) {
+            if (isRegionOwned(region) <= 0) {
+                regexMat = regexPat.matcher(region.getId());
+                if (regexMat.find()) {
+                    regionList.add(region);
+                }
+            }
+        }
+        return regionList;
+    }
+
+    /**
+     * Get a list of VIP claims
+     * 
+     * @param rgMgr the region manager to work with
+     * @param wcfg the world config to work with
+     * @return list of VIP claims
+     */
+    public static ArrayList<ProtectedRegion> getVIPClaims(RegionManager rgMgr, StakeManager sMgr, WorldConfig wcfg) {
+
+        final Map<String, Stake> stakes = sMgr.getStakes();
+        ArrayList<ProtectedRegion> regionList = new ArrayList<ProtectedRegion>();
+        final Pattern regexPat = Pattern.compile(wcfg.claimNameFilter);
+        Matcher regexMat;
+        ProtectedRegion region;
+
+        for (Stake stake : stakes.values()) {
+            if (stake.getVIP()) {
+                regexMat = regexPat.matcher(stake.getId());
+                if (regexMat.find()) {
+                    region = rgMgr.getRegion(stake.getId());
+                    if (region != null) {
+                        regionList.add(region);
+                    }
+                }
             }
         }
         return regionList;
@@ -113,7 +199,7 @@ public class SACUtil {
      * @param rgMgr the region manager to look for the claim in
      * @param wcfg the world config to work with
      * @param vector the location to look for the claim
-     * @return the claim at ({@code vector}, returns null if there are no claims there, or more than one
+     * @return the claim at {@code vector}, returns null if there are no claims there, or more than one
      */
     public static ProtectedRegion getClaimAtPoint(RegionManager rgMgr, WorldConfig wcfg, Vector vector) {
 
@@ -150,6 +236,7 @@ public class SACUtil {
 
         final Map<String, Stake> stakes = sMgr.getStakes();
         ArrayList<Stake> stakeList = new ArrayList<Stake>();
+        ArrayList<Stake> removeList = new ArrayList<Stake>();
         ProtectedRegion claim;
         boolean save = false;
 
@@ -157,12 +244,11 @@ public class SACUtil {
             if (stake.getStatus() != null && stake.getStatus() == Status.PENDING && stake.getStakeName() != null) {
                 claim = rgMgr.getRegion(stake.getId());
                 if (claim == null) {
-                    stakes.remove(stake.getId());
-                    save = true;
+                    removeList.add(stake);
                     continue;
                 }
-                int ownedCode = SACUtil.isRegionOwned(claim);
-                if (ownedCode >= 1) {
+                int ownedCode = isRegionOwned(claim);
+                if (ownedCode > 0) {
                     stake.setStatus(null);
                     stake.setStakeName(null);
                     save = true;
@@ -170,6 +256,11 @@ public class SACUtil {
                     stakeList.add(stake);
                 }
             }
+        }
+
+        for (Stake stake : removeList) {
+            stakes.remove(stake.getId());
+            save = true;
         }
         if (save) sMgr.save();
         return stakeList;
@@ -199,6 +290,7 @@ public class SACUtil {
 
         final Map<String, Stake> stakes = sMgr.getStakes();
         ArrayList<Stake> stakeList = new ArrayList<Stake>();
+        ArrayList<Stake> removeList = new ArrayList<Stake>();
         ProtectedRegion claim;
         boolean save = false;
 
@@ -207,12 +299,11 @@ public class SACUtil {
                     stake.getStatus() != null && stake.getStatus() == Status.PENDING) {
                 claim = rgMgr.getRegion(stake.getId());
                 if (claim == null) {
-                    stakes.remove(stake.getId());
-                    save = true;
+                    removeList.add(stake);
                     continue;
                 }
-                int ownedCode = SACUtil.isRegionOwned(claim);
-                if (ownedCode >= 1) {
+                int ownedCode = isRegionOwned(claim);
+                if (ownedCode > 0) {
                     stake.setStatus(null);
                     stake.setStakeName(null);
                     save = true;
@@ -220,6 +311,11 @@ public class SACUtil {
                     stakeList.add(stake);
                 }
             }
+        }
+
+        for (Stake stake : removeList) {
+            stakes.remove(stake.getId());
+            save = true;
         }
 
         if (stakeList.size() == 0) {
@@ -238,6 +334,74 @@ public class SACUtil {
 
 
     // Utilities
+    /**
+     * Displays one {@code claim}
+     * 
+     * @param index the index to show for the claim
+     * @param claim the claim to display
+     * @param stake the stake for the claim
+     * @param player the player to display the claim to
+     * @return true if the claim is unclaimed
+     */
+    public static boolean displayClaim(String index, ProtectedRegion claim, Stake stake, Player player) {
+
+        boolean open = false;
+        StringBuilder message = new StringBuilder(ChatColor.YELLOW + "# " + index + ": ");
+        message.append((stake.getVIP() ? ChatColor.AQUA : ChatColor.WHITE) + claim.getId());
+        if (stake.getClaimName() != null) {
+            message.append(ChatColor.LIGHT_PURPLE + " '" + stake.getClaimName() + "'");
+        }
+
+        int ownedCode = isRegionOwned(claim);
+        if (ownedCode <= 0) {
+            if (stake.getStatus() != null && stake.getStatus() == Status.PENDING && stake.getStakeName() != null) {
+                message.append(ChatColor.YELLOW + " pending for " + ChatColor.GREEN + stake.getStakeName());
+            } else {
+                message.append(" " + ChatColor.GRAY + "Unclaimed");
+                open = true;
+            }
+        } else {
+            message.append(" " + ChatColor.GREEN + claim.getOwners().toUserFriendlyString());
+        }
+
+        if (claim.getFlag(DefaultFlag.ENTRY) != null && claim.getFlag(DefaultFlag.ENTRY) == State.DENY) {
+            message.append(ChatColor.RED + " Private!");
+        }
+
+        player.sendMessage(message.toString());
+        return open;
+    }
+
+    /**
+     * Displays one {@code claim}
+     * 
+     * @param index the index to show for the claim
+     * @param claim the claim to display
+     * @param player the player to display the claim to
+     * @return true if the claim is unclaimed
+     */
+    public static boolean displayClaim(String index, ProtectedRegion claim, Player player) {
+
+        boolean open = false;
+        StringBuilder message = new StringBuilder(ChatColor.YELLOW + "# " + index + ": ");
+        message.append(ChatColor.WHITE + claim.getId() + " ");
+
+        int ownedCode = isRegionOwned(claim);
+        if (ownedCode <= 0) {
+            message.append(ChatColor.GRAY + "Unclaimed");
+            open = true;
+        } else {
+            message.append(ChatColor.GREEN + claim.getOwners().toUserFriendlyString());
+        }
+
+        if (claim.getFlag(DefaultFlag.ENTRY) != null && claim.getFlag(DefaultFlag.ENTRY) == State.DENY) {
+            message.append(ChatColor.RED + " Private!");
+        }
+
+        player.sendMessage(message.toString());
+        return open;
+    }
+
     /**
      * Resets regions with default entry flag owned by (@code player)
      * 
@@ -272,28 +436,6 @@ public class SACUtil {
     }
 
     /**
-     * Reclaim a region and reset its stake
-     * 
-     * @param stake the stake to reset
-     * @param region the region to reclaim
-     * @param useReclaimed boolean config value
-     */
-    public static void reclaim(Stake stake, ProtectedRegion region, boolean useReclaimed) {
-        region.getOwners().getPlayers().clear();
-        region.getOwners().getGroups().clear();
-        region.getMembers().getPlayers().clear();
-        region.getMembers().getGroups().clear();
-        region.setFlag(DefaultFlag.TELE_LOC,null);
-        region.setFlag(DefaultFlag.ENTRY,null);
-        stake.setStatus(null);
-        stake.setStakeName(null);
-        stake.setDefaultEntry(null);
-        stake.setClaimName(null);
-        stake.setVIP(false);
-        stake.setRecalimed(useReclaimed);
-    }
-
-    /**
      * Check one region for owners. 
      * int > 1, has multiple owners. 
      * int < 0, has members but no owners.
@@ -317,36 +459,27 @@ public class SACUtil {
      *  Warp {@code player} to {@code claim}
      * 
      * @param claim the claim to warp to
-     * @param state players state so save last warp
+     * @param stake stake for the claim
      * @param player the player to warp
      * @param forceSpawn toggle spawn only warp
-     * @param claimName the custom name of the destination claim
-     * @throws CommandException
+     * @return claim warped to, will be null if you did not warp
      */
-    public static void warpTo(ProtectedRegion claim, PlayerState state, Player player, boolean forceSpawn, String claimName) throws CommandException {
+    public static ProtectedRegion warpTo(ProtectedRegion claim, Stake stake, Player player, boolean forceSpawn){
 
         if (claim.getFlag(DefaultFlag.TELE_LOC)!= null && !forceSpawn) {
             player.teleport(BukkitUtil.toLocation(claim.getFlag(DefaultFlag.TELE_LOC)));
-            state.lastWarp = claim;
-            throw new CommandException(ChatColor.YELLOW + "Gone to " + 
-                    (claimName == null ? (ChatColor.WHITE + claim.getId()) : (ChatColor.LIGHT_PURPLE + claimName)) + 
-                    ChatColor.YELLOW + " By: " + ChatColor.GREEN + claim.getOwners().toUserFriendlyString());
-
+            player.sendMessage(ChatColor.YELLOW + "Gone to:");
+            displayClaim("", claim, stake, player);
         } else if (claim.getFlag(DefaultFlag.SPAWN_LOC)!= null) {
             player.teleport(BukkitUtil.toLocation(claim.getFlag(DefaultFlag.SPAWN_LOC)));
-            state.lastWarp = claim;
-            if (claim.getOwners().size() == 0) {
-                throw new CommandException(ChatColor.YELLOW + "Gone to " + ChatColor.WHITE + claim.getId() + 
-                        ChatColor.YELLOW + "'s spawn. By: " + ChatColor.GRAY + "Unclaimed");
-            } else {
-                throw new CommandException(ChatColor.YELLOW + "Gone to " + ChatColor.WHITE + claim.getId() + 
-                        ChatColor.YELLOW + "'s spawn. By: " + ChatColor.GREEN + claim.getOwners().toUserFriendlyString());
-            }
-
+            player.sendMessage(ChatColor.YELLOW + "Gone to spawn of:");
+            displayClaim("", claim, stake, player);
         } else {
-            state.lastWarp = null;
-            throw new CommandException("No warp set for this claim!");
+            player.sendMessage(ChatColor.YELLOW + "No warp set for " + (stake.getVIP() ? ChatColor.AQUA : ChatColor.WHITE) + claim.getId() + "!");
+            return null;
         }
+
+        return claim;
     }
 
     /**

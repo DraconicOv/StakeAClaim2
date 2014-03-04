@@ -61,15 +61,21 @@ public class DeleteCommands {
 
         final ConfigManager cfg = plugin.getGlobalManager();
         final WorldConfig wcfg = cfg.get(world);
+        if (!wcfg.useStakes) {
+            throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
+        }
+
         if (!wcfg.useRegions) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
+
+        final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
 
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
         checkPerm(player, "del.warp", claim);
 
         claim.setFlag(DefaultFlag.TELE_LOC, null);
-        sender.sendMessage(ChatColor.WHITE + claim.getId() + ChatColor.YELLOW + "'s warp deleted.");
+        sender.sendMessage((sMgr.getStake(claim).getVIP() ? ChatColor.AQUA : ChatColor.WHITE) + claim.getId() + ChatColor.YELLOW + "'s warp deleted.");
 
         saveRegions(world);
     }
@@ -94,9 +100,9 @@ public class DeleteCommands {
         checkPerm(player, "del.name", claim);
 
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-        Stake stake = sMgr.getStake(claim.getId());
+        Stake stake = sMgr.getStake(claim);
         stake.setClaimName(null);
-        sender.sendMessage(ChatColor.WHITE + claim.getId() + ChatColor.YELLOW + "'s name deleted.");
+        sender.sendMessage((stake.getVIP() ? ChatColor.AQUA : ChatColor.WHITE) + claim.getId() + ChatColor.YELLOW + "'s name deleted.");
 
         sMgr.save();
     }
@@ -121,7 +127,7 @@ public class DeleteCommands {
         checkPerm(player, "del.vip", claim);
 
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-        Stake stake = sMgr.getStake(claim.getId());
+        Stake stake = sMgr.getStake(claim);
         stake.setVIP(false);
         sender.sendMessage(ChatColor.WHITE + claim.getId() + ChatColor.YELLOW + " set to anyone.");
 
@@ -129,7 +135,7 @@ public class DeleteCommands {
     }
 
     // Other methods
-    public void checkPerm(Player player, String command, ProtectedRegion claim) throws CommandPermissionsException {
+    private void checkPerm(Player player, String command, ProtectedRegion claim) throws CommandPermissionsException {
 
         final String playerName = player.getName();
         final String id = claim.getId();
@@ -143,7 +149,7 @@ public class DeleteCommands {
         }
     }
 
-    public void saveRegions(World world) throws CommandException {
+    private void saveRegions(World world) throws CommandException {
 
         final RegionManager rgMgr = WGBukkit.getRegionManager(world);
         if (rgMgr == null) {

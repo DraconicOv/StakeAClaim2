@@ -62,15 +62,21 @@ public class SetCommands {
 
         final ConfigManager cfg = plugin.getGlobalManager();
         final WorldConfig wcfg = cfg.get(world);
+        if (!wcfg.useStakes) {
+            throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
+        }
+
         if (!wcfg.useRegions) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
+
+        final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
 
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
         checkPerm(player, "set.warp", claim);
 
         claim.setFlag(DefaultFlag.TELE_LOC,BukkitUtil.toLocation(player.getLocation()));
-        sender.sendMessage(ChatColor.WHITE + claim.getId() + ChatColor.YELLOW + "'s warp set.");
+        sender.sendMessage((sMgr.getStake(claim).getVIP() ? ChatColor.AQUA : ChatColor.WHITE) + claim.getId() + ChatColor.YELLOW + "'s warp set.");
 
         saveRegions(world);
     }
@@ -95,10 +101,10 @@ public class SetCommands {
         checkPerm(player, "set.name", claim);
 
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-        Stake stake = sMgr.getStake(claim.getId());
+        Stake stake = sMgr.getStake(claim);
 
         stake.setClaimName(args.getJoinedStrings(0));
-        sender.sendMessage(ChatColor.WHITE + claim.getId() + ChatColor.YELLOW + "'s name set to: " + ChatColor.LIGHT_PURPLE + args.getJoinedStrings(0));
+        sender.sendMessage((stake.getVIP() ? ChatColor.AQUA : ChatColor.WHITE) + claim.getId() + ChatColor.YELLOW + "'s name set to: " + ChatColor.LIGHT_PURPLE + args.getJoinedStrings(0));
 
         sMgr.save();
     }
@@ -123,16 +129,16 @@ public class SetCommands {
         checkPerm(player, "set.vip", claim);
 
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-        Stake stake = sMgr.getStake(claim.getId());
+        Stake stake = sMgr.getStake(claim);
 
         stake.setVIP(true);
-        sender.sendMessage(ChatColor.WHITE + claim.getId() + ChatColor.YELLOW + " set to " + wcfg.VIPs + " only.");
+        sender.sendMessage(ChatColor.AQUA + claim.getId() + ChatColor.YELLOW + " set to " + wcfg.VIPs + " only.");
 
         sMgr.save();
     }
 
     // Other methods
-    public void checkPerm(Player player, String command, ProtectedRegion claim) throws CommandPermissionsException {
+    private void checkPerm(Player player, String command, ProtectedRegion claim) throws CommandPermissionsException {
 
         final String playerName = player.getName();
         final String id = claim.getId();
@@ -146,7 +152,7 @@ public class SetCommands {
         }
     }
 
-    public void saveRegions(World world) throws CommandException {
+    private void saveRegions(World world) throws CommandException {
 
         final RegionManager rgMgr = WGBukkit.getRegionManager(world);
         if (rgMgr == null) {

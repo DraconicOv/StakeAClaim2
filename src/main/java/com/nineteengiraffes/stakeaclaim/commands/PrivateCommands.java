@@ -67,7 +67,6 @@ public class PrivateCommands {
         }
 
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
-        final String regionID = claim.getId();
 
         checkPerm(player, "default.private", claim);
 
@@ -77,13 +76,13 @@ public class PrivateCommands {
         }
 
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-        Stake stake = sMgr.getStake(claim.getId());
+        Stake stake = sMgr.getStake(claim);
         if (stake.getDefaultEntry() == null || stake.getDefaultEntry() == State.ALLOW) {
             stake.setDefaultEntry(State.DENY);
-            sender.sendMessage(ChatColor.YELLOW + "Set " + ChatColor.WHITE + regionID + ChatColor.YELLOW + "'s default to " + ChatColor.RED + "private.");
+            sender.sendMessage(ChatColor.YELLOW + "Set " + (stake.getVIP() ? ChatColor.AQUA : ChatColor.WHITE) + claim.getId() + ChatColor.YELLOW + "'s default to " + ChatColor.RED + "private.");
         } else {
             stake.setDefaultEntry(State.ALLOW);
-            sender.sendMessage(ChatColor.YELLOW + "Set " + ChatColor.WHITE + regionID + ChatColor.YELLOW + "'s default to " + ChatColor.GRAY + "open.");
+            sender.sendMessage(ChatColor.YELLOW + "Set " + (stake.getVIP() ? ChatColor.AQUA : ChatColor.WHITE) + claim.getId() + ChatColor.YELLOW + "'s default to " + ChatColor.GRAY + "open.");
         }
 
         sMgr.save();
@@ -110,17 +109,17 @@ public class PrivateCommands {
         checkPerm(player, "clear.private", claim);
 
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-        Stake stake = sMgr.getStake(claim.getId());
+        Stake stake = sMgr.getStake(claim);
         stake.setDefaultEntry(null);
         claim.setFlag(DefaultFlag.ENTRY, null);
-        sender.sendMessage(ChatColor.YELLOW + "Cleared " + ChatColor.WHITE + claim.getId() + ChatColor.YELLOW + "'s privacy settings.");
+        sender.sendMessage(ChatColor.YELLOW + "Cleared " + (stake.getVIP() ? ChatColor.AQUA : ChatColor.WHITE) + claim.getId() + ChatColor.YELLOW + "'s privacy settings.");
 
         sMgr.save();
         saveRegions(world);
     }
 
     // Other methods
-    public void checkPerm(Player player, String command, ProtectedRegion claim) throws CommandPermissionsException {
+    private void checkPerm(Player player, String command, ProtectedRegion claim) throws CommandPermissionsException {
 
         final String playerName = player.getName();
         final String id = claim.getId();
@@ -134,7 +133,7 @@ public class PrivateCommands {
         }
     }
 
-    public void saveRegions(World world) throws CommandException {
+    private void saveRegions(World world) throws CommandException {
 
         final RegionManager rgMgr = WGBukkit.getRegionManager(world);
         if (rgMgr == null) {

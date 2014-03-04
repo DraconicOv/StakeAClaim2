@@ -33,6 +33,9 @@ import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
+import com.sk89q.worldguard.bukkit.WGBukkit;
+import com.sk89q.worldguard.protection.databases.ProtectionDatabaseException;
+import com.sk89q.worldguard.protection.managers.RegionManager;
 
 public class SACCommands {
     private final StakeAClaimPlugin plugin;
@@ -57,6 +60,7 @@ public class SACCommands {
                     if (claims == -1) {
                         throw new CommandException("No region manager exists for world '" + world.getName() + "'.");
                     }
+                    saveRegions(world);
                     throw new CommandException(ChatColor.YELLOW + "Generated " + claims + " claim spawns in '" + world.getName() + "'");
                 }
             }
@@ -66,6 +70,7 @@ public class SACCommands {
                 for (World world : plugin.getServer().getWorlds()) {
                     int claims = SACUtil.makeSpawns(plugin, world);
                     if (claims == -1) continue;
+                    saveRegions(world);
                     sender.sendMessage(ChatColor.YELLOW + "Generated " + claims + " claim spawns in '" + world.getName() + "'");
                 }
                 throw new CommandException(ChatColor.YELLOW + "Generated in all worlds.");
@@ -79,6 +84,7 @@ public class SACCommands {
         if (claims == -1) {
             throw new CommandException("No region manager exists for world '" + world.getName() + "'.");
         }
+        saveRegions(world);
         throw new CommandException(ChatColor.YELLOW + "Generated " + claims + " claim spawns in '" + world.getName() + "'");
 
     }
@@ -184,6 +190,7 @@ public class SACCommands {
 
     }
 
+    // other methods
     private void read(StakeManager sMgr) throws CommandException {
         try {
             sMgr.load();
@@ -194,6 +201,20 @@ public class SACCommands {
 
     private void write(StakeManager sMgr) {
         sMgr.save();
+    }
+
+    private void saveRegions(World world) throws CommandException {
+
+        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        if (rgMgr == null) {
+            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
+        }
+
+        try {
+            rgMgr.save();
+        } catch (ProtectionDatabaseException e) {
+            throw new CommandException("Failed to write regions: " + e.getMessage());
+        }
     }
 
 }

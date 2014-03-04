@@ -57,11 +57,14 @@ public class WorldConfig {
     public int sacWand;
     public String claimNameFilter;
     public boolean useReclaimed;
-    public boolean claimLimitsAreArea;
-    public double selfClaimMax;
-    public double claimMax;
-    public double proxyClaimMax;
-    public boolean twoStepSelfClaim;
+    public boolean useVolumeLimits;
+    public int unassistedMaxCount;
+    public int totalMaxCount;
+    public int proxyMaxCount;
+    public int unassistedMaxVolume;
+    public int totalMaxVolume;
+    public int proxyMaxVolume;
+    public boolean confirmUnassisted;
     public String VIPs;
     public boolean silentNotify;
     /* Configuration data end */
@@ -118,16 +121,6 @@ public class WorldConfig {
         }
     }
 
-    private double getDouble(String node, double def) {
-        double val = parentConfig.getDouble(node, def);
-
-        if (config.getProperty(node) != null) {
-            return config.getDouble(node, def);
-        } else {
-            return val;
-        }
-    }
-
     /**
      * Load the configuration.
      */
@@ -148,11 +141,14 @@ public class WorldConfig {
         useReclaimed = getBoolean("remeber-reclaimed", true);
         VIPs = getString("what-you-call-your-vips", "Donors");
         silentNotify = getBoolean("claiming.silent-claiming", false);
-        claimLimitsAreArea = getBoolean("claiming.claim-max-is-in-area-of-claims", false);
-        selfClaimMax = getDouble("claiming.max-claims-a-player-can-stake-on-their-own", 1);
-        claimMax = getDouble("claiming.max-claims-a-player-can-stake", 3);
-        proxyClaimMax = getDouble("claiming.max-claims-a-proxy-can-stake", -1);
-        twoStepSelfClaim = getBoolean("claiming.players-need-to-confirm-when-self-accepting", true);
+        confirmUnassisted = getBoolean("claiming.players-must-confirm-unassisted-stakes", true);
+        useVolumeLimits = getBoolean("claiming.use-volume-limits", false);
+        unassistedMaxCount = getInt("claiming.max-count.unassisted-stakes", 1);
+        totalMaxCount = getInt("claiming.max-count.total-stakes", 3);
+        proxyMaxCount = getInt("claiming.max-count.proxy-can-stake", -1);
+        unassistedMaxVolume = getInt("claiming.max-volume.unassisted-stakes", 262144);
+        totalMaxVolume = getInt("claiming.max-volume.total-stakes", 1048576);
+        proxyMaxVolume = getInt("claiming.max-volume.proxy-can-stake", -1);
 
         useRegions = WGBukkit.getPlugin().getGlobalStateManager().get(plugin.getServer().getWorld(worldName)).useRegions;
 

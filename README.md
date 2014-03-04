@@ -1,7 +1,7 @@
 StakeAClaim
 
 The StakeAClaim plugin requires WorldGuard and WorldEdit to function. SAC is an ads-on/extension to WorldGuard.
-The primary goal of SAC is to allow players to request land claims from within the game, and for staff to manage these requests.
+The primary goal of SAC is to allow players to stake land claims from within the game, and for staff to manage these stakes.
 SAC has user friendly commands related to claiming, claims, and land all in one place, removing the need for any other claiming tool or complicated WorldGuard commands.
 With only one base command for users, and shorter versions of all commands for the people that hate typing, SAC is the goto for user friendly claims in WorldGuard.
 
