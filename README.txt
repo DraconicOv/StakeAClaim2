@@ -17,7 +17,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 About Stake A Claim
 
-The StakeAClaim plugin requires WorldGuard and WorldEdit to function. SAC is an ads-on/extension to WorldGuard.
+The StakeAClaim plugin requires WorldGuard and WorldEdit to function. SAC is an add-on/extension to WorldGuard.
 The primary goal of SAC is to allow players to stake land claims from within the game, and for staff to manage these stakes.
 SAC has user friendly commands related to claiming, claims, and land all in one place, removing the need for any other claiming tool or complicated WorldGuard commands.
 With only one base command for users, and shorter versions of all commands for the people that hate typing, SAC is the goto for user friendly claims in WorldGuard.
@@ -49,23 +49,23 @@ In chat ‘support’ as you enter a claim when holding the SAC wand (default: f
         vip - Mark this claim anyone [v]
 
 /tools [t]
-    list - [page] shows the active stake list [l]
-    pending - create/show a list of pending stakes [p]
-    user - <username> create/show a list of stakes for the user [u]
-    claim - <claim> create/show a list of the stake for the claim [c]
-    own - create/show a list of owned claims [o]
-    free - create/show a list of unclaimed claims [f]
-    vip - create/show a list of VIP claims [v]
+    list - [page] shows the active claim list [l]
+    pending - [world] create/show a list of pending claims [p]
+    user - <username> [world] create/show a list of claims for the user [u]
+    claim - <list item #> or <claim id> [world] create/show a single item list [c]
+    own - [world] create/show a list of owned claims [o]
+    free - [world] create/show a list of unclaimed claims [f]
+    vip - [world] create/show a list of VIP claims [v]
     accept <list item #> - accept someone's stake [a]
     deny <list item #> - deny someone's stake [d]
     reclaim <list item #> - reclaim/reset a claim [r]
-    goto <list item #> or <region ID> ['spawn'] - go to a claim [g]
+    goto <list item #> or <claim id> - go to a claim [g]
     proxy - claim for someone else [x]
 
 /sac
-    generate [world] or ['all'] - generate default spawn points for all claims in world [g]
-    save [world] or ['all'] - save stakes to file for world [s]
-    load [world] or ['all'] or ['config'] - load stakes from file for world [l]
+    generate - [world] or ['all'] generate default spawn points for all claims in world [g]
+    save - [world] or ['all'] save stakes to file for world [s]
+    load - [world] or ['all'] or ['config'] load stakes from file for world [l]
 
 Hit a player with wand to lookup claims by that player
 Hit a block with wand to lookup the claim the block is in
@@ -76,10 +76,10 @@ Install:
 1) make sure you have WorldGuard and WorldEdit installed
 2) copy StakeAClaim.jar to the plugins folder of your server
 3) run the server to create config files
-4) set up config and permissions
+4) setup config and permissions
 5) enjoy StakeAClaim on your server!!
 
-You may view a full list of SAC permissions nodes at: http://goo.gl/3q8TrP
+You may view a full list of SAC permissions nodes at: <http://goo.gl/3q8TrP>
 
 
 Thanks to sk89q and WorldGuard for the use of WorldGuard code in the making of StakeAClaim.

@@ -30,6 +30,7 @@ import org.bukkit.entity.Player;
 import com.nineteengiraffes.stakeaclaim.ConfigManager;
 import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
 import com.nineteengiraffes.stakeaclaim.SACUtil;
+import com.nineteengiraffes.stakeaclaim.SACUtil.ListType;
 import com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin;
 import com.nineteengiraffes.stakeaclaim.WorldConfig;
 import com.nineteengiraffes.stakeaclaim.stakes.Stake;
@@ -42,7 +43,6 @@ import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.protection.databases.ProtectionDatabaseException;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
-import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -56,13 +56,17 @@ public class ToolsCommands {
     // list commands
     @Command(aliases = {"list", "l"},
             usage = "[page]",
-            desc = "Show the current stake list",
+            desc = "Show the current claim list",
             min = 0, max = 1)
     @CommandPermissions("stakeaclaim.tools.list")
     public void list(CommandContext args, CommandSender sender) throws CommandException {
 
-        final Player player = plugin.checkPlayer(sender);
-        final World world = player.getWorld();
+        final PlayerState state = plugin.getPlayerStateManager().getState(sender);
+        final World world = state.listWorld;
+        LinkedHashMap<Integer, String> regions = state.regionList;
+        if (regions == null || regions.isEmpty() || world == null) {
+            throw new CommandException(ChatColor.YELLOW + "The Claim list is empty.");
+        }
 
         final ConfigManager cfg = plugin.getGlobalManager();
         final WorldConfig wcfg = cfg.get(world);
@@ -76,12 +80,6 @@ public class ToolsCommands {
         }
 
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-        PlayerState state = plugin.getPlayerStateManager().getState(player);
-
-        LinkedHashMap<Integer, String> regions = state.regionList;
-        if (regions == null || regions.isEmpty()) {
-            throw new CommandException(ChatColor.YELLOW + "The stake list is empty.");
-        }
 
         int page = 0;
         if (args.argsLength() > 0) {
@@ -94,308 +92,74 @@ public class ToolsCommands {
             page = pages - 1;
         }
 
-        player.sendMessage(ChatColor.YELLOW + "Stake list: (page " + (page + 1) + " of " + pages + ")");
+        if (sender instanceof Player && ((Player) sender).getWorld() == world) {
+            sender.sendMessage(ChatColor.YELLOW + "Claim list: (page " + (page + 1) + " of " + pages + ")");
+        } else {
+            sender.sendMessage(ChatColor.BLUE + world.getName() + ChatColor.YELLOW + " claim list: (page " + (page + 1) + " of " + pages + ")");
+        }
 
         if (page < pages) {
             for (int i = page * pageSize; i < page * pageSize + pageSize; i++) {
                 if (i >= totalSize) {
                     break;
                 }
-                SACUtil.displayClaim(String.valueOf(i + 1), rgMgr.getRegion(regions.get(i)), sMgr.getStake(regions.get(i)), player);
+                SACUtil.displayClaim(String.valueOf(i + 1), rgMgr.getRegion(regions.get(i)), sMgr.getStake(regions.get(i)), sender);
             }
         }
     }
 
     @Command(aliases = {"pending", "p"},
-            usage = "",
+            usage = "[world]",
             desc = "Populates a list of pending stakes",
-            min = 0, max = 0)
+            min = 0, max = 1)
     @CommandPermissions("stakeaclaim.tools.pending")
     public void pending(CommandContext args, CommandSender sender) throws CommandException {
-
-        final Player player = plugin.checkPlayer(sender);
-        final World world = player.getWorld();
-
-        final ConfigManager cfg = plugin.getGlobalManager();
-        final WorldConfig wcfg = cfg.get(world);
-        if (!wcfg.useStakes) {
-            throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
-        }
-
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
-        if (rgMgr == null) {
-            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
-        }
-
-        final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-
-        ArrayList<Stake> stakeList = SACUtil.getPendingStakes(rgMgr, sMgr);
-        LinkedHashMap<Integer, String> regions = new LinkedHashMap<Integer, String>();
-        PlayerState state = plugin.getPlayerStateManager().getState(player);
-
-        if (stakeList.size() < 1) {
-            state.regionList = null;
-            throw new CommandException(ChatColor.YELLOW + "There are no pending stakes.");
-        }
-
-        sender.sendMessage(ChatColor.YELLOW + "Stake list:");
-        Integer index = 0;
-        for (Stake stake : stakeList) {
-            regions.put(index, stake.getId());
-            index++;
-            if (index < 10) {
-                SACUtil.displayClaim(index.toString(), rgMgr.getRegion(stake.getId()), stake, player);
-            }
-        }
-        if (index > 9) {
-            sender.sendMessage(ChatColor.YELLOW + "Showing first 9 stakes of " + regions.size() + ". Do " + ChatColor.WHITE + "/tools list" + ChatColor.YELLOW + " to see full list.");
-        }
-        state.regionList = regions;
+        SACUtil.doList(plugin, args, sender, 0, ListType.PENDING);
     }
 
     @Command(aliases = {"user", "u"},
-            usage = "<username>",
-            desc = "Populates a list of stakes for a user",
-            min = 1, max = 1)
+            usage = "<username> [world]",
+            desc = "Populates a list of claims for a user",
+            min = 1, max = 2)
     @CommandPermissions("stakeaclaim.tools.user")
     public void user(CommandContext args, CommandSender sender) throws CommandException {
-
-        final String user = args.getString(0);
-        final Player activePlayer = plugin.checkPlayer(sender);
-        final World world = activePlayer.getWorld();
-
-        final ConfigManager cfg = plugin.getGlobalManager();
-        final WorldConfig wcfg = cfg.get(world);
-        if (!wcfg.useStakes) {
-            throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
-        }
-
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
-        if (rgMgr == null) {
-            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
-        }
-
-        boolean onlinePlayer = false;
-        for (Player player : plugin.getServer().getOnlinePlayers()) {
-            if (user.equalsIgnoreCase(player.getName())) {
-                onlinePlayer = true;
-            }
-        }
-        boolean offlinePlayer = plugin.getServer().getOfflinePlayer(user).hasPlayedBefore();
-
-        if (!onlinePlayer && !offlinePlayer) {
-            sender.sendMessage(ChatColor.GREEN + user + ChatColor.YELLOW + " has not played on this server.");
-        }
-
-        final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-        ArrayList<ProtectedRegion> regions = SACUtil.getOwnedClaims(rgMgr, wcfg, user);
-        LinkedHashMap<Integer, String> regionList = new LinkedHashMap<Integer, String>();
-        PlayerState state = plugin.getPlayerStateManager().getState(activePlayer);
-
-        Stake stake = SACUtil.getPendingStake(rgMgr, sMgr, user);
-        if (stake != null) {
-            regions.add(rgMgr.getRegion(stake.getId()));
-        }
-
-        if (regions.size() < 1) {
-            state.regionList = null;
-            throw new CommandException(ChatColor.GREEN + user + ChatColor.YELLOW + " does not have any claims!");
-        }
-
-        sender.sendMessage(ChatColor.YELLOW + "Stake list:");
-        Integer index = 0;
-        for (ProtectedRegion region : regions) {
-            regionList.put(index, region.getId());
-            index++;
-            if (index < 10) {
-                SACUtil.displayClaim(index.toString(), region, sMgr.getStake(region), activePlayer);
-            }
-        }
-        if (index > 9) {
-            sender.sendMessage(ChatColor.YELLOW + "Showing first 9 stakes of " + regions.size() + ". Do " + ChatColor.WHITE + "/tools list" + ChatColor.YELLOW + " to see full list.");
-        }
-        state.regionList = regionList;
+        SACUtil.doList(plugin, args, sender, 1, ListType.USER);
     }
 
     @Command(aliases = {"claim", "c"},
-            usage = "<list entry #> or <claim id>",
+            usage = "<list entry #> or <claim id> [world]",
             desc = "Populates a single item list",
-            min = 1, max = 1)
+            min = 1, max = 2)
     @CommandPermissions("stakeaclaim.tools.claim")
     public void claim(CommandContext args, CommandSender sender) throws CommandException {
-
-        final Player player = plugin.checkPlayer(sender);
-        final World world = player.getWorld();
-
-        final ConfigManager cfg = plugin.getGlobalManager();
-        final WorldConfig wcfg = cfg.get(world);
-        if (!wcfg.useStakes) {
-            throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
-        }
-
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
-        if (rgMgr == null) {
-            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
-        }
-
-        final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-        String claimID = args.getString(0);
-        ProtectedRegion claim = rgMgr.getRegion(claimID);
-        if (claim == null) {
-            claimID = getRegionIDFromList(args, player);
-            claim = rgMgr.getRegion(claimID);
-        }
-
-        Stake stake = sMgr.getStake(claim);
-
-        PlayerState state = plugin.getPlayerStateManager().getState(player);
-
-        player.sendMessage(ChatColor.YELLOW + "Stake list:");
-        SACUtil.displayClaim("1", claim, stake, player);
-        LinkedHashMap<Integer, String> regionList = new LinkedHashMap<Integer, String>();
-        regionList.put(0, claim.getId());
-        state.regionList = regionList;
+        SACUtil.doList(plugin, args, sender, 1, ListType.CLAIM);
     }
 
     @Command(aliases = {"own", "owned", "o"},
-            usage = "",
+            usage = "[world]",
             desc = "Populates a list of owned claims",
-            min = 0, max = 0)
+            min = 0, max = 1)
     @CommandPermissions("stakeaclaim.tools.own")
     public void own(CommandContext args, CommandSender sender) throws CommandException {
-
-        final Player player = plugin.checkPlayer(sender);
-        final World world = player.getWorld();
-
-        final ConfigManager cfg = plugin.getGlobalManager();
-        final WorldConfig wcfg = cfg.get(world);
-        if (!wcfg.useStakes) {
-            throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
-        }
-
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
-        if (rgMgr == null) {
-            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
-        }
-
-        final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-
-        ArrayList<ProtectedRegion> regions = SACUtil.getOwnedClaims(rgMgr, wcfg);
-        LinkedHashMap<Integer, String> regionList = new LinkedHashMap<Integer, String>();
-        PlayerState state = plugin.getPlayerStateManager().getState(player);
-
-        if (regions.size() < 1) {
-            state.regionList = null;
-            throw new CommandException(ChatColor.YELLOW + "There are no owned claims.");
-        }
-
-        sender.sendMessage(ChatColor.YELLOW + "Stake list:");
-        Integer index = 0;
-        for (ProtectedRegion region : regions) {
-            regionList.put(index, region.getId());
-            index++;
-            if (index < 10) {
-                SACUtil.displayClaim(index.toString(), region, sMgr.getStake(region), player);
-            }
-        }
-        if (index > 9) {
-            sender.sendMessage(ChatColor.YELLOW + "Showing first 9 stakes of " + regions.size() + ". Do " + ChatColor.WHITE + "/tools list" + ChatColor.YELLOW + " to see full list.");
-        }
-        state.regionList = regionList;
+        SACUtil.doList(plugin, args, sender, 0, ListType.OWN);
     }
 
     @Command(aliases = {"free", "f"},
-            usage = "",
+            usage = "[world]",
             desc = "Populates a list of unclaimed claims",
-            min = 0, max = 0)
+            min = 0, max = 1)
     @CommandPermissions("stakeaclaim.tools.free")
     public void free(CommandContext args, CommandSender sender) throws CommandException {
-
-        final Player player = plugin.checkPlayer(sender);
-        final World world = player.getWorld();
-
-        final ConfigManager cfg = plugin.getGlobalManager();
-        final WorldConfig wcfg = cfg.get(world);
-        if (!wcfg.useStakes) {
-            throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
-        }
-
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
-        if (rgMgr == null) {
-            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
-        }
-
-        final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-
-        ArrayList<ProtectedRegion> regions = SACUtil.getUnclaimed(rgMgr, wcfg);
-        LinkedHashMap<Integer, String> regionList = new LinkedHashMap<Integer, String>();
-        PlayerState state = plugin.getPlayerStateManager().getState(player);
-
-        if (regions.size() < 1) {
-            state.regionList = null;
-            throw new CommandException(ChatColor.YELLOW + "There are no free claims.");
-        }
-
-        sender.sendMessage(ChatColor.YELLOW + "Stake list:");
-        Integer index = 0;
-        for (ProtectedRegion region : regions) {
-            regionList.put(index, region.getId());
-            index++;
-            if (index < 10) {
-                SACUtil.displayClaim(index.toString(), region, sMgr.getStake(region), player);
-            }
-        }
-        if (index > 9) {
-            sender.sendMessage(ChatColor.YELLOW + "Showing first 9 stakes of " + regions.size() + ". Do " + ChatColor.WHITE + "/tools list" + ChatColor.YELLOW + " to see full list.");
-        }
-        state.regionList = regionList;
+        SACUtil.doList(plugin, args, sender, 0, ListType.FREE);
     }
 
     @Command(aliases = {"vip", "v"},
-            usage = "",
+            usage = "[world]",
             desc = "Populates a list of VIP claims",
-            min = 0, max = 0)
+            min = 0, max = 1)
     @CommandPermissions("stakeaclaim.tools.vip")
     public void vip(CommandContext args, CommandSender sender) throws CommandException {
-
-        final Player player = plugin.checkPlayer(sender);
-        final World world = player.getWorld();
-
-        final ConfigManager cfg = plugin.getGlobalManager();
-        final WorldConfig wcfg = cfg.get(world);
-        if (!wcfg.useStakes) {
-            throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
-        }
-
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
-        if (rgMgr == null) {
-            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
-        }
-
-        final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-
-        ArrayList<ProtectedRegion> regions = SACUtil.getVIPClaims(rgMgr, sMgr, wcfg);
-        LinkedHashMap<Integer, String> regionList = new LinkedHashMap<Integer, String>();
-        PlayerState state = plugin.getPlayerStateManager().getState(player);
-
-        if (regions.size() < 1) {
-            state.regionList = null;
-            throw new CommandException(ChatColor.YELLOW + "There are no claims for " + wcfg.VIPs);
-        }
-
-        sender.sendMessage(ChatColor.YELLOW + "Stake list:");
-        Integer index = 0;
-        for (ProtectedRegion region : regions) {
-            regionList.put(index, region.getId());
-            index++;
-            if (index < 10) {
-                SACUtil.displayClaim(index.toString(), region, sMgr.getStake(region), player);
-            }
-        }
-        if (index > 9) {
-            sender.sendMessage(ChatColor.YELLOW + "Showing first 9 stakes of " + regions.size() + ". Do " + ChatColor.WHITE + "/tools list" + ChatColor.YELLOW + " to see full list.");
-        }
-        state.regionList = regionList;
+        SACUtil.doList(plugin, args, sender, 0, ListType.VIP);
     }
 
 
@@ -407,8 +171,11 @@ public class ToolsCommands {
     @CommandPermissions("stakeaclaim.tools.accept")
     public void accept(CommandContext args, CommandSender sender) throws CommandException {
 
-        final Player player = plugin.checkPlayer(sender);
-        final World world = player.getWorld();
+        final PlayerState state = plugin.getPlayerStateManager().getState(sender);
+        final World world = state.listWorld;
+        if (world == null) {
+            throw new CommandException(ChatColor.YELLOW + "The claim list is empty.");
+        }
 
         final ConfigManager cfg = plugin.getGlobalManager();
         final WorldConfig wcfg = cfg.get(world);
@@ -421,7 +188,7 @@ public class ToolsCommands {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
 
-        final String regionID = getRegionIDFromList(args, player);
+        final String regionID = SACUtil.getRegionIDFromList(args, state, 0);
         final ProtectedRegion claim = rgMgr.getRegion(regionID);
 
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
@@ -473,8 +240,11 @@ public class ToolsCommands {
     @CommandPermissions("stakeaclaim.tools.deny")
     public void deny(CommandContext args, CommandSender sender) throws CommandException {
 
-        final Player player = plugin.checkPlayer(sender);
-        final World world = player.getWorld();
+        final PlayerState state = plugin.getPlayerStateManager().getState(sender);
+        final World world = state.listWorld;
+        if (world == null) {
+            throw new CommandException(ChatColor.YELLOW + "The claim list is empty.");
+        }
 
         final ConfigManager cfg = plugin.getGlobalManager();
         final WorldConfig wcfg = cfg.get(world);
@@ -487,7 +257,7 @@ public class ToolsCommands {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
 
-        final String regionID = getRegionIDFromList(args, player);
+        final String regionID = SACUtil.getRegionIDFromList(args, state, 0);
         final ProtectedRegion claim = rgMgr.getRegion(regionID);
 
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
@@ -535,8 +305,11 @@ public class ToolsCommands {
     @CommandPermissions("stakeaclaim.tools.reclaim")
     public void reclaim(CommandContext args, CommandSender sender) throws CommandException {
 
-        final Player player = plugin.checkPlayer(sender);
-        final World world = player.getWorld();
+        final PlayerState state = plugin.getPlayerStateManager().getState(sender);
+        final World world = state.listWorld;
+        if (world == null) {
+            throw new CommandException(ChatColor.YELLOW + "The claim list is empty.");
+        }
 
         final ConfigManager cfg = plugin.getGlobalManager();
         final WorldConfig wcfg = cfg.get(world);
@@ -549,7 +322,7 @@ public class ToolsCommands {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
 
-        final String regionID = getRegionIDFromList(args, player);
+        final String regionID = SACUtil.getRegionIDFromList(args, state, 0);
         final ProtectedRegion claim = rgMgr.getRegion(regionID);
 
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
@@ -586,51 +359,21 @@ public class ToolsCommands {
     }
 
     @Command(aliases = {"goto", "g", "go"},
-            usage = "<list entry #> or <claim id> ['spawn']",
+            usage = "<list entry #> or <claim id>",
             desc = "Goto to a claim",
-            min = 0, max = 2)
+            min = 0, max = 1)
     @CommandPermissions("stakeaclaim.tools.goto")
-    public void togo(CommandContext args, CommandSender sender) throws CommandException {
+    public void togo(CommandContext args, CommandSender sender) throws CommandException{
+        SACUtil.doGoto(plugin, args, sender, false);
+    }
 
-        final Player player = plugin.checkPlayer(sender);
-        final World world = player.getWorld();
-        final ConfigManager cfg = plugin.getGlobalManager();
-        final WorldConfig wcfg = cfg.get(world);
-        if (!wcfg.useStakes) {
-            throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
-        }
-
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
-        if (rgMgr == null) {
-            throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
-        }
-
-        final PlayerState state = plugin.getPlayerStateManager().getState(player);
-        final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-
-        if (args.argsLength() == 0) {
-            if (state.lastWarp != null) {
-                state.lastWarp = SACUtil.warpTo(state.lastWarp, sMgr.getStake(state.lastWarp), player, false);
-                return;
-            }
-            sender.sendMessage(ChatColor.RED + "Too few arguments.");
-            throw new CommandException(ChatColor.RED + "/tools " + args.getCommand() + "<list entry #> or <region ID>");
-        }
-
-        final boolean forceSpawn = (args.argsLength() >= 2 && (args.getString(1).toLowerCase().equals("s") || args.getString(1).toLowerCase().equals("spawn")));
-        String claimID = args.getString(0);
-        ProtectedRegion claim = rgMgr.getRegion(claimID);
-        if (claim == null) {
-            claimID = getRegionIDFromList(args, player);
-            claim = rgMgr.getRegion(claimID);
-        }
-
-        if (claim.getFlag(DefaultFlag.ENTRY) != null && claim.getFlag(DefaultFlag.ENTRY) == State.DENY) {
-                sender.sendMessage(ChatColor.WHITE + claimID + ChatColor.YELLOW + " is set to " + ChatColor.RED + "Private!");
-        }
-
-        state.lastWarp = SACUtil.warpTo(claim, sMgr.getStake(claim), player, forceSpawn);
-
+    @Command(aliases = {"spawn", "s"},
+            usage = "<list entry #> or <claim id>",
+            desc = "Goto to a claim's spawn",
+            min = 0, max = 1)
+    @CommandPermissions("stakeaclaim.tools.spawn")
+    public void spawn(CommandContext args, CommandSender sender) throws CommandException {
+        SACUtil.doGoto(plugin, args, sender, true);
     }
 
     @Command(aliases = {"proxy", "x"},
@@ -642,6 +385,7 @@ public class ToolsCommands {
 
         final Player activePlayer = plugin.checkPlayer(sender);
         final World world = activePlayer.getWorld();
+        final PlayerState state = plugin.getPlayerStateManager().getState(sender);
         final ConfigManager cfg = plugin.getGlobalManager();
         final WorldConfig wcfg = cfg.get(world);
         if (!wcfg.useStakes) {
@@ -653,7 +397,6 @@ public class ToolsCommands {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
 
-        final PlayerState state = plugin.getPlayerStateManager().getState(activePlayer);
         if (state.unsubmittedStake == null) {
             throw new CommandException(ChatColor.YELLOW + "No player to proxy for.");
         }
@@ -750,30 +493,6 @@ public class ToolsCommands {
     }
 
     // Other methods
-    private String getRegionIDFromList(CommandContext args, Player player) throws CommandException {
-        String regionID = null;
-        LinkedHashMap<Integer, String> regions = new LinkedHashMap<Integer, String>();
-        PlayerState state = plugin.getPlayerStateManager().getState(player);
-
-        if (state.regionList != null && !state.regionList.isEmpty()) {
-            regions = state.regionList;
-            int listNumber = 0;
-            if (args.argsLength() == 1) {
-                listNumber = args.getInteger(0) - 1;
-                if (!regions.containsKey(listNumber)) {
-                    throw new CommandException(ChatColor.YELLOW + "That is not a valid list entry number.");
-                }
-            } else {
-                throw new CommandException(ChatColor.YELLOW + "Please include the list entry number.");
-            }
-            regionID = regions.get(listNumber);
-        } else {
-            throw new CommandException(ChatColor.YELLOW + "The stake list is empty.");
-        }
-
-        return regionID;
-    }
-
     private void saveRegions(World world) throws CommandException {
 
         final RegionManager rgMgr = WGBukkit.getRegionManager(world);

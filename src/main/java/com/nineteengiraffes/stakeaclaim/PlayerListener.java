@@ -134,9 +134,6 @@ public class PlayerListener implements Listener {
                     }
 
                     // save state
-                    state.lastBlockX = event.getTo().getBlockX();
-                    state.lastBlockY = event.getTo().getBlockY();
-                    state.lastBlockZ = event.getTo().getBlockZ();
                     state.lastSupport = support;
                 }
             }
@@ -145,7 +142,7 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
-        plugin.forgetPlayer(event.getPlayer());
+        plugin.getPlayerStateManager().getState(event.getPlayer()).unsubmittedStake = null;
     }
 
     @SuppressWarnings("deprecation")
@@ -209,6 +206,7 @@ public class PlayerListener implements Listener {
 
                 if (regions.size() < 1) {
                     state.regionList = regionList;
+                    state.listWorld = world;
                     activePlayer.sendMessage(ChatColor.GREEN + passivePlayer.getName() + ChatColor.YELLOW + " does not have any claims!");
                     return;
                 }
@@ -225,6 +223,7 @@ public class PlayerListener implements Listener {
                     activePlayer.sendMessage(ChatColor.YELLOW + "Showing first 9 stakes of " + regions.size() + ". Do " + ChatColor.WHITE + "/tools list" + ChatColor.YELLOW + " to see full list.");
                 }
                 state.regionList = regionList;
+                state.listWorld = world;
             }
         }
     }
@@ -271,6 +270,7 @@ public class PlayerListener implements Listener {
                 LinkedHashMap<Integer, String> regionList = new LinkedHashMap<Integer, String>();
                 regionList.put(0, claim.getId());
                 state.regionList = regionList;
+                state.listWorld = world;
             }
         }
     }

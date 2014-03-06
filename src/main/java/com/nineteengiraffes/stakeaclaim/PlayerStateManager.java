@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -57,14 +58,14 @@ public class PlayerStateManager implements Runnable {
         Player[] players = plugin.getServer().getOnlinePlayers();
         ConfigManager config = plugin.getGlobalManager();
 
-        for (Player player : players) {
-            WorldConfig worldConfig = config.get(player.getWorld());
+        PlayerState state;
 
-            if (!worldConfig.useSAC) {
+        for (Player player : players) {
+            WorldConfig wcfg = config.get(player.getWorld());
+
+            if (!wcfg.useSAC) {
                 continue;
             }
-
-            PlayerState state;
 
             synchronized (this) {
                 state = states.get(player.getName());
@@ -75,15 +76,24 @@ public class PlayerStateManager implements Runnable {
                 }
             }
         }
+
+        synchronized (this) {
+            state = states.get(plugin.getServer().getConsoleSender().getName());
+
+            if (state == null) {
+                state = new PlayerState();
+                states.put(plugin.getServer().getConsoleSender().getName(), state);
+            }
+        }
     }
 
     /**
      * Forget a player.
      *
-     * @param player The player to forget
+     * @param sender The player to forget
      */
-    public synchronized void forget(Player player) {
-        states.remove(player.getName());
+    public synchronized void forget(CommandSender sender) {
+        states.remove(sender.getName());
     }
 
     /**
@@ -97,15 +107,15 @@ public class PlayerStateManager implements Runnable {
      * Get a player's flag state. A new state will be created if there is no existing
      * state for the player.
      *
-     * @param player The player to get a state for
+     * @param sender The player to get a state for
      * @return The {@code player}'s state
      */
-    public synchronized PlayerState getState(Player player) {
-        PlayerState state = states.get(player.getName());
+    public synchronized PlayerState getState(CommandSender sender) {
+        PlayerState state = states.get(sender.getName());
 
         if (state == null) {
             state = new PlayerState();
-            states.put(player.getName(), state);
+            states.put(sender.getName(), state);
         }
 
         return state;
@@ -115,13 +125,19 @@ public class PlayerStateManager implements Runnable {
      * Keeps state per player.
      */
     public static class PlayerState {
-        public World lastWorld;
-        public int lastBlockX;
-        public int lastBlockY;
-        public int lastBlockZ;
+
+        // move event
         public String lastSupport;
-        public LinkedHashMap<Integer, String> regionList;
+
+        // for proxy
         public String[] unsubmittedStake;
+
+        // list
+        public LinkedHashMap<Integer, String> regionList;
+        public World listWorld;
+
+        // warp
         public ProtectedRegion lastWarp;
+        public World warpWorld;
     }
 }
