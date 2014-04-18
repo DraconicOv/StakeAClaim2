@@ -77,7 +77,7 @@ public class StakeAClaimPlugin extends JavaPlugin {
         commands = new CommandsManager<CommandSender>() {
             @Override
             public boolean hasPermission(CommandSender player, String perm) {
-                return plugin.hasPermission(player, perm);
+                return SACUtil.hasPermission(plugin, player, perm);
             }
         };
     }
@@ -185,63 +185,6 @@ public class StakeAClaimPlugin extends JavaPlugin {
      */
     public GlobalStakeManager getGlobalStakeManager() {
         return globalStakes;
-    }
-
-    /**
-     * Checks permissions.
-     *
-     * @param sender The sender to check the permission on.
-     * @param perm The permission to check the permission on.
-     * @return whether {@code sender} has {@code perm}
-     */
-    public boolean hasPermission(CommandSender sender, String perm) {
-        if (sender.isOp()) {
-            if (sender instanceof Player) {
-                if (this.getGlobalManager().get(((Player) sender).getWorld()).opPermissions) {
-                    return true;
-                }
-            } else {
-                return true;
-            }
-        }
-
-        // Invoke the permissions resolver
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            return PermissionsResolverManager.getInstance().hasPermission(player.getWorld().getName(), player.getName(), perm);
-        }
-
-        return false;
-    }
-
-    /**
-     * Checks permissions and throws an exception if permission is not met.
-     *
-     * @param sender The sender to check the permission on.
-     * @param perm The permission to check the permission on.
-     * @throws CommandPermissionsException if {@code sender} doesn't have {@code perm}
-     */
-    public void checkPermission(CommandSender sender, String perm)
-            throws CommandPermissionsException {
-        if (!hasPermission(sender, perm)) {
-            throw new CommandPermissionsException();
-        }
-    }
-
-    /**
-     * Checks to see if the sender is a player, otherwise throw an exception.
-     *
-     * @param sender The {@link CommandSender} to check
-     * @return {@code sender} casted to a player
-     * @throws CommandException if {@code sender} isn't a {@link Player}
-     */
-    public Player checkPlayer(CommandSender sender)
-            throws CommandException {
-        if (sender instanceof Player) {
-            return (Player) sender;
-        } else {
-            throw new CommandException("A player is expected.");
-        }
     }
 
     /**

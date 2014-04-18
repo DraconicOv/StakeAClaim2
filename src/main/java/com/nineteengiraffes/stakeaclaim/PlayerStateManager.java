@@ -133,7 +133,7 @@ public class PlayerStateManager implements Runnable {
         public String[] unsubmittedStake;
 
         // list
-        public LinkedHashMap<Integer, String> regionList;
+        public LinkedHashMap<Integer, ProtectedRegion> regionList;
         public World listWorld;
 
         // warp

@@ -31,12 +31,6 @@ public class AllCommands {
 
     public AllCommands(StakeAClaimPlugin plugin) {}
 
-    @Command(aliases = {"tools", "o", "t"},
-        desc = "SAC tool commands")
-    @NestedCommand(ToolsCommands.class)
-    @CommandPermissions("stakeaclaim.tools")
-    public void tools(CommandContext args, CommandSender sender) {}
-
     @Command(aliases = {"claim", "c"},
             desc = "SAC claim commands")
     @NestedCommand(ClaimCommands.class)
@@ -48,4 +42,11 @@ public class AllCommands {
     @NestedCommand(SACCommands.class)
     @CommandPermissions("stakeaclaim.sac")
     public void sac(CommandContext args, CommandSender sender) {}
+
+    @Command(aliases = {"sacdo", "sacd"},
+        desc = "Do action on all or part of the list")
+    @NestedCommand(DoCommands.class)
+    @CommandPermissions("stakeaclaim.sac.do")
+    public void doAction(CommandContext args, CommandSender sender) {}
+
 }
