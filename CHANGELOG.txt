@@ -25,10 +25,41 @@
     Detailed claim view owners/members do '/sac user'
     Detailed claim view claim ID does '/sac search'
     Detailed claim view 'GOTO' link does '/sac goto'
-- Color coded claim IDs for VIP and normal claims
 - Color coded usernames for normal, banned, typo (never seen on server), and * for online users
 - Claim lists show member counts
-- PERMISSION NODE CHANGES and aditions
+- PERMISSION NODE CHANGES and additions
 - Sample config added to README
 
 1.2.1
+- Added '/tools goto' and '/tools spawn', they both warp you to any claim, but '/tools spawn' does not go to user defined claim warps
+- Added tool to generate default spawnpoints for claims
+- Added flag to mark claims as VIP only
+- Added player notifications when their stake gets accepted/denied/reclaimed
+- Added staff notifications when new stakes are pending
+- Added '/claim private default', toggles default entry state of a claim
+- Added '/claim private clear', resets all entry settings
+- Removed '/claim open', '/claim private' is now a toggle 
+- Removed '/tools open' and '/tools private', use '/claim private default'
+- list command is now '/claim me'
+- Claim name/warp set/del commands are now under '/claim set' and '/claim del', removed as sub commands of '/claim warp'
+- Major backend restructure due to WG integration bug
+- Added preset searches:
+    '/tools list'
+    '/tools user'
+    '/tools claim'
+    '/tools owned'
+    '/tools free'
+    '/tools vip'
+- CONFIG CHANGES and additions
+- PERMISSION NODE CHANGES and additions
+- Color coded claim IDs for VIP and normal claims
+- Added permissions link to README
+- Made all commands console safe, not all are to be used from console, but they let you know nicely
+
+1.2.0
+- Backend refactor, save data as WG flags
+- Added '/claim warp' with sub commands to set and del
+- Added '/claim list', lists a player's claims
+- CONFIG CHANGES and additions
+- PERMISSION NODE CHANGES and additions (fixes)
+- Created README
