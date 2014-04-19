@@ -260,9 +260,12 @@ public class DoCommands {
 
     private void reclaimClaim(CommandSender sender, ProtectedRegion claim, Stake stake, World world, WorldConfig wcfg) {
             StringBuilder message = new StringBuilder(ChatColor.YELLOW + "You have reclaimed " + SACUtil.formatID(stake) +
-                    ChatColor.YELLOW + " in " + ChatColor.BLUE + world.getName() + ChatColor.YELLOW + " from ");
-            for (String oneOwner : claim.getOwners().getPlayers()) {
-                message.append(" " + SACUtil.formatPlayer(sender, oneOwner));
+                    ChatColor.YELLOW + " in " + ChatColor.BLUE + world.getName());
+            if (claim.getOwners().getPlayers().size() > 0) {
+                message.append(ChatColor.YELLOW + " from");
+                for (String oneOwner : claim.getOwners().getPlayers()) {
+                    message.append(" " + SACUtil.formatPlayer(sender, oneOwner));
+                }
             }
             sender.sendMessage(message.toString() + ChatColor.YELLOW + "!");
 
@@ -286,7 +289,6 @@ public class DoCommands {
         stake.setStakeName(null);
         stake.setDefaultEntry(null);
         stake.setClaimName(null);
-        stake.setVIP(false);
         stake.setRecalimed(wcfg.useReclaimed);
     }
 
