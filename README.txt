@@ -47,8 +47,6 @@ In chat ‘support’ as you enter a claim when holding the SAC wand (default: f
         warp - delete this claim's warp location [w]
         name - delete this claim's name [n]
 
-/tools [t]
-
 /sac
     filters - display a list of all filters [f]
     search <filter(s)> - search claims using filter(s) [s]
@@ -81,6 +79,79 @@ Install:
 5) enjoy StakeAClaim on your server!!
 
 You may view a full list of SAC permissions nodes at: <http://goo.gl/3q8TrP>
+
+Sample config:
+============================================================================================================
+
+# Global only settings.
+sac:
+
+# Use the scheduler for tasks.
+    use-scheduler: true
+
+# Enable use of 'support' feature.
+    use-player-move-event: true
+
+# console output on startup.
+summary-on-start: true
+
+# SAC gives players with OP all SAC permissions.
+op-permissions: true
+
+# Enable SAC.
+master-enable: true
+
+# Enable featurs that use stakes.
+stakes-enable: true
+
+# Item (wand) to hold for 'support' and other features. Default: 288 (feather)
+wand: 288
+
+# Regular expressions filter. Used to determine what regions are 'claims' by naming convention. Default: matches n12e3, S2W56, etc.
+claim-name-regex-filter-string: ^[NSns]\d\d?[EWew]\d\d?$
+
+# Mark claims 'reclaimed' when reclaimed.
+remeber-reclaimed: true
+
+# What you call your vip player.
+what-you-call-your-vips: Donors
+
+# Stake/Claim settings.
+claiming:
+
+# Disable player notifications for when they are added to claims and more.
+    silent-claiming: false
+
+# Players need to do '/claim confirm' for unassisted stakes.
+    players-must-confirm-unassisted-stakes: true
+
+# Use the 'max-volume' settings below as claiming limits. Default: false ('max-count' settings)
+    use-volume-limits: false
+
+# Count based limits.
+    max-count:
+
+# Number of stakes a player can place without staff approval. (-1 = no limit)
+        unassisted-stakes: 1
+
+# Number of stakes a player can place with staff approval. (-1 = no limit)
+        total-stakes: 3
+
+# Number of stakes someone else can place for a player. Bypasses the above. (-1 = no limit)
+        proxy-can-stake: -1
+
+# Volume based limits.
+    max-volume:
+
+# Total volume of stakes a player can place without staff approval, in blocks. (-1 = no limit)
+        unassisted-stakes: 262144
+
+# Total volume of stakes a player can place with staff approval, in blocks. (-1 = no limit)
+        total-stakes: 1048576
+
+# Total volume of stakes someone else can place for a player, in blocks. Bypasses the above. (-1 = no limit)
+        proxy-can-stake: -1
+============================================================================================================
 
 
 Thanks to sk89q and WorldGuard for the use of WorldGuard code in the making of StakeAClaim.

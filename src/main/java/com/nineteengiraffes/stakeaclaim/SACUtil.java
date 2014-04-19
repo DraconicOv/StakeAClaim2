@@ -1040,7 +1040,7 @@ public class SACUtil {
      * @param wcfg the world config to work with
      * @param world the world the claim is in
      */
-    public static void displayClaim(WorldConfig wcfg, ProtectedRegion claim, Stake stake, CommandSender sender, StakeAClaimPlugin plugin, World world) {
+    public static void displayClaim(WorldConfig wcfg, ProtectedRegion claim, Stake stake, CommandSender sender, StakeAClaimPlugin plugin, World world, Integer item) {
 
         final boolean isPlayer = (sender instanceof Player);
         sender.sendMessage(ChatColor.GRAY + 
@@ -1051,22 +1051,58 @@ public class SACUtil {
             sender.sendMessage(ChatColor.WHITE + "Name: " + ChatColor.LIGHT_PURPLE + " '" + stake.getClaimName() + "'");
         }
         
-        if (claim.getFlag(DefaultFlag.ENTRY) == State.DENY) {
-            sender.sendMessage(ChatColor.YELLOW + "Location: " + SACUtil.formatID(stake) + ChatColor.RED + "" + ChatColor.ITALIC + " Private!");
-        } else if (stake.getVIP()) {
-            sender.sendMessage(ChatColor.YELLOW + "Location: " + ChatColor.WHITE + claim.getId() + ChatColor.AQUA +" " + wcfg.VIPs + " claim!");
+        if (hasPermission(plugin, sender, "stakeaclaim.sac.search") && isPlayer) {
+            StringBuilder message = new StringBuilder("tellraw " + sender.getName() + " {text:'Location:',color:yellow,extra:[");
+            message.append("{text:' " + stake.getId() + "',");
+            message.append("clickEvent:{action:run_command,value:'/sac search id " + stake.getId() + " world " + world.getName() + "'},");
+            message.append("color:" + (stake.getVIP() ? "aqua" : "white") + "}");
+            if (claim.getFlag(DefaultFlag.ENTRY) == State.DENY) {
+                message.append(",{text:' Private!',color:red}");
+            } else if (stake.getVIP()) {
+                message.append(",{text:' " + wcfg.VIPs + " claim!'}");
+            }
+            message.append("]}");
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), message.toString());
         } else {
-            sender.sendMessage(ChatColor.YELLOW + "Location: " + ChatColor.WHITE + claim.getId());
+            StringBuilder message = new StringBuilder(ChatColor.YELLOW + "Location: " + SACUtil.formatID(stake));
+            if (claim.getFlag(DefaultFlag.ENTRY) == State.DENY) {
+                message.append(ChatColor.RED + " " + ChatColor.ITALIC + "Private!");
+            } else if (stake.getVIP()) {
+                message.append(ChatColor.YELLOW + " " + wcfg.VIPs + " claim!");
+            }
+            sender.sendMessage(message.toString());
         }
 
         if (stake.getStatus() != null && stake.getStatus() == Status.PENDING && stake.getStakeName() != null) {
-                if (hasPermission(plugin, sender, "stakeaclaim.sac.user") && isPlayer) {
+                if (isPlayer) {
                     StringBuilder message = new StringBuilder("tellraw " + sender.getName() + " {text:'Pending stake by:',color:dark_green,extra:[");
-                    message.append(formatPlayer(sender, stake.getStakeName(), world));
+                    if (hasPermission(plugin, sender, "stakeaclaim.sac.user")) {
+                        message.append(formatPlayer(sender, stake.getStakeName(), world));
+                    } else {
+                        message.append(formatPlayer(sender, stake.getStakeName(), null));
+                    }
+                    if (item != null) {
+                        boolean accept = hasPermission(plugin, sender, "stakeaclaim.sac.do.accept");
+                        boolean deny = hasPermission(plugin, sender, "stakeaclaim.sac.do.deny");
+                        if (accept || deny) {
+                            message.append(",{text:' |',color:gold,bold:true}");
+                        }
+                        if (accept) {
+                            message.append(",{text:'Accept',color:dark_green,");
+                            message.append("clickEvent:{action:run_command,value:'/sac do accept " + (item + 1) + "'}}");
+                            message.append(",{text:'|',color:gold,bold:true}");
+                        }
+                        if (deny) {
+                            message.append(",{text:'Deny',color:dark_red,");
+                            message.append("clickEvent:{action:run_command,value:'/sac do deny " + (item + 1) + "'}}");
+                            message.append(",{text:'|',color:gold,bold:true}");
+                        }
+                    }
+
                     message.append("]}");
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), message.toString());
                 } else {
-                    sender.sendMessage(ChatColor.DARK_GREEN + "Pending stake by: " + SACUtil.formatPlayer(sender, stake.getStakeName(), world));
+                    sender.sendMessage(ChatColor.DARK_GREEN + "Pending stake by: " + SACUtil.formatPlayer(sender, stake.getStakeName()));
                 }
         }
 

@@ -78,7 +78,7 @@ public class ClaimCommands {
 
         SACUtil.checkPerm(plugin, sender, "info", claim);
 
-        SACUtil.displayClaim(wcfg, claim, stake, sender, plugin, world);
+        SACUtil.displayClaim(wcfg, claim, stake, sender, plugin, world, null);
     }
 
     @Command(aliases = {"stake", "s"},

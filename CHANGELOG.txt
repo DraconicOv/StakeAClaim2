@@ -1,0 +1,34 @@
+1.2.2
+- proxy command is now '/claim proxy'
+- Added '/sac filters' to list all filters used in '/sac search'
+- Added '/sac search' to search all claims using filters
+- pending command is now '/sac pending', quick search
+- free command renamed and is now '/sac open', quick search
+- claim command is now '/sac claim', detailed claim information
+- user command is now '/sac user', detailed player information
+- goto command is now '/sac goto', now supports cross world travel
+- spawn command is now '/sac spawn', now supports cross world travel
+- Added command group '/sac do', action commands that make changes to claims
+- accept command is now '/sac do accept', now supports bulk actions
+- deny command is now '/sac do deny', now supports bulk actions
+- reclaim command is now '/sac do reclaim', now supports bulk actions
+- generate command is now '/sac do generate', new syntax matches with other '/sac do' commands
+- Added normal command '/sac do normal' removes VIP flag from claim(s), supports bulk actions
+- Added vip command '/sac do vip' adds VIP flag to claim(s), supports bulk actions
+- save command renamed to '/sac write'
+- Removed '/tools' command group
+- Added clickable 'links': (links are inactive if the player does not have perms for the command)
+    Claim list usernames do '/sac user'
+    Claim list claim IDs do '/sac claim'
+    Claim list next/previous page do '/sac search'
+    Claim list 'accept/deny' links for pending claims do '/sac do accept' and '/sac do deny'
+    Detailed claim view owners/members do '/sac user'
+    Detailed claim view claim ID does '/sac search'
+    Detailed claim view 'GOTO' link does '/sac goto'
+- Color coded claim IDs for VIP and normal claims
+- Color coded usernames for normal, banned, typo (never seen on server), and * for online users
+- Claim lists show member counts
+- PERMISSION NODE CHANGES and aditions
+- Sample config added to README
+
+1.2.1

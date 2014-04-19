@@ -20,6 +20,11 @@
 			<filtered>true</filtered>
 		</file>
 		<file>
+			<source>CHANGELOG.txt</source>
+			<outputDirectory>/</outputDirectory>
+			<filtered>true</filtered>
+		</file>
+		<file>
 			<source>LICENSE.txt</source>
 			<outputDirectory>/</outputDirectory>
 			<filtered>true</filtered>

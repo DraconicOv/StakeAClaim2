@@ -37,7 +37,7 @@ public class AllCommands {
     @CommandPermissions("stakeaclaim.claim")
     public void claim(CommandContext args, CommandSender sender) {}
 
-    @Command(aliases = {"sac"},
+    @Command(aliases = {"sac", "stakeaclaim"},
         desc = "SAC mangement commands")
     @NestedCommand(SACCommands.class)
     @CommandPermissions("stakeaclaim.sac")

@@ -607,8 +607,8 @@ public class SACCommands {
             claim = rgMgr.getRegion(regionID);
         }
 
+        Integer item = null;
         if (claim == null) {
-            int item;
             try {
                 item = args.getInteger(0) - 1;
             } catch (NumberFormatException e) {
@@ -633,7 +633,7 @@ public class SACCommands {
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
         final Stake stake = sMgr.getStake(claim);
 
-        SACUtil.displayClaim(wcfg, claim, stake, sender, plugin, world);
+        SACUtil.displayClaim(wcfg, claim, stake, sender, plugin, world, item);
     }
 
     @Command(aliases = {"user", "u"},

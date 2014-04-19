@@ -40,6 +40,7 @@ import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.CommandPermissionsException;
 import com.sk89q.worldedit.BlockVector;
+import com.sk89q.worldedit.Location;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
@@ -63,7 +64,7 @@ public class DoCommands {
 
     // Action commands
     @Command(aliases = {"accept", "a"},
-            usage = "<list entry #>",
+            usage = "<list item #>",
             desc = "Accept a pending stake",
             min = 1, max = 1)
     @CommandPermissions("stakeaclaim.sac.do.accept")
@@ -72,7 +73,7 @@ public class DoCommands {
     }
 
     @Command(aliases = {"deny", "d"},
-            usage = "<list entry #>",
+            usage = "<list item #>",
             desc = "Deny a pending stake",
             min = 1, max = 1)
     @CommandPermissions("stakeaclaim.sac.do.deny")
@@ -81,7 +82,7 @@ public class DoCommands {
     }
 
     @Command(aliases = {"reclaim", "r"},
-            usage = "<list entry #>",
+            usage = "<list item #>",
             desc = "Reclaim/reset a claim",
             min = 1, max = 1)
     @CommandPermissions("stakeaclaim.sac.do.reclaim")
@@ -89,8 +90,8 @@ public class DoCommands {
         doAction(args, sender, Action.RECLAIM);
     }
 
-    @Command(aliases = {"gen", "generate", "spawn", "g"},
-            usage = "<list entry #>",
+    @Command(aliases = {"generate", "gen", "spawn", "g"},
+            usage = "<list item #>",
             desc = "Generate spawnpoint for a claim",
             min = 1, max = 1)
     @CommandPermissions("stakeaclaim.sac.do.generate")
@@ -99,7 +100,7 @@ public class DoCommands {
     }
 
     @Command(aliases = {"normal", "n"},
-            usage = "<list entry #>",
+            usage = "<list item #>",
             desc = "Set a claim to anyone",
             min = 1, max = 1)
     @CommandPermissions("stakeaclaim.sac.do.normal")
@@ -108,7 +109,7 @@ public class DoCommands {
     }
 
     @Command(aliases = {"vip", "v"},
-            usage = "<list entry #>",
+            usage = "<list item #>",
             desc = "Set a claim to VIP only",
             min = 1, max = 1)
     @CommandPermissions("stakeaclaim.sac.do.vip")
@@ -289,21 +290,23 @@ public class DoCommands {
         stake.setRecalimed(wcfg.useReclaimed);
     }
 
-    @SuppressWarnings("deprecation")
     private void generateClaimSpawn(CommandSender sender, ProtectedRegion claim, Stake stake, World world){
         Vector center = BlockVector.getMidpoint(claim.getMaximumPoint(),claim.getMinimumPoint());
-        for (int i = 255; i >= 0; i--) {
-            if (world.getBlockTypeIdAt(center.getBlockX(), i, center.getBlockZ()) != 0) {
-                center = new Vector(center.getBlockX()+.5, i+1, center.getBlockZ()+.5);
-                break;
-            }
-            if (i == 0) {
-                center = new Vector(center.getBlockX()+.5, 100, center.getBlockZ()+.5);
+        int x = center.getBlockX();
+        int y;
+        int z = center.getBlockZ();
+        int[] offset = {0, 1, -1, 2, -2};
+        for (int xOffset : offset) {
+            for (int zOffset : offset) {
+                y = world.getHighestBlockYAt(x + xOffset, z + zOffset);
+                if (y != 0) {
+                    claim.setFlag(DefaultFlag.SPAWN_LOC, new Location(BukkitUtil.getLocalWorld(world), new Vector(x + xOffset + .5, y, z + zOffset + .5)));
+                    sender.sendMessage(ChatColor.YELLOW + "Generated spawnpoint for: " + SACUtil.formatID(stake));
+                    return;
+                }
             }
         }
-
-        claim.setFlag(DefaultFlag.SPAWN_LOC, new com.sk89q.worldedit.Location(BukkitUtil.getLocalWorld(world), center));
-        sender.sendMessage(ChatColor.YELLOW + "Generated spawnpoint for: " + SACUtil.formatID(stake));
+        sender.sendMessage(ChatColor.RED + "Spawnpoint could not be generated for: " + SACUtil.formatID(stake));
     }
 
     private void setNormalClaim(CommandSender sender, ProtectedRegion claim, Stake stake) {

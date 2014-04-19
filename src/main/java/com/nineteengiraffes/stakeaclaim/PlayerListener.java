@@ -239,7 +239,7 @@ public class PlayerListener implements Listener {
                 Stake stake = sMgr.getStake(claim);
 
                 player.sendMessage(ChatColor.YELLOW + "That block is in:");
-                SACUtil.displayClaim(wcfg, claim, stake, player, plugin, world);
+                SACUtil.displayClaim(wcfg, claim, stake, player, plugin, world, null);
                 LinkedHashMap<Integer, ProtectedRegion> regionList = new LinkedHashMap<Integer, ProtectedRegion>();
                 regionList.put(0, claim);
                 state.regionList = regionList;
