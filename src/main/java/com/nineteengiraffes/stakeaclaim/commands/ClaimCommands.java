@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -198,9 +199,24 @@ public class ClaimCommands {
             if (!wcfg.silentNotify) {
                 for (Player admin : plugin.getServer().getOnlinePlayers()) {
                     if (SACUtil.hasPermission(plugin, admin, "stakeaclaim.pending.notify")) {
-                        admin.sendMessage(ChatColor.YELLOW + "New stake by " + SACUtil.formatPlayer(player) + 
-                                ChatColor.YELLOW + " in " + SACUtil.formatID(stake) + 
-                                (admin.getWorld().equals(world) ? "!" : ChatColor.YELLOW + " in " + ChatColor.BLUE + world.getName() + "!"));
+                        StringBuilder message = new StringBuilder("tellraw " + admin.getName() + " {text:'New stake by',color:yellow,extra:[");
+                        if (SACUtil.hasPermission(plugin, admin, "stakeaclaim.sac.user")) {
+                            message.append(SACUtil.formatPlayer(sender, player.getName(), world));
+                        } else {
+                            message.append(SACUtil.formatPlayer(sender, player.getName(), null));
+                        }
+                        message.append(",' in',");
+                        if (SACUtil.hasPermission(plugin, admin, "stakeaclaim.sac.claim")) {
+                            message.append(SACUtil.formatID(stake, world));
+                        } else {
+                            message.append(SACUtil.formatID(stake, null));
+                        }
+                        if (!admin.getWorld().equals(world)) {
+                            message.append(",' in',");
+                            message.append("{text:' " + world.getName() + "',color:blue}");
+                        }
+                        message.append(",'!']}");
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), message.toString());
                     }
                 }
             }
@@ -708,9 +724,24 @@ public class ClaimCommands {
                             ChatColor.YELLOW + " is pending.");
                 }
                 if (SACUtil.hasPermission(plugin, player, "stakeaclaim.pending.notify")) {
-                    player.sendMessage(ChatColor.YELLOW + "New stake by " + SACUtil.formatPlayer(sender, passivePlayer) + 
-                            ChatColor.YELLOW + " in " + SACUtil.formatID(stake) + 
-                            (player.getWorld().equals(world) ? "!" : ChatColor.YELLOW + " in " + ChatColor.BLUE + world.getName() + "!"));
+                    StringBuilder message = new StringBuilder("tellraw " + player.getName() + " {text:'New stake by',color:yellow,extra:[");
+                    if (SACUtil.hasPermission(plugin, player, "stakeaclaim.sac.user")) {
+                        message.append(SACUtil.formatPlayer(sender, passivePlayer, world));
+                    } else {
+                        message.append(SACUtil.formatPlayer(sender, passivePlayer, null));
+                    }
+                    message.append(",' in',");
+                    if (SACUtil.hasPermission(plugin, player, "stakeaclaim.sac.claim")) {
+                        message.append(SACUtil.formatID(stake, world));
+                    } else {
+                        message.append(SACUtil.formatID(stake, null));
+                    }
+                    if (!player.getWorld().equals(world)) {
+                        message.append(",' in',");
+                        message.append("{text:' " + world.getName() + "',color:blue}");
+                    }
+                    message.append(",'!']}");
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), message.toString());
                 }
             }
         }

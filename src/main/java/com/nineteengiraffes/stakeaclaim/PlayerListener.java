@@ -21,6 +21,7 @@ package com.nineteengiraffes.stakeaclaim;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -295,13 +296,30 @@ public class PlayerListener implements Listener {
                 }
             }
 
-            if (SACUtil.hasPermission(plugin, player, "stakeaclaim.pending.notify")) {
-                if (pendingCount == 1) {
-                    player.sendMessage(ChatColor.YELLOW + "There is 1 pending stake" + 
-                            (player.getWorld().equals(world) ? "." : " in " + ChatColor.BLUE + world.getName() + "."));
-                } else if (pendingCount > 1) {
-                    player.sendMessage(ChatColor.YELLOW + "There are " + pendingCount + " pending stakes" + 
-                            (player.getWorld().equals(world) ? "." : " in " + ChatColor.BLUE + world.getName() + "."));
+            if (SACUtil.hasPermission(plugin, player, "stakeaclaim.pending.notify") && pendingCount > 0) {
+                if (SACUtil.hasPermission(plugin, player, "stakeaclaim.sac.search")) {
+                    StringBuilder message = new StringBuilder("tellraw " + player.getName() + " {text:'There ");
+                    if (pendingCount == 1) {
+                        message.append("is 1 pending stake");
+                    } else {
+                        message.append("are " + pendingCount + " pending stakes");
+                    }
+                    if (!player.getWorld().equals(world)) {
+                        message.append("',extra:[' in',{text:' " + world.getName() + "',color:blue},'.']");
+                    } else {
+                        message.append(".'");
+                    }
+                    message.append(",clickEvent:{action:run_command,value:'/sac search pending world " + world.getName() + "'},color:yellow");
+                    message.append("}");
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), message.toString());
+                } else {
+                    if (pendingCount == 1) {
+                        player.sendMessage(ChatColor.YELLOW + "There is 1 pending stake" + 
+                                (player.getWorld().equals(world) ? "." : " in " + ChatColor.BLUE + world.getName() + "."));
+                    } else {
+                        player.sendMessage(ChatColor.YELLOW + "There are " + pendingCount + " pending stakes" + 
+                                (player.getWorld().equals(world) ? "." : " in " + ChatColor.BLUE + world.getName() + "."));
+                    }
                 }
             }
 

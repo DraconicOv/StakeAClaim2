@@ -1,3 +1,9 @@
+1.2.3
+- Pending notify on login is now clickable, does '/sac search'
+- New pending claim username is now clickable, does '/sac user'
+- New pending claim claim ID is now clickable, does '/sac claim'
+- Detailed claim view now shows claim size in blocks.
+
 1.2.2
 - proxy command is now '/claim proxy'
 - Added '/sac filters' to list all filters used in '/sac search'

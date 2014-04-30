@@ -1154,19 +1154,29 @@ public class SACUtil {
 
         final BlockVector min = claim.getMinimumPoint();
         final BlockVector max = claim.getMaximumPoint();
+        sender.sendMessage(ChatColor.LIGHT_PURPLE + "Bounds:" + ChatColor.GOLD + 
+                " (" + min.getBlockX() + "," + min.getBlockY() + "," + min.getBlockZ() + ") -> " + 
+                " (" + max.getBlockX() + "," + max.getBlockY() + "," + max.getBlockZ() + ")");
+
+        String blocks;
+        if (claim.volume() < 1000) {
+            blocks = claim.volume() + " blocks.";
+        } else if (claim.volume() > 999999) {
+            blocks = "~" + Integer.valueOf(claim.volume() / 1000000) + "m blocks.";
+        } else {
+            blocks = "~" + Integer.valueOf(claim.volume() / 1000) + "k blocks.";
+        }
+
         if (hasPermission(plugin, sender, "stakeaclaim.sac.goto") && isPlayer) {
-            StringBuilder message = new StringBuilder("tellraw " + sender.getName() + " {text:'Bounds:',color:light_purple,extra:[");
-            message.append("{text:' (" + min.getBlockX() + "," + min.getBlockY() + "," + min.getBlockZ() + ") -> " + 
-                    " (" + max.getBlockX() + "," + max.getBlockY() + "," + max.getBlockZ() + ")  ',color:gold}");
+            StringBuilder message = new StringBuilder("tellraw " + sender.getName() + " {text:'Size:',color:light_purple,extra:[");
+            message.append("{text:' " + blocks + "  ',color:gold}");
             message.append(",{text:'> GOTO <',");
             message.append("clickEvent:{action:run_command,value:'/sac goto " + claim.getId() + " " + world.getName() + "'},");
             message.append("color:yellow}");
             message.append("]}");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), message.toString());
         } else {
-            sender.sendMessage(ChatColor.LIGHT_PURPLE + "Bounds:" + ChatColor.GOLD + 
-                    " (" + min.getBlockX() + "," + min.getBlockY() + "," + min.getBlockZ() + ") -> " + 
-                    " (" + max.getBlockX() + "," + max.getBlockY() + "," + max.getBlockZ() + ")");
+            sender.sendMessage(ChatColor.LIGHT_PURPLE + "Size: " + ChatColor.GOLD + blocks);
         }
 
         if (isPlayer && ((Player) sender).getWorld() == world) {
