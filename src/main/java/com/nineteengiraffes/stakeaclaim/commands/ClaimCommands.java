@@ -118,7 +118,7 @@ public class ClaimCommands {
                     stake.setStakeName(null);
                     stake.setDefaultEntry(null);
                     claim.setFlag(DefaultFlag.ENTRY,null);
-                } else if (!stake.getStakeName().equalsIgnoreCase(player.getName())) {
+                } else {
                     SACUtil.saveRegions(world);
                     sender.sendMessage(ChatColor.YELLOW + "This claim is already staked by " + SACUtil.formatPlayer(sender, stake.getStakeName()));
                     return;
