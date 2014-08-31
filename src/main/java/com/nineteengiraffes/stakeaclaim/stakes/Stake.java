@@ -19,6 +19,8 @@
 
 package com.nineteengiraffes.stakeaclaim.stakes;
 
+import java.util.UUID;
+
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
 
 /**
@@ -50,9 +52,9 @@ public class Stake implements Comparable<Stake>{
     private String id;
 
     /**
-     * Holds the name on the stake for this claim.
+     * Holds the UUID on the stake for this claim.
      */
-    private String stakeName = null;
+    private UUID stakeUUID = null;
 
     /**
      * Holds the status of the stake.
@@ -98,21 +100,21 @@ public class Stake implements Comparable<Stake>{
     }
 
     /**
-     * Gets the name on the stake
+     * Gets the UUID on the stake
      *
-     * @return stakeName
+     * @return stakeUUID
      */
-    public String getStakeName() {
-        return stakeName;
+    public UUID getStakeUUID() {
+        return stakeUUID;
     }
 
     /**
-     * Sets the name on the stake
+     * Sets the UUID of the player on the stake
      *
-     * @param playerName the player's name to put on the stake
+     * @param playerUUID the player's UUID to put on the stake
      */
-    public void setStakeName(String playerName) {
-         this.stakeName = playerName;
+    public void setStakeUUID(UUID playerUUID) {
+         this.stakeUUID = playerUUID;
     }
 
     /**

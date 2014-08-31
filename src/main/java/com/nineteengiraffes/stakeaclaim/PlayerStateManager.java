@@ -19,6 +19,7 @@
 
 package com.nineteengiraffes.stakeaclaim;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -27,6 +28,7 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.nineteengiraffes.stakeaclaim.stakes.Stake;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 /**
@@ -55,7 +57,7 @@ public class PlayerStateManager implements Runnable {
      * Run the task.
      */
     public void run() {
-        Player[] players = plugin.getServer().getOnlinePlayers();
+        Collection<? extends Player> players = plugin.getServer().getOnlinePlayers();
         ConfigManager config = plugin.getGlobalManager();
 
         PlayerState state;
@@ -130,7 +132,7 @@ public class PlayerStateManager implements Runnable {
         public String lastSupport;
 
         // for proxy
-        public String[] unsubmittedStake;
+        public Stake unsubmittedStake;
 
         // list
         public LinkedHashMap<Integer, ProtectedRegion> regionList;

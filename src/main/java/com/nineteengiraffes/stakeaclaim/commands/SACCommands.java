@@ -21,6 +21,7 @@ package com.nineteengiraffes.stakeaclaim.commands;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,9 +36,9 @@ import com.nineteengiraffes.stakeaclaim.SACUtil;
 import com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin;
 import com.nineteengiraffes.stakeaclaim.WorldConfig;
 import com.nineteengiraffes.stakeaclaim.stakes.Stake;
+import com.nineteengiraffes.stakeaclaim.stakes.Stake.Status;
 import com.nineteengiraffes.stakeaclaim.stakes.StakeDatabaseException;
 import com.nineteengiraffes.stakeaclaim.stakes.StakeManager;
-import com.nineteengiraffes.stakeaclaim.stakes.Stake.Status;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
@@ -97,6 +98,7 @@ public class SACCommands {
 
     }
 
+    @SuppressWarnings("deprecation")
     @Command(aliases = {"search", "s"},
             usage = "[filter(s)..]",
             desc = "Search all claims with filter(s)",
@@ -115,8 +117,8 @@ public class SACCommands {
         LinkedHashMap<Integer, ProtectedRegion> joinList = null;
         World argWorld = null;
         String id = null;
-        String owner = null;
-        String member = null;
+        UUID owner = null;
+        UUID member = null;
         Boolean typo = null;
         Boolean banned = null;
         Boolean pending = null;
@@ -235,7 +237,7 @@ public class SACCommands {
                                 filter.equalsIgnoreCase("true")) {
                             claimed = true;
                         } else {
-                            owner = args.getString(i);
+                            owner = sender.getServer().getOfflinePlayer(args.getString(i)).getUniqueId();
                         }
                     }
 
@@ -254,7 +256,7 @@ public class SACCommands {
                                 filter.equalsIgnoreCase("true")) {
                             hasMembers = true;
                         } else {
-                            member = args.getString(i);
+                            member = sender.getServer().getOfflinePlayer(args.getString(i)).getUniqueId();
                         }
                     }
 
@@ -636,6 +638,7 @@ public class SACCommands {
         SACUtil.displayClaim(wcfg, claim, stake, sender, plugin, world, item);
     }
 
+    @SuppressWarnings("deprecation")
     @Command(aliases = {"user", "u"},
             usage = "<list item #> or <player> [world]",
             desc = "View detailed info on one user",
@@ -649,6 +652,7 @@ public class SACCommands {
         World world = null;
         ProtectedRegion claim = null;
         String playerName = null;
+        UUID playerUUID = null;
         LinkedHashMap<Integer, ProtectedRegion> fullList;
         WorldConfig wcfg;
 
@@ -693,18 +697,20 @@ public class SACCommands {
                 world = state.listWorld;
                 final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
                 final Stake stake = sMgr.getStake(claim);
-                for (String owner : claim.getOwners().getPlayers()) {
-                    playerName = owner;
+                for (UUID owner : claim.getOwners().getUniqueIds()) {
+                    playerUUID = owner;
                     break;
                 }
-                if (playerName == null && stake.getStatus() != null && stake.getStatus() == Status.PENDING && stake.getStakeName() != null) {
-                    playerName = stake.getStakeName();
+                if (playerUUID == null) {
+                    for (String owner : claim.getOwners().getPlayers()) {
+                        playerName = owner;
+                        break;
+                    }
+                }
+                if (playerUUID == null && playerName == null && stake.getStatus() != null && stake.getStatus() == Status.PENDING && stake.getStakeUUID() != null) {
+                    playerUUID = stake.getStakeUUID();
                 }
             }
-        }
-
-        if (playerName == null) {
-            playerName = args.getString(0);
         }
 
         RegionManager rgMgr = WGBukkit.getRegionManager(world);
@@ -712,7 +718,15 @@ public class SACCommands {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
 
-        SACUtil.displayPlayer(plugin, sender, rgMgr, world, playerName);
+        if (playerUUID == null) {
+            if (playerName == null) {
+                playerName = args.getString(0);
+            }
+
+            playerUUID = sender.getServer().getOfflinePlayer(args.getString(0)).getUniqueId();
+        }
+        SACUtil.displayPlayer(plugin, sender, rgMgr, world, playerUUID);
+
     }
 
     @Command(aliases = {"goto", "g", "go"},

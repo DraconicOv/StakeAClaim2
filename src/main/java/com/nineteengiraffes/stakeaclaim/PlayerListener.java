@@ -47,7 +47,6 @@ import com.nineteengiraffes.stakeaclaim.stakes.Stake.Status;
 import com.nineteengiraffes.stakeaclaim.stakes.StakeManager;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.bukkit.WGBukkit;
-import com.sk89q.worldguard.protection.databases.ProtectionDatabaseException;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -193,11 +192,12 @@ public class PlayerListener implements Listener {
                     if (open) {
                         activePlayer.sendMessage(ChatColor.YELLOW + "Do " + ChatColor.WHITE + "/claim proxy" + 
                                 ChatColor.YELLOW + " to stake that claim for them.");
-                        state.unsubmittedStake = new String[]{passivePlayer.getName().toLowerCase(), claim.getId()};
+                        state.unsubmittedStake = new Stake(claim.getId());
+                        state.unsubmittedStake.setStakeUUID(passivePlayer.getUniqueId());
                     }
                 }
 
-                SACUtil.displayPlayer(plugin, activePlayer, rgMgr, world, passivePlayer.getName());
+                SACUtil.displayPlayer(plugin, activePlayer, rgMgr, world, passivePlayer.getUniqueId());
             }
         }
     }
@@ -269,7 +269,7 @@ public class PlayerListener implements Listener {
             boolean save = false;
 
             for (Stake stake : stakes.values()) {
-                if (stake.getStakeName() != null && stake.getStakeName().equalsIgnoreCase(player.getName()) && stake.getStatus() != null) {
+                if (stake.getStakeUUID() != null && stake.getStakeUUID() == player.getUniqueId() && stake.getStatus() != null) {
                     StringBuilder message = new StringBuilder(ChatColor.YELLOW + "Your stake in " + SACUtil.formatID(stake) + 
                             (player.getWorld().equals(world) ? "" : ChatColor.YELLOW + " in " + ChatColor.BLUE + world.getName()));
                     switch (stake.getStatus()) {
@@ -279,19 +279,19 @@ public class PlayerListener implements Listener {
                         case ACCEPTED:
                             message.append(ChatColor.YELLOW + " has been " + ChatColor.DARK_GREEN + "accepted!");
                             stake.setStatus(null);
-                            stake.setStakeName(null);
+                            stake.setStakeUUID(null);
                             save = true;
                             break;
                         case DENIED:
                             message.append(ChatColor.YELLOW + " has been " + ChatColor.DARK_RED + "denied!");
                             stake.setStatus(null);
-                            stake.setStakeName(null);
+                            stake.setStakeUUID(null);
                             save = true;
                             break;
                     }
                     player.sendMessage(message.toString());
                 }
-                if (stake.getStatus() != null && stake.getStatus() == Status.PENDING && stake.getStakeName() != null) {
+                if (stake.getStatus() != null && stake.getStatus() == Status.PENDING && stake.getStakeUUID() != null) {
                     pendingCount++;
                 }
             }
@@ -347,24 +347,14 @@ public class PlayerListener implements Listener {
                 sMgr = plugin.getGlobalStakeManager().get(world);
                 final Map<String, Stake> stakes = sMgr.getStakes();
                 ProtectedRegion region;
-                boolean save = false;
-
                 for (Stake stake : stakes.values()) {
                     if (stake.getDefaultEntry() != null) {
                         region = rgMgr.getRegion(stake.getId());
                         if (region.getOwners().contains(player.getName().toLowerCase())) {
                             if (region.getFlag(DefaultFlag.ENTRY) != stake.getDefaultEntry()) {
                                 region.setFlag(DefaultFlag.ENTRY, stake.getDefaultEntry());
-                                save = true;
                             }
                         }
-                    }
-                }
-
-                if (save) {
-                    try {
-                        rgMgr.save();
-                    } catch (ProtectionDatabaseException e) {
                     }
                 }
             }

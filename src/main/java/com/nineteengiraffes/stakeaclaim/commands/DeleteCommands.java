@@ -68,12 +68,11 @@ public class DeleteCommands {
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
 
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
-        SACUtil.checkPerm(plugin, sender, "del.warp", claim);
+        SACUtil.checkPerm(plugin, player, "del.warp", claim);
 
         claim.setFlag(DefaultFlag.TELE_LOC, null);
         sender.sendMessage(SACUtil.formatID(sMgr.getStake(claim)) + ChatColor.YELLOW + "'s warp deleted.");
 
-        SACUtil.saveRegions(world);
     }
 
     @Command(aliases = {"name", "n"},
@@ -93,7 +92,7 @@ public class DeleteCommands {
         }
 
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
-        SACUtil.checkPerm(plugin, sender, "del.name", claim);
+        SACUtil.checkPerm(plugin, player, "del.name", claim);
 
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
         Stake stake = sMgr.getStake(claim);

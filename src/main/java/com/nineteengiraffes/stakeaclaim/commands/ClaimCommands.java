@@ -22,6 +22,7 @@ package com.nineteengiraffes.stakeaclaim.commands;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -29,6 +30,8 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.nineteengiraffes.stakeaclaim.ConfigManager;
 import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
 import com.nineteengiraffes.stakeaclaim.SACUtil;
@@ -43,11 +46,14 @@ import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
 import com.sk89q.worldguard.bukkit.WGBukkit;
-import com.sk89q.worldguard.protection.databases.RegionDBUtil;
+import com.sk89q.worldguard.bukkit.commands.AsyncCommandHelper;
+import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.protection.util.DomainInputResolver;
+import com.sk89q.worldguard.protection.util.DomainInputResolver.UserLocatorPolicy;
 
 public class ClaimCommands {
     private final StakeAClaimPlugin plugin;
@@ -77,11 +83,12 @@ public class ClaimCommands {
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
         final Stake stake = sMgr.getStake(claim);
 
-        SACUtil.checkPerm(plugin, sender, "info", claim);
+        SACUtil.checkPerm(plugin, player, "info", claim);
 
         SACUtil.displayClaim(wcfg, claim, stake, sender, plugin, world, null);
     }
 
+    @SuppressWarnings("deprecation")
     @Command(aliases = {"stake", "s"},
             usage = "",
             desc = "Stake your claim",
@@ -113,31 +120,36 @@ public class ClaimCommands {
             claim.getMembers().getPlayers().clear();
             claim.getMembers().getGroups().clear();
             if (stake.getStatus() != null && stake.getStatus() == Status.PENDING) {
-                if (stake.getStakeName() == null) {
+                if (stake.getStakeUUID() == null) {
                     stake.setStatus(null);
-                    stake.setStakeName(null);
+                    stake.setStakeUUID(null);
                     stake.setDefaultEntry(null);
                     claim.setFlag(DefaultFlag.ENTRY,null);
                 } else {
-                    SACUtil.saveRegions(world);
-                    sender.sendMessage(ChatColor.YELLOW + "This claim is already staked by " + SACUtil.formatPlayer(sender, stake.getStakeName()));
+                    sender.sendMessage(ChatColor.YELLOW + "This claim is already staked by " + SACUtil.formatPlayer(sender, stake.getStakeUUID()));
                     return;
                 }
             }
         } else {
-            if (claim.getOwners().contains(player.getName().toLowerCase())) {
+            if (claim.getOwners().contains(player.getUniqueId())) {
                 throw new CommandException(ChatColor.YELLOW + "You already own this claim.");
             }
             StringBuilder message = new StringBuilder(ChatColor.YELLOW + "This claim is already owned by");
+            for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
+                message.append(" " + SACUtil.formatPlayer(sender, oneOwner));
+            }
+
+// remove for loop when names get removed entirely
             for (String oneOwner : claim.getOwners().getPlayers()) {
                 message.append(" " + SACUtil.formatPlayer(sender, oneOwner));
             }
+
             throw new CommandException(message.toString() + ".");
         }
 
         // Check if this would be over the claimMax
         Collection<ProtectedRegion> regionList = SACUtil.filterList(plugin, rgMgr, world, 
-                null, null, player.getName(), null, null, null, null, null, null, null, null, null).values();
+                null, null, player.getUniqueId(), null, null, null, null, null, null, null, null, null).values();
         boolean unassisted = false;
 
         if (wcfg.useVolumeLimits) {
@@ -150,7 +162,6 @@ public class ClaimCommands {
             }
             if (volume > wcfg.totalMaxVolume && wcfg.totalMaxVolume != -1) {
                 sMgr.save();
-                SACUtil.saveRegions(world);
                 throw new CommandException(ChatColor.YELLOW + "This claim would put you over the maximum claim volume.");
             }
         } else {
@@ -159,7 +170,6 @@ public class ClaimCommands {
             }
             if (regionList.size() >= wcfg.totalMaxCount && wcfg.totalMaxCount != -1) {
                 sMgr.save();
-                SACUtil.saveRegions(world);
                 throw new CommandException(ChatColor.YELLOW + "You have already claimed the maximum number of claims.");
             }
         }
@@ -167,25 +177,24 @@ public class ClaimCommands {
         // VIP check
         if (stake.getVIP() && !SACUtil.hasPermission(plugin, player, "stakeaclaim.vip")) {
             sMgr.save();
-            SACUtil.saveRegions(world);
             throw new CommandException(ChatColor.YELLOW + "Only " + wcfg.VIPs + " may stake this claim.");
         }
 
         // Cancel old stakes
-        Stake oldStake = SACUtil.getPendingStake(rgMgr, sMgr, player);
+        Stake oldStake = SACUtil.getPendingStake(rgMgr, sMgr, player.getUniqueId());
         if (oldStake != null) {
             oldStake.setStatus(null);
-            oldStake.setStakeName(null);
+            oldStake.setStakeUUID(null);
         }
 
         // Submit stake
         stake.setStatus(Status.PENDING);
-        stake.setStakeName(player.getName().toLowerCase());
+        stake.setStakeUUID(player.getUniqueId());
 
         if (unassisted && !wcfg.confirmUnassisted && !stake.getReclaimed()) {
-            claim.getOwners().addPlayer(player.getName().toLowerCase());
+            claim.getOwners().addPlayer(player.getUniqueId());
             stake.setStatus(null);
-            stake.setStakeName(null);
+            stake.setStakeUUID(null);
 
             sender.sendMessage(ChatColor.YELLOW + "You have staked your claim in " + SACUtil.formatID(stake) + "!");
         } else {
@@ -201,9 +210,9 @@ public class ClaimCommands {
                     if (SACUtil.hasPermission(plugin, admin, "stakeaclaim.pending.notify")) {
                         StringBuilder message = new StringBuilder("tellraw " + admin.getName() + " {text:'New stake by',color:yellow,extra:[");
                         if (SACUtil.hasPermission(plugin, admin, "stakeaclaim.sac.user")) {
-                            message.append(SACUtil.formatPlayer(sender, player.getName(), world));
+                            message.append(SACUtil.formatPlayer(sender, player.getUniqueId(), world));
                         } else {
-                            message.append(SACUtil.formatPlayer(sender, player.getName(), null));
+                            message.append(SACUtil.formatPlayer(sender, player.getUniqueId(), null));
                         }
                         message.append(",' in',");
                         if (SACUtil.hasPermission(plugin, admin, "stakeaclaim.sac.claim")) {
@@ -223,9 +232,9 @@ public class ClaimCommands {
         }
 
         sMgr.save();
-        SACUtil.saveRegions(world);
     }
 
+    @SuppressWarnings("deprecation")
     @Command(aliases = {"confirm", "c"},
             usage = "",
             desc = "Confirm your stake",
@@ -249,7 +258,7 @@ public class ClaimCommands {
 
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
 
-        Stake stake = SACUtil.getPendingStake(rgMgr, sMgr, player);
+        Stake stake = SACUtil.getPendingStake(rgMgr, sMgr, player.getUniqueId());
         if (stake == null) {
             throw new CommandException(ChatColor.YELLOW + "There is no pending stake for you to confirm.");
         }
@@ -258,23 +267,29 @@ public class ClaimCommands {
 
         int ownedCode = SACUtil.isRegionOwned(claim);
         if (ownedCode > 0) {
-            if (claim.getOwners().contains(player.getName().toLowerCase())) {
+            if (claim.getOwners().contains(player.getUniqueId())) {
                 stake.setStatus(null);
-                stake.setStakeName(null);
+                stake.setStakeUUID(null);
                 sMgr.save();
                 throw new CommandException(ChatColor.YELLOW + "You already own this claim.");
             }
             StringBuilder message = new StringBuilder(ChatColor.YELLOW + "This claim is already owned by");
+            for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
+                message.append(" " + SACUtil.formatPlayer(sender, oneOwner));
+            }
+
+// remove for loop when names get removed entirely
             for (String oneOwner : claim.getOwners().getPlayers()) {
                 message.append(" " + SACUtil.formatPlayer(sender, oneOwner));
             }
+
             sender.sendMessage(message.toString() + ".");
             return;
         }
 
         // Check if this would be over the selfClaimMax
         Collection<ProtectedRegion> regionList = SACUtil.filterList(plugin, rgMgr, world, 
-                null, null, player.getName(), null, null, null, null, null, null, null, null, null).values();
+                null, null, player.getUniqueId(), null, null, null, null, null, null, null, null, null).values();
         boolean unassisted = false;
 
         if (wcfg.useVolumeLimits) {
@@ -293,14 +308,13 @@ public class ClaimCommands {
 
         // Do we claim unassisted?
         if (unassisted) {
-            claim.getOwners().addPlayer(player.getName().toLowerCase());
+            claim.getOwners().addPlayer(player.getUniqueId());
             stake.setStatus(null);
-            stake.setStakeName(null);
+            stake.setStakeUUID(null);
 
             sender.sendMessage(ChatColor.YELLOW + "You have staked your claim in " + SACUtil.formatID(stake) + "!");
 
             sMgr.save();
-            SACUtil.saveRegions(world);
         } else {
             throw new CommandException(ChatColor.YELLOW + "You can't confirm your own stake!");
         }
@@ -330,10 +344,10 @@ public class ClaimCommands {
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
 
         // Cancel old stakes
-        Stake oldStake = SACUtil.getPendingStake(rgMgr, sMgr, player);
+        Stake oldStake = SACUtil.getPendingStake(rgMgr, sMgr, player.getUniqueId());
         if (oldStake != null) {
             oldStake.setStatus(null);
-            oldStake.setStakeName(null);
+            oldStake.setStakeUUID(null);
             sender.sendMessage(ChatColor.YELLOW + "Your stake has been removed.");
             sMgr.save();
         } else {
@@ -359,15 +373,29 @@ public class ClaimCommands {
 
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
 
-        SACUtil.checkPerm(plugin, sender, "add", claim);
+        SACUtil.checkPerm(plugin, player, "add", claim);
 
-        RegionDBUtil.addToDomain(claim.getMembers(), args.getPaddedSlice(1, 0), 0);
+        DomainInputResolver resolver = new DomainInputResolver(
+                WGBukkit.getPlugin().getProfileService(), args.getParsedPaddedSlice(1, 0));
+        resolver.setLocatorPolicy(UserLocatorPolicy.UUID_ONLY);
+
+        // Then add it to the members
+        ListenableFuture<DefaultDomain> future = Futures.transform(
+                WGBukkit.getPlugin().getExecutorService().submit(resolver),
+                resolver.createAddAllFunction(claim.getMembers()));
+
+        AsyncCommandHelper.wrap(future, WGBukkit.getPlugin(), sender)
+                .formatUsing(claim.getId(), world.getName())
+                .registerWithSupervisor("Adding members to the region '%s' on '%s'")
+                .sendMessageAfterDelay("(Please wait... querying player names...)")
+                .thenRespondWith("Region '%s' updated with new members.", "Failed to add new members");
 
         boolean isVIP = false;
         if (wcfg.useStakes) {
             isVIP = plugin.getGlobalStakeManager().get(world).getStake(claim).getVIP();
         }
 
+        // TODO make result use UUIDs
         if (!wcfg.silentNotify) {
             for (Player member : plugin.getServer().getOnlinePlayers()) {
                 for (String added : args.getPaddedSlice(1, 0)) {
@@ -384,12 +412,11 @@ public class ClaimCommands {
         }
         sender.sendMessage(message.toString() + ChatColor.YELLOW + " to claim: " + (isVIP ? ChatColor.AQUA : ChatColor.WHITE) + claim.getId() + ".");
 
-        SACUtil.saveRegions(world);
     }
 
     @Command(aliases = {"remove", "r"},
             usage = "<members...> or <'all'>",
-            flags = "a:",
+            flags = "",
             desc = "Remove a member from a claim",
             min = 1)
     @CommandPermissions({"stakeaclaim.claim.remove", "stakeaclaim.claim.remove.own.*", "stakeaclaim.claim.remove.member.*", "stakeaclaim.claim.remove.*"})
@@ -406,7 +433,7 @@ public class ClaimCommands {
 
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
 
-        SACUtil.checkPerm(plugin, sender, "remove", claim);
+        SACUtil.checkPerm(plugin, player, "remove", claim);
 
         String in = args.getString(0);
 
@@ -415,13 +442,32 @@ public class ClaimCommands {
             isVIP = plugin.getGlobalStakeManager().get(world).getStake(claim).getVIP();
         }
 
+        ListenableFuture<?> future;
+
         if (in.equalsIgnoreCase("all") || in.equalsIgnoreCase("a")) {
-            claim.getMembers().getPlayers().clear();
-            claim.getMembers().getGroups().clear();
+            claim.getMembers().removeAll();
+
+            future = Futures.immediateFuture(null);
             sender.sendMessage(ChatColor.YELLOW + "Removed all members from claim: " + (isVIP ? ChatColor.AQUA : ChatColor.WHITE) + claim.getId() + ".");
         } else {
-            RegionDBUtil.removeFromDomain(claim.getMembers(), args.getPaddedSlice(1, 0), 0);
 
+            // Resolve members asynchronously
+            DomainInputResolver resolver = new DomainInputResolver(
+                    WGBukkit.getPlugin().getProfileService(), args.getParsedPaddedSlice(1, 0));
+            resolver.setLocatorPolicy(UserLocatorPolicy.UUID_AND_NAME);
+
+            // Then remove it from the members
+            future = Futures.transform(
+                    WGBukkit.getPlugin().getExecutorService().submit(resolver),
+                    resolver.createRemoveAllFunction(claim.getMembers()));
+
+            AsyncCommandHelper.wrap(future, WGBukkit.getPlugin(), sender)
+                    .formatUsing(claim.getId(), world.getName())
+                    .registerWithSupervisor("Removing members from the region '%s' on '%s'")
+                    .sendMessageAfterDelay("(Please wait... querying player names...)")
+                    .thenRespondWith("Region '%s' updated with members removed.", "Failed to remove members");
+
+            //TODO make result use UUIDs
             StringBuilder message = new StringBuilder(ChatColor.YELLOW + "Removed");
             for (String removed : args.getPaddedSlice(1, 0)) {
                 message.append(" " + SACUtil.formatPlayer(sender, removed));
@@ -430,7 +476,6 @@ public class ClaimCommands {
 
         }
 
-        SACUtil.saveRegions(world);
     }
 
     @Command(aliases = {"private", "p"},
@@ -452,7 +497,7 @@ public class ClaimCommands {
 
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
 
-        SACUtil.checkPerm(plugin, sender, "private", claim);
+        SACUtil.checkPerm(plugin, player, "private", claim);
 
         int ownedCode = SACUtil.isRegionOwned(claim);
         if (ownedCode < 1) {
@@ -472,9 +517,9 @@ public class ClaimCommands {
             sender.sendMessage(ChatColor.YELLOW + "Set " + (isVIP ? ChatColor.AQUA : ChatColor.WHITE) + claim.getId() + ChatColor.YELLOW + " to " + ChatColor.GRAY + "open.");
         }
 
-        SACUtil.saveRegions(world);
     }
 
+    @SuppressWarnings("deprecation")
     @Command(aliases = {"warp", "w"},
             usage = "<player> [list item #]",
             desc = "Warp to a players claim",
@@ -507,7 +552,7 @@ public class ClaimCommands {
 
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
 
-        final String targetPlayer = args.getString(0);
+        final UUID targetPlayer = sender.getServer().getOfflinePlayer(args.getString(0)).getUniqueId();
 
         Collection<ProtectedRegion> tempList = SACUtil.filterList(plugin, rgMgr, world, 
                 null, null, targetPlayer, null, null, null, null, null, null, null, null, null).values();
@@ -517,16 +562,12 @@ public class ClaimCommands {
         for (ProtectedRegion region : tempList) {
             if (region.getFlag(DefaultFlag.ENTRY) != null && region.getFlag(DefaultFlag.ENTRY) == State.DENY) {
                 regionList.remove(region);
-            } else if (!SACUtil.hasPerm(plugin, sender, "warp", region)) {
+            } else if (!SACUtil.hasPerm(plugin, travelPlayer, "warp", region)) {
                 regionList.remove(region);
             }
         }
 
         if (regionList.isEmpty()) {
-            if (!plugin.getServer().getOfflinePlayer(targetPlayer).isOnline() && !plugin.getServer().getOfflinePlayer(targetPlayer).hasPlayedBefore()) {
-                sender.sendMessage(SACUtil.formatPlayer(sender, targetPlayer) + ChatColor.YELLOW + " has not played on this server.");
-                return;
-            }
             sender.sendMessage(SACUtil.formatPlayer(sender, targetPlayer) + ChatColor.YELLOW + " has no claims for you to warp to.");
             return;
 
@@ -606,9 +647,10 @@ public class ClaimCommands {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
 
-        SACUtil.displayPlayer(plugin, sender, rgMgr, world, player.getName());
+        SACUtil.displayPlayer(plugin, sender, rgMgr, world, player.getUniqueId());
     }
 
+    @SuppressWarnings("deprecation")
     @Command(aliases = {"proxy", "x"},
             usage = "",
             desc = "Stake their claim",
@@ -634,9 +676,9 @@ public class ClaimCommands {
         if (state.unsubmittedStake == null) {
             throw new CommandException(ChatColor.YELLOW + "No player to proxy for.");
         }
-        final String[] unsubmittedStake = state.unsubmittedStake;
-        final String regionID = unsubmittedStake[1];
-        final String passivePlayer = unsubmittedStake[0];
+
+        final String regionID = state.unsubmittedStake.getId();
+        final UUID passivePlayer = state.unsubmittedStake.getStakeUUID();
         final ProtectedRegion claim = rgMgr.getRegion(regionID);
 
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
@@ -644,30 +686,34 @@ public class ClaimCommands {
         
         int ownedCode = SACUtil.isRegionOwned(claim);
         if (ownedCode <= 0) {
-            claim.getMembers().getPlayers().clear();
-            claim.getMembers().getGroups().clear();
+            claim.getMembers().clear();
             if (stake.getStatus() != null && stake.getStatus() == Status.PENDING) {
-                if (stake.getStakeName() == null) {
+                if (stake.getStakeUUID() == null) {
                     stake.setStatus(null);
-                    stake.setStakeName(null);
+                    stake.setStakeUUID(null);
                     stake.setDefaultEntry(null);
                     claim.setFlag(DefaultFlag.ENTRY,null);
-                } else if (!stake.getStakeName().equals(passivePlayer)) {
+                } else if (stake.getStakeUUID() != passivePlayer) {
                     sMgr.save();
-                    SACUtil.saveRegions(world);
-                    sender.sendMessage(ChatColor.YELLOW + "This claim is already staked by " + SACUtil.formatPlayer(sender, stake.getStakeName()));
+                    sender.sendMessage(ChatColor.YELLOW + "This claim is already staked by " + SACUtil.formatPlayer(sender, stake.getStakeUUID()));
                     return;
                 }
             }
         } else {
             if (claim.getOwners().contains(passivePlayer)) {
-                sender.sendMessage(SACUtil.formatPlayer(sender, stake.getStakeName()) + ChatColor.YELLOW + " already owns this claim.");
+                sender.sendMessage(SACUtil.formatPlayer(sender, stake.getStakeUUID()) + ChatColor.YELLOW + " already owns this claim.");
                 return;
             }
             StringBuilder message = new StringBuilder(ChatColor.YELLOW + "This claim is already owned by");
+            for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
+                message.append(" " + SACUtil.formatPlayer(sender, oneOwner));
+            }
+
+// remove for loop when names get removed entirely
             for (String oneOwner : claim.getOwners().getPlayers()) {
                 message.append(" " + SACUtil.formatPlayer(sender, oneOwner));
             }
+
             sender.sendMessage(message.toString() + ".");
             return;
         }
@@ -683,7 +729,6 @@ public class ClaimCommands {
             }
             if (volume > wcfg.proxyMaxVolume && wcfg.proxyMaxVolume != -1) {
                 sMgr.save();
-                SACUtil.saveRegions(world);
                 sender.sendMessage(ChatColor.YELLOW + "This claim would put " + SACUtil.formatPlayer(sender, passivePlayer) + 
                         ChatColor.YELLOW + " over the maximum claim volume.");
                 return;
@@ -691,7 +736,6 @@ public class ClaimCommands {
         } else {
             if (regionList.size() >= wcfg.proxyMaxCount && wcfg.proxyMaxCount != -1) {
                 sMgr.save();
-                SACUtil.saveRegions(world);
                 sender.sendMessage(SACUtil.formatPlayer(sender, passivePlayer) + ChatColor.YELLOW + 
                         " has already claimed the maximum number of claims.");
                 return;
@@ -702,12 +746,12 @@ public class ClaimCommands {
         Stake oldStake = SACUtil.getPendingStake(rgMgr, sMgr, passivePlayer);
         if (oldStake != null) {
             oldStake.setStatus(null);
-            oldStake.setStakeName(null);
+            oldStake.setStakeUUID(null);
         }
 
         // Submit stake
         stake.setStatus(Status.PENDING);
-        stake.setStakeName(passivePlayer);
+        stake.setStakeUUID(passivePlayer);
 
         if (stake.getReclaimed()) {
             sender.sendMessage(ChatColor.RED + "note: " + SACUtil.formatID(stake) + 
@@ -718,7 +762,7 @@ public class ClaimCommands {
 
         if (!wcfg.silentNotify) {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                if (player.getName().equalsIgnoreCase(passivePlayer)) {
+                if (player.getUniqueId() == passivePlayer) {
                     player.sendMessage(ChatColor.YELLOW + "Your stake in " + SACUtil.formatID(stake) + 
                             (player.getWorld().equals(world) ? "" : ChatColor.YELLOW + " in " + ChatColor.BLUE + world.getName()) +
                             ChatColor.YELLOW + " is pending.");
@@ -747,7 +791,6 @@ public class ClaimCommands {
         }
 
         sMgr.save();
-        SACUtil.saveRegions(world);
     }
 
     @Command(aliases = {"set"},

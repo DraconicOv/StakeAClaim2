@@ -20,6 +20,7 @@
 package com.nineteengiraffes.stakeaclaim.commands;
 
 import java.util.LinkedHashMap;
+import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -179,7 +180,7 @@ public class DoCommands {
                 break;
             }
 
-            if (stake.getStatus() != null && stake.getStatus() == Status.PENDING && stake.getStakeName() != null) {
+            if (stake.getStatus() != null && stake.getStatus() == Status.PENDING && stake.getStakeUUID() != null) {
             } else {
                 sender.sendMessage(ChatColor.YELLOW + "Sorry, " + SACUtil.formatID(stake) + 
                         ChatColor.YELLOW + " is not pending.");
@@ -188,7 +189,7 @@ public class DoCommands {
             int ownedCode = SACUtil.isRegionOwned(claim);
             if (ownedCode > 0) {
                 stake.setStatus(null);
-                stake.setStakeName(null);
+                stake.setStakeUUID(null);
                 sender.sendMessage(ChatColor.YELLOW + "Sorry, " + SACUtil.formatID(stake) + 
                         ChatColor.YELLOW + " is not open.");
                 continue;
@@ -207,71 +208,77 @@ public class DoCommands {
         }
 
         sMgr.save();
-        SACUtil.saveRegions(world);
     }
 
 
     // Actions
     private void acceptClaim(CommandSender sender, ProtectedRegion claim, Stake stake, World world, WorldConfig wcfg) {
-        claim.getOwners().addPlayer(stake.getStakeName());
+        claim.getOwners().addPlayer(stake.getStakeUUID());
 
-        sender.sendMessage(ChatColor.YELLOW + "You have accepted " + SACUtil.formatPlayer(sender, stake.getStakeName()) +
+        sender.sendMessage(ChatColor.YELLOW + "You have accepted " + SACUtil.formatPlayer(sender, stake.getStakeUUID()) +
                 ChatColor.YELLOW + "'s stake in " + SACUtil.formatID(stake) + 
                 ChatColor.YELLOW + " in " + ChatColor.BLUE + world.getName() + "!");
 
         if (wcfg.silentNotify) {
             stake.setStatus(null);
-            stake.setStakeName(null);
+            stake.setStakeUUID(null);
         } else {
             stake.setStatus(Status.ACCEPTED);
             for (Player stakeHolder : plugin.getServer().getOnlinePlayers()) {
-                if (stakeHolder.getName().equalsIgnoreCase(stake.getStakeName())) {
+                if (stakeHolder.getUniqueId() == stake.getStakeUUID()) {
                     stakeHolder.sendMessage(ChatColor.YELLOW + "Your stake in " + SACUtil.formatID(stake) + 
                             (stakeHolder.getWorld().equals(world) ? "" : ChatColor.YELLOW + " in " + ChatColor.BLUE + world.getName()) +
                             ChatColor.YELLOW + " has been " + ChatColor.DARK_GREEN + "accepted!");
                     stake.setStatus(null);
-                    stake.setStakeName(null);
+                    stake.setStakeUUID(null);
                 }
             }
         }
     }
 
     private void denyClaim(CommandSender sender, ProtectedRegion claim, Stake stake, World world, WorldConfig wcfg) {
-        sender.sendMessage(ChatColor.YELLOW + "You have denied " + SACUtil.formatPlayer(sender, stake.getStakeName()) +
+        sender.sendMessage(ChatColor.YELLOW + "You have denied " + SACUtil.formatPlayer(sender, stake.getStakeUUID()) +
                 ChatColor.YELLOW + "'s stake in " + SACUtil.formatID(stake) + 
                         ChatColor.YELLOW + " in " + ChatColor.BLUE + world.getName() + "!");
 
         if (wcfg.silentNotify) {
             stake.setStatus(null);
-            stake.setStakeName(null);
+            stake.setStakeUUID(null);
         } else {
             stake.setStatus(Status.DENIED);
             for (Player stakeHolder : plugin.getServer().getOnlinePlayers()) {
-                if (stakeHolder.getName().equalsIgnoreCase(stake.getStakeName())) {
+                if (stakeHolder.getUniqueId() == stake.getStakeUUID()) {
                     stakeHolder.sendMessage(ChatColor.YELLOW + "Your stake in " + SACUtil.formatID(stake) + 
                             (stakeHolder.getWorld().equals(world) ? "" : ChatColor.YELLOW + " in " + ChatColor.BLUE + world.getName()) +
                             ChatColor.YELLOW + " has been " + ChatColor.DARK_RED + "denied!");
                     stake.setStatus(null);
-                    stake.setStakeName(null);
+                    stake.setStakeUUID(null);
                 }
             }
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void reclaimClaim(CommandSender sender, ProtectedRegion claim, Stake stake, World world, WorldConfig wcfg) {
             StringBuilder message = new StringBuilder(ChatColor.YELLOW + "You have reclaimed " + SACUtil.formatID(stake) +
                     ChatColor.YELLOW + " in " + ChatColor.BLUE + world.getName());
-            if (claim.getOwners().getPlayers().size() > 0) {
+            if (claim.getOwners().size() > 0) {
                 message.append(ChatColor.YELLOW + " from");
+                for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
+                    message.append(" " + SACUtil.formatPlayer(sender, oneOwner));
+                }
+
+// remove for loop when names get removed entirely
                 for (String oneOwner : claim.getOwners().getPlayers()) {
                     message.append(" " + SACUtil.formatPlayer(sender, oneOwner));
                 }
+
             }
             sender.sendMessage(message.toString() + ChatColor.YELLOW + "!");
 
         if (!wcfg.silentNotify) {
             for (Player claimHolder : plugin.getServer().getOnlinePlayers()) {
-                if (claim.getOwners().contains(claimHolder.getName())) {
+                if (claim.getOwners().contains(claimHolder.getUniqueId())) {
                     claimHolder.sendMessage(ChatColor.YELLOW + "You no longer own " + SACUtil.formatID(stake) + 
                             (claimHolder.getWorld().equals(world) ? "" : ChatColor.YELLOW + " in " + ChatColor.BLUE + world.getName()) + 
                             ChatColor.YELLOW + ", it has been " + ChatColor.DARK_RED + "reclaimed!");
@@ -279,14 +286,12 @@ public class DoCommands {
             }
         }
 
-        claim.getOwners().getPlayers().clear();
-        claim.getOwners().getGroups().clear();
-        claim.getMembers().getPlayers().clear();
-        claim.getMembers().getGroups().clear();
+        claim.getOwners().clear();
+        claim.getMembers().clear();
         claim.setFlag(DefaultFlag.TELE_LOC,null);
         claim.setFlag(DefaultFlag.ENTRY,null);
         stake.setStatus(null);
-        stake.setStakeName(null);
+        stake.setStakeUUID(null);
         stake.setDefaultEntry(null);
         stake.setClaimName(null);
         stake.setRecalimed(wcfg.useReclaimed);

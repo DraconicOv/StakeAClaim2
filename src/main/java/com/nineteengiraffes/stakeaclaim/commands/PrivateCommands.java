@@ -64,7 +64,7 @@ public class PrivateCommands {
 
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
 
-        SACUtil.checkPerm(plugin, sender, "default.private", claim);
+        SACUtil.checkPerm(plugin, player, "default.private", claim);
 
         int ownedCode = SACUtil.isRegionOwned(claim);
         if (ownedCode < 1) {
@@ -102,7 +102,7 @@ public class PrivateCommands {
 
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
 
-        SACUtil.checkPerm(plugin, sender, "clear.private", claim);
+        SACUtil.checkPerm(plugin, player, "clear.private", claim);
 
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
         Stake stake = sMgr.getStake(claim);
@@ -111,7 +111,6 @@ public class PrivateCommands {
         sender.sendMessage(ChatColor.YELLOW + "Cleared " + SACUtil.formatID(stake) + ChatColor.YELLOW + "'s privacy settings.");
 
         sMgr.save();
-        SACUtil.saveRegions(world);
     }
 
 

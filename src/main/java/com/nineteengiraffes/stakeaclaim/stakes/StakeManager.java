@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import com.nineteengiraffes.stakeaclaim.stakes.Stake.Status;
@@ -93,7 +94,7 @@ public class StakeManager {
                 if (statusString != null && stakeName != null) {
                     Status status = Status.valueOf(statusString.toUpperCase());
                     stake.setStatus(status);
-                    stake.setStakeName(stakeName);
+                    stake.setStakeUUID(UUID.fromString(stakeName));
                     hasData = true;
                 }
 
@@ -153,7 +154,7 @@ public class StakeManager {
             Stake stake = entry.getValue();
 
             // Skip if stake has nothing to save
-            if (!(stake.getStatus() != null && stake.getStakeName() != null) &&
+            if (!(stake.getStatus() != null && stake.getStakeUUID() != null) &&
                     stake.getDefaultEntry() == null && stake.getClaimName() == null &&
                     !stake.getVIP() && !stake.getReclaimed()) {
                 continue;
@@ -161,9 +162,9 @@ public class StakeManager {
 
             YAMLNode node = config.addNode("regions." + entry.getKey().toString());
 
-            if (stake.getStatus() != null && stake.getStakeName() != null) {
+            if (stake.getStatus() != null && stake.getStakeUUID() != null) {
                 node.setProperty("stake.status", stake.getStatus().name());
-                node.setProperty("stake.player", stake.getStakeName());
+                node.setProperty("stake.player", stake.getStakeUUID().toString());
             }
             if (stake.getDefaultEntry() != null) {
                 node.setProperty("default-entry", stake.getDefaultEntry().name());
