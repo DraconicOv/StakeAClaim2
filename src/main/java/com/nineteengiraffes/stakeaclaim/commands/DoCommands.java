@@ -215,7 +215,8 @@ public class DoCommands {
     private void acceptClaim(CommandSender sender, ProtectedRegion claim, Stake stake, World world, WorldConfig wcfg) {
         claim.getOwners().addPlayer(stake.getStakeUUID());
 
-        sender.sendMessage(ChatColor.YELLOW + "You have accepted " + SACUtil.formatPlayer(sender, stake.getStakeUUID()) +
+        sender.sendMessage(ChatColor.YELLOW + "You have accepted " + 
+                SACUtil.formatPlayer(SACUtil.offPlayer(plugin, stake.getStakeUUID())) +
                 ChatColor.YELLOW + "'s stake in " + SACUtil.formatID(stake) + 
                 ChatColor.YELLOW + " in " + ChatColor.BLUE + world.getName() + "!");
 
@@ -237,7 +238,8 @@ public class DoCommands {
     }
 
     private void denyClaim(CommandSender sender, ProtectedRegion claim, Stake stake, World world, WorldConfig wcfg) {
-        sender.sendMessage(ChatColor.YELLOW + "You have denied " + SACUtil.formatPlayer(sender, stake.getStakeUUID()) +
+        sender.sendMessage(ChatColor.YELLOW + "You have denied " + 
+                SACUtil.formatPlayer(SACUtil.offPlayer(plugin, stake.getStakeUUID())) +
                 ChatColor.YELLOW + "'s stake in " + SACUtil.formatID(stake) + 
                         ChatColor.YELLOW + " in " + ChatColor.BLUE + world.getName() + "!");
 
@@ -258,19 +260,18 @@ public class DoCommands {
         }
     }
 
-    @SuppressWarnings("deprecation")
     private void reclaimClaim(CommandSender sender, ProtectedRegion claim, Stake stake, World world, WorldConfig wcfg) {
             StringBuilder message = new StringBuilder(ChatColor.YELLOW + "You have reclaimed " + SACUtil.formatID(stake) +
                     ChatColor.YELLOW + " in " + ChatColor.BLUE + world.getName());
             if (claim.getOwners().size() > 0) {
                 message.append(ChatColor.YELLOW + " from");
                 for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
-                    message.append(" " + SACUtil.formatPlayer(sender, oneOwner));
+                    message.append(" " + SACUtil.formatPlayer(SACUtil.offPlayer(plugin, oneOwner)));
                 }
 
 // remove for loop when names get removed entirely
                 for (String oneOwner : claim.getOwners().getPlayers()) {
-                    message.append(" " + SACUtil.formatPlayer(sender, oneOwner));
+                    message.append(" " + SACUtil.formatPlayer(oneOwner));
                 }
 
             }
@@ -278,7 +279,7 @@ public class DoCommands {
 
         if (!wcfg.silentNotify) {
             for (Player claimHolder : plugin.getServer().getOnlinePlayers()) {
-                if (claim.getOwners().contains(claimHolder.getUniqueId())) {
+                if (claim.getOwners().contains(claimHolder.getUniqueId()) || claim.getOwners().contains(claimHolder.getName().toLowerCase())) {
                     claimHolder.sendMessage(ChatColor.YELLOW + "You no longer own " + SACUtil.formatID(stake) + 
                             (claimHolder.getWorld().equals(world) ? "" : ChatColor.YELLOW + " in " + ChatColor.BLUE + world.getName()) + 
                             ChatColor.YELLOW + ", it has been " + ChatColor.DARK_RED + "reclaimed!");

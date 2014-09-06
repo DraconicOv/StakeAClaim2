@@ -22,6 +22,8 @@ package com.nineteengiraffes.stakeaclaim;
 import java.io.File;
 import java.io.IOException;
 
+import org.bukkit.Material;
+
 import com.sk89q.util.yaml.YAMLFormat;
 import com.sk89q.util.yaml.YAMLProcessor;
 import com.sk89q.worldguard.bukkit.WGBukkit;
@@ -54,7 +56,7 @@ public class WorldConfig {
     public boolean useSAC;
     public boolean useStakes;
     public boolean useRegions;
-    public int sacWand;
+    public Material sacWand;
     public String claimNameFilter;
     public boolean useReclaimed;
     public boolean useVolumeLimits;
@@ -136,7 +138,7 @@ public class WorldConfig {
         opPermissions = getBoolean("op-permissions", true);
         useSAC = getBoolean("master-enable", true);
         useStakes = getBoolean("stakes-enable", true);
-        sacWand = getInt("wand", 288); // Feather
+        sacWand = Material.matchMaterial(getString("wand", "FEATHER"));
         claimNameFilter = getString("claim-name-regex-filter-string", "^[NSns]\\d\\d?[EWew]\\d\\d?$"); // match eg. s2w45
         useReclaimed = getBoolean("remeber-reclaimed", true);
         VIPs = getString("what-you-call-your-vips", "Donors");

@@ -20,6 +20,7 @@ package com.nineteengiraffes.stakeaclaim;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -80,7 +81,6 @@ public class PlayerListener implements Listener {
     }
 
     class PlayerMoveHandler implements Listener {
-        @SuppressWarnings("deprecation")
         @EventHandler(priority = EventPriority.HIGH)
         public void onPlayerMove(PlayerMoveEvent event) {
             Player player = event.getPlayer();
@@ -100,7 +100,7 @@ public class PlayerListener implements Listener {
                     final ItemStack item = player.getItemInHand();
                     String support = null;
 
-                    if (item.getTypeId() == wcfg.sacWand && SACUtil.hasPermission(plugin, player, "stakeaclaim.events.wand")) {
+                    if (item.getType() == wcfg.sacWand && SACUtil.hasPermission(plugin, player, "stakeaclaim.events.wand")) {
 
                         // Get a single valid claim.
                         final RegionManager rgMgr = WGBukkit.getRegionManager(world);
@@ -123,9 +123,15 @@ public class PlayerListener implements Listener {
                             if (SACUtil.isRegionOwned(claim) <= 0) {
                                 message.append(ChatColor.GRAY + " Unclaimed");
                             } else {
-                                for (String oneOwner : claim.getOwners().getPlayers()) {
-                                    message.append(" " + SACUtil.formatPlayer(player, oneOwner));
+                                for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
+                                    message.append(" " + SACUtil.formatPlayer(SACUtil.offPlayer(plugin, oneOwner)));
                                 }
+
+// remove for loop when names get removed entirely
+                                for (String oneOwner : claim.getOwners().getPlayers()) {
+                                    message.append(" " + SACUtil.formatPlayer(oneOwner));
+                                }
+
                             }
 
                             support = message.toString();
@@ -148,7 +154,6 @@ public class PlayerListener implements Listener {
         plugin.getPlayerStateManager().getState(event.getPlayer()).unsubmittedStake = null;
     }
 
-    @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
 
@@ -164,7 +169,7 @@ public class PlayerListener implements Listener {
 
             ItemStack held = activePlayer.getItemInHand();
 
-            if (held.getTypeId() == wcfg.sacWand && SACUtil.hasPermission(plugin, activePlayer, "stakeaclaim.events.wand.player")) {
+            if (held.getType() == wcfg.sacWand && SACUtil.hasPermission(plugin, activePlayer, "stakeaclaim.events.wand.player")) {
 
                 if (!wcfg.useStakes) {
                     activePlayer.sendMessage(ChatColor.YELLOW + "Stakes are disabled in this world.");
@@ -197,12 +202,11 @@ public class PlayerListener implements Listener {
                     }
                 }
 
-                SACUtil.displayPlayer(plugin, activePlayer, rgMgr, world, passivePlayer.getUniqueId());
+                SACUtil.displayPlayer(plugin, activePlayer, rgMgr, world, passivePlayer);
             }
         }
     }
 
-    @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteract(PlayerInteractEvent event) {
 
@@ -214,7 +218,7 @@ public class PlayerListener implements Listener {
             ConfigManager cfg = plugin.getGlobalManager();
             WorldConfig wcfg = cfg.get(world);
 
-            if (held.getTypeId() == wcfg.sacWand && SACUtil.hasPermission(plugin, player, "stakeaclaim.events.wand.claim")) {
+            if (held.getType() == wcfg.sacWand && SACUtil.hasPermission(plugin, player, "stakeaclaim.events.wand.claim")) {
 
                 if (!wcfg.useStakes) {
                     player.sendMessage(ChatColor.YELLOW + "Stakes are disabled in this world.");
@@ -350,7 +354,7 @@ public class PlayerListener implements Listener {
                 for (Stake stake : stakes.values()) {
                     if (stake.getDefaultEntry() != null) {
                         region = rgMgr.getRegion(stake.getId());
-                        if (region.getOwners().contains(player.getName().toLowerCase())) {
+                        if (region.getOwners().contains(player.getUniqueId()) || region.getOwners().contains(player.getName().toLowerCase())) {
                             if (region.getFlag(DefaultFlag.ENTRY) != stake.getDefaultEntry()) {
                                 region.setFlag(DefaultFlag.ENTRY, stake.getDefaultEntry());
                             }

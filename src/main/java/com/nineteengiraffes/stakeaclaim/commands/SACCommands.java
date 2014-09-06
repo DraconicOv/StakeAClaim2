@@ -26,6 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -98,7 +99,6 @@ public class SACCommands {
 
     }
 
-    @SuppressWarnings("deprecation")
     @Command(aliases = {"search", "s"},
             usage = "[filter(s)..]",
             desc = "Search all claims with filter(s)",
@@ -117,8 +117,8 @@ public class SACCommands {
         LinkedHashMap<Integer, ProtectedRegion> joinList = null;
         World argWorld = null;
         String id = null;
-        UUID owner = null;
-        UUID member = null;
+        OfflinePlayer owner = null;
+        OfflinePlayer member = null;
         Boolean typo = null;
         Boolean banned = null;
         Boolean pending = null;
@@ -226,7 +226,7 @@ public class SACCommands {
                 } else if (filter.equalsIgnoreCase("owner") || filter.equalsIgnoreCase("o")) {
                     i++;
                     if (i >= args.argsLength()) {
-                        throw new CommandException(ChatColor.YELLOW + "Please include a player or booean for filter '" + ChatColor.WHITE + "owner" + 
+                        throw new CommandException(ChatColor.YELLOW + "Please include a player or boolean for filter '" + ChatColor.WHITE + "owner" + 
                                 ChatColor.YELLOW + "'");
                     } else {
                         filter = args.getString(i);
@@ -237,7 +237,7 @@ public class SACCommands {
                                 filter.equalsIgnoreCase("true")) {
                             claimed = true;
                         } else {
-                            owner = sender.getServer().getOfflinePlayer(args.getString(i)).getUniqueId();
+                            owner = SACUtil.offPlayer(plugin, args.getString(i));
                         }
                     }
 
@@ -245,7 +245,7 @@ public class SACCommands {
                 } else if (filter.equalsIgnoreCase("member") || filter.equalsIgnoreCase("m")) {
                     i++;
                     if (i >= args.argsLength()) {
-                        throw new CommandException(ChatColor.YELLOW + "Please include a player or booean for filter '" + ChatColor.WHITE + "member" + 
+                        throw new CommandException(ChatColor.YELLOW + "Please include a player or boolean for filter '" + ChatColor.WHITE + "member" + 
                                 ChatColor.YELLOW + "'");
                     } else {
                         filter = args.getString(i);
@@ -256,7 +256,7 @@ public class SACCommands {
                                 filter.equalsIgnoreCase("true")) {
                             hasMembers = true;
                         } else {
-                            member = sender.getServer().getOfflinePlayer(args.getString(i)).getUniqueId();
+                            member = SACUtil.offPlayer(plugin, args.getString(i));
                         }
                     }
 
@@ -401,7 +401,7 @@ public class SACCommands {
                         page = Integer.parseInt(filter.substring(4)) - 1;
                     } catch (NumberFormatException e) {
                         throw new CommandException(ChatColor.YELLOW + "'" + ChatColor.WHITE + filter + ChatColor.YELLOW + "' is not a valid '" + 
-                                ChatColor.WHITE + "page" + ChatColor.YELLOW + "' filter");
+                                ChatColor.WHITE + "page" + ChatColor.YELLOW + "' filter.");
                     }
                     if (page < 0) {
                         throw new CommandException(ChatColor.YELLOW + "'" + ChatColor.WHITE + filter + ChatColor.YELLOW + "' for filter '" + 
@@ -413,13 +413,14 @@ public class SACCommands {
                     try {
                         page = Integer.parseInt(filter.substring(1)) - 1;
                     } catch (NumberFormatException e) {
-                        throw new CommandException(ChatColor.YELLOW + "'" + ChatColor.WHITE + filter + ChatColor.YELLOW + "' is not a valid '" + 
-                                ChatColor.WHITE + "page" + ChatColor.YELLOW + "' filter");
+                        throw new CommandException(ChatColor.YELLOW + "'" + ChatColor.WHITE + filter + ChatColor.YELLOW + "' is not a valid filter.");
                     }
                     if (page < 0) {
                         throw new CommandException(ChatColor.YELLOW + "'" + ChatColor.WHITE + filter + ChatColor.YELLOW + "' for filter '" + 
                                 ChatColor.WHITE + "page" + ChatColor.YELLOW + "' must be at least 1.");
                     }
+                } else {
+                    throw new CommandException(ChatColor.YELLOW + "'" + ChatColor.WHITE + filter + ChatColor.YELLOW + "' is not a valid filter.");
                 }
 
             // end args loop
@@ -476,7 +477,7 @@ public class SACCommands {
         // if no args
         } else {
             throw new CommandException(ChatColor.YELLOW + "Please include some filters. Do " + ChatColor.WHITE + "/sac filters" + 
-                    ChatColor.YELLOW + " to see a full list.");
+                    ChatColor.YELLOW + " to see a filter list.");
         }
     }
 
@@ -638,14 +639,13 @@ public class SACCommands {
         SACUtil.displayClaim(wcfg, claim, stake, sender, plugin, world, item);
     }
 
-    @SuppressWarnings("deprecation")
     @Command(aliases = {"user", "u"},
             usage = "<list item #> or <player> [world]",
             desc = "View detailed info on one user",
             min = 1, max = 2)
     @CommandPermissions("stakeaclaim.sac.user")
     public void user(CommandContext args, CommandSender sender) throws CommandException {
-
+//TODO add UUID option for console/links
         final PlayerState state = plugin.getPlayerStateManager().getState(sender);
         final ConfigManager cfg = plugin.getGlobalManager();
         String argWorld = null;
@@ -723,9 +723,10 @@ public class SACCommands {
                 playerName = args.getString(0);
             }
 
-            playerUUID = sender.getServer().getOfflinePlayer(args.getString(0)).getUniqueId();
+            SACUtil.displayPlayer(plugin, sender, rgMgr, world, SACUtil.offPlayer(plugin, playerName));
+        } else {
+            SACUtil.displayPlayer(plugin, sender, rgMgr, world, SACUtil.offPlayer(plugin, playerUUID));
         }
-        SACUtil.displayPlayer(plugin, sender, rgMgr, world, playerUUID);
 
     }
 
