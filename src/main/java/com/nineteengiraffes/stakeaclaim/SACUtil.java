@@ -1276,8 +1276,17 @@ public class SACUtil {
         if (claim.getMembers().size() != 0) {
             if (hasPermission(plugin, sender, "stakeaclaim.sac.user") && isPlayer) {
                 StringBuilder message = new StringBuilder("tellraw " + sender.getName() + 
-                        " {text:'Member" + (claim.getMembers().getPlayers().size() == 1 ? ":" : "s:") + "',color:dark_green,extra:[");
+                        " {text:'Member" + (claim.getMembers().size() == 1 ? ":" : "s:") + "',color:dark_green,extra:[");
                 boolean first = true;
+                for (UUID oneMember : claim.getMembers().getUniqueIds()) {
+                    if (!first ) {
+                        message.append(",");
+                    }
+                    message.append(formatPlayerJSON(world, offPlayer(plugin, oneMember)));
+                    first = false;
+                }
+
+// remove for loop when names get removed entirely
                 for (String oneMember : claim.getMembers().getPlayers()) {
                     if (!first ) {
                         message.append(",");
@@ -1285,13 +1294,20 @@ public class SACUtil {
                     message.append(formatPlayerJSON(oneMember));
                     first = false;
                 }
+
                 message.append("]}");
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), message.toString());
             } else {
-                StringBuilder message = new StringBuilder(ChatColor.DARK_GREEN + "Member" + (claim.getMembers().getPlayers().size() == 1 ? ":" : "s:"));
+                StringBuilder message = new StringBuilder(ChatColor.DARK_GREEN + "Member" + (claim.getMembers().size() == 1 ? ":" : "s:"));
+                for (UUID oneMember : claim.getMembers().getUniqueIds()) {
+                    message.append(" " + formatPlayer(offPlayer(plugin, oneMember)));
+                }
+
+// remove for loop when names get removed entirely
                 for (String oneMember : claim.getMembers().getPlayers()) {
                     message.append(" " + formatPlayer(oneMember));
                 }
+
                 sender.sendMessage(message.toString());
             }
         }
@@ -1440,7 +1456,7 @@ public class SACUtil {
     public static String formatPlayerJSON(World world, OfflinePlayer offlinePlayer){
         StringBuilder player = new StringBuilder("{text:' " + (offlinePlayer.isOnline() ? "*" : "") + offlinePlayer.getName() + "',");
         if (world != null) {
-            player.append("clickEvent:{action:run_command,value:'/sac user " + offlinePlayer.getName() + " " + world.getName() + "'},");
+            player.append("clickEvent:{action:run_command,value:'/sac user " + offlinePlayer.getUniqueId().toString() + " " + world.getName() + "'},");
         }
         player.append("color:" + (offlinePlayer.isBanned() ? "dark_red" : (offlinePlayer.hasPlayedBefore() ? "green" : "red")) + "}");
         return player.toString();

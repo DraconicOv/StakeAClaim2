@@ -645,7 +645,6 @@ public class SACCommands {
             min = 1, max = 2)
     @CommandPermissions("stakeaclaim.sac.user")
     public void user(CommandContext args, CommandSender sender) throws CommandException {
-//TODO add UUID option for console/links
         final PlayerState state = plugin.getPlayerStateManager().getState(sender);
         final ConfigManager cfg = plugin.getGlobalManager();
         String argWorld = null;
@@ -694,21 +693,23 @@ public class SACCommands {
             } catch (NumberFormatException e) {
             }
             if (claim != null) {
-                world = state.listWorld;
-                final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
+                final StakeManager sMgr = plugin.getGlobalStakeManager().get(state.listWorld);
                 final Stake stake = sMgr.getStake(claim);
                 for (UUID owner : claim.getOwners().getUniqueIds()) {
                     playerUUID = owner;
+                    world = state.listWorld;
                     break;
                 }
                 if (playerUUID == null) {
                     for (String owner : claim.getOwners().getPlayers()) {
                         playerName = owner;
+                        world = state.listWorld;
                         break;
                     }
                 }
                 if (playerUUID == null && playerName == null && stake.getStatus() != null && stake.getStatus() == Status.PENDING && stake.getStakeUUID() != null) {
                     playerUUID = stake.getStakeUUID();
+                    world = state.listWorld;
                 }
             }
         }
@@ -718,14 +719,16 @@ public class SACCommands {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
 
-        if (playerUUID == null) {
-            if (playerName == null) {
-                playerName = args.getString(0);
-            }
-
+        if (playerUUID != null) {
+            SACUtil.displayPlayer(plugin, sender, rgMgr, world, SACUtil.offPlayer(plugin, playerUUID));
+        } else if (playerName != null) {
             SACUtil.displayPlayer(plugin, sender, rgMgr, world, SACUtil.offPlayer(plugin, playerName));
         } else {
-            SACUtil.displayPlayer(plugin, sender, rgMgr, world, SACUtil.offPlayer(plugin, playerUUID));
+            try {
+                SACUtil.displayPlayer(plugin, sender, rgMgr, world, SACUtil.offPlayer(plugin, UUID.fromString(args.getString(0))));
+            } catch (IllegalArgumentException e) {
+                SACUtil.displayPlayer(plugin, sender, rgMgr, world, SACUtil.offPlayer(plugin, args.getString(0)));
+            }
         }
 
     }
