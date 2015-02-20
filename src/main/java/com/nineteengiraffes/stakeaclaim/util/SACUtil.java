@@ -17,12 +17,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.nineteengiraffes.stakeaclaim;
+package com.nineteengiraffes.stakeaclaim.util;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -36,19 +35,26 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.nineteengiraffes.stakeaclaim.ConfigManager;
 import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
+import com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin;
+import com.nineteengiraffes.stakeaclaim.WorldConfig;
 import com.nineteengiraffes.stakeaclaim.stakes.Stake;
 import com.nineteengiraffes.stakeaclaim.stakes.Stake.Status;
 import com.nineteengiraffes.stakeaclaim.stakes.StakeManager;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissionsException;
+import com.sk89q.squirrelid.Profile;
+import com.sk89q.squirrelid.resolver.ProfileService;
+import com.sk89q.squirrelid.util.UUIDs;
 import com.sk89q.wepif.PermissionsResolverManager;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.bukkit.WGBukkit;
+import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
@@ -225,9 +231,8 @@ public class SACUtil {
      * @param command the command the permission is for
      * @param claim the claim to check owner and member permissions on
      * @return true if sender has permission
-     * @throws CommandException 
      */
-    public static boolean hasPerm(StakeAClaimPlugin plugin, Player player, String command, ProtectedRegion claim) throws CommandException {
+    public static boolean hasPerm(StakeAClaimPlugin plugin, Player player, String command, ProtectedRegion claim) {
 
         final LocalPlayer localPlayer = WGBukkit.getPlugin().wrapPlayer(player);
         final String id = claim.getId();
@@ -302,7 +307,7 @@ public class SACUtil {
     }
 
 
-    // Offline player queries
+    // Player name tools
     /**
      * Get an offline player from a player UUID
      * 
@@ -310,598 +315,101 @@ public class SACUtil {
      * @param playerUUID the player UUID
      * @return OfflinePlayer
      */
-    public static OfflinePlayer offPlayer(StakeAClaimPlugin plugin, UUID playerUUID) {
+    public static OfflinePlayer getOfflinePlayer(StakeAClaimPlugin plugin, UUID playerUUID) {
         return plugin.getServer().getOfflinePlayer(playerUUID);
     }
 
     /**
-     * Get an offline player from a player name
+     * Get UUID for {@code playerName}
      * 
      * @param plugin the SakesAClaim plugin
-     * @param playerName the player
-     * @return OfflinePlayer
+     * @param playerName the player name
+     * @return UUID
+     * @throws CommandException if no player was found
      */
-    //@Deprecated
-    //TODO find a better way to do this
-    @SuppressWarnings("deprecation")
-    public static OfflinePlayer offPlayer(StakeAClaimPlugin plugin, String playerName) {
-        return plugin.getServer().getOfflinePlayer(playerName);
-    }
+    public static UUID uuidLookupWithEx(StakeAClaimPlugin plugin, String playerName) throws CommandException {
 
-
-    // Filters
-    /**
-     * Filters {@code fullList} with all non {@code null} filters
-     * 
-     * @param plugin the SAC plugin
-     * @param fullList the list of regions to filter
-     * @param world the world the list is from
-     * <pre>
-     * Filters:</pre>
-     * @param joinList
-     * @param id
-     * @param owner
-     * @param member
-     * @param banned
-     * @param pending
-     * @param hasMembers
-     * @param claimed
-     * @param vip
-     * @param absent
-     * @param seen
-     * @return filtered list
-     * @throws CommandException if no claims matched filter(s)
-     */
-    public static LinkedHashMap<Integer, ProtectedRegion> filterList(
-            StakeAClaimPlugin plugin, ArrayList<ProtectedRegion> fullList, World world, 
-            LinkedHashMap<Integer, ProtectedRegion> joinList, String id, OfflinePlayer owner, OfflinePlayer member, Boolean typo, Boolean banned, 
-            Boolean pending, Boolean hasMembers,  Boolean claimed, Boolean vip, Long absent, Long seen) throws CommandException {
-
-            final ConfigManager cfg = plugin.getGlobalManager();
-            final WorldConfig wcfg = cfg.get(world);
-            final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-            // claims
-            ArrayList<ProtectedRegion> tempList = new ArrayList<ProtectedRegion>();
-            final Pattern regexPat = Pattern.compile(wcfg.claimNameFilter);
-            Matcher regexMat;
-            for (ProtectedRegion claim : fullList) {
-                regexMat = regexPat.matcher(claim.getId());
-                if (regexMat.find()) {
-                    tempList.add(claim);
+        UUID uuid = parseUUID(playerName);
+        if (uuid != null) {
+            return uuid;
+        } else {
+            ProfileService profileService = plugin.getProfileService();
+            try {
+                Profile profile = profileService.findByName(playerName);
+                if (profile != null) {
+                    return profile.getUniqueId();
                 }
+            } catch (IOException e) {
+                throw new CommandException("The UUID lookup service failed so the name entered could not be turned into a UUID");
+            } catch (InterruptedException e) {
+                throw new CommandException("UUID lookup was interrupted");
             }
-            if (tempList.isEmpty()) {
-                throw new CommandException(ChatColor.YELLOW + "There are no claims in this world.");
-            }
-            fullList = tempList;
-
-            // id
-            if (id != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    if (claim.getId().equalsIgnoreCase(id)) {
-                        tempList.add(claim);
-                    }
-                }
-                if (tempList.isEmpty()) {
-                    throw new CommandException(ChatColor.YELLOW + "No claims matched '" + ChatColor.WHITE + id + ChatColor.YELLOW + "' for filter '" + 
-                            ChatColor.WHITE + "id" + ChatColor.YELLOW + "'");
-                }
-                fullList = tempList;
-            }
-
-            // owner
-            if (owner != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    if (claim.getOwners().contains(owner.getUniqueId()) || 
-                            claim.getOwners().contains(owner.getName().toLowerCase())) {
-                        tempList.add(claim);
-                    }
-                }
-                if (tempList.isEmpty()) {
-                    throw new CommandException(ChatColor.YELLOW + "No claims matched '" + ChatColor.WHITE + owner + ChatColor.YELLOW + "' for filter '" + 
-                            ChatColor.WHITE + "owner" + ChatColor.YELLOW + "'");
-                }
-                fullList = tempList;
-            }
-
-            // member
-            if (member != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    if (claim.getMembers().contains(member.getUniqueId()) || 
-                            claim.getMembers().contains(member.getName().toLowerCase())) {
-                        tempList.add(claim);
-                    }
-                }
-                if (tempList.isEmpty()) {
-                    throw new CommandException(ChatColor.YELLOW + "No claims matched '" + ChatColor.WHITE + member + ChatColor.YELLOW + "' for filter '" + 
-                            ChatColor.WHITE + "member" + ChatColor.YELLOW + "'");
-                }
-                fullList = tempList;
-            }
-
-            // typo
-// remove typo filter when names are removed entirely
-            if (typo != null) {
-
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    boolean hasTypo = false;
-                    for (String oneMember : claim.getMembers().getPlayers()) {
-                        if (!offPlayer(plugin, oneMember).hasPlayedBefore()) {
-                            hasTypo = true;
-                            break;
-                        }
-                    }
-                    for (String oneOwner : claim.getOwners().getPlayers()) {
-                        if (!offPlayer(plugin, oneOwner).hasPlayedBefore()) {
-                            hasTypo = true;
-                            break;
-                        }
-                    }
-                    if (hasTypo == typo) {
-                        tempList.add(claim);
-                    }
-                }
-                if (tempList.isEmpty()) {
-                    throw new CommandException(ChatColor.YELLOW + "No claims matched '" + ChatColor.WHITE + typo + ChatColor.YELLOW + "' for filter '" + 
-                            ChatColor.WHITE + "typo" + ChatColor.YELLOW + "'");
-                }
-                fullList = tempList;
-            }
-
-            // banned
-            if (banned != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    boolean isBanned = false;
-                    for (UUID oneMember : claim.getMembers().getUniqueIds()) {
-                        if (offPlayer(plugin, oneMember).isBanned()) {
-                            isBanned = true;
-                            break;
-                        }
-                    }
-                    for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
-                        if (offPlayer(plugin, oneOwner).isBanned()) {
-                            isBanned = true;
-                            break;
-                        }
-                    }
-
-// remove 2 for loops when names are removed entirely
-                    for (String oneMember : claim.getMembers().getPlayers()) {
-                        if (offPlayer(plugin, oneMember).isBanned()) {
-                            isBanned = true;
-                            break;
-                        }
-                    }
-                    for (String oneOwner : claim.getOwners().getPlayers()) {
-                        if (offPlayer(plugin, oneOwner).isBanned()) {
-                            isBanned = true;
-                            break;
-                        }
-                    }
-
-                    if (isBanned == banned) {
-                        tempList.add(claim);
-                    }
-                }
-                if (tempList.isEmpty()) {
-                    throw new CommandException(ChatColor.YELLOW + "No claims matched '" + ChatColor.WHITE + banned + ChatColor.YELLOW + "' for filter '" + 
-                            ChatColor.WHITE + "banned" + ChatColor.YELLOW + "'");
-                }
-                fullList = tempList;
-            }
-
-            // pending
-            if (pending != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    if (sMgr.getStake(claim).getStatus() == Status.PENDING && pending) {
-                        tempList.add(claim);
-                    } else if (sMgr.getStake(claim).getStatus() != Status.PENDING && !pending) {
-                        tempList.add(claim);
-                    }
-                }
-                if (tempList.isEmpty()) {
-                    throw new CommandException(ChatColor.YELLOW + "No claims matched '" + ChatColor.WHITE + pending.toString() + 
-                            ChatColor.YELLOW + "' for filter '" + ChatColor.WHITE + "pending" + ChatColor.YELLOW + "'");
-                }
-                fullList = tempList;
-            }
-
-            // has members
-            if (hasMembers != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    if (claim.getMembers().size() > 0 && hasMembers) {
-                        tempList.add(claim);
-                    } else if (claim.getMembers().size() <= 0 && !hasMembers) {
-                        tempList.add(claim);
-                    }
-                }
-                if (tempList.isEmpty()) {
-                    throw new CommandException(ChatColor.YELLOW + "No claims matched '" + ChatColor.WHITE + hasMembers.toString() + 
-                            ChatColor.YELLOW + "' for filter '" + ChatColor.WHITE + "member" + ChatColor.YELLOW + "'");
-                }
-                fullList = tempList;
-            }
-
-            // claimed
-            if (claimed != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    if (claim.getOwners().size() > 0 && claimed) {
-                        tempList.add(claim);
-                    } else if (claim.getOwners().size() <= 0 && !claimed) {
-                        tempList.add(claim);
-                    }
-                }
-                if (tempList.isEmpty()) {
-                    throw new CommandException(ChatColor.YELLOW + "No claims matched '" + ChatColor.WHITE + claimed.toString() + 
-                            ChatColor.YELLOW + "' for filter '" + ChatColor.WHITE + "owner" + ChatColor.YELLOW + "'");
-                }
-                fullList = tempList;
-            }
-
-            // vip
-            if (vip != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    if (sMgr.getStake(claim).getVIP() == vip) {
-                        tempList.add(claim);
-                    }
-                }
-                if (tempList.isEmpty()) {
-                    throw new CommandException(ChatColor.YELLOW + "No claims matched '" + ChatColor.WHITE + vip.toString() + 
-                            ChatColor.YELLOW + "' for filter '" + ChatColor.WHITE + "vip" + ChatColor.YELLOW + "'");
-                }
-                fullList = tempList;
-            }
-
-            // absent
-            if (absent != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    List<Long> times = new ArrayList<Long>();
-                    for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
-                        Long online = offPlayer(plugin, oneOwner).getLastPlayed();
-                        if (online > 0) {
-                            times.add(online);
-                        }
-                    }
-
-// remove for loop when names are removed entirely
-                    for (String oneOwner : claim.getOwners().getPlayers()) {
-                        Long online = offPlayer(plugin, oneOwner).getLastPlayed();
-                        if (online > 0) {
-                            times.add(online);
-                        }
-                    }
-
-                    if (!times.isEmpty() && Collections.max(times) < absent) {
-                        tempList.add(claim);
-                    }
-                }
-                if (tempList.isEmpty()) {
-                    throw new CommandException(ChatColor.YELLOW + "No claims matched filter '" + ChatColor.WHITE + "absent" + ChatColor.YELLOW + "'");
-                }
-                fullList = tempList;
-            }
-
-            // seen
-            if (seen != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    List<Long> times = new ArrayList<Long>();
-                    for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
-                        Long online = offPlayer(plugin, oneOwner).getLastPlayed();
-                        if (online > 0) {
-                            times.add(online);
-                        }
-                    }
-
-// remove for loop when names are removed entirely
-                    for (String oneOwner : claim.getOwners().getPlayers()) {
-                        Long online = offPlayer(plugin, oneOwner).getLastPlayed();
-                        if (online > 0) {
-                            times.add(online);
-                        }
-                    }
-
-                    if (!times.isEmpty() && Collections.max(times) > seen) {
-                        tempList.add(claim);
-                    }
-                }
-                if (tempList.isEmpty()) {
-                    throw new CommandException(ChatColor.YELLOW + "No claims matched filter '" + ChatColor.WHITE + "seen" + ChatColor.YELLOW + "'");
-                }
-                fullList = tempList;
-            }
-            // end filtering
-
-            LinkedHashMap<Integer, ProtectedRegion> regionList = new LinkedHashMap<Integer, ProtectedRegion>();
-            if (joinList != null) {
-                regionList = joinList;
-            }
-
-            int index = regionList.size();
-            for (ProtectedRegion region : fullList) {
-                if (!regionList.containsValue(region)) {
-                    regionList.put(index, region);
-                    index++;
-                }
-            }
-
-            return regionList;
+            throw new CommandException(ChatColor.YELLOW + "Unable to find a player named '" + 
+                    ChatColor.WHITE + playerName + ChatColor.YELLOW + "'");
+        }
 
     }
 
     /**
-     * Filters all regions with all non {@code null} filters
+     * Try to get UUID for {@code playerName}
      * 
-     * @param plugin the SAC plugin
-     * @param rgMgr the region manager to work with
-     * @param world the world the list is from
-     * <pre>
-     * Filters:</pre>
-     * @param joinList
-     * @param id
-     * @param owner
-     * @param member
-     * @param banned
-     * @param pending
-     * @param hasMembers
-     * @param claimed
-     * @param vip
-     * @param absent
-     * @param seen
-     * @return filtered list, may be empty
+     * @param plugin the SakesAClaim plugin
+     * @param playerName the player name
+     * @return UUID or null
      */
-    public static LinkedHashMap<Integer, ProtectedRegion> filterList(
-            StakeAClaimPlugin plugin, RegionManager rgMgr, World world, 
-            LinkedHashMap<Integer, ProtectedRegion> joinList, String id, OfflinePlayer owner, OfflinePlayer member, Boolean typo, Boolean banned, 
-            Boolean pending, Boolean hasMembers,  Boolean claimed, Boolean vip, Long absent, Long seen) {
+    public static UUID uuidLookup(StakeAClaimPlugin plugin, String playerName){
 
-            ArrayList<ProtectedRegion> fullList = new ArrayList<ProtectedRegion>();
-            fullList.addAll(rgMgr.getRegions().values());
-            final ConfigManager cfg = plugin.getGlobalManager();
-            final WorldConfig wcfg = cfg.get(world);
-            final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-
-            // claims
-            ArrayList<ProtectedRegion> tempList = new ArrayList<ProtectedRegion>();
-            final Pattern regexPat = Pattern.compile(wcfg.claimNameFilter);
-            Matcher regexMat;
-            for (ProtectedRegion claim : fullList) {
-                regexMat = regexPat.matcher(claim.getId());
-                if (regexMat.find()) {
-                    tempList.add(claim);
+        UUID uuid = parseUUID(playerName);
+        if (uuid != null) {
+            return uuid;
+        } else {
+            ProfileService profileService = plugin.getProfileService();
+            try {
+                Profile profile = profileService.findByName(playerName);
+                if (profile != null) {
+                    return profile.getUniqueId();
                 }
+            } catch (IOException e) {
+            } catch (InterruptedException e) {
             }
-            fullList = tempList;
+            return null;
+        }
 
-            // id
-            if (id != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    if (claim.getId().equalsIgnoreCase(id)) {
-                        tempList.add(claim);
-                    }
-                }
-                fullList = tempList;
-            }
+    }
 
-            // owner
-            if (owner != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    if (claim.getOwners().contains(owner.getUniqueId()) || 
-                            claim.getOwners().contains(owner.getName().toLowerCase())) {
-                        tempList.add(claim);
-                    }
-                }
-                fullList = tempList;
-            }
+    /**
+     * Create a new domain containing {@code players}
+     * 
+     * @param plugin the SakesAClaim plugin
+     * @param players to add to the new domain
+     * @return domain containing players
+     * @throws CommandException if any players could not be added to the new domain
+     */
+    public static DefaultDomain newDomain(StakeAClaimPlugin plugin, String[] players) throws CommandException { 
+        DefaultDomain domain = new DefaultDomain();
 
-            // member
-            if (member != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    if (claim.getMembers().contains(member.getUniqueId()) || 
-                            claim.getMembers().contains(member.getName().toLowerCase())) {
-                        tempList.add(claim);
-                    }
-                }
-                fullList = tempList;
-            }
+        for (String player : players) {
+            domain.addPlayer(uuidLookupWithEx(plugin, player));
+        }
 
-            // typo
-// remove typo filter when names are removed entirely
-            if (typo != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    boolean hasTypo = false;
-                    for (String oneMember : claim.getMembers().getPlayers()) {
-                        if (!offPlayer(plugin, oneMember).hasPlayedBefore()) {
-                            hasTypo = true;
-                            break;
-                        }
-                    }
-                    for (String oneOwner : claim.getOwners().getPlayers()) {
-                        if (!offPlayer(plugin, oneOwner).hasPlayedBefore()) {
-                            hasTypo = true;
-                            break;
-                        }
-                    }
-                    if (hasTypo == typo) {
-                        tempList.add(claim);
-                    }
-                }
-                fullList = tempList;
-            }
+        return domain;
+    }
 
-            // banned
-            if (banned != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    boolean isBanned = false;
-                    for (UUID oneMember : claim.getMembers().getUniqueIds()) {
-                        if (offPlayer(plugin, oneMember).isBanned()) {
-                            isBanned = true;
-                            break;
-                        }
-                    }
-                    for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
-                        if (offPlayer(plugin, oneOwner).isBanned()) {
-                            isBanned = true;
-                            break;
-                        }
-                    }
+    /**
+     * Parse {@code playerUUID} to a UUID
+     * 
+     * @param playerUUID the string to parse
+     * @return UUID or null
+     */
+    public static UUID parseUUID(String playerUUID){
 
-// remove 2 for loops when names are removed entirely
-                    for (String oneMember : claim.getMembers().getPlayers()) {
-                        if (offPlayer(plugin, oneMember).isBanned()) {
-                            isBanned = true;
-                            break;
-                        }
-                    }
-                    for (String oneOwner : claim.getOwners().getPlayers()) {
-                        if (offPlayer(plugin, oneOwner).isBanned()) {
-                            isBanned = true;
-                            break;
-                        }
-                    }
+        UUID uuid = null;
+        try {
+            uuid = UUID.fromString(UUIDs.addDashes(playerUUID.replaceAll("^uuid:", "")));
+        } catch (IllegalArgumentException e) {
+        }
 
-                    if (isBanned == banned) {
-                        tempList.add(claim);
-                    }
-                }
-                fullList = tempList;
-            }
-
-            // pending
-            if (pending != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    if (sMgr.getStake(claim).getStatus() == Status.PENDING && pending) {
-                        tempList.add(claim);
-                    } else if (sMgr.getStake(claim).getStatus() != Status.PENDING && !pending) {
-                        tempList.add(claim);
-                    }
-                }
-                fullList = tempList;
-            }
-
-            // has members
-            if (hasMembers != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    if (claim.getMembers().size() > 0 && hasMembers) {
-                        tempList.add(claim);
-                    } else if (claim.getMembers().size() <= 0 && !hasMembers) {
-                        tempList.add(claim);
-                    }
-                }
-                fullList = tempList;
-            }
-
-            // claimed
-            if (claimed != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    if (claim.getOwners().size() > 0 && claimed) {
-                        tempList.add(claim);
-                    } else if (claim.getOwners().size() <= 0 && !claimed) {
-                        tempList.add(claim);
-                    }
-                }
-                fullList = tempList;
-            }
-
-            // vip
-            if (vip != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    if (sMgr.getStake(claim).getVIP() == vip) {
-                        tempList.add(claim);
-                    }
-                }
-                fullList = tempList;
-            }
-
-            // absent
-            if (absent != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    List<Long> times = new ArrayList<Long>();
-                    for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
-                        Long online = offPlayer(plugin, oneOwner).getLastPlayed();
-                        if (online > 0) {
-                            times.add(online);
-                        }
-                    }
-
-// remove for loop when names are removed entirely
-                    for (String oneOwner : claim.getOwners().getPlayers()) {
-                        Long online = offPlayer(plugin, oneOwner).getLastPlayed();
-                        if (online > 0) {
-                            times.add(online);
-                        }
-                    }
-
-                    if (!times.isEmpty() && Collections.max(times) < absent) {
-                        tempList.add(claim);
-                    }
-                }
-                fullList = tempList;
-            }
-
-            // seen
-            if (seen != null) {
-                tempList = new ArrayList<ProtectedRegion>();
-                for (ProtectedRegion claim : fullList) {
-                    List<Long> times = new ArrayList<Long>();
-                    for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
-                        Long online = offPlayer(plugin, oneOwner).getLastPlayed();
-                        if (online > 0) {
-                            times.add(online);
-                        }
-                    }
-
-// remove for loop when names are removed entirely
-                    for (String oneOwner : claim.getOwners().getPlayers()) {
-                        Long online = offPlayer(plugin, oneOwner).getLastPlayed();
-                        if (online > 0) {
-                            times.add(online);
-                        }
-                    }
-
-                    if (!times.isEmpty() && Collections.max(times) > seen) {
-                        tempList.add(claim);
-                    }
-                }
-                fullList = tempList;
-            }
-            // end filtering
-
-            LinkedHashMap<Integer, ProtectedRegion> regionList = new LinkedHashMap<Integer, ProtectedRegion>();
-            if (joinList != null) {
-                regionList = joinList;
-            }
-
-            int index = regionList.size();
-            for (ProtectedRegion region : fullList) {
-                if (!regionList.containsValue(region)) {
-                    regionList.put(index, region);
-                    index++;
-                }
-            }
-
-            return regionList;
-
+                return uuid;
     }
 
 
@@ -999,14 +507,14 @@ public class SACUtil {
         int ownedCode = isRegionOwned(claim);
         if (ownedCode <= 0) {
             if (stake.getStatus() != null && stake.getStatus() == Status.PENDING && stake.getStakeUUID() != null) {
-                message.append(ChatColor.YELLOW + " pending for " + formatPlayer(offPlayer(plugin, stake.getStakeUUID())));
+                message.append(ChatColor.YELLOW + " pending for " + formatPlayer(getOfflinePlayer(plugin, stake.getStakeUUID())));
             } else {
                 message.append(" " + ChatColor.GRAY + "Unclaimed");
                 open = true;
             }
         } else {
             for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
-                message.append(" " + formatPlayer(offPlayer(plugin, oneOwner)));
+                message.append(" " + formatPlayer(getOfflinePlayer(plugin, oneOwner)));
             }
 
 // remove for loop when names are removed entirely
@@ -1019,7 +527,7 @@ public class SACUtil {
             boolean isBanned = false;
             boolean hasTypo = false;
             for (UUID oneMember : claim.getMembers().getUniqueIds()) {
-                OfflinePlayer offlineMember = offPlayer(plugin, oneMember);
+                OfflinePlayer offlineMember = getOfflinePlayer(plugin, oneMember);
                 if (offlineMember.isBanned()) {
                     isBanned = true;
                     break;
@@ -1080,9 +588,9 @@ public class SACUtil {
             if (stake.getStatus() != null && stake.getStatus() == Status.PENDING && stake.getStakeUUID() != null) {
                 message.append(",' pending for',");
                 if (hasPermission(plugin, sender, "stakeaclaim.sac.user")) {
-                    message.append(formatPlayerJSON(world, offPlayer(plugin, stake.getStakeUUID())));
+                    message.append(formatPlayerJSON(world, getOfflinePlayer(plugin, stake.getStakeUUID())));
                 } else {
-                    message.append(formatPlayerJSON(null, offPlayer(plugin, stake.getStakeUUID())));
+                    message.append(formatPlayerJSON(null, getOfflinePlayer(plugin, stake.getStakeUUID())));
                 }
                 accept = hasPermission(plugin, sender, "stakeaclaim.sac.do.accept");
                 deny = hasPermission(plugin, sender, "stakeaclaim.sac.do.deny");
@@ -1094,9 +602,9 @@ public class SACUtil {
             for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
                 message.append(",");
                 if (hasPermission(plugin, sender, "stakeaclaim.sac.user")) {
-                    message.append(formatPlayerJSON(world, offPlayer(plugin, oneOwner)));
+                    message.append(formatPlayerJSON(world, getOfflinePlayer(plugin, oneOwner)));
                 } else {
-                    message.append(formatPlayerJSON(null, offPlayer(plugin, oneOwner)));
+                    message.append(formatPlayerJSON(null, getOfflinePlayer(plugin, oneOwner)));
                 }
             }
 
@@ -1111,7 +619,7 @@ public class SACUtil {
             boolean isBanned = false;
             boolean hasTypo = false;
             for (UUID oneMember : claim.getMembers().getUniqueIds()) {
-                OfflinePlayer offlineMember = offPlayer(plugin, oneMember);
+                OfflinePlayer offlineMember = getOfflinePlayer(plugin, oneMember);
                 if (offlineMember.isBanned()) {
                     isBanned = true;
                     break;
@@ -1201,7 +709,7 @@ public class SACUtil {
         }
 
         if (stake.getStatus() != null && stake.getStatus() == Status.PENDING && stake.getStakeUUID() != null) {
-            final OfflinePlayer offlinePlayer = offPlayer(plugin, stake.getStakeUUID());
+            final OfflinePlayer offlinePlayer = getOfflinePlayer(plugin, stake.getStakeUUID());
             if (isPlayer) {
                 StringBuilder message = new StringBuilder("tellraw " + sender.getName() + " {text:'Pending stake by:',color:dark_green,extra:[");
                 if (hasPermission(plugin, sender, "stakeaclaim.sac.user")) {
@@ -1243,7 +751,7 @@ public class SACUtil {
                     if (!first ) {
                         message.append(",");
                     }
-                    message.append(formatPlayerJSON(world, offPlayer(plugin, oneOwner)));
+                    message.append(formatPlayerJSON(world, getOfflinePlayer(plugin, oneOwner)));
                     first = false;
                 }
 
@@ -1261,7 +769,7 @@ public class SACUtil {
             } else {
                 StringBuilder message = new StringBuilder(ChatColor.DARK_GREEN + "Owner" + (claim.getOwners().size() == 1 ? ":" : "s:"));
                 for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
-                    message.append(" " + formatPlayer(offPlayer(plugin, oneOwner)));
+                    message.append(" " + formatPlayer(getOfflinePlayer(plugin, oneOwner)));
                 }
 
 // remove for loop when names get removed entirely
@@ -1282,7 +790,7 @@ public class SACUtil {
                     if (!first ) {
                         message.append(",");
                     }
-                    message.append(formatPlayerJSON(world, offPlayer(plugin, oneMember)));
+                    message.append(formatPlayerJSON(world, getOfflinePlayer(plugin, oneMember)));
                     first = false;
                 }
 
@@ -1300,7 +808,7 @@ public class SACUtil {
             } else {
                 StringBuilder message = new StringBuilder(ChatColor.DARK_GREEN + "Member" + (claim.getMembers().size() == 1 ? ":" : "s:"));
                 for (UUID oneMember : claim.getMembers().getUniqueIds()) {
-                    message.append(" " + formatPlayer(offPlayer(plugin, oneMember)));
+                    message.append(" " + formatPlayer(getOfflinePlayer(plugin, oneMember)));
                 }
 
 // remove for loop when names get removed entirely
@@ -1352,7 +860,7 @@ public class SACUtil {
      * @param sender the sender to display to
      * @param rgMgr the region manager to work with
      * @param world the world to display claims from
-     * @param playerUUID the player whom to display
+     * @param offlinePlayer the player whom to display
      */
     public static void displayPlayer(StakeAClaimPlugin plugin, CommandSender sender, RegionManager rgMgr, World world, OfflinePlayer offlinePlayer){
 
@@ -1398,13 +906,19 @@ public class SACUtil {
             pending++;
         }
 
-        regionList = filterList(plugin, rgMgr, world, 
-                regionList, null, offlinePlayer, null, null, null, null, null, null, null, null, null);
+        ArrayList<ProtectedRegion> fullList = new ArrayList<ProtectedRegion>();
+        fullList.addAll(rgMgr.getRegions().values());
+        fullList = SearchUtil.filterForClaims(plugin, world, fullList);
+        fullList = SearchUtil.ownerFilter(fullList, offlinePlayer);
+        regionList = SearchUtil.joinLists(fullList, regionList);
         own = regionList.size() - pending;
         message.append(ChatColor.WHITE + own.toString() + ChatColor.DARK_GREEN + " owned, member of ");
 
-        regionList = filterList(plugin, rgMgr, world, 
-                regionList, null, null, offlinePlayer, null, null, null, null, null, null, null, null);
+        fullList = new ArrayList<ProtectedRegion>();
+        fullList.addAll(rgMgr.getRegions().values());
+        fullList = SearchUtil.filterForClaims(plugin, world, fullList);
+        fullList = SearchUtil.memberFilter(fullList, offlinePlayer);
+        regionList = SearchUtil.joinLists(fullList, regionList);
         sender.sendMessage(message.toString() + ChatColor.WHITE + (regionList.size() - pending - own) + ChatColor.DARK_GREEN + ".");
 
         displayList(plugin, sender, regionList, sMgr, world, 0);

@@ -33,13 +33,14 @@ import org.bukkit.entity.Player;
 
 import com.nineteengiraffes.stakeaclaim.ConfigManager;
 import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
-import com.nineteengiraffes.stakeaclaim.SACUtil;
 import com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin;
 import com.nineteengiraffes.stakeaclaim.WorldConfig;
 import com.nineteengiraffes.stakeaclaim.stakes.Stake;
 import com.nineteengiraffes.stakeaclaim.stakes.Stake.Status;
 import com.nineteengiraffes.stakeaclaim.stakes.StakeDatabaseException;
 import com.nineteengiraffes.stakeaclaim.stakes.StakeManager;
+import com.nineteengiraffes.stakeaclaim.util.SACUtil;
+import com.nineteengiraffes.stakeaclaim.util.SearchUtil;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
@@ -48,6 +49,7 @@ import com.sk89q.minecraft.util.commands.NestedCommand;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.protection.util.UnresolvedNamesException;
 
 public class SACCommands {
     private final StakeAClaimPlugin plugin;
@@ -82,10 +84,6 @@ public class SACCommands {
                 "' - claim owner or claimed. " + ChatColor.GRAY + "[o] <player>" + ChatColor.WHITE + " or " + ChatColor.GRAY + "<yes/no>");
         sender.sendMessage(ChatColor.WHITE + "'" + ChatColor.GOLD + "member" + ChatColor.WHITE + 
                 "' - claim member or members. " + ChatColor.GRAY + "[m] <player>" + ChatColor.WHITE + " or " + ChatColor.GRAY + "<yes/no>");
-        sender.sendMessage(ChatColor.WHITE + "'" + ChatColor.GOLD + "typo" + ChatColor.WHITE + 
-                "' - mistyped players, default: yes. " + ChatColor.GRAY + "[t] [yes/no]");
-        sender.sendMessage(ChatColor.WHITE + "'" + ChatColor.GOLD + "banned" + ChatColor.WHITE + 
-                "' - banned players, default: yes. " + ChatColor.GRAY + "[b] [yes/no]");
         sender.sendMessage(ChatColor.WHITE + "'" + ChatColor.GOLD + "pending" + ChatColor.WHITE + 
                 "' - pending stakes, default: yes. " + ChatColor.GRAY + "[p] [yes/no]");
         sender.sendMessage(ChatColor.WHITE + "'" + ChatColor.GOLD + "vip" + ChatColor.WHITE + 
@@ -94,6 +92,10 @@ public class SACCommands {
                 "' - absent at least # of days. " + ChatColor.GRAY + "[a] <# of days>");
         sender.sendMessage(ChatColor.WHITE + "'" + ChatColor.GOLD + "seen" + ChatColor.WHITE + 
                 "' - seen within # of days. " + ChatColor.GRAY + "[s] <# of days>");
+        sender.sendMessage(ChatColor.WHITE + "'" + ChatColor.GOLD + "typo" + ChatColor.WHITE + 
+                "' - mistyped players, default: yes. " + ChatColor.GRAY + "[t] [yes/no]");
+        sender.sendMessage(ChatColor.WHITE + "'" + ChatColor.GOLD + "banned" + ChatColor.WHITE + 
+                "' - banned players, default: yes. " + ChatColor.GRAY + "[b] [yes/no]");
         sender.sendMessage(ChatColor.WHITE + "'" + ChatColor.GOLD + "page" + ChatColor.WHITE + 
                 "' - results page # " + ChatColor.GRAY + "[p#]" + ChatColor.WHITE + " or " + ChatColor.GRAY + "[page] <page #>");
 
@@ -104,7 +106,7 @@ public class SACCommands {
             desc = "Search all claims with filter(s)",
             min = 0)
     @CommandPermissions("stakeaclaim.sac.search")
-    public void search(CommandContext args, CommandSender sender) throws CommandException {
+    public void search(CommandContext args, CommandSender sender) throws CommandException, UnresolvedNamesException {
 
         final PlayerState state = plugin.getPlayerStateManager().getState(sender);
         final ConfigManager cfg = plugin.getGlobalManager();
@@ -237,7 +239,7 @@ public class SACCommands {
                                 filter.equalsIgnoreCase("true")) {
                             claimed = true;
                         } else {
-                            owner = SACUtil.offPlayer(plugin, args.getString(i));
+                            owner = SACUtil.getOfflinePlayer(plugin, SACUtil.uuidLookupWithEx(plugin, args.getString(i)));
                         }
                     }
 
@@ -256,46 +258,8 @@ public class SACCommands {
                                 filter.equalsIgnoreCase("true")) {
                             hasMembers = true;
                         } else {
-                            member = SACUtil.offPlayer(plugin, args.getString(i));
+                            member = SACUtil.getOfflinePlayer(plugin, SACUtil.uuidLookupWithEx(plugin, args.getString(i)));
                         }
-                    }
-
-                // typo
-                } else if (filter.equalsIgnoreCase("typo") || filter.equalsIgnoreCase("t")) {
-                    i++;
-                    if (i < args.argsLength()) {
-                        filter = args.getString(i);
-                        if (filter.equalsIgnoreCase("no") || filter.equalsIgnoreCase("n") || 
-                                filter.equalsIgnoreCase("false")) {
-                            typo = false;
-                        } else if (filter.equalsIgnoreCase("yes") || filter.equalsIgnoreCase("y") || 
-                                filter.equalsIgnoreCase("true")) {
-                            typo = true;
-                        } else {
-                            typo = true;
-                            i--;
-                        }
-                    } else {
-                        typo = true;
-                    }
-
-                // banned
-                } else if (filter.equalsIgnoreCase("banned") || filter.equalsIgnoreCase("ban") || filter.equalsIgnoreCase("b")) {
-                    i++;
-                    if (i < args.argsLength()) {
-                        filter = args.getString(i);
-                        if (filter.equalsIgnoreCase("no") || filter.equalsIgnoreCase("n") || 
-                                filter.equalsIgnoreCase("false")) {
-                            banned = false;
-                        } else if (filter.equalsIgnoreCase("yes") || filter.equalsIgnoreCase("y") || 
-                                filter.equalsIgnoreCase("true")) {
-                            banned = true;
-                        } else {
-                            banned = true;
-                            i--;
-                        }
-                    } else {
-                        banned = true;
                     }
 
                 // pending
@@ -376,6 +340,44 @@ public class SACCommands {
                     }
                     seen = System.currentTimeMillis() - seen;
 
+                // typo
+                } else if (filter.equalsIgnoreCase("typo") || filter.equalsIgnoreCase("t")) {
+                    i++;
+                    if (i < args.argsLength()) {
+                        filter = args.getString(i);
+                        if (filter.equalsIgnoreCase("no") || filter.equalsIgnoreCase("n") || 
+                                filter.equalsIgnoreCase("false")) {
+                            typo = false;
+                        } else if (filter.equalsIgnoreCase("yes") || filter.equalsIgnoreCase("y") || 
+                                filter.equalsIgnoreCase("true")) {
+                            typo = true;
+                        } else {
+                            typo = true;
+                            i--;
+                        }
+                    } else {
+                        typo = true;
+                    }
+
+                // banned
+                } else if (filter.equalsIgnoreCase("banned") || filter.equalsIgnoreCase("ban") || filter.equalsIgnoreCase("b")) {
+                    i++;
+                    if (i < args.argsLength()) {
+                        filter = args.getString(i);
+                        if (filter.equalsIgnoreCase("no") || filter.equalsIgnoreCase("n") || 
+                                filter.equalsIgnoreCase("false")) {
+                            banned = false;
+                        } else if (filter.equalsIgnoreCase("yes") || filter.equalsIgnoreCase("y") || 
+                                filter.equalsIgnoreCase("true")) {
+                            banned = true;
+                        } else {
+                            banned = true;
+                            i--;
+                        }
+                    } else {
+                        banned = true;
+                    }
+
                 // page
                 } else if (filter.equalsIgnoreCase("page")) {
                     i++;
@@ -438,10 +440,8 @@ public class SACCommands {
             } else if (argWorld != null) {
                 world = argWorld;
             } else {
-                Player player;
                 if (sender instanceof Player) {
-                    player = (Player) sender;
-                    world = player.getWorld();
+                    world = ((Player) sender).getWorld();
                 } else {
                     throw new CommandException(ChatColor.YELLOW + "Please include filter '" + ChatColor.WHITE + "world" + 
                             ChatColor.YELLOW + "'");
@@ -461,17 +461,33 @@ public class SACCommands {
                 fullList.addAll(rgMgr.getRegions().values());
             }
 
+            fullList = SearchUtil.filterForClaims(plugin, world, fullList);
+            fullList = SearchUtil.idFilter(fullList, id);
+            fullList = SearchUtil.ownerFilter(fullList, owner);
+            fullList = SearchUtil.memberFilter(fullList, member);
+            fullList = SearchUtil.pendingFilter(plugin, world, fullList, pending);
+            fullList = SearchUtil.hasMembersFilter(fullList, hasMembers);
+            fullList = SearchUtil.claimedFilter(fullList, claimed);
+            fullList = SearchUtil.vipFilter(plugin, world, fullList, vip);
+            fullList = SearchUtil.absentFilter(plugin, fullList, absent);
+            fullList = SearchUtil.seenFilter(plugin, fullList, seen);
+            fullList = SearchUtil.typoFilter(plugin, fullList, typo);
+            fullList = SearchUtil.bannedFilter(plugin, fullList, banned);
+            if (fullList.isEmpty()) {
+                    throw new CommandException(ChatColor.YELLOW + "No claims matched all filters.");
+            }
+
+            LinkedHashMap<Integer, ProtectedRegion> regionList = SearchUtil.joinLists(fullList, joinList);
+
+            state.regionList = regionList;
+            state.listWorld = world;
+
+
             if (page == null) {
                 page = 0;
             }
 
             StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-            LinkedHashMap<Integer, ProtectedRegion> regionList = SACUtil.filterList(plugin, fullList, world, 
-                    joinList, id, owner, member, typo, banned, pending, hasMembers, claimed, vip, absent, seen);
-
-            state.regionList = regionList;
-            state.listWorld = world;
-
             SACUtil.displayList(plugin, sender, regionList, sMgr, world, page);
 
         // if no args
@@ -496,11 +512,15 @@ public class SACCommands {
         if (rgMgr == null) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
+
         ArrayList<ProtectedRegion> fullList = new ArrayList<ProtectedRegion>();
         fullList.addAll(rgMgr.getRegions().values());
-
-        LinkedHashMap<Integer, ProtectedRegion> regionList = SACUtil.filterList(plugin, fullList, world, 
-                null, null, null, null, null, null, true, null, null, null, null, null);
+        fullList = SearchUtil.filterForClaims(plugin, world, fullList);
+        fullList = SearchUtil.pendingFilter(plugin, world, fullList, true);
+        if (fullList.isEmpty()) {
+            throw new CommandException(ChatColor.YELLOW + "There are no '" + ChatColor.WHITE + "pending" + ChatColor.YELLOW + "' claims.");
+        }
+        LinkedHashMap<Integer, ProtectedRegion> regionList = SearchUtil.joinLists(fullList, null);
 
         state.regionList = regionList;
         state.listWorld = world;
@@ -532,11 +552,16 @@ public class SACCommands {
         if (rgMgr == null) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
+
         ArrayList<ProtectedRegion> fullList = new ArrayList<ProtectedRegion>();
         fullList.addAll(rgMgr.getRegions().values());
-
-        LinkedHashMap<Integer, ProtectedRegion> regionList = SACUtil.filterList(plugin, fullList, world, 
-                null, null, null, null, null, null, false, null, false, null, null, null);
+        fullList = SearchUtil.filterForClaims(plugin, world, fullList);
+        fullList = SearchUtil.claimedFilter(fullList, false);
+        fullList = SearchUtil.pendingFilter(plugin, world, fullList, false);
+        if (fullList.isEmpty()) {
+            throw new CommandException(ChatColor.YELLOW + "There are no '" + ChatColor.WHITE + "open" + ChatColor.YELLOW + "' claims.");
+        }
+        LinkedHashMap<Integer, ProtectedRegion> regionList = SearchUtil.joinLists(fullList, null);
 
         state.regionList = regionList;
         state.listWorld = world;
@@ -644,7 +669,7 @@ public class SACCommands {
             desc = "View detailed info on one user",
             min = 1, max = 2)
     @CommandPermissions("stakeaclaim.sac.user")
-    public void user(CommandContext args, CommandSender sender) throws CommandException {
+    public void user(CommandContext args, CommandSender sender) throws CommandException, UnresolvedNamesException {
         final PlayerState state = plugin.getPlayerStateManager().getState(sender);
         final ConfigManager cfg = plugin.getGlobalManager();
         String argWorld = null;
@@ -720,16 +745,18 @@ public class SACCommands {
         }
 
         if (playerUUID != null) {
-            SACUtil.displayPlayer(plugin, sender, rgMgr, world, SACUtil.offPlayer(plugin, playerUUID));
-        } else if (playerName != null) {
-            SACUtil.displayPlayer(plugin, sender, rgMgr, world, SACUtil.offPlayer(plugin, playerName));
-        } else {
-            try {
-                SACUtil.displayPlayer(plugin, sender, rgMgr, world, SACUtil.offPlayer(plugin, UUID.fromString(args.getString(0))));
-            } catch (IllegalArgumentException e) {
-                SACUtil.displayPlayer(plugin, sender, rgMgr, world, SACUtil.offPlayer(plugin, args.getString(0)));
+            SACUtil.displayPlayer(plugin, sender, rgMgr, world, SACUtil.getOfflinePlayer(plugin, playerUUID));
+            return;
+        }
+        if (playerName != null) {
+            final UUID uuid = SACUtil.uuidLookup(plugin, playerName);
+            if (uuid != null) {
+                SACUtil.displayPlayer(plugin, sender, rgMgr, world, SACUtil.getOfflinePlayer(plugin, uuid));
+                return;
             }
         }
+        final OfflinePlayer offlinePlayer = SACUtil.getOfflinePlayer(plugin, SACUtil.uuidLookupWithEx(plugin, args.getString(0)));
+        SACUtil.displayPlayer(plugin, sender, rgMgr, world, offlinePlayer);
 
     }
 

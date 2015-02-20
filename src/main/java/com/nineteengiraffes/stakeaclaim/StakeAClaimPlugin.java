@@ -19,6 +19,10 @@
 
 package com.nineteengiraffes.stakeaclaim;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -27,6 +31,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.nineteengiraffes.stakeaclaim.commands.AllCommands;
 import com.nineteengiraffes.stakeaclaim.stakes.GlobalStakeManager;
+import com.nineteengiraffes.stakeaclaim.util.SACUtil;
 import com.sk89q.bukkit.util.CommandsManagerRegistration;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissionsException;
@@ -35,6 +40,14 @@ import com.sk89q.minecraft.util.commands.CommandsManager;
 import com.sk89q.minecraft.util.commands.MissingNestedCommandException;
 import com.sk89q.minecraft.util.commands.SimpleInjector;
 import com.sk89q.minecraft.util.commands.WrappedCommandException;
+import com.sk89q.squirrelid.cache.HashMapCache;
+import com.sk89q.squirrelid.cache.ProfileCache;
+import com.sk89q.squirrelid.cache.SQLiteCache;
+import com.sk89q.squirrelid.resolver.BukkitPlayerService;
+import com.sk89q.squirrelid.resolver.CacheForwardingService;
+import com.sk89q.squirrelid.resolver.CombinedProfileService;
+import com.sk89q.squirrelid.resolver.HttpRepositoryService;
+import com.sk89q.squirrelid.resolver.ProfileService;
 import com.sk89q.wepif.PermissionsResolverManager;
 import com.sk89q.worldguard.util.FatalConfigurationLoadingException;
 
@@ -50,19 +63,10 @@ public class StakeAClaimPlugin extends JavaPlugin {
      */
     private final CommandsManager<CommandSender> commands;
 
-    /**
-     * Handles all config.
-     */
     private final ConfigManager config;
-
-    /**
-     * Handles all stakes.
-     */
     private final GlobalStakeManager globalStakes;
-
-    /**
-     * Used for scheduling flags.
-     */
+    private ProfileService profileService;
+    private ProfileCache profileCache;
     private PlayerStateManager playerStateManager;
 
     /**
@@ -98,7 +102,22 @@ public class StakeAClaimPlugin extends JavaPlugin {
         // Need to create the plugins/StakeAClaim folder
         getDataFolder().mkdirs();
 
+        File cacheDir = new File(getDataFolder(), "cache");
+        cacheDir.mkdirs();
+        try {
+            profileCache = new SQLiteCache(new File(cacheDir, "profiles.sqlite"));
+        } catch (IOException e) {
+            getLogger().log(Level.WARNING, "Failed to initialize SQLite profile cache");
+            profileCache = new HashMapCache();
+        }
+
         PermissionsResolverManager.initialize(this);
+
+        profileService = new CacheForwardingService(
+                new CombinedProfileService(
+                        BukkitPlayerService.getInstance(),
+                        HttpRepositoryService.forMinecraft()),
+                profileCache);
 
         try {
             // Load the config
@@ -167,6 +186,15 @@ public class StakeAClaimPlugin extends JavaPlugin {
      */
     public PlayerStateManager getPlayerStateManager() {
         return playerStateManager;
+    }
+
+    /**
+     * Get the profile lookup service.
+     *
+     * @return the profile lookup service
+     */
+    public ProfileService getProfileService() {
+        return profileService;
     }
 
     /**

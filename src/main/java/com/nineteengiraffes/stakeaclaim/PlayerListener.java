@@ -46,6 +46,7 @@ import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
 import com.nineteengiraffes.stakeaclaim.stakes.Stake;
 import com.nineteengiraffes.stakeaclaim.stakes.Stake.Status;
 import com.nineteengiraffes.stakeaclaim.stakes.StakeManager;
+import com.nineteengiraffes.stakeaclaim.util.SACUtil;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
@@ -124,7 +125,7 @@ public class PlayerListener implements Listener {
                                 message.append(ChatColor.GRAY + " Unclaimed");
                             } else {
                                 for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
-                                    message.append(" " + SACUtil.formatPlayer(SACUtil.offPlayer(plugin, oneOwner)));
+                                    message.append(" " + SACUtil.formatPlayer(SACUtil.getOfflinePlayer(plugin, oneOwner)));
                                 }
 
 // remove for loop when names get removed entirely

@@ -29,12 +29,12 @@ import org.bukkit.entity.Player;
 
 import com.nineteengiraffes.stakeaclaim.ConfigManager;
 import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
-import com.nineteengiraffes.stakeaclaim.SACUtil;
 import com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin;
 import com.nineteengiraffes.stakeaclaim.WorldConfig;
 import com.nineteengiraffes.stakeaclaim.stakes.Stake;
 import com.nineteengiraffes.stakeaclaim.stakes.Stake.Status;
 import com.nineteengiraffes.stakeaclaim.stakes.StakeManager;
+import com.nineteengiraffes.stakeaclaim.util.SACUtil;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
@@ -216,7 +216,7 @@ public class DoCommands {
         claim.getOwners().addPlayer(stake.getStakeUUID());
 
         sender.sendMessage(ChatColor.YELLOW + "You have accepted " + 
-                SACUtil.formatPlayer(SACUtil.offPlayer(plugin, stake.getStakeUUID())) +
+                SACUtil.formatPlayer(SACUtil.getOfflinePlayer(plugin, stake.getStakeUUID())) +
                 ChatColor.YELLOW + "'s stake in " + SACUtil.formatID(stake) + 
                 ChatColor.YELLOW + " in " + ChatColor.BLUE + world.getName() + "!");
 
@@ -239,7 +239,7 @@ public class DoCommands {
 
     private void denyClaim(CommandSender sender, ProtectedRegion claim, Stake stake, World world, WorldConfig wcfg) {
         sender.sendMessage(ChatColor.YELLOW + "You have denied " + 
-                SACUtil.formatPlayer(SACUtil.offPlayer(plugin, stake.getStakeUUID())) +
+                SACUtil.formatPlayer(SACUtil.getOfflinePlayer(plugin, stake.getStakeUUID())) +
                 ChatColor.YELLOW + "'s stake in " + SACUtil.formatID(stake) + 
                         ChatColor.YELLOW + " in " + ChatColor.BLUE + world.getName() + "!");
 
@@ -266,7 +266,7 @@ public class DoCommands {
             if (claim.getOwners().size() > 0) {
                 message.append(ChatColor.YELLOW + " from");
                 for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
-                    message.append(" " + SACUtil.formatPlayer(SACUtil.offPlayer(plugin, oneOwner)));
+                    message.append(" " + SACUtil.formatPlayer(SACUtil.getOfflinePlayer(plugin, oneOwner)));
                 }
 
 // remove for loop when names get removed entirely

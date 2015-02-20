@@ -25,11 +25,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.nineteengiraffes.stakeaclaim.ConfigManager;
-import com.nineteengiraffes.stakeaclaim.SACUtil;
 import com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin;
 import com.nineteengiraffes.stakeaclaim.WorldConfig;
 import com.nineteengiraffes.stakeaclaim.stakes.Stake;
 import com.nineteengiraffes.stakeaclaim.stakes.StakeManager;
+import com.nineteengiraffes.stakeaclaim.util.SACUtil;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
