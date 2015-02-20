@@ -49,7 +49,6 @@ import com.sk89q.squirrelid.resolver.CombinedProfileService;
 import com.sk89q.squirrelid.resolver.HttpRepositoryService;
 import com.sk89q.squirrelid.resolver.ProfileService;
 import com.sk89q.wepif.PermissionsResolverManager;
-import com.sk89q.worldguard.util.FatalConfigurationLoadingException;
 
 /**
  * The main class for StakeAClaim as a Bukkit plugin.
@@ -119,14 +118,8 @@ public class StakeAClaimPlugin extends JavaPlugin {
                         HttpRepositoryService.forMinecraft()),
                 profileCache);
 
-        try {
-            // Load the config
-            config.load();
-            globalStakes.load();
-        } catch (FatalConfigurationLoadingException e) {
-            e.printStackTrace();
-            getServer().shutdown();
-        }
+        config.load();
+        globalStakes.load();
 
         playerStateManager = new PlayerStateManager(this);
 

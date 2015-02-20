@@ -37,17 +37,32 @@
       <version>5.6.3</version>
       <scope>compile</scope>
       <type>jar</type>
+      <exclusions>
+        <exclusion>
+          <groupId>com.zachsthings.libcomponents</groupId>
+          <artifactId>libcomponents-bukkit</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.bukkit</groupId>
+          <artifactId>bukkit</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
+    
     <dependency>
       <groupId>com.sk89q</groupId>
       <artifactId>worldguard</artifactId>
       <version>6.0.0-SNAPSHOT</version>
     </dependency>
+    
     <dependency>
-      <groupId>org.bukkit</groupId>
+      <groupId>com.sk89q.spigot</groupId>
       <artifactId>bukkit</artifactId>
-      <version>1.7.10-R0.1-SNAPSHOT</version>
+      <version>1.8-R0.1-SNAPSHOT</version>
+      <scope>compile</scope>
+      <type>jar</type>
     </dependency>
+    
     <dependency>
       <groupId>com.sk89q</groupId>
       <artifactId>squirrelid</artifactId>

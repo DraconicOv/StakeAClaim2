@@ -19,7 +19,6 @@
 
 package com.nineteengiraffes.stakeaclaim;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -57,7 +56,7 @@ public class PlayerStateManager implements Runnable {
      * Run the task.
      */
     public void run() {
-        Collection<? extends Player> players = plugin.getServer().getOnlinePlayers();
+        Player[] players = plugin.getServer().getOnlinePlayers();
         ConfigManager config = plugin.getGlobalManager();
 
         PlayerState state;
