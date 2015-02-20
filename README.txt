@@ -104,8 +104,8 @@ master-enable: true
 # Enable featurs that use stakes.
 stakes-enable: true
 
-# Item (wand) to hold for 'support' and other features. Default: 288 (feather)
-wand: 288
+# Item (wand) to hold for 'support' and other features.
+wand: FEATHER
 
 # Regular expressions filter. Used to determine what regions are 'claims' by naming convention. Default: matches n12e3, S2W56, etc.
 claim-name-regex-filter-string: ^[NSns]\d\d?[EWew]\d\d?$
