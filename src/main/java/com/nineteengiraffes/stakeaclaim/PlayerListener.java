@@ -98,7 +98,7 @@ public class PlayerListener implements Listener {
                     PlayerState state = plugin.getPlayerStateManager().getState(player);
 
                     // If wand is in hand, displays claim name and owner(s) as you enter
-                    final ItemStack item = player.getItemInHand();
+                    final ItemStack item = player.getInventory().getItemInHand();
                     String support = null;
 
                     if (item.getType() == wcfg.sacWand && SACUtil.hasPermission(plugin, player, "stakeaclaim.events.wand")) {
@@ -157,6 +157,9 @@ public class PlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+        if (event.isCancelled()) {
+            return;
+        }
 
         Entity thingClicked = event.getRightClicked();
         Player activePlayer = event.getPlayer();
@@ -168,7 +171,7 @@ public class PlayerListener implements Listener {
             ConfigManager cfg = plugin.getGlobalManager();
             WorldConfig wcfg = cfg.get(world);
 
-            ItemStack held = activePlayer.getItemInHand();
+            ItemStack held = activePlayer.getInventory().getItemInHand();
 
             if (held.getType() == wcfg.sacWand && SACUtil.hasPermission(plugin, activePlayer, "stakeaclaim.events.wand.player")) {
 
@@ -204,18 +207,23 @@ public class PlayerListener implements Listener {
                 }
 
                 SACUtil.displayPlayer(plugin, activePlayer, rgMgr, world, passivePlayer);
+
+                event.setCancelled(true);
             }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.isCancelled()) {
+            return;
+        }
 
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             Block block = event.getClickedBlock();
             World world = block.getWorld();
             Player player = event.getPlayer();
-            ItemStack held = player.getItemInHand();
+            ItemStack held = player.getInventory().getItemInHand();
             ConfigManager cfg = plugin.getGlobalManager();
             WorldConfig wcfg = cfg.get(world);
 
@@ -250,6 +258,8 @@ public class PlayerListener implements Listener {
                 regionList.put(0, claim);
                 state.regionList = regionList;
                 state.listWorld = world;
+
+                event.setCancelled(true);
             }
         }
     }

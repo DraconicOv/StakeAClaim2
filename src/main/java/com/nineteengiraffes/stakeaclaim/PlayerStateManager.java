@@ -19,10 +19,12 @@
 
 package com.nineteengiraffes.stakeaclaim;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -56,7 +58,7 @@ public class PlayerStateManager implements Runnable {
      * Run the task.
      */
     public void run() {
-        Player[] players = plugin.getServer().getOnlinePlayers();
+        Collection<? extends Player> players = Bukkit.getOnlinePlayers();
         ConfigManager config = plugin.getGlobalManager();
 
         PlayerState state;

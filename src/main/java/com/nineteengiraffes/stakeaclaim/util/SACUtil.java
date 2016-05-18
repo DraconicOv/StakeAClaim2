@@ -437,25 +437,25 @@ public class SACUtil {
 
         if (pages > 1) {
             if (hasPermission(plugin, sender, "stakeaclaim.sac.search") && isPlayer) {
-                StringBuilder message = new StringBuilder("tellraw " + sender.getName() + " {text:'Claim list");
+                StringBuilder message = new StringBuilder("tellraw " + sender.getName() + " {\"text\":\"Claim list");
                 if (((Player) sender).getWorld() != world) {
-                    message.append(" for ',color:yellow,extra:[");
-                    message.append("{text:'" + world.getName() + "',color:blue},");
-                    message.append("': ',");
+                    message.append(" for \",\"color\":\"yellow\",\"extra\":[");
+                    message.append("{\"text\":\"" + world.getName() + "\",\"color\":\"blue\"},");
+                    message.append("\": \",");
                 } else {
-                    message.append(": ',color:yellow,extra:[");
+                    message.append(": \",\"color\":\"yellow\",\"extra\":[");
                 }
-                message.append("{text:'[page ',color:gray,extra:[");
+                message.append("{\"text\":\"[page \",\"color\":\"gray\",\"extra\":[");
                 if (page > 0) {
-                    message.append("{text:'<< ',color:gold,");
-                    message.append("clickEvent:{action:run_command,value:'/sac search refine page " + page + "'}},");
+                    message.append("{\"text\":\"<< \",\"color\":\"gold\",");
+                    message.append("\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/sac search refine page " + page + "\"}},");
                 }
-                message.append("'" + (page + 1) + " of " + pages + "'");
+                message.append("\"" + (page + 1) + " of " + pages + "\"");
                 if ((page +1) < pages) {
-                    message.append(",{text:' >>',color:gold,");
-                    message.append("clickEvent:{action:run_command,value:'/sac search refine page " + (page + 2) + "'}}");
+                    message.append(",{\"text\":\" >>\",\"color\":\"gold\",");
+                    message.append("\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/sac search refine page " + (page + 2) + "\"}}");
                 }
-                message.append(",']']}]}");
+                message.append(",\"]\"]}]}");
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), message.toString());
             } else {
                 if (isPlayer && ((Player) sender).getWorld() == world) {
@@ -571,14 +571,14 @@ public class SACUtil {
     public static boolean displayClaim(String index, ProtectedRegion claim, Stake stake, CommandSender sender, StakeAClaimPlugin plugin, World world) {
 
         boolean open = false;
-        StringBuilder message = new StringBuilder("tellraw " + sender.getName() + " {text:'# " + index + ":',color:yellow,extra:[");
+        StringBuilder message = new StringBuilder("tellraw " + sender.getName() + " {\"text\":\"# " + index + ":\",\"color\":\"yellow\",\"extra\":[");
         if (hasPermission(plugin, sender, "stakeaclaim.sac.claim")) {
             message.append(formatIdJSON(stake, world));
         } else {
             message.append(formatIdJSON(stake, null));
         }
         if (stake.getClaimName() != null) {
-            message.append(",{text:' \\\'" + stake.getClaimName() + "\\\'',color:light_purple}");
+            message.append(",{\"text\":\" \\\"" + stake.getClaimName() + "\\\",\"color\":\"light_purple\"}");
         }
 
         boolean accept = false;
@@ -586,7 +586,7 @@ public class SACUtil {
         int ownedCode = isRegionOwned(claim);
         if (ownedCode <= 0) {
             if (stake.getStatus() != null && stake.getStatus() == Status.PENDING && stake.getStakeUUID() != null) {
-                message.append(",' pending for',");
+                message.append(",\" pending for\",");
                 if (hasPermission(plugin, sender, "stakeaclaim.sac.user")) {
                     message.append(formatPlayerJSON(world, getOfflinePlayer(plugin, stake.getStakeUUID())));
                 } else {
@@ -595,7 +595,7 @@ public class SACUtil {
                 accept = hasPermission(plugin, sender, "stakeaclaim.sac.do.accept");
                 deny = hasPermission(plugin, sender, "stakeaclaim.sac.do.deny");
             } else {
-                message.append(",{text:' Unclaimed',color:gray}");
+                message.append(",{\"text\":\" Unclaimed\",\"color\":\"gray\"}");
                 open = true;
             }
         } else {
@@ -639,26 +639,26 @@ public class SACUtil {
 //                }
 //            }
 
-            message.append(",{text:' :'}");
-            message.append(",{text:' " + claim.getMembers().size() + "',color:" + (isBanned ? "dark_red" : (hasTypo ? "red" : "green")) + "}");
+            message.append(",{\"text\":\" :\"}");
+            message.append(",{\"text\":\" " + claim.getMembers().size() + "\",\"color\":" + (isBanned ? "\"dark_red\"" : (hasTypo ? "\"red\"" : "\"green\"")) + "}");
         }
 
         if (claim.getFlag(DefaultFlag.ENTRY) != null && claim.getFlag(DefaultFlag.ENTRY) == State.DENY) {
-            message.append(",{text:' Private!',color:red,italic:true}");
+            message.append(",{\"text\":\" Private!\",\"color\":\"red\",\"italic\":true}");
         }
 
         if (accept || deny) {
-            message.append(",{text:' |',color:gold,bold:true}");
+            message.append(",{\"text\":\" |\",\"color\":\"gold\",\"bold\":true}");
         }
         if (accept) {
-            message.append(",{text:'Accept',color:dark_green,");
-            message.append("clickEvent:{action:run_command,value:'/sac do accept " + index + "'}}");
-            message.append(",{text:'|',color:gold,bold:true}");
+            message.append(",{\"text\":\"Accept\",\"color\":\"dark_green\",");
+            message.append("\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/sac do accept " + index + "\"}}");
+            message.append(",{\"text\":\"|\",\"color\":\"gold\",\"bold\":true}");
         }
         if (deny) {
-            message.append(",{text:'Deny',color:dark_red,");
-            message.append("clickEvent:{action:run_command,value:'/sac do deny " + index + "'}}");
-            message.append(",{text:'|',color:gold,bold:true}");
+            message.append(",{\"text\":\"Deny\",\"color\":\"dark_red\",");
+            message.append("\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/sac do deny " + index + "\"}}");
+            message.append(",{\"text\":\"|\",\"color\":\"gold\",\"bold\":true}");
         }
 
         message.append("]}");
@@ -687,14 +687,14 @@ public class SACUtil {
         }
         
         if (hasPermission(plugin, sender, "stakeaclaim.sac.search") && isPlayer) {
-            StringBuilder message = new StringBuilder("tellraw " + sender.getName() + " {text:'Location:',color:yellow,extra:[");
-            message.append("{text:' " + stake.getId() + "',");
-            message.append("clickEvent:{action:run_command,value:'/sac search id " + stake.getId() + " world " + world.getName() + "'},");
-            message.append("color:" + (stake.getVIP() ? "aqua" : "white") + "}");
+            StringBuilder message = new StringBuilder("tellraw " + sender.getName() + " {\"text\":\"Location:\",\"color\":\"yellow\",\"extra\":[");
+            message.append("{\"text\":\" " + stake.getId() + "\",");
+            message.append("\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/sac search id " + stake.getId() + " world " + world.getName() + "\"},");
+            message.append("\"color\":" + (stake.getVIP() ? "\"aqua\"" : "\"white\"") + "}");
             if (claim.getFlag(DefaultFlag.ENTRY) == State.DENY) {
-                message.append(",{text:' Private!',color:red}");
+                message.append(",{\"text\":\" Private!\",\"color\":\"red\"}");
             } else if (stake.getVIP()) {
-                message.append(",{text:' " + wcfg.VIPs + " claim!'}");
+                message.append(",{\"text\":\" " + wcfg.VIPs + " claim!\"}");
             }
             message.append("]}");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), message.toString());
@@ -711,7 +711,7 @@ public class SACUtil {
         if (stake.getStatus() != null && stake.getStatus() == Status.PENDING && stake.getStakeUUID() != null) {
             final OfflinePlayer offlinePlayer = getOfflinePlayer(plugin, stake.getStakeUUID());
             if (isPlayer) {
-                StringBuilder message = new StringBuilder("tellraw " + sender.getName() + " {text:'Pending stake by:',color:dark_green,extra:[");
+                StringBuilder message = new StringBuilder("tellraw " + sender.getName() + " {\"text\":\"Pending stake by:\",\"color\":\"dark_green\",\"extra\":[");
                 if (hasPermission(plugin, sender, "stakeaclaim.sac.user")) {
                     message.append(formatPlayerJSON(world, offlinePlayer));
                 } else {
@@ -721,17 +721,17 @@ public class SACUtil {
                     boolean accept = hasPermission(plugin, sender, "stakeaclaim.sac.do.accept");
                     boolean deny = hasPermission(plugin, sender, "stakeaclaim.sac.do.deny");
                     if (accept || deny) {
-                        message.append(",{text:' |',color:gold,bold:true}");
+                        message.append(",{\"text\":\" |\",\"color\":\"gold\",\"bold\":true}");
                     }
                     if (accept) {
-                        message.append(",{text:'Accept',color:dark_green,");
-                        message.append("clickEvent:{action:run_command,value:'/sac do accept " + (item + 1) + "'}}");
-                        message.append(",{text:'|',color:gold,bold:true}");
+                        message.append(",{\"text\":\"Accept\",\"color\":\"dark_green\",");
+                        message.append("\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/sac do accept " + (item + 1) + "\"}}");
+                        message.append(",{\"text\":\"|\",\"color\":\"gold\",\"bold\":true}");
                     }
                     if (deny) {
-                        message.append(",{text:'Deny',color:dark_red,");
-                        message.append("clickEvent:{action:run_command,value:'/sac do deny " + (item + 1) + "'}}");
-                        message.append(",{text:'|',color:gold,bold:true}");
+                        message.append(",{\"text\":\"Deny\",\"color\":\"dark_red\",");
+                        message.append("\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/sac do deny " + (item + 1) + "\"}}");
+                        message.append(",{\"text\":\"|\",\"color\":\"gold\",\"bold\":true}");
                     }
                 }
 
@@ -745,7 +745,7 @@ public class SACUtil {
         if (claim.getOwners().size() != 0) {
             if (hasPermission(plugin, sender, "stakeaclaim.sac.user") && isPlayer) {
                 StringBuilder message = new StringBuilder("tellraw " + sender.getName() + 
-                        " {text:'Owner" + (claim.getOwners().size() == 1 ? ":" : "s:") + "',color:dark_green,extra:[");
+                        " {\"text\":\"Owner" + (claim.getOwners().size() == 1 ? ":" : "s:") + "\",\"color\":\"dark_green\",\"extra\":[");
                 boolean first = true;
                 for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
                     if (!first ) {
@@ -784,7 +784,7 @@ public class SACUtil {
         if (claim.getMembers().size() != 0) {
             if (hasPermission(plugin, sender, "stakeaclaim.sac.user") && isPlayer) {
                 StringBuilder message = new StringBuilder("tellraw " + sender.getName() + 
-                        " {text:'Member" + (claim.getMembers().size() == 1 ? ":" : "s:") + "',color:dark_green,extra:[");
+                        " {\"text\":\"Member" + (claim.getMembers().size() == 1 ? ":" : "s:") + "\",\"color\":\"dark_green\",\"extra\":[");
                 boolean first = true;
                 for (UUID oneMember : claim.getMembers().getUniqueIds()) {
                     if (!first ) {
@@ -836,11 +836,11 @@ public class SACUtil {
         }
 
         if (hasPermission(plugin, sender, "stakeaclaim.sac.goto") && isPlayer) {
-            StringBuilder message = new StringBuilder("tellraw " + sender.getName() + " {text:'Size:',color:light_purple,extra:[");
-            message.append("{text:' " + blocks + "  ',color:gold}");
-            message.append(",{text:'> GOTO <',");
-            message.append("clickEvent:{action:run_command,value:'/sac goto " + claim.getId() + " " + world.getName() + "'},");
-            message.append("color:yellow}");
+            StringBuilder message = new StringBuilder("tellraw " + sender.getName() + " {\"text\":\"Size:\",\"color\":\"light_purple\",\"extra\":[");
+            message.append("{\"text\":\" " + blocks + "  \",\"color\":\"gold\"}");
+            message.append(",{\"text\":\"> GOTO <\",");
+            message.append("\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/sac goto " + claim.getId() + " " + world.getName() + "\"},");
+            message.append("\"color\":\"yellow\"}");
             message.append("]}");
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), message.toString());
         } else {
@@ -934,6 +934,7 @@ public class SACUtil {
      * @param playerName the player's name to format
      * @return formated player name
      */
+    @Deprecated
     public static String formatPlayer(String playerName){
         return new StringBuilder(ChatColor.GREEN + "~" + playerName).toString();
     }
@@ -944,8 +945,9 @@ public class SACUtil {
      * @param playerName the player's name to format
      * @return formated player name
      */
+    @Deprecated
     public static String formatPlayerJSON(String playerName){
-        return new StringBuilder("{text:' ~" + playerName + "',color:green}").toString();
+        return new StringBuilder("{\"text\":\" ~" + playerName + "\",\"color\":\"green\"}").toString();
     }
 
     /**
@@ -957,7 +959,7 @@ public class SACUtil {
     public static String formatPlayer(OfflinePlayer offlinePlayer){
         return new StringBuilder((offlinePlayer.isBanned() ? ChatColor.DARK_RED : 
                                 (offlinePlayer.hasPlayedBefore() ? ChatColor.GREEN : ChatColor.RED)) + 
-                                (offlinePlayer.isOnline() ? "*" : "") + offlinePlayer.getName()).toString();
+                                (offlinePlayer.isOnline() ? "*" : "") + (offlinePlayer.getName() != null ? offlinePlayer.getName() : "(unknown)")).toString();
     }
 
     /**
@@ -968,11 +970,11 @@ public class SACUtil {
      * @return formated player name
      */
     public static String formatPlayerJSON(World world, OfflinePlayer offlinePlayer){
-        StringBuilder player = new StringBuilder("{text:' " + (offlinePlayer.isOnline() ? "*" : "") + offlinePlayer.getName() + "',");
-        if (world != null) {
-            player.append("clickEvent:{action:run_command,value:'/sac user " + offlinePlayer.getUniqueId().toString() + " " + world.getName() + "'},");
+        StringBuilder player = new StringBuilder("{\"text\":\" " + (offlinePlayer.isOnline() ? "*" : "") + (offlinePlayer.getName() != null ? offlinePlayer.getName() : "(unknown)") + "\",");
+        if (world != null && offlinePlayer.getName() != null) {
+            player.append("\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/sac user " + offlinePlayer.getUniqueId().toString() + " " + world.getName() + "\"},");
         }
-        player.append("color:" + (offlinePlayer.isBanned() ? "dark_red" : (offlinePlayer.hasPlayedBefore() ? "green" : "red")) + "}");
+        player.append("\"color\":" + (offlinePlayer.isBanned() ? "\"dark_red\"" : (offlinePlayer.hasPlayedBefore() ? "\"green\"" : "\"red\"")) + "}");
         return player.toString();
     }
 
@@ -993,11 +995,11 @@ public class SACUtil {
      * @return formated ID
      */
     public static String formatIdJSON(Stake stake, World world){
-        StringBuilder id = new StringBuilder("{text:' " + stake.getId() + "',");
+        StringBuilder id = new StringBuilder("{\"text\":\" " + stake.getId() + "\",");
         if (world != null) {
-            id.append("clickEvent:{action:run_command,value:'/sac claim " + stake.getId() + " " + world.getName() + "'},");
+            id.append("\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/sac claim " + stake.getId() + " " + world.getName() + "\"},");
         }
-        id.append("color:" + (stake.getVIP() ? "aqua" : "white") + "}");
+        id.append("\"color\":" + (stake.getVIP() ? "\"aqua\"" : "\"white\"") + "}");
         return id.toString();
     }
 
