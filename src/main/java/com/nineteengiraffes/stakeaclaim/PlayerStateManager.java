@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -66,7 +67,7 @@ public class PlayerStateManager implements Runnable {
         for (Player player : players) {
             WorldConfig wcfg = config.get(player.getWorld());
 
-            if (!wcfg.useSAC) {
+            if (!wcfg.useStakes) {
                 continue;
             }
 
@@ -128,6 +129,12 @@ public class PlayerStateManager implements Runnable {
      * Keeps state per player.
      */
     public static class PlayerState {
+
+        // click on player event
+        public Player lastPlayer;
+
+        // click on block and player event
+        public Block lastBlock;
 
         // move event
         public String lastSupport;

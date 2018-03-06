@@ -50,7 +50,6 @@ import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import com.sk89q.worldguard.protection.util.UnresolvedNamesException;
 
 public class ClaimCommands {
     private final StakeAClaimPlugin plugin;
@@ -366,6 +365,10 @@ public class ClaimCommands {
 
         final ConfigManager cfg = plugin.getGlobalManager();
         final WorldConfig wcfg = cfg.get(world);
+        if (!wcfg.useSAC) {
+            throw new CommandException(ChatColor.YELLOW + "SAC is disabled in this world.");
+        }
+
         if (!wcfg.useRegions) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
@@ -413,6 +416,10 @@ public class ClaimCommands {
 
         final ConfigManager cfg = plugin.getGlobalManager();
         final WorldConfig wcfg = cfg.get(world);
+        if (!wcfg.useSAC) {
+            throw new CommandException(ChatColor.YELLOW + "SAC is disabled in this world.");
+        }
+
         if (!wcfg.useRegions) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
@@ -459,6 +466,10 @@ public class ClaimCommands {
 
         final ConfigManager cfg = plugin.getGlobalManager();
         final WorldConfig wcfg = cfg.get(world);
+        if (!wcfg.useSAC) {
+            throw new CommandException(ChatColor.YELLOW + "SAC is disabled in this world.");
+        }
+
         if (!wcfg.useRegions) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
@@ -492,10 +503,10 @@ public class ClaimCommands {
             desc = "Warp to a players claim",
             min = 0, max = 2)
     @CommandPermissions({"stakeaclaim.claim.warp", "stakeaclaim.claim.warp.own.*", "stakeaclaim.claim.warp.member.*", "stakeaclaim.claim.warp.*"})
-    public void warp(CommandContext args, CommandSender sender) throws CommandException, UnresolvedNamesException {
+    public void warp(CommandContext args, CommandSender sender) throws CommandException {
 
         if (args.argsLength() == 0) {
-            if (!SACUtil.gotoRememberedWarp(plugin, args, sender, false)) {
+            if (!SACUtil.gotoRememberedWarp(plugin, sender, false)) {
                 sender.sendMessage(ChatColor.RED + "Too few arguments.");
                 sender.sendMessage(ChatColor.RED + "/claim " + args.getCommand() + " <player> [list item #]");
             }

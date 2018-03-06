@@ -35,38 +35,35 @@ import com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin;
 import com.nineteengiraffes.stakeaclaim.WorldConfig;
 import com.nineteengiraffes.stakeaclaim.stakes.Stake.Status;
 import com.nineteengiraffes.stakeaclaim.stakes.StakeManager;
-import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import com.sk89q.worldguard.protection.util.UnresolvedNamesException;
 
 public class SearchUtil {
 
     // Filters
     /**
-     * Filters {@code fullList} for claims
+     * Filters {@code fullList} for claims as defined by regex filter in config
      * 
      * @param plugin the SAC plugin
      * @param world the world the list is for
      * @param fullList the list of regions to filter
-     * @return filtered list
+     * @return {@code filtered} list
      */
     public static ArrayList<ProtectedRegion> filterForClaims(StakeAClaimPlugin plugin, World world, ArrayList<ProtectedRegion> fullList) {
 
             final WorldConfig wcfg = plugin.getGlobalManager().get(world);
             final Pattern regexPat = Pattern.compile(wcfg.claimNameFilter);
             Matcher regexMat;
-            ArrayList<ProtectedRegion> tempList = new ArrayList<ProtectedRegion>();
+            ArrayList<ProtectedRegion> filtered = new ArrayList<ProtectedRegion>();
             for (ProtectedRegion claim : fullList) {
                 regexMat = regexPat.matcher(claim.getId());
                 if (regexMat.find()) {
-                    tempList.add(claim);
+                    filtered.add(claim);
                 }
             }
-            fullList = tempList;
 
-        return fullList;
+        return filtered;
     }
 
     /**
@@ -74,21 +71,22 @@ public class SearchUtil {
      * 
      * @param fullList the list of regions to filter
      * @param id filter
-     * @return filtered list
+     * @return {@code filtered} list or {@code fullList} if {@code id} is null
      */
     public static ArrayList<ProtectedRegion> idFilter(ArrayList<ProtectedRegion> fullList, String id) {
 
         if (id != null) {
-            ArrayList<ProtectedRegion> tempList = new ArrayList<ProtectedRegion>();
+            ArrayList<ProtectedRegion> filtered = new ArrayList<ProtectedRegion>();
             for (ProtectedRegion claim : fullList) {
                 if (claim.getId().equalsIgnoreCase(id)) {
-                    tempList.add(claim);
+                    filtered.add(claim);
                 }
             }
-            fullList = tempList;
+            return filtered;
+        } else {
+            return fullList;
         }
 
-        return fullList;
     }
 
     /**
@@ -96,22 +94,22 @@ public class SearchUtil {
      * 
      * @param fullList the list of regions to filter
      * @param owner filter
-     * @return filtered list
+     * @return {@code filtered} list or {@code fullList} if {@code owner} is null
      */
     public static ArrayList<ProtectedRegion> ownerFilter(ArrayList<ProtectedRegion> fullList, OfflinePlayer owner) {
 
         if (owner != null) {
-            ArrayList<ProtectedRegion> tempList = new ArrayList<ProtectedRegion>();
+            ArrayList<ProtectedRegion> filtered = new ArrayList<ProtectedRegion>();
             for (ProtectedRegion claim : fullList) {
-                if (claim.getOwners().contains(owner.getUniqueId()) || 
+                if (claim.getOwners().contains(owner.getUniqueId()) || owner.getName() != null && 
                         claim.getOwners().contains(owner.getName().toLowerCase())) {
-                    tempList.add(claim);
+                    filtered.add(claim);
                 }
             }
-            fullList = tempList;
+            return filtered;
+        } else {
+            return fullList;
         }
-
-        return fullList;
     }
 
     /**
@@ -119,48 +117,49 @@ public class SearchUtil {
      * 
      * @param fullList the list of regions to filter
      * @param member filter
-     * @return filtered list
+     * @return {@code filtered} list or {@code fullList} if {@code member} is null
      */
     public static ArrayList<ProtectedRegion> memberFilter(ArrayList<ProtectedRegion> fullList, OfflinePlayer member) {
 
         if (member != null) {
-            ArrayList<ProtectedRegion> tempList = new ArrayList<ProtectedRegion>();
+            ArrayList<ProtectedRegion> filtered = new ArrayList<ProtectedRegion>();
             for (ProtectedRegion claim : fullList) {
-                if (claim.getMembers().contains(member.getUniqueId()) || 
+                if (claim.getMembers().contains(member.getUniqueId()) || member.getName() != null && 
                         claim.getMembers().contains(member.getName().toLowerCase())) {
-                    tempList.add(claim);
+                    filtered.add(claim);
                 }
             }
-            fullList = tempList;
+            return filtered;
+        } else {
+            return fullList;
         }
-
-        return fullList;
     }
 
     /**
      * Filters {@code fullList} with {@code pending} filter
      * 
-     * @param sMgr the stake manager to work with
+     * @param plugin the SAC plugin
+     * @param world the world the list is for
      * @param fullList the list of regions to filter
      * @param pending filter
-     * @return filtered list
+     * @return {@code filtered} list or {@code fullList} if {@code pending} is null
      */
     public static ArrayList<ProtectedRegion> pendingFilter(StakeAClaimPlugin plugin, World world, ArrayList<ProtectedRegion> fullList, Boolean pending) {
 
         if (pending != null) {
             final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-            ArrayList<ProtectedRegion> tempList = new ArrayList<ProtectedRegion>();
+            ArrayList<ProtectedRegion> filtered = new ArrayList<ProtectedRegion>();
             for (ProtectedRegion claim : fullList) {
                 if (sMgr.getStake(claim).getStatus() == Status.PENDING && pending) {
-                    tempList.add(claim);
+                    filtered.add(claim);
                 } else if (sMgr.getStake(claim).getStatus() != Status.PENDING && !pending) {
-                    tempList.add(claim);
+                    filtered.add(claim);
                 }
             }
-            fullList = tempList;
+            return filtered;
+        } else {
+            return fullList;
         }
-
-        return fullList;
     }
 
     /**
@@ -168,23 +167,23 @@ public class SearchUtil {
      * 
      * @param fullList the list of regions to filter
      * @param hasMembers filter
-     * @return filtered list
+     * @return {@code filtered} list or {@code fullList} if {@code hasMembers} is null
      */
     public static ArrayList<ProtectedRegion> hasMembersFilter(ArrayList<ProtectedRegion> fullList, Boolean hasMembers) {
 
         if (hasMembers != null) {
-            ArrayList<ProtectedRegion> tempList = new ArrayList<ProtectedRegion>();
+            ArrayList<ProtectedRegion> filtered = new ArrayList<ProtectedRegion>();
             for (ProtectedRegion claim : fullList) {
                 if (claim.getMembers().size() > 0 && hasMembers) {
-                    tempList.add(claim);
+                    filtered.add(claim);
                 } else if (claim.getMembers().size() <= 0 && !hasMembers) {
-                    tempList.add(claim);
+                    filtered.add(claim);
                 }
             }
-            fullList = tempList;
+            return filtered;
+        } else {
+            return fullList;
         }
-
-        return fullList;
     }
 
     /**
@@ -192,47 +191,48 @@ public class SearchUtil {
      * 
      * @param fullList the list of regions to filter
      * @param claimed filter
-     * @return filtered list
+     * @return {@code filtered} list or {@code fullList} if {@code claimed} is null
      */
     public static ArrayList<ProtectedRegion> claimedFilter(ArrayList<ProtectedRegion> fullList, Boolean claimed) {
 
         if (claimed != null) {
-            ArrayList<ProtectedRegion> tempList = new ArrayList<ProtectedRegion>();
+            ArrayList<ProtectedRegion> filtered = new ArrayList<ProtectedRegion>();
             for (ProtectedRegion claim : fullList) {
                 if (claim.getOwners().size() > 0 && claimed) {
-                    tempList.add(claim);
+                    filtered.add(claim);
                 } else if (claim.getOwners().size() <= 0 && !claimed) {
-                    tempList.add(claim);
+                    filtered.add(claim);
                 }
             }
-            fullList = tempList;
+            return filtered;
+        } else {
+            return fullList;
         }
-
-        return fullList;
     }
 
     /**
      * Filters {@code fullList} with {@code vip} filter
      * 
-     * @param sMgr the stake manager to work with
+     * @param plugin the SAC plugin
+     * @param world the world the list is for
      * @param fullList the list of regions to filter
      * @param vip filter
-     * @return filtered list
+     * @return {@code filtered} list or {@code fullList} if {@code vip} is null
      */
     public static ArrayList<ProtectedRegion> vipFilter(StakeAClaimPlugin plugin, World world, ArrayList<ProtectedRegion> fullList, Boolean vip) {
 
         if (vip != null) {
             final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-            ArrayList<ProtectedRegion> tempList = new ArrayList<ProtectedRegion>();
+            ArrayList<ProtectedRegion> filtered = new ArrayList<ProtectedRegion>();
             for (ProtectedRegion claim : fullList) {
                 if (sMgr.getStake(claim).getVIP() == vip) {
-                    tempList.add(claim);
+                    filtered.add(claim);
                 }
             }
-            fullList = tempList;
+            return filtered;
+        } else {
+            return fullList;
         }
-
-        return fullList;
     }
 
     /**
@@ -241,14 +241,12 @@ public class SearchUtil {
      * @param plugin the SAC plugin
      * @param fullList the list of regions to filter
      * @param absent filter
-     * @return filtered list
-     * @throws CommandException  
-     * @throws UnresolvedNamesException
+     * @return {@code filtered} list or {@code fullList} if {@code absent} is null
      */
-    public static ArrayList<ProtectedRegion> absentFilter(StakeAClaimPlugin plugin, ArrayList<ProtectedRegion> fullList, Long absent) throws CommandException {
+    public static ArrayList<ProtectedRegion> absentFilter(StakeAClaimPlugin plugin, ArrayList<ProtectedRegion> fullList, Long absent) {
 
         if (absent != null) {
-            ArrayList<ProtectedRegion> tempList = new ArrayList<ProtectedRegion>();
+            ArrayList<ProtectedRegion> filtered = new ArrayList<ProtectedRegion>();
             for (ProtectedRegion claim : fullList) {
                 List<Long> times = new ArrayList<Long>();
                 for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
@@ -268,13 +266,13 @@ public class SearchUtil {
                 }
 
                 if (!times.isEmpty() && Collections.max(times) < absent) {
-                    tempList.add(claim);
+                    filtered.add(claim);
                 }
             }
-            fullList = tempList;
+            return filtered;
+        } else {
+            return fullList;
         }
-
-        return fullList;
     }
 
     /**
@@ -283,13 +281,12 @@ public class SearchUtil {
      * @param plugin the SAC plugin
      * @param fullList the list of regions to filter
      * @param seen filter
-     * @return filtered list
-     * @throws UnresolvedNamesException
+     * @return {@code filtered} list or {@code fullList} if {@code seen} is null
      */
-    public static ArrayList<ProtectedRegion> seenFilter(StakeAClaimPlugin plugin, ArrayList<ProtectedRegion> fullList, Long seen) throws UnresolvedNamesException {
+    public static ArrayList<ProtectedRegion> seenFilter(StakeAClaimPlugin plugin, ArrayList<ProtectedRegion> fullList, Long seen) {
 
         if (seen != null) {
-            ArrayList<ProtectedRegion> tempList = new ArrayList<ProtectedRegion>();
+            ArrayList<ProtectedRegion> filtered = new ArrayList<ProtectedRegion>();
             for (ProtectedRegion claim : fullList) {
                 List<Long> times = new ArrayList<Long>();
                 for (UUID oneOwner : claim.getOwners().getUniqueIds()) {
@@ -309,13 +306,13 @@ public class SearchUtil {
                 }
 
                 if (!times.isEmpty() && Collections.max(times) > seen) {
-                    tempList.add(claim);
+                    filtered.add(claim);
                 }
             }
-            fullList = tempList;
+            return filtered;
+        } else {
+            return fullList;
         }
-
-        return fullList;
     }
 
     /**
@@ -324,13 +321,12 @@ public class SearchUtil {
      * @param plugin the SAC plugin
      * @param fullList the list of regions to filter
      * @param typo filter
-     * @return filtered list
-     * @throws UnresolvedNamesException
+     * @return {@code filtered} list or {@code fullList} if {@code typo} is null
      */
-    public static ArrayList<ProtectedRegion> typoFilter(StakeAClaimPlugin plugin, ArrayList<ProtectedRegion> fullList, Boolean typo) throws UnresolvedNamesException {
+    public static ArrayList<ProtectedRegion> typoFilter(StakeAClaimPlugin plugin, ArrayList<ProtectedRegion> fullList, Boolean typo) {
 
         if (typo != null) {
-            ArrayList<ProtectedRegion> tempList = new ArrayList<ProtectedRegion>();
+            ArrayList<ProtectedRegion> filtered = new ArrayList<ProtectedRegion>();
             for (ProtectedRegion claim : fullList) {
                 boolean hasTypo = false;
                 for (UUID oneMember : claim.getMembers().getUniqueIds()) {
@@ -367,13 +363,13 @@ public class SearchUtil {
                 }
 
                 if (hasTypo == typo) {
-                    tempList.add(claim);
+                    filtered.add(claim);
                 }
             }
-            fullList = tempList;
+            return filtered;
+        } else {
+            return fullList;
         }
-
-        return fullList;
     }
 
     /**
@@ -382,13 +378,12 @@ public class SearchUtil {
      * @param plugin the SAC plugin
      * @param fullList the list of regions to filter
      * @param banned filter
-     * @return filtered list
-     * @throws UnresolvedNamesException
+     * @return {@code filtered} list or {@code fullList} if {@code banned} is null
      */
-    public static ArrayList<ProtectedRegion> bannedFilter(StakeAClaimPlugin plugin, ArrayList<ProtectedRegion> fullList, Boolean banned) throws UnresolvedNamesException {
+    public static ArrayList<ProtectedRegion> bannedFilter(StakeAClaimPlugin plugin, ArrayList<ProtectedRegion> fullList, Boolean banned) {
 
         if (banned != null) {
-            ArrayList<ProtectedRegion> tempList = new ArrayList<ProtectedRegion>();
+            ArrayList<ProtectedRegion> filtered = new ArrayList<ProtectedRegion>();
             for (ProtectedRegion claim : fullList) {
                 boolean isBanned = false;
                 for (UUID oneMember : claim.getMembers().getUniqueIds()) {
@@ -425,13 +420,13 @@ public class SearchUtil {
                 }
 
                 if (isBanned == banned) {
-                    tempList.add(claim);
+                    filtered.add(claim);
                 }
             }
-            fullList = tempList;
+            return filtered;
+        } else {
+            return fullList;
         }
-
-        return fullList;
     }
 
     /**

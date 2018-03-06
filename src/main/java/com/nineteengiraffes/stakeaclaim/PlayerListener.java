@@ -24,7 +24,6 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -98,8 +97,7 @@ public class PlayerListener implements Listener {
                     PlayerState state = plugin.getPlayerStateManager().getState(player);
 
                     // If wand is in hand, displays claim name and owner(s) as you enter
-                    final ItemStack item = player.getInventory().getItemInHand();
-                    String support = null;
+                    final ItemStack item = player.getInventory().getItemInMainHand();
 
                     if (item.getType() == wcfg.sacWand && SACUtil.hasPermission(plugin, player, "stakeaclaim.events.wand")) {
 
@@ -135,16 +133,16 @@ public class PlayerListener implements Listener {
 
                             }
 
-                            support = message.toString();
+                            String support = message.toString();
                             if (support != null && (state.lastSupport == null
                                     || !state.lastSupport.equals(support))) {
                                 player.sendMessage(support);
                             }
+                            state.lastSupport = support;
                         }
+                    } else {
+                        state.lastSupport = null;
                     }
-
-                    // save state
-                    state.lastSupport = support;
                 }
             }
         }
@@ -166,31 +164,35 @@ public class PlayerListener implements Listener {
 
         if (thingClicked instanceof Player) {
             Player passivePlayer = (Player) thingClicked;
+
             World world = passivePlayer.getWorld();
 
             ConfigManager cfg = plugin.getGlobalManager();
             WorldConfig wcfg = cfg.get(world);
 
-            ItemStack held = activePlayer.getInventory().getItemInHand();
+            ItemStack held = activePlayer.getInventory().getItemInMainHand();
+            PlayerState state = plugin.getPlayerStateManager().getState(activePlayer);
 
             if (held.getType() == wcfg.sacWand && SACUtil.hasPermission(plugin, activePlayer, "stakeaclaim.events.wand.player")) {
 
                 if (!wcfg.useStakes) {
-                    activePlayer.sendMessage(ChatColor.YELLOW + "Stakes are disabled in this world.");
                     return;
                 }
 
                 final RegionManager rgMgr = WGBukkit.getRegionManager(world);
                 if (rgMgr == null) {
-                    activePlayer.sendMessage(ChatColor.YELLOW + "Regions are disabled in this world.");
                     return;
                 }
 
                 final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
-                PlayerState state = plugin.getPlayerStateManager().getState(activePlayer);
-                final Location loc = passivePlayer.getLocation();
+                final Block block = passivePlayer.getLocation().getBlock();
+                if (state.lastPlayer != null && state.lastPlayer.equals(passivePlayer)) {
+                    if (state.lastBlock != null && state.lastBlock.equals(block)) {
+                        return;
+                    }
+                }
 
-                ProtectedRegion claim = SACUtil.getClaimAtPoint(rgMgr, wcfg, new Vector(loc.getX(), loc.getY(), loc.getZ()));
+                ProtectedRegion claim = SACUtil.getClaimAtPoint(rgMgr, wcfg, new Vector(block.getX(), block.getY(), block.getZ()));
                 state.unsubmittedStake = null;
                 if (claim != null) {
                     Stake stake = sMgr.getStake(claim);
@@ -198,7 +200,7 @@ public class PlayerListener implements Listener {
                     activePlayer.sendMessage(SACUtil.formatPlayer(passivePlayer) + ChatColor.YELLOW + " is in:");
                     boolean open = SACUtil.displayClaim("", claim, stake, activePlayer, plugin, world);
 
-                    if (open) {
+                    if (open && SACUtil.hasPermission(plugin, activePlayer, "stakeaclaim.claim.proxy")) {
                         activePlayer.sendMessage(ChatColor.YELLOW + "Do " + ChatColor.WHITE + "/claim proxy" + 
                                 ChatColor.YELLOW + " to stake that claim for them.");
                         state.unsubmittedStake = new Stake(claim.getId());
@@ -207,8 +209,13 @@ public class PlayerListener implements Listener {
                 }
 
                 SACUtil.displayPlayer(plugin, activePlayer, rgMgr, world, passivePlayer);
+                state.lastPlayer = passivePlayer ;
+                state.lastBlock = block;
 
                 event.setCancelled(true);
+            } else {
+                state.lastPlayer = null;
+                state.lastBlock = null;
             }
         }
     }
@@ -223,36 +230,38 @@ public class PlayerListener implements Listener {
             Block block = event.getClickedBlock();
             World world = block.getWorld();
             Player player = event.getPlayer();
-            ItemStack held = player.getInventory().getItemInHand();
+            PlayerState state = plugin.getPlayerStateManager().getState(player);
+
+            if (state.lastBlock != null && state.lastBlock.equals(block)) {
+                return;
+            }
+
+            ItemStack held = player.getInventory().getItemInMainHand();
             ConfigManager cfg = plugin.getGlobalManager();
             WorldConfig wcfg = cfg.get(world);
 
             if (held.getType() == wcfg.sacWand && SACUtil.hasPermission(plugin, player, "stakeaclaim.events.wand.claim")) {
 
+                state.lastBlock = block;
                 if (!wcfg.useStakes) {
-                    player.sendMessage(ChatColor.YELLOW + "Stakes are disabled in this world.");
                     return;
                 }
 
                 final RegionManager rgMgr = WGBukkit.getRegionManager(world);
                 if (rgMgr == null) {
-                    player.sendMessage(ChatColor.YELLOW + "Regions are disabled in this world.");
                     return;
                 }
 
-                final Location loc = block.getLocation();
-
-                ProtectedRegion claim = SACUtil.getClaimAtPoint(rgMgr, wcfg, new Vector(loc.getX(), loc.getY(), loc.getZ()));
+                ProtectedRegion claim = SACUtil.getClaimAtPoint(rgMgr, wcfg, new Vector(block.getX(), block.getY(), block.getZ()));
                 if (claim == null) {
-                    player.sendMessage(ChatColor.YELLOW + "That block is not in a claim!");
+                    player.sendMessage(ChatColor.WHITE + block.getType().toString() + ChatColor.YELLOW + " at " + ChatColor.GOLD + "(" + block.getX() + "," + block.getY() + "," + block.getZ() + ")" + ChatColor.YELLOW + " is not in a claim!");
                     return;
                 }
-                final PlayerState state = plugin.getPlayerStateManager().getState(player);
 
                 final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
                 Stake stake = sMgr.getStake(claim);
 
-                player.sendMessage(ChatColor.YELLOW + "That block is in:");
+                player.sendMessage(ChatColor.WHITE + block.getType().toString() + ChatColor.YELLOW + " at " + ChatColor.GOLD + "(" + block.getX() + "," + block.getY() + "," + block.getZ() + ")" + ChatColor.YELLOW + " is in:");
                 SACUtil.displayClaim(wcfg, claim, stake, player, plugin, world, null);
                 LinkedHashMap<Integer, ProtectedRegion> regionList = new LinkedHashMap<Integer, ProtectedRegion>();
                 regionList.put(0, claim);
@@ -260,6 +269,8 @@ public class PlayerListener implements Listener {
                 state.listWorld = world;
 
                 event.setCancelled(true);
+            } else {
+                state.lastBlock = null;
             }
         }
     }

@@ -42,7 +42,6 @@ import com.nineteengiraffes.stakeaclaim.WorldConfig;
 import com.nineteengiraffes.stakeaclaim.stakes.Stake;
 import com.nineteengiraffes.stakeaclaim.stakes.Stake.Status;
 import com.nineteengiraffes.stakeaclaim.stakes.StakeManager;
-import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissionsException;
 import com.sk89q.squirrelid.Profile;
@@ -882,16 +881,27 @@ public class SACUtil {
         } else {
             int hour = (int) ((System.currentTimeMillis() - offlinePlayer.getLastPlayed()) / 1000 / 60 / 60);
             int day = hour / 24;
+            hour = hour - (day * 24);
+            int year = day / 365;
+            day = day - (year * 365);
+            int month = day / 30;
+            day = day - (month * 30);
+            
             if (hour < 1) {
                 message.append(ChatColor.GOLD + "Less than " + ChatColor.WHITE + "1" + ChatColor.GOLD + " hour ago.");
-            } else if (day < 1) {
-                message.append(ChatColor.WHITE + "" + hour + ChatColor.GOLD + " hour" + (hour == 1 ? "" : "s") + " ago.");
-            } else if (day > 6) {
-                message.append(ChatColor.WHITE + "" + day + ChatColor.GOLD + " day" + (day == 1 ? "" : "s") + " ago.");
             } else {
-                hour = hour - (day * 24);
-                message.append(ChatColor.WHITE + "" + day + ChatColor.GOLD + " day" + (day == 1 ? ", " : "s, ") + 
-                        ChatColor.WHITE + hour + ChatColor.GOLD + " hour" + (hour == 1 ? "" : "s") + " ago.");
+                if (year > 0) {
+                    message.append(ChatColor.WHITE + "" + year + ChatColor.GOLD + " year" + (year == 1 ? "" : "s") + ", ");
+                    message.append(ChatColor.WHITE + "" + month + ChatColor.GOLD + " month" + (month == 1 ? "" : "s") + " ago.");
+                } else if (month > 0) {
+                    message.append(ChatColor.WHITE + "" + month + ChatColor.GOLD + " month" + (month == 1 ? "" : "s") + ", ");
+                    message.append(ChatColor.WHITE + "" + day + ChatColor.GOLD + " day" + (day == 1 ? "" : "s") + " ago.");
+                } else if (day > 0) {
+                    message.append(ChatColor.WHITE + "" + day + ChatColor.GOLD + " day" + (day == 1 ? "" : "s") + ", ");
+                    message.append(ChatColor.WHITE + "" + hour + ChatColor.GOLD + " hour" + (hour == 1 ? "" : "s") + " ago.");
+                } else {
+                    message.append(ChatColor.WHITE + "" + hour + ChatColor.GOLD + " hour" + (hour == 1 ? "" : "s") + " ago.");
+                }
             }
         }
         sender.sendMessage(message.toString());
@@ -934,7 +944,6 @@ public class SACUtil {
      * @param playerName the player's name to format
      * @return formated player name
      */
-    @Deprecated
     public static String formatPlayer(String playerName){
         return new StringBuilder(ChatColor.GREEN + "~" + playerName).toString();
     }
@@ -945,7 +954,6 @@ public class SACUtil {
      * @param playerName the player's name to format
      * @return formated player name
      */
-    @Deprecated
     public static String formatPlayerJSON(String playerName){
         return new StringBuilder("{\"text\":\" ~" + playerName + "\",\"color\":\"green\"}").toString();
     }
@@ -1036,13 +1044,12 @@ public class SACUtil {
      *  Warp {@code sender} to remembered warp if there is one
      * 
      * @param plugin the SAC plugin
-     * @param args the args from the command
      * @param sender the player to warp
      * @param spawn true to use the claim's spawn not the player set warp point
      * @return false if there was no remembered warp
      * @throws CommandException if sender is not a {@link Player} or if there is no remembered warp
      */
-    public static boolean gotoRememberedWarp(StakeAClaimPlugin plugin, CommandContext args, CommandSender sender, boolean spawn) throws CommandException {
+    public static boolean gotoRememberedWarp(StakeAClaimPlugin plugin, CommandSender sender, boolean spawn) throws CommandException {
 
         final Player player = checkPlayer(sender);
         final PlayerState state = plugin.getPlayerStateManager().getState(sender);

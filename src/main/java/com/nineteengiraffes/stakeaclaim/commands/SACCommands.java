@@ -49,7 +49,6 @@ import com.sk89q.minecraft.util.commands.NestedCommand;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import com.sk89q.worldguard.protection.util.UnresolvedNamesException;
 
 public class SACCommands {
     private final StakeAClaimPlugin plugin;
@@ -65,6 +64,14 @@ public class SACCommands {
     @CommandPermissions("stakeaclaim.sac.filters")
     public void filters(CommandContext args, CommandSender sender) throws CommandException {
 
+        if (sender instanceof Player) {
+            final ConfigManager cfg = plugin.getGlobalManager();
+            final WorldConfig wcfg = cfg.get(((Player) sender).getWorld());
+            if (!wcfg.useStakes) {
+                throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
+            }
+
+        }
         sender.sendMessage(ChatColor.GRAY + 
                 "\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550" + 
                 " Filters " + 
@@ -97,7 +104,7 @@ public class SACCommands {
         sender.sendMessage(ChatColor.WHITE + "'" + ChatColor.GOLD + "banned" + ChatColor.WHITE + 
                 "' - banned players, default: yes. " + ChatColor.GRAY + "[b] [yes/no]");
         sender.sendMessage(ChatColor.WHITE + "'" + ChatColor.GOLD + "page" + ChatColor.WHITE + 
-                "' - results page # " + ChatColor.GRAY + "[p#]" + ChatColor.WHITE + " or " + ChatColor.GRAY + "[page] <page #>");
+                "' - results page # " + ChatColor.GRAY + "[p#]" + ChatColor.WHITE + " or " + ChatColor.GRAY + "['page'] <page #>");
 
     }
 
@@ -106,7 +113,7 @@ public class SACCommands {
             desc = "Search all claims with filter(s)",
             min = 0)
     @CommandPermissions("stakeaclaim.sac.search")
-    public void search(CommandContext args, CommandSender sender) throws CommandException, UnresolvedNamesException {
+    public void search(CommandContext args, CommandSender sender) throws CommandException {
 
         final PlayerState state = plugin.getPlayerStateManager().getState(sender);
         final ConfigManager cfg = plugin.getGlobalManager();
@@ -508,6 +515,12 @@ public class SACCommands {
         final Player player = SACUtil.checkPlayer(sender);
         final World world = player.getWorld();
 
+        final ConfigManager cfg = plugin.getGlobalManager();
+        final WorldConfig wcfg = cfg.get(world);
+        if (!wcfg.useStakes) {
+            throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
+        }
+
         final RegionManager rgMgr = WGBukkit.getRegionManager(world);
         if (rgMgr == null) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
@@ -547,6 +560,12 @@ public class SACCommands {
         final PlayerState state = plugin.getPlayerStateManager().getState(sender);
         final Player player = SACUtil.checkPlayer(sender);
         final World world = player.getWorld();
+
+        final ConfigManager cfg = plugin.getGlobalManager();
+        final WorldConfig wcfg = cfg.get(world);
+        if (!wcfg.useStakes) {
+            throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
+        }
 
         final RegionManager rgMgr = WGBukkit.getRegionManager(world);
         if (rgMgr == null) {
@@ -669,7 +688,7 @@ public class SACCommands {
             desc = "View detailed info on one user",
             min = 1, max = 2)
     @CommandPermissions("stakeaclaim.sac.user")
-    public void user(CommandContext args, CommandSender sender) throws CommandException, UnresolvedNamesException {
+    public void user(CommandContext args, CommandSender sender) throws CommandException {
         final PlayerState state = plugin.getPlayerStateManager().getState(sender);
         final ConfigManager cfg = plugin.getGlobalManager();
         String argWorld = null;
@@ -816,6 +835,8 @@ public class SACCommands {
                     sender.sendMessage(ChatColor.YELLOW + "" + sMgr.getStakes().size() + " stakes saved for '" + world.getName() + "'");
                 }
                 throw new CommandException(ChatColor.YELLOW + "All worlds saved.");
+            } else {
+                throw new CommandException("World: '" + in + "' not found!");
             }
         }
 
@@ -868,13 +889,15 @@ public class SACCommands {
                     sender.sendMessage(ChatColor.YELLOW + "" + sMgr.getStakes().size() + " stakes loaded for '" + world.getName() + "'");
                 }
                 throw new CommandException(ChatColor.YELLOW + "All worlds reloaded.");
-            }
-    
+
             // load config
-            if (in.equalsIgnoreCase("config") || in.equalsIgnoreCase("c")) {
+            } else if (in.equalsIgnoreCase("config") || in.equalsIgnoreCase("c")) {
                 ConfigManager config = plugin.getGlobalManager();
+                config.unload();
                 config.load();
                 throw new CommandException(ChatColor.YELLOW + "SAC config reloaded.");
+            } else {
+                throw new CommandException("World: '" + in + "' not found!");
             }
         }
 
@@ -899,7 +922,7 @@ public class SACCommands {
     private void doGoto(CommandContext args, CommandSender sender, boolean spawn) throws CommandException {
 
         if (args.argsLength() == 0) {
-            if (!SACUtil.gotoRememberedWarp(plugin, args, sender, spawn)) {
+            if (!SACUtil.gotoRememberedWarp(plugin, sender, spawn)) {
                 sender.sendMessage(ChatColor.RED + "Too few arguments.");
                 sender.sendMessage(ChatColor.RED + "/sac " + args.getCommand() + " <list item #> or <claim id> [world]");
             }

@@ -1,5 +1,14 @@
+1.3.2
+- Works with Minecraft 1.10
+- Requires Minecraft 1.9+
+- Changed player last seen info now shows months and years
+- Changed continuous clicking with 'wand' now only displays relevant info once (cut chat spam)
+- Changed now checks main hand for 'wand'
+- Fixed some commands still working in worlds where SAC is disabled
+- Fixed bug with real but unseen owners
+
 1.3.1
-- Works with MC 1.8 + 1.9
+- Works with Minecraft 1.8 + 1.9
 - Fix bug with unknown (never joined) players as null
 - Fix bug with JSON syntax
 

@@ -19,7 +19,7 @@ About Stake A Claim
 
 The StakeAClaim plugin requires WorldGuard and WorldEdit to function. SAC is an add-on/extension to WorldGuard.
 The primary goal of SAC is to allow players to stake land claims from within the game, and for staff to manage these stakes.
-SAC has user friendly commands related to claiming, claims, and land all in one place, removing the need for any other claiming tool or complicated WorldGuard commands.
+SAC has user friendly commands related to claiming, claims, and land, all in one place removing the need for any other claiming tool or complicated WorldGuard commands.
 With only one base command for users, and shorter versions of all commands for the people that hate typing, SAC is the goto for user friendly claims in WorldGuard.
 
 
@@ -78,7 +78,7 @@ Install:
 4) setup config and permissions
 5) enjoy StakeAClaim on your server!!
 
-You may view a full list of SAC permissions nodes at: <http://goo.gl/3q8TrP>
+You may view a full list of SAC permissions nodes at: <https://goo.gl/nQTNM6>
 
 Sample config:
 ============================================================================================================
@@ -107,13 +107,14 @@ stakes-enable: true
 # Item (wand) to hold for 'support' and other features.
 wand: FEATHER
 
-# Regular expressions filter. Used to determine what regions are 'claims' by naming convention. Default: matches n12e3, S2W56, etc.
+# Regular expressions filter. Used to determine what regions are 'claims' by naming convention.
+# Default: matches n12e3, S2W56, etc.
 claim-name-regex-filter-string: ^[NSns]\d\d?[EWew]\d\d?$
 
 # Mark claims 'reclaimed' when reclaimed.
 remeber-reclaimed: true
 
-# What you call your vip player.
+# What you call your vip players.
 what-you-call-your-vips: Donors
 
 # Stake/Claim settings.
