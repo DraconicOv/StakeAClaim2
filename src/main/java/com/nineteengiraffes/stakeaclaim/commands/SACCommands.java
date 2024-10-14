@@ -31,6 +31,8 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+
 import com.nineteengiraffes.stakeaclaim.ConfigManager;
 import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
 import com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin;
@@ -46,7 +48,9 @@ import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
-import com.sk89q.worldguard.bukkit.WGBukkit;
+import com.sk89q.worldguard.bukkit.BukkitWorldGuardPlatform;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -461,7 +465,7 @@ public class SACCommands {
             }
 
             if (fullList.isEmpty()) {
-                final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+                final RegionManager rgMgr = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
                 if (rgMgr == null) {
                     throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
                 }
@@ -521,7 +525,7 @@ public class SACCommands {
             throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
         }
 
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        final RegionManager rgMgr = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
         if (rgMgr == null) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
@@ -567,7 +571,7 @@ public class SACCommands {
             throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
         }
 
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        final RegionManager rgMgr = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
         if (rgMgr == null) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
@@ -642,7 +646,7 @@ public class SACCommands {
             throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
         }
 
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        final RegionManager rgMgr = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
         if (rgMgr == null) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
@@ -758,7 +762,7 @@ public class SACCommands {
             }
         }
 
-        RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        RegionManager rgMgr =  WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
         if (rgMgr == null) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
@@ -958,7 +962,7 @@ public class SACCommands {
             throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
         }
 
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        final RegionManager rgMgr = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
         if (rgMgr == null) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }

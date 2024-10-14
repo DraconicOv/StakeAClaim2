@@ -22,11 +22,12 @@ package com.nineteengiraffes.stakeaclaim;
 import java.io.File;
 import java.io.IOException;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import org.bukkit.Material;
 
 import com.sk89q.util.yaml.YAMLFormat;
 import com.sk89q.util.yaml.YAMLProcessor;
-import com.sk89q.worldguard.bukkit.WGBukkit;
+import com.sk89q.worldguard.WorldGuard;
 
 /**
  * Holds the configuration for individual worlds.
@@ -152,7 +153,7 @@ public class WorldConfig {
         totalMaxVolume = getInt("claiming.max-volume.total-stakes", 1048576);
         proxyMaxVolume = getInt("claiming.max-volume.proxy-can-stake", -1);
 
-        useRegions = WGBukkit.getPlugin().getGlobalStateManager().get(plugin.getServer().getWorld(worldName)).useRegions;
+        useRegions = WorldGuard.getInstance().getPlatform().getGlobalStateManager().get(BukkitAdapter.adapt(plugin.getServer().getWorld(worldName))).useRegions;
 
         if (!useRegions || !useSAC) {
             useStakes = false;

@@ -19,6 +19,8 @@
 
 package com.nineteengiraffes.stakeaclaim.commands;
 
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.LocationFlag;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -34,7 +36,6 @@ import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 public class DeleteCommands {
@@ -70,7 +71,7 @@ public class DeleteCommands {
         final ProtectedRegion claim = SACUtil.getClaimStandingIn(player, plugin);
         SACUtil.checkPerm(plugin, player, "del.warp", claim);
 
-        claim.setFlag(DefaultFlag.TELE_LOC, null);
+        claim.setFlag((LocationFlag)WorldGuard.getInstance().getFlagRegistry().get("teleport"), null);
         sender.sendMessage(SACUtil.formatID(sMgr.getStake(claim)) + ChatColor.YELLOW + "'s warp deleted.");
 
     }

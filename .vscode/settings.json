@@ -1,0 +1,4 @@
+{
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "java.configuration.runtimes": [ { "name": "JavaSE-1.8", "path": "/usr/lib/jvm/jdk8u422-b05", }]
+}

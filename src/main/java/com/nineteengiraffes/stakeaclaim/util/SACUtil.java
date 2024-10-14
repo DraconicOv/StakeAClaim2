@@ -27,6 +27,10 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.LocationFlag;
+import com.sk89q.worldguard.protection.flags.StateFlag;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -35,6 +39,7 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.nineteengiraffes.stakeaclaim.ConfigManager;
 import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
 import com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin;
@@ -48,14 +53,13 @@ import com.sk89q.squirrelid.Profile;
 import com.sk89q.squirrelid.resolver.ProfileService;
 import com.sk89q.squirrelid.util.UUIDs;
 import com.sk89q.wepif.PermissionsResolverManager;
-import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.bukkit.BukkitUtil;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.math.Vector3;
 import com.sk89q.worldguard.LocalPlayer;
-import com.sk89q.worldguard.bukkit.WGBukkit;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -74,7 +78,7 @@ public class SACUtil {
     public static ProtectedRegion getClaimStandingIn(Player player, StakeAClaimPlugin plugin) throws CommandException {
 
         final World world = player.getWorld();
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        final RegionManager rgMgr = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
         if (rgMgr == null) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
@@ -83,7 +87,7 @@ public class SACUtil {
         final WorldConfig wcfg = cfg.get(world);
         final Location loc = player.getLocation();
 
-        ProtectedRegion claim = getClaimAtPoint(rgMgr, wcfg, new Vector(loc.getX(), loc.getY(), loc.getZ()));
+        ProtectedRegion claim = getClaimAtPoint(rgMgr, wcfg, Vector3.at(loc.getX(), loc.getY(), loc.getZ()).toBlockPoint());
  
         if (claim == null) {
             throw new CommandException("You are not in a single valid claim!");
@@ -99,7 +103,7 @@ public class SACUtil {
      * @param vector the location to look for the claim
      * @return the claim at {@code vector}, returns null if there are no claims there, or more than one
      */
-    public static ProtectedRegion getClaimAtPoint(RegionManager rgMgr, WorldConfig wcfg, Vector vector) {
+    public static ProtectedRegion getClaimAtPoint(RegionManager rgMgr, WorldConfig wcfg, BlockVector3 vector) {
 
         final ApplicableRegionSet rgSet = rgMgr.getApplicableRegions(vector);
         final Pattern regexPat = Pattern.compile(wcfg.claimNameFilter);
@@ -128,7 +132,7 @@ public class SACUtil {
      * 
      * @param rgMgr the region manager to work with
      * @param sMgr the stake manager to work with
-     * @param player the player to get the stake for
+     * @param playerUUID the player to get the stake for
      * @return pending stake for the player, or null
      */
     public static Stake getPendingStake(RegionManager rgMgr, StakeManager sMgr, UUID playerUUID) {
@@ -233,7 +237,7 @@ public class SACUtil {
      */
     public static boolean hasPerm(StakeAClaimPlugin plugin, Player player, String command, ProtectedRegion claim) {
 
-        final LocalPlayer localPlayer = WGBukkit.getPlugin().wrapPlayer(player);
+        final LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
         final String id = claim.getId();
 
         if (claim.isOwner(localPlayer)) {
@@ -249,14 +253,14 @@ public class SACUtil {
      * Check sender for permission on a claim and throws an exception if permission is not met.
      * 
      * @param plugin the SAC plugin
-     * @param sender the sender to check the permission on.
+     *  the sender to check the permission on.
      * @param command the command the permission is for
      * @param claim the claim to check owner and member permissions on
      * @throws CommandPermissionsException if the sender does not have permission
      */
     public static void checkPerm(StakeAClaimPlugin plugin, Player player, String command, ProtectedRegion claim) throws CommandPermissionsException {
 
-        final LocalPlayer localPlayer = WGBukkit.getPlugin().wrapPlayer(player);
+        final LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
         final String id = claim.getId();
 
         if (claim.isOwner(localPlayer)) {
@@ -550,7 +554,7 @@ public class SACUtil {
                     (hasTypo ? ChatColor.RED : ChatColor.GREEN)) + claim.getMembers().size());
         }
 
-        if (claim.getFlag(DefaultFlag.ENTRY) != null && claim.getFlag(DefaultFlag.ENTRY) == State.DENY) {
+        if (claim.getFlag((StateFlag) WorldGuard.getInstance().getFlagRegistry().get("entry")) != null && claim.getFlag((StateFlag) WorldGuard.getInstance().getFlagRegistry().get("entry")) == State.DENY) {
             message.append(ChatColor.RED + "" + ChatColor.ITALIC + " Private!");
         }
 
@@ -642,7 +646,7 @@ public class SACUtil {
             message.append(",{\"text\":\" " + claim.getMembers().size() + "\",\"color\":" + (isBanned ? "\"dark_red\"" : (hasTypo ? "\"red\"" : "\"green\"")) + "}");
         }
 
-        if (claim.getFlag(DefaultFlag.ENTRY) != null && claim.getFlag(DefaultFlag.ENTRY) == State.DENY) {
+        if (claim.getFlag((StateFlag) WorldGuard.getInstance().getFlagRegistry().get("entry")) != null && claim.getFlag((StateFlag) WorldGuard.getInstance().getFlagRegistry().get("entry")) == State.DENY) {
             message.append(",{\"text\":\" Private!\",\"color\":\"red\",\"italic\":true}");
         }
 
@@ -690,7 +694,7 @@ public class SACUtil {
             message.append("{\"text\":\" " + stake.getId() + "\",");
             message.append("\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/sac search id " + stake.getId() + " world " + world.getName() + "\"},");
             message.append("\"color\":" + (stake.getVIP() ? "\"aqua\"" : "\"white\"") + "}");
-            if (claim.getFlag(DefaultFlag.ENTRY) == State.DENY) {
+            if (claim.getFlag((StateFlag) WorldGuard.getInstance().getFlagRegistry().get("entry")) == State.DENY) {
                 message.append(",{\"text\":\" Private!\",\"color\":\"red\"}");
             } else if (stake.getVIP()) {
                 message.append(",{\"text\":\" " + wcfg.VIPs + " claim!\"}");
@@ -699,7 +703,7 @@ public class SACUtil {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), message.toString());
         } else {
             StringBuilder message = new StringBuilder(ChatColor.YELLOW + "Location: " + formatID(stake));
-            if (claim.getFlag(DefaultFlag.ENTRY) == State.DENY) {
+            if (claim.getFlag((StateFlag) WorldGuard.getInstance().getFlagRegistry().get("entry")) == State.DENY) {
                 message.append(ChatColor.RED + " " + ChatColor.ITALIC + "Private!");
             } else if (stake.getVIP()) {
                 message.append(ChatColor.YELLOW + " " + wcfg.VIPs + " claim!");
@@ -819,11 +823,11 @@ public class SACUtil {
             }
         }
 
-        final BlockVector min = claim.getMinimumPoint();
-        final BlockVector max = claim.getMaximumPoint();
+        final BlockVector3 min = claim.getMinimumPoint();
+        final BlockVector3 max = claim.getMaximumPoint();
         sender.sendMessage(ChatColor.LIGHT_PURPLE + "Bounds:" + ChatColor.GOLD + 
-                " (" + min.getBlockX() + "," + min.getBlockY() + "," + min.getBlockZ() + ") -> " + 
-                " (" + max.getBlockX() + "," + max.getBlockY() + "," + max.getBlockZ() + ")");
+                " (" + min.x() + "," + min.y() + "," + min.z() + ") -> " +
+                " (" + max.x() + "," + max.y() + "," + max.z() + ")");
 
         String blocks;
         if (claim.volume() < 1000) {
@@ -1024,12 +1028,12 @@ public class SACUtil {
      */
     public static ProtectedRegion warpTo(StakeAClaimPlugin plugin, World world, ProtectedRegion claim, Stake stake, Player player, boolean forceSpawn){
 
-        if (claim.getFlag(DefaultFlag.TELE_LOC)!= null && !forceSpawn) {
-            player.teleport(BukkitUtil.toLocation(claim.getFlag(DefaultFlag.TELE_LOC)));
+        if (claim.getFlag((LocationFlag)WorldGuard.getInstance().getFlagRegistry().get("spawn"))!= null && !forceSpawn) {
+            player.teleport(BukkitAdapter.adapt(claim.getFlag((LocationFlag)WorldGuard.getInstance().getFlagRegistry().get("spawn"))));
             player.sendMessage(ChatColor.YELLOW + "Gone to:");
             displayClaim("", claim, stake, player, plugin, world);
-        } else if (claim.getFlag(DefaultFlag.SPAWN_LOC)!= null) {
-            player.teleport(BukkitUtil.toLocation(claim.getFlag(DefaultFlag.SPAWN_LOC)));
+        } else if (claim.getFlag((LocationFlag)WorldGuard.getInstance().getFlagRegistry().get("spawn"))!= null) {
+            player.teleport(BukkitAdapter.adapt(claim.getFlag((LocationFlag)WorldGuard.getInstance().getFlagRegistry().get("spawn"))));
             player.sendMessage(ChatColor.YELLOW + "Gone to spawn of:");
             displayClaim("", claim, stake, player, plugin, world);
         } else {

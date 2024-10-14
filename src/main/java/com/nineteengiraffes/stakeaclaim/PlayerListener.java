@@ -22,8 +22,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import com.sk89q.worldguard.protection.flags.Flag;
+import com.sk89q.worldguard.protection.flags.StateFlag;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -41,14 +44,16 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 
+import com.nineteengiraffes.stakeaclaim.PlayerListener.PlayerMoveHandler;
 import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
 import com.nineteengiraffes.stakeaclaim.stakes.Stake;
 import com.nineteengiraffes.stakeaclaim.stakes.Stake.Status;
 import com.nineteengiraffes.stakeaclaim.stakes.StakeManager;
 import com.nineteengiraffes.stakeaclaim.util.SACUtil;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldguard.bukkit.WGBukkit;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.bukkit.BukkitWorldGuardPlatform;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -102,13 +107,13 @@ public class PlayerListener implements Listener {
                     if (item.getType() == wcfg.sacWand && SACUtil.hasPermission(plugin, player, "stakeaclaim.events.wand")) {
 
                         // Get a single valid claim.
-                        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+                        final RegionManager rgMgr = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
                         if (rgMgr == null) {
                             return;
                         }
 
                         final ProtectedRegion claim = SACUtil.getClaimAtPoint(rgMgr, wcfg,
-                                new Vector(event.getTo().getBlockX(), event.getTo().getBlockY(), event.getTo().getBlockZ()));
+                                 BlockVector3.at(event.getTo().getBlockX(), event.getTo().getBlockY(), event.getTo().getBlockZ()));
 
                         if (claim != null) {
                             boolean isVIP = false;
@@ -179,7 +184,7 @@ public class PlayerListener implements Listener {
                     return;
                 }
 
-                final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+                final RegionManager rgMgr = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
                 if (rgMgr == null) {
                     return;
                 }
@@ -192,7 +197,7 @@ public class PlayerListener implements Listener {
                     }
                 }
 
-                ProtectedRegion claim = SACUtil.getClaimAtPoint(rgMgr, wcfg, new Vector(block.getX(), block.getY(), block.getZ()));
+                ProtectedRegion claim = SACUtil.getClaimAtPoint(rgMgr, wcfg,  BlockVector3.at(block.getX(), block.getY(), block.getZ()));
                 state.unsubmittedStake = null;
                 if (claim != null) {
                     Stake stake = sMgr.getStake(claim);
@@ -247,12 +252,12 @@ public class PlayerListener implements Listener {
                     return;
                 }
 
-                final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+                final RegionManager rgMgr =  WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
                 if (rgMgr == null) {
                     return;
                 }
 
-                ProtectedRegion claim = SACUtil.getClaimAtPoint(rgMgr, wcfg, new Vector(block.getX(), block.getY(), block.getZ()));
+                ProtectedRegion claim = SACUtil.getClaimAtPoint(rgMgr, wcfg, BlockVector3.at(block.getX(), block.getY(), block.getZ()));
                 if (claim == null) {
                     player.sendMessage(ChatColor.WHITE + block.getType().toString() + ChatColor.YELLOW + " at " + ChatColor.GOLD + "(" + block.getX() + "," + block.getY() + "," + block.getZ() + ")" + ChatColor.YELLOW + " is not in a claim!");
                     return;
@@ -365,7 +370,7 @@ public class PlayerListener implements Listener {
 
             for (World world : plugin.getServer().getWorlds()) {
                 wcfg = cfg.get(world);
-                rgMgr = WGBukkit.getRegionManager(world);
+                rgMgr =  WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
                 if (!wcfg.useStakes || rgMgr == null) {
                     continue;
                 }
@@ -376,9 +381,10 @@ public class PlayerListener implements Listener {
                 for (Stake stake : stakes.values()) {
                     if (stake.getDefaultEntry() != null) {
                         region = rgMgr.getRegion(stake.getId());
+                        StateFlag entryFlag = (StateFlag) WorldGuard.getInstance().getFlagRegistry().get("entry");
                         if (region.getOwners().contains(player.getUniqueId()) || region.getOwners().contains(player.getName().toLowerCase())) {
-                            if (region.getFlag(DefaultFlag.ENTRY) != stake.getDefaultEntry()) {
-                                region.setFlag(DefaultFlag.ENTRY, stake.getDefaultEntry());
+                            if (region.getFlag(entryFlag) != stake.getDefaultEntry()) {
+                                region.setFlag(entryFlag, stake.getDefaultEntry());
                             }
                         }
                     }

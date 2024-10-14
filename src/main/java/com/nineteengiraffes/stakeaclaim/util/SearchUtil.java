@@ -27,6 +27,9 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.Flag;
+import com.sk89q.worldguard.protection.flags.StateFlag;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -35,7 +38,6 @@ import com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin;
 import com.nineteengiraffes.stakeaclaim.WorldConfig;
 import com.nineteengiraffes.stakeaclaim.stakes.Stake.Status;
 import com.nineteengiraffes.stakeaclaim.stakes.StakeManager;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -437,9 +439,9 @@ public class SearchUtil {
      * @return filtered list
      */
     public static ArrayList<ProtectedRegion> canWarpTo(StakeAClaimPlugin plugin, ArrayList<ProtectedRegion> fullList, Player player) {
-
+        StateFlag entryFlag = (StateFlag)WorldGuard.getInstance().getFlagRegistry().get("entry");
         for (ProtectedRegion claim : fullList) {
-            if (claim.getFlag(DefaultFlag.ENTRY) != null && claim.getFlag(DefaultFlag.ENTRY) == State.DENY) {
+            if (claim.getFlag(entryFlag) != null && claim.getFlag(entryFlag) == State.DENY) {
                 fullList.remove(claim);
             } else if (!SACUtil.hasPerm(plugin, player, "warp", claim)) {
                 fullList.remove(claim);

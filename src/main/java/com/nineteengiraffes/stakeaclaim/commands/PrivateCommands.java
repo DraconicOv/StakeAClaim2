@@ -19,6 +19,8 @@
 
 package com.nineteengiraffes.stakeaclaim.commands;
 
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.StateFlag;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -34,7 +36,6 @@ import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -107,7 +108,7 @@ public class PrivateCommands {
         final StakeManager sMgr = plugin.getGlobalStakeManager().get(world);
         Stake stake = sMgr.getStake(claim);
         stake.setDefaultEntry(null);
-        claim.setFlag(DefaultFlag.ENTRY, null);
+        claim.setFlag((StateFlag)WorldGuard.getInstance().getFlagRegistry().get("entry"), null);
         sender.sendMessage(ChatColor.YELLOW + "Cleared " + SACUtil.formatID(stake) + ChatColor.YELLOW + "'s privacy settings.");
 
         sMgr.save();

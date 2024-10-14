@@ -22,6 +22,10 @@ package com.nineteengiraffes.stakeaclaim.commands;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.LocationFlag;
+import com.sk89q.worldguard.protection.flags.StateFlag;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -40,11 +44,10 @@ import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.CommandPermissionsException;
-import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldedit.Location;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.bukkit.BukkitUtil;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.math.Vector3;
+
+import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
     enum Action {
@@ -289,8 +292,8 @@ public class DoCommands {
 
         claim.getOwners().clear();
         claim.getMembers().clear();
-        claim.setFlag(DefaultFlag.TELE_LOC,null);
-        claim.setFlag(DefaultFlag.ENTRY,null);
+        claim.setFlag((LocationFlag)WorldGuard.getInstance().getFlagRegistry().get("teleport"),null);
+        claim.setFlag((StateFlag)WorldGuard.getInstance().getFlagRegistry().get("entry"),null);
         stake.setStatus(null);
         stake.setStakeUUID(null);
         stake.setDefaultEntry(null);
@@ -299,16 +302,17 @@ public class DoCommands {
     }
 
     private void generateClaimSpawn(CommandSender sender, ProtectedRegion claim, Stake stake, World world){
-        Vector center = BlockVector.getMidpoint(claim.getMaximumPoint(),claim.getMinimumPoint());
-        int x = center.getBlockX();
+        BlockVector3 center = claim.getMaximumPoint().add(claim.getMinimumPoint()).divide(2);
+        int x = center.x();
         int y;
-        int z = center.getBlockZ();
+        int z = center.z();
         int[] offset = {0, 1, -1, 2, -2};
+        LocationFlag spawnFlag = (LocationFlag) WorldGuard.getInstance().getFlagRegistry().get("spawn");
         for (int xOffset : offset) {
             for (int zOffset : offset) {
                 y = world.getHighestBlockYAt(x + xOffset, z + zOffset);
                 if (y != 0) {
-                    claim.setFlag(DefaultFlag.SPAWN_LOC, new Location(BukkitUtil.getLocalWorld(world), new Vector(x + xOffset + .5, y, z + zOffset + .5)));
+                    claim.setFlag(spawnFlag, new Location(BukkitAdapter.adapt(world), Vector3.at(x + xOffset + .5, y, z + zOffset + .5)));
                     sender.sendMessage(ChatColor.YELLOW + "Generated spawnpoint for: " + SACUtil.formatID(stake));
                     return;
                 }

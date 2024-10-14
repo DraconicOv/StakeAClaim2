@@ -23,13 +23,16 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 
+import com.sk89q.worldguard.protection.flags.Flag;
+import com.sk89q.worldguard.protection.flags.StateFlag;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.nineteengiraffes.stakeaclaim.ConfigManager;
 import com.nineteengiraffes.stakeaclaim.PlayerStateManager.PlayerState;
 import com.nineteengiraffes.stakeaclaim.StakeAClaimPlugin;
@@ -44,9 +47,10 @@ import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
-import com.sk89q.worldguard.bukkit.WGBukkit;
+import com.sk89q.worldguard.bukkit.BukkitWorldGuardPlatform;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.domains.DefaultDomain;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -100,7 +104,7 @@ public class ClaimCommands {
             throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
         }
 
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        final RegionManager rgMgr = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
         if (rgMgr == null) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
@@ -118,7 +122,7 @@ public class ClaimCommands {
                     stake.setStatus(null);
                     stake.setStakeUUID(null);
                     stake.setDefaultEntry(null);
-                    claim.setFlag(DefaultFlag.ENTRY,null);
+                    claim.setFlag(WorldGuard.getInstance().getFlagRegistry().get("entry"),null);
                 } else {
                     sender.sendMessage(ChatColor.YELLOW + "This claim is already staked by " + 
                             SACUtil.formatPlayer(SACUtil.getOfflinePlayer(plugin, stake.getStakeUUID())));
@@ -247,7 +251,7 @@ public class ClaimCommands {
             throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
         }
 
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        final RegionManager rgMgr = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
         if (rgMgr == null) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
@@ -334,7 +338,7 @@ public class ClaimCommands {
             throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
         }
 
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        final RegionManager rgMgr = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
         if (rgMgr == null) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
@@ -488,11 +492,11 @@ public class ClaimCommands {
             isVIP = plugin.getGlobalStakeManager().get(world).getStake(claim).getVIP();
         }
 
-        if (claim.getFlag(DefaultFlag.ENTRY) == null || (claim.getFlag(DefaultFlag.ENTRY) != null && claim.getFlag(DefaultFlag.ENTRY) == State.ALLOW)) {
-            claim.setFlag(DefaultFlag.ENTRY, State.DENY);
+        if (claim.getFlag((StateFlag) WorldGuard.getInstance().getFlagRegistry().get("entry")) == null || (claim.getFlag((StateFlag) WorldGuard.getInstance().getFlagRegistry().get("entry")) != null && claim.getFlag((StateFlag) WorldGuard.getInstance().getFlagRegistry().get("entry")) == State.ALLOW)) {
+            claim.setFlag((StateFlag) WorldGuard.getInstance().getFlagRegistry().get("entry"), State.DENY);
             sender.sendMessage(ChatColor.YELLOW + "Set " + (isVIP ? ChatColor.AQUA : ChatColor.WHITE) + claim.getId() + ChatColor.YELLOW + " to " + ChatColor.RED + "private.");
         } else {
-            claim.setFlag(DefaultFlag.ENTRY, null);
+            claim.setFlag((StateFlag) WorldGuard.getInstance().getFlagRegistry().get("entry"), null);
             sender.sendMessage(ChatColor.YELLOW + "Set " + (isVIP ? ChatColor.AQUA : ChatColor.WHITE) + claim.getId() + ChatColor.YELLOW + " to " + ChatColor.GRAY + "open.");
         }
 
@@ -523,7 +527,7 @@ public class ClaimCommands {
             throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
         }
 
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        final RegionManager rgMgr = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
         if (rgMgr == null) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
@@ -610,7 +614,7 @@ public class ClaimCommands {
             throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
         }
 
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        final RegionManager rgMgr = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
         if (rgMgr == null) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
@@ -634,7 +638,7 @@ public class ClaimCommands {
             throw new CommandException(ChatColor.YELLOW + "Stakes are disabled in this world.");
         }
 
-        final RegionManager rgMgr = WGBukkit.getRegionManager(world);
+        final RegionManager rgMgr = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(world));
         if (rgMgr == null) {
             throw new CommandException(ChatColor.YELLOW + "Regions are disabled in this world.");
         }
@@ -660,7 +664,7 @@ public class ClaimCommands {
                     stake.setStatus(null);
                     stake.setStakeUUID(null);
                     stake.setDefaultEntry(null);
-                    claim.setFlag(DefaultFlag.ENTRY,null);
+                    claim.setFlag((StateFlag) WorldGuard.getInstance().getFlagRegistry().get("entry"),null);
                 } else if (stake.getStakeUUID() != passiveUUID) {
                     sMgr.save();
                     sender.sendMessage(ChatColor.YELLOW + "This claim is already staked by " + 
